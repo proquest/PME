@@ -3,7 +3,8 @@
 // PME.js
 
 var urlMatchers = {
-	"^https?://(www|search)\\.ft\\.com": "Financial Times"
+	"^https?://(www|search)\\.ft\\.com": "Financial Times",
+	"^http://(online|blogs)?\\.wsj\\.com/": "wsj"
 };
 
 var baseURL = "http://logic-dream.com/PME/",

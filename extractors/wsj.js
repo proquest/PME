@@ -1,3 +1,5 @@
+(function(){
+var translatorSpec =
 {
 	"translatorID": "53f8d182-4edc-4eab-b5a1-141698a1303b",
 	"label": "Wall Street Journal",
@@ -229,3 +231,7 @@ var testCases = [
 	}
 ]
 /** END TEST CASES **/
+
+// Generated code, or at least, this will be generated:
+PME.extractorLoaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+}());
