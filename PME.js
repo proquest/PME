@@ -423,7 +423,7 @@ function exporterNameForURL(url) {
 //                                        
 // ------------------------------------------------------------------------
 function vanish() {
-	return; // TSR
+	// return; // TSR
 
 	delete window.PME;
 	delete window.FW;
