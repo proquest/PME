@@ -7,16 +7,17 @@ var urlMatchers = {
 	"^http://(online|blogs)?\\.wsj\\.com/": "wsj"
 };
 
-var baseURL = "http://logic-dream.com/PME/",
-	extractorsBaseURL = baseURL + "extractors/";
+var extractorsBaseURL = 'http://' + PME_SRV + "/extractors/";
 
 var pageURL, pageDoc,
-	injScript;
+	pmeCallback,
+	transScript;
 
 function log() {
 	var stuff = Array.prototype.slice.call(arguments, 0);
 	stuff.unshift("PME");
-	console.info.apply(console, stuff);
+	if(window.console && console.info)
+		console.info.apply(console, stuff);
 }
 
 // ------------------------------------------------------------------------
@@ -358,7 +359,7 @@ window.FW = (function(){
 			function allDone() {
 				// <-- send off data to somewhere
 				log("READY.", data);
-				completed();
+				completed(data);
 			}
 		);
 	}
@@ -388,8 +389,11 @@ window.FW = (function(){
 function loadExtractor(name) {
 	var scr = document.createElement("script");
 	scr.src = extractorsBaseURL + name + ".js";
-	injScript = scr;
-	scr.onerror = function() { log("extractor FAILED: ", name); }
+	transScript = scr;
+	scr.onerror = function() {
+		log("extractor FAILED: ", name);
+		completed(null);
+	}
 	document.getElementsByTagName("head")[0].appendChild(scr);
 }
 
@@ -398,7 +402,7 @@ function extractorLoaded(spec, api) {
 	if (api.detectWeb(pageDoc, pageURL))
 		api.doWeb(pageDoc, pageURL);
 	else
-		completed();
+		completed(null);
 }
 
 function exporterNameForURL(url) {
@@ -428,38 +432,38 @@ function vanish() {
 	delete window.PME;
 	delete window.FW;
 
-	if (injScript)
-		injScript.parentNode.removeChild(injScript);
-	injScript = null;
+	if (transScript)
+		transScript.parentNode.removeChild(transScript);
+	if (window.PME_SCR)
+		PME_SCR.parentNode.removeChild(PME_SCR);
+	delete window.PME_SCR;
+	delete window.PME_SRV;
 }
 
-function completed() {
-	log("completed");
+function completed(data) {
+	log("completed, pre-callback and vanish");
+	pmeCallback && pmeCallback(data);
 	setTimeout(vanish, 1);
 }
 
-function init() {
+function getPageMetaData(callback) {
+	// main accesspoint
 	pageURL = document.location.href;
 	pageDoc = document;
+	pmeCallback = callback;
 
 	var expName = exporterNameForURL(pageURL);
 
-	if (! expName) {
-		alert("No dice.");
-		completed();
-		return;
-	}
-
-	loadExtractor(expName);
+	if (! expName)
+		completed(null);
+	else
+		loadExtractor(expName);
 }
 
 // -- expose extractor APIs
 window.PME = {
 	loadExtractor: loadExtractor,
-	extractorLoaded: extractorLoaded
+	extractorLoaded: extractorLoaded,
+	getPageMetaData: getPageMetaData
 };
-
-// -- begin
-init();
-
 }());
