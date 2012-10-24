@@ -19,16 +19,15 @@ _out:_
 
 An object with the following fields:
 
-* `int ResolvedItemCount`
 * `Item[] Items`
 
-The item object:
+The Item object:
 
-* `string Title`
-* `string[] Authors`
-* `string SiteName`
-* `string PublicationName`
-* `string PublicationDate`
+* `string title`
+* `string[] authors`
+* `string siteName`
+* `string publicationName`
+* `string publicationDate`
 * `int startPage`
 * `int endPage`
 * `int issue`
