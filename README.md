@@ -19,7 +19,7 @@ _out:_
 
 An object with the following fields:
 
-* `Item[] Items`
+* `Item[] items`
 
 The Item object:
 
