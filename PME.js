@@ -302,7 +302,7 @@ window.FW = (function(){
 						return undefined;
 
 					var procVal = scrp.evalItem(val, doc, url);
-					log("Scraper got kv", key, procVal);
+					// log("Scraper got kv", key, procVal);
 
 					if (key in multiList)
 						return flatten([procVal]);
@@ -409,9 +409,10 @@ function exporterNameForURL(url) {
 	var name = null;
 
 	for (var re in urlMatchers) {
-		if (name) break;
-		if (new RegExp(re).test(url))
+		if (new RegExp(re).test(url)) {
 			name = urlMatchers[re];
+			break;
+		}
 	}
 
 	return name;
@@ -427,8 +428,6 @@ function exporterNameForURL(url) {
 //                                        
 // ------------------------------------------------------------------------
 function vanish() {
-	// return; // TSR
-
 	delete window.PME;
 	delete window.FW;
 
@@ -440,8 +439,14 @@ function vanish() {
 	delete window.PME_SRV;
 }
 
+function normalizeData(data) {
+	return data;
+}
+
 function completed(data) {
 	log("completed, pre-callback and vanish");
+	if (data)
+		data = normalizeData(data);
 	pmeCallback && pmeCallback(data);
 	setTimeout(vanish, 1);
 }

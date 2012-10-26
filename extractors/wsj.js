@@ -67,7 +67,7 @@ attachments      : [
   title: "Wall Street Journal Snapshot",
   type: "text/html"}],
 creators         : FW.Xpath('//h3[@class="byline"]/a | //div[@id="recipeACShopAndBuyText"]/h3[@class="byline"]').text().capitalizeTitle(true).replace(/^\s*By\s*/, "").split(/,| and /).cleanAuthor("author"),
-date             : FW.Xpath('//li[@class="dateStamp"]').text().capitalizeTitle(true),
+date             : FW.Xpath('//li[@class="dateStamp"]').text().replace(/Updated/i, "").capitalizeTitle(true).trim(),
 abstractNote     : FW.Xpath('//meta[@name="description"]/@content').text(),
 section          : FW.Xpath('//li[@class="articleSection first"]/a').text().capitalizeTitle(true),
 ISSN			 : "0099-9660",
