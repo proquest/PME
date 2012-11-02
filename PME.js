@@ -16,8 +16,12 @@ var pageURL, pageDoc,
 function log() {
 	var stuff = Array.prototype.slice.call(arguments, 0);
 	stuff.unshift("PME");
-	if(window.console && console.info)
-		console.info.apply(console, stuff);
+	if(window.console && console.info) {
+		if (console.info.apply)
+			console.info.apply(console, stuff);
+		else // IE...
+			console.info(stuff.join(", "));
+	}
 }
 
 // ------------------------------------------------------------------------
@@ -391,7 +395,7 @@ function loadExtractor(name) {
 	scr.src = extractorsBaseURL + name + ".js";
 	transScript = scr;
 	scr.onerror = function() {
-		log("extractor FAILED: ", name);
+		log("ERROR: extractor failed to load: ", name);
 		completed(null);
 	}
 	document.getElementsByTagName("head")[0].appendChild(scr);
@@ -399,10 +403,16 @@ function loadExtractor(name) {
 
 function extractorLoaded(spec, api) {
 	log("extractorLoaded called with spec", spec);
-	if (api.detectWeb(pageDoc, pageURL))
-		api.doWeb(pageDoc, pageURL);
-	else
+	try {
+		if (api.detectWeb(pageDoc, pageURL))
+			api.doWeb(pageDoc, pageURL);
+		else
+			completed(null);
+	}
+	catch(e) {
+		log("ERROR during extraction", e, e.message);
 		completed(null);
+	}
 }
 
 function exporterNameForURL(url) {
@@ -428,15 +438,15 @@ function exporterNameForURL(url) {
 //                                        
 // ------------------------------------------------------------------------
 function vanish() {
-	delete window.PME;
-	delete window.FW;
+	window.PME = undefined;
+	window.FW = undefined;
 
 	if (transScript)
 		transScript.parentNode.removeChild(transScript);
 	if (window.PME_SCR)
 		PME_SCR.parentNode.removeChild(PME_SCR);
-	delete window.PME_SCR;
-	delete window.PME_SRV;
+	window.PME_SCR = undefined;
+	window.PME_SRV = undefined;
 }
 
 function normalizeData(data) {
@@ -452,17 +462,23 @@ function completed(data) {
 }
 
 function getPageMetaData(callback) {
-	// main accesspoint
-	pageURL = document.location.href;
-	pageDoc = document;
-	pmeCallback = callback;
+	try {
+		// main accesspoint
+		pageURL = document.location.href;
+		pageDoc = document;
+		pmeCallback = callback;
 
-	var expName = exporterNameForURL(pageURL);
+		var expName = exporterNameForURL(pageURL);
 
-	if (! expName)
+		if (! expName)
+			completed(null);
+		else
+			loadExtractor(expName);
+	}
+	catch(e) {
+		log("ERROR during initialisation", e, e.message);
 		completed(null);
-	else
-		loadExtractor(expName);
+	}
 }
 
 // -- expose extractor APIs
