@@ -33,3 +33,4 @@ The Item object:
 * `int issue`
 * `string docURL`
 
+All fields are optional and dependent on the source page.
