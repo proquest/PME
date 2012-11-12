@@ -438,15 +438,22 @@ function exporterNameForURL(url) {
 //                                        
 // ------------------------------------------------------------------------
 function vanish() {
-	window.PME = undefined;
-	window.FW = undefined;
+	try {
+		window.PME = undefined;
+		window.FW = undefined;
+	} catch(e) {}
 
+	try {
 	if (transScript)
 		transScript.parentNode.removeChild(transScript);
 	if (window.PME_SCR)
 		PME_SCR.parentNode.removeChild(PME_SCR);
-	window.PME_SCR = undefined;
-	window.PME_SRV = undefined;
+	} catch(e) {}
+
+	try {
+		window.PME_SCR = undefined;
+		window.PME_SRV = undefined;
+	} catch(e) {}
 }
 
 function normalizeData(data) {
