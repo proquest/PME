@@ -4,7 +4,8 @@
 
 var urlMatchers = {
 	"^https?://(www|search)\\.ft\\.com": "Financial Times",
-	"^http://(online|blogs)?\\.wsj\\.com/": "wsj"
+	"^http://(online|blogs)?\\.wsj\\.com/": "wsj",
+	"https?://[^/]*.nih.gov/": "PubMed Central"
 };
 
 var extractorsBaseURL = 'http://' + PME_SRV + "/extractors/";
@@ -32,8 +33,27 @@ function log() {
 //  \__,_|_|  |_|  \__,_|\__, |  \__,_|\__|_|_|
 //                       |___/                 
 // ------------------------------------------------------------------------
-function mutate(vals, pred) {
-	var arr = vals instanceof Array,
+function each(vals, handler) {
+	var arr = "length" in vals,
+		out = arr ? [] : {};
+
+	if (arr) {
+		for (var ix = 0; ix < vals.length; ++ix) {
+			if (! ix in vals)
+				continue;
+			handler(vals[ix], ix, vals);
+		}
+	}
+	else {
+		for (var key in vals)
+			pred(vals[key], key, vals);
+	}
+
+	return out;
+}
+
+function map(vals, pred) {
+	var arr = "length" in vals,
 		out = arr ? [] : {};
 
 	if (arr) {
@@ -59,7 +79,7 @@ function mutate(vals, pred) {
 }
 
 function filter(vals, pred) {
-	var arr = vals instanceof Array,
+	var arr = "length" in vals,
 		out = arr ? [] : {};
 
 	if (arr) {
@@ -82,7 +102,7 @@ function filter(vals, pred) {
 }
 
 function flatten(vals) {
-	if (! (vals instanceof Array))
+	if (! ("length" in vals))
 		return vals;
 
 	var out = [];
@@ -101,6 +121,131 @@ function purge(vals) {
 		return (val !== null) && (val !== undefined);
 	});
 }
+
+function makeArray(x) {
+	if (x == null)
+		return [];
+
+	return ("length" in x) ? x : [x];
+}
+
+
+// ------------------------------------------------------------------------
+//  ____  __  __ _____                      
+// |  _ \|  \/  | ____|   ___ ___  _ __ ___ 
+// | |_) | |\/| |  _|    / __/ _ \| '__/ _ \
+// |  __/| |  | | |___  | (_| (_) | | |  __/
+// |_|   |_|  |_|_____|  \___\___/|_|  \___|
+//                                          
+// ------------------------------------------------------------------------
+window.PME = {};
+
+PME.wait = function() {};
+PME.done = function() {};
+PME.debug = function() {};
+
+PME.selectItems = function(items, callback) {
+	setTimeout(function() {			// use async return in case code relies on it
+		var out = {};
+		for (var k in items) {
+			out[k] = items[k];		// always just pick the first one for now
+			break;
+		}
+
+		callback(out);
+	}, 1);
+};
+
+
+PME.Item = function(type) {
+	this.itemType = type;
+	this.creators = [];
+};
+
+
+
+// ------------------------------------------------------------------------
+//  _   _ _   _ _ 
+// | | | | |_(_) |
+// | | | | __| | |
+// | |_| | |_| | |
+//  \___/ \__|_|_|
+//                
+// ------------------------------------------------------------------------
+PME.Util = {};
+
+PME.Util.trim = function(str) {
+	return str.replace(/^\s+|\s+$/g, '')
+};
+
+PME.Util.xpath = function(nodes, selector, namespaces) {
+	var out = [];
+
+	each(makeArray(nodes), function(node) {
+		var doc = node.ownerDocument || node.documentElement;
+
+		function resolver(prefix) { return namespaces && namespaces[prefix]; }
+
+		if ("evaluate" in doc) {
+			var xp = doc.evaluate(selector, node, resolver, XPathResult.ANY_TYPE, null),
+				el;
+
+			while (el = xp.iterateNext())
+				out.push(el);
+		}
+		else if ("selectNodes" in node) {
+			if (namespaces) {
+				var selNS = map(namespaces, function(url, prefix) {
+					return 'xmlns:' + prefix + '="' + url + '"';
+				});
+				doc.setProperty("SelectionNamespaces", selNS.join(" "));
+			}
+
+			var sn = node.selectNodes(selector);
+			for (var i=0; i < sn.length; ++i)
+				out.push(sn[i]);
+		}
+	});
+	
+	return out;
+};
+
+PME.Util.xpathText = function(nodes, selector, namespaces, delim) {
+	nodes = PME.Util.xpath(nodes, selector, namespaces);
+	if (! nodes.length)
+		return null;
+	
+	var text = map(nodes, function(node) {
+		return node.textContent || node.innerText || node.text || node.nodeValue;
+	});
+
+	return text.join(delim !== undefined ? delim : ", ");
+};
+
+
+
+// ------------------------------------------------------------------------
+//  _   _ _____ _____ ____  
+// | | | |_   _|_   _|  _ \ 
+// | |_| | | |   | | | |_) |
+// |  _  | | |   | | |  __/ 
+// |_| |_| |_|   |_| |_|    
+//                          
+// ------------------------------------------------------------------------
+PME.Util.HTTP = {};
+
+PME.Util.HTTP.doGet = function(url, callback, charset) {
+	setTimeout(function() {
+		callback("");	// simulate empty response
+	}, 1);
+};
+
+PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
+	setTimeout(function() {
+		callback("");	// simulate empty response
+	}, 1);
+};
+
 
 
 // ------------------------------------------------------------------------
@@ -207,7 +352,6 @@ function ValueFilter() {
 	return st;
 }
 
-
 function PageText() {
 	var pt = ValueFilter();
 
@@ -277,7 +421,7 @@ window.FW = (function(){
 			if(typeof item == "object") {
 				if(item instanceof Array) {
 					return flatten(
-						mutate(item, function(subItem) {
+						map(item, function(subItem) {
 							return evalItem(subItem, doc, url);
 						})
 					);
@@ -301,7 +445,7 @@ window.FW = (function(){
 			var skipList  = { detect:1, itemType:1, attachments:1 },
 				multiList = { creators: 1, tags: 1 },
 
-				item = mutate(spec, function(val, key) {
+				item = map(spec, function(val, key) {
 					if (key in skipList)
 						return undefined;
 
@@ -361,8 +505,6 @@ window.FW = (function(){
 				data.items.push(item);
 			},
 			function allDone() {
-				// <-- send off data to somewhere
-				log("READY.", data);
 				completed(data);
 			}
 		);
@@ -380,6 +522,7 @@ window.FW = (function(){
 		doWeb: doWeb
 	};
 }());
+
 
 
 // ------------------------------------------------------------------------
@@ -438,22 +581,18 @@ function exporterNameForURL(url) {
 //                                        
 // ------------------------------------------------------------------------
 function vanish() {
-	try {
-		window.PME = undefined;
-		window.FW = undefined;
-	} catch(e) {}
+	window.PME = undefined;
+	window.FW = undefined;
 
 	try {
-	if (transScript)
-		transScript.parentNode.removeChild(transScript);
-	if (window.PME_SCR)
-		PME_SCR.parentNode.removeChild(PME_SCR);
+		if (transScript)
+			transScript.parentNode.removeChild(transScript);
+		if (window.PME_SCR)
+			PME_SCR.parentNode.removeChild(PME_SCR);
 	} catch(e) {}
 
-	try {
-		window.PME_SCR = undefined;
-		window.PME_SRV = undefined;
-	} catch(e) {}
+	window.PME_SCR = undefined;
+	window.PME_SRV = undefined;
 }
 
 function normalizeData(data) {
@@ -489,9 +628,8 @@ function getPageMetaData(callback) {
 }
 
 // -- expose extractor APIs
-window.PME = {
-	loadExtractor: loadExtractor,
-	extractorLoaded: extractorLoaded,
-	getPageMetaData: getPageMetaData
-};
+PME.loadExtractor = loadExtractor;
+PME.extractorLoaded = extractorLoaded;
+PME.getPageMetaData = getPageMetaData;
+
 }());
