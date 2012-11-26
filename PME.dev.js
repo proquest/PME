@@ -5,7 +5,10 @@
 var urlMatchers = {
 	"^https?://(www|search)\\.ft\\.com": "Financial Times",
 	"^http://(online|blogs)?\\.wsj\\.com/": "wsj",
-	"https?://[^/]*.nih.gov/": "PubMed Central"
+	"https?://[^/]*.nih.gov/": "PubMed Central",
+	"^https?://[^/]*science-?direct\\.com[^/]*/science(\\/article)?(\\?(?:.+\\&|)ob=(?:ArticleURL|ArticleListURL|PublicationURL))?": "ScienceDirect",
+	"^https?://search\\.proquest\\.com[^/]*(/pqrl|/pqdt)?/(docview|publication|publicationissue|results)": "ProQuest",
+	"^https?://scholar\\.google\\.(?:com|cat|(?:com?\\.)?[a-z]{2})/scholar(?:_case)?\\?": "Google Scholar"
 };
 
 var extractorsBaseURL = 'http://' + PME_SRV + "/extractors/";
