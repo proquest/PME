@@ -260,6 +260,7 @@ function httpRequest(reqURL, callback) {
 		reqHost = pageHost;
 
 	if (window.XDomainRequest && pageHost != reqHost)
+		;
 }
 
 PME.Util.HTTP.doGet = function(url, callback, charset) {
