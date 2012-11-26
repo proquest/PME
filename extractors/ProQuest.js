@@ -98,8 +98,10 @@ function scrape (doc) {
 	item.thesisType = [];
 	var account_id;
 	while (record_row = record_rows.iterateNext()) {
-		var field = doc.evaluate('./div[@class="display_record_indexing_fieldname"]', record_row, nsResolver, XPathResult.ANY_TYPE, null).iterateNext().textContent.trim();
-		var value = doc.evaluate('./div[@class="display_record_indexing_data"]', record_row, nsResolver, XPathResult.ANY_TYPE, null).iterateNext().textContent.trim();
+		var fieldNode = doc.evaluate('./div[@class="display_record_indexing_fieldname"]', record_row, nsResolver, XPathResult.ANY_TYPE, null).iterateNext() ;
+		var field = fieldNode ? fieldNode.textContent.trim() : "";
+		var valueNode = doc.evaluate('./div[@class="display_record_indexing_data"]', record_row, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+		var value = valueNode ? valueNode.textContent.trim() : "";
 		// Separate values in a single field are generally wrapped in <a> nodes; pull a list of them
 		var valueAResult = doc.evaluate('./div[@class="display_record_indexing_data"]/a', record_row, nsResolver, XPathResult.ANY_TYPE, null);
 		var valueA;
@@ -194,8 +196,9 @@ function scrape (doc) {
 	// Ok, now we'll pull the RIS and run it through the translator. And merge with the temporary item.
 	// RIS LOGIC GOES HERE
 
-	// Sometimes the PDF is right on this page
-	var realLink = doc.evaluate('//div[@id="pdffailure"]/div[@class="body"]/a', doc, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+	// Sometimes the PDF is right on this page 
+	// PME TODO Fix this?
+	/*var realLink = doc.evaluate('//div[@id="pdffailure"]/div[@class="body"]/a', doc, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
 	if (realLink) {
 		item.attachments.push({url:realLink.href, title:"ProQuest PDF", mimeType:"application/pdf"});
 	} else {
@@ -212,7 +215,7 @@ function scrape (doc) {
 				// If no PDF, we'll save at least something. This might be fulltext, but we're not sure.
 				item.attachments.push({url:url, title:"ProQuest HTML", mimeType:"text/html"});
 		}
-	}
+	}*/
 
 	item.place = item.place.join(', ');
 	item.thesisType = item.thesisType.join(', ');
