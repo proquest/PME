@@ -267,46 +267,88 @@ function hostNameForURL(url) {
 
 function httpRequest(reqURL, callback) {
 	var pageHost = hostNameForURL(pageURL),
-		reqHost = hostNameForURL(reqURL);
+		reqHost = hostNameForURL(reqURL),
+		request = null;
 
 	if (! reqHost.length)
 		reqHost = pageHost;
 
-	if (window.XDomainRequest && pageHost != reqHost)
-		;
+	try {
+		if (window.XDomainRequest && pageHost != reqHost)
+			request = new XDomainRequest();
+		else if (window.XMLHttpRequest)
+			request = new XMLHttpRequest();
+		else if (window.ActiveXObject)
+			request = new ActiveXObject("Microsoft.XMLHTTP");
+	} catch(e) {}
+
+	// -- xhr events
+	function loadHandler()  { callback("load", request); }
+	function errorHandler() { callback("error", request); }
+	function abortHandler() { callback("abort", request); }
+
+	if (request) {
+		if ("addEventListener" in request) {
+			xhr.addEventListener("load", loadHandler, false);
+			xhr.addEventListener("error", errorHandler, false);
+			xhr.addEventListener("abort", abortHandler, false);
+		}
+		else {
+			xhr.onload = loadHandler;
+			xhr.onerror = errorHandler;
+			xhr.onabort = abortHandler;
+		}
+	}
+
+	return request;
 }
 
 PME.Util.HTTP.doGet = function(url, callback, charset) {
-	log("HTTP request: ", url);
-	var xhr = new XMLHttpRequest();
+	log("HTTP GET request: ", url);
+	var request = httpRequest(url, function(status) {
+		log("HTTP GET status: ", status, xhr);
 
-	xhr.addEventListener("load", function() {
-		log("HTTP response: ", xhr, xhr.status)
-		callback(xhr.responseText);
-	}, false);
-	xhr.addEventListener("error", function() {
-		log("HTTP error: ", xhr);
-		callback("");
-	}, false);
-	xhr.addEventListener("abort", function() {
-		log("HTTP canceled: ", xhr);
-		callback("");
-	}, false);
+		if (status == "load")
+			callback(xhr.responseText);
+		else
+			callback("");
+	});
 
 	try {
 		xhr.open("GET", url, true);
 		xhr.send();
 	}
 	catch(e) {
-		log("error during XHR operation", e);
+		log("HTTP GET could not start", e);
 		setTimeout(function() { callback(""); }, 1);
 	}
 };
 
 PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
-	setTimeout(function() {
-		callback("");	// simulate empty response
-	}, 1);
+	log("HTTP POST request: ", url, data);
+	var request = httpRequest(url, function(status) {
+		log("HTTP POST status: ", status, xhr);
+
+		if (status == "load")
+			callback(xhr.responseText);
+		else
+			callback("");
+	});
+
+	if (! "Content-Type" in headers)
+		headers["Content-Type"] = "application/x-www-form-urlencoded";
+
+	for (var hdrName in headers)
+		request.setRequestHeader(hdrName, headers[hdrName]);
+
+	try {
+		xhr.open("POST", url, true);
+		xhr.send(data);
+	}
+	catch(e) {
+		log("HTTP POST could not start", e);
+		setTimeout(function() { callback(""); }, 1);
+	}
 };
 
 
