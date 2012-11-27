@@ -187,6 +187,7 @@ function doWeb(doc, url, pdfUrl) {
 
 			var articles = new Array();
 			for (var i in items) {
+				// Recursive call to doWeb. May not be good
 				PME.Util.processDocuments(i,
 					//call doWeb so that we rerun detectWeb to get type and
 					//initialize translations
@@ -212,9 +213,12 @@ function doWeb(doc, url, pdfUrl) {
 			}
 		}
 
+		// Recursive call to doWeb. May not be good
 		PME.Util.processDocuments(link, function(doc) {
-			doWeb(doc, doc.location.href, pdfUrl) });
+			doWeb(doc, doc.location.href, pdfUrl) 
+		});
 	}
+	PME.done();
 }
 
 function scrape(doc, url, type, pdfUrl) {
@@ -380,7 +384,9 @@ function scrape(doc, url, type, pdfUrl) {
 	}
 
 	var date = PME.Util.xpathText(byline, './text()');
-	if(date) date = date.match(/]\s+(.+?):/);
+	// is this regular expression ever right?
+	//if(date) date = date.match(/]\s+(.+?):/);
+	if(date) date = date.match(/\s+\((.*?)\):/);
 	if(date) date = date[1];
 	//add date if we only have a year and date is longer in the byline
 	if(date
@@ -395,14 +401,16 @@ function scrape(doc, url, type, pdfUrl) {
 		.map(function(p) { return PME.Util.trimInternal(p.textContent) })
 		.join('\n');
 
-	if(!item.tags.length && altKeywords.length) {
+	if(!item.tags && altKeywords.length) {
 		item.tags = altKeywords.join(',').split(/\s*(?:,|;)\s*/);
 	}
 
+	/* commented this out because it makes the JSON circular
+	item.attachments = [];
 	item.attachments.push({
 		title: 'Snapshot',
 		document: doc
-	});
+	});*/
 
 	//we may already have a link to the full length PDF
 	if(pdfUrl) {
@@ -417,6 +425,7 @@ function scrape(doc, url, type, pdfUrl) {
 		if(pdfLink.length) {
 			fetchEmbeddedPdf(pdfLink[0].href, item,
 				function() { item.complete(); });
+			
 		}
 	}
 

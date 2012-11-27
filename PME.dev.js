@@ -201,6 +201,10 @@ PME.Util.trimInternal = function(str) {
 	return str.replace(/\s+/g, ' ');
 };
 
+PME.Util.cleanAuthor = function(str) {
+	return str; // TBI
+};
+
 PME.Util.xpath = function(nodes, selector, namespaces) {
 	var out = [];
 
@@ -245,10 +249,10 @@ PME.Util.xpathText = function(nodes, selector, namespaces, delim) {
 	return text.join(delim !== undefined ? delim : ", ");
 };
 
-PME.Util.retrieveDocument = function() {
-	
+PME.Util.processDocuments = function(urls, processor, callback, exception) {
+	log("processDocuments")
+	callback();
 };
-
 
 
 // ------------------------------------------------------------------------
