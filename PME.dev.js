@@ -7,7 +7,7 @@ var urlMatchers = {
 	"^http://(online|blogs)?\\.wsj\\.com/": "wsj",
 	"https?://[^/]*.nih.gov/": "PubMed Central",
 	"^https?://[^/]*science-?direct\\.com[^/]*/science(\\/article)?(\\?(?:.+\\&|)ob=(?:ArticleURL|ArticleListURL|PublicationURL))?": "ScienceDirect",
-	"^https?://search\\.proquest\\.com[^/]*(/pqrl|/pqdt)?/(docview|publication|publicationissue|results)": "ProQuest",
+	"^https?://search\\.proquest\\.com.*\\/(docview|pagepdf|results|publicationissue|browseterms|browsetitles|browseresults|myresearch\\/(figtables|documents))": "ProQuest",
 	"^https?://scholar\\.google\\.(?:com|cat|(?:com?\\.)?[a-z]{2})/scholar(?:_case)?\\?": "Google Scholar",
 	"^http://www\\.scopus\\.com[^/]*": "Scopus",
 	"(gw2|asinghal|sp)[^\\/]+/ovidweb\\.cgi": "Ovid"
