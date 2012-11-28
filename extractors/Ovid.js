@@ -149,14 +149,12 @@ function doWeb(doc, url) {
 			}
 
 		}
-		PME.selectItems(items, function(selectedItems) {
-			for (var i in selectedItems) {
-				post += "&R=" + i;
-			}
-		});
-		//if (!items) return true;
+		var items = PME.selectItems(items);
+		if (!items) return true;
 
-		
+		for (var i in items) {
+			post += "&R=" + i;
+		}	
 
 		var selectvar = doc.evaluate('.//input[@name="SELECT"]', doc, null, XPathResult.ANY_TYPE, null);
 		var nextselect = selectvar.iterateNext().value;
@@ -214,7 +212,8 @@ function doWeb(doc, url) {
 							names[1] = names[1].replace(/ [\+\*\S\[\]]+$/, "");
 						}
 						names[1] = names[1].replace(/ (?:MD|PhD|[BM]Sc|[BM]A|MPH|MB)$/i, "");
-
+						
+						if (!newItem.creators) newItem.creators = {};
 						newItem.creators.push({
 							firstName: names[1],
 							lastName: names[0],
@@ -222,12 +221,14 @@ function doWeb(doc, url) {
 						});
 					} else if (fieldContent.match(/^(.*) [A-Z]{1,3}$/)) {
 						names = fieldContent.match(/^(.*) ([A-Z]{1,3})$/);
+						if (!newItem.creators) newItem.creators = {};
 						newItem.creators.push({
 							firstName: names[2],
 							lastName: names[1],
 							creatorType: "author"
 						});
 					} else {
+						if (!newItem.creators) newItem.creators = {};
 						newItem.creators.push({
 							lastName: names[0],
 							isInstitution: true,
@@ -258,8 +259,10 @@ function doWeb(doc, url) {
 						newItem.publicationTitle = PME.Util.trimInternal(fieldContent.split(/(\.|;|(,\s*vol\.))/)[0]);
 					}
 				} else if (fieldCode == "SB") {
+					if (!newItem.tags) newItem.tags = [];
 					newItem.tags.push(PME.Util.superCleanString(fieldContent));
 				} else if (fieldCode == "KW") {
+					if (!newItem.tags) newItem.tags = [];
 					newItem.tags.push(fieldContent.split(/; +/));
 				} else if (fieldCode == "DB") {
 					newItem.repository = "Ovid (" + fieldContent + ")";

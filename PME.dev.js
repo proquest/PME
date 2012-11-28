@@ -246,6 +246,14 @@ PME.Util.cleanAuthor = function(str) {
 	return str; // TBI
 };
 
+/**
+ * Cleans any non-word non-parenthesis characters off the ends of a string
+ */
+PME.Util.superCleanString = function(str) {
+	str = str.replace(/^[\x00-\x27\x29-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+/, "");
+	return str.replace(/[\x00-\x28\x2A-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+$/, "");
+}
+
 
 PME.Util.xpath = function(nodes, selector, namespaces) {
 	var out = [];
@@ -341,14 +349,14 @@ function httpRequest(reqURL, callback) {
 
 	if (request) {
 		if ("addEventListener" in request) {
-			xhr.addEventListener("load", loadHandler, false);
-			xhr.addEventListener("error", errorHandler, false);
-			xhr.addEventListener("abort", abortHandler, false);
+			request.addEventListener("load", loadHandler, false);
+			request.addEventListener("error", errorHandler, false);
+			request.addEventListener("abort", abortHandler, false);
 		}
 		else {
-			xhr.onload = loadHandler;
-			xhr.onerror = errorHandler;
-			xhr.onabort = abortHandler;
+			request.onload = loadHandler;
+			request.onerror = errorHandler;
+			request.onabort = abortHandler;
 		}
 	}
 
@@ -358,17 +366,17 @@ function httpRequest(reqURL, callback) {
 PME.Util.HTTP.doGet = function(url, callback, charset) {
 	log("HTTP GET request: ", url);
 	var request = httpRequest(url, function(status) {
-		log("HTTP GET status: ", status, xhr);
+		log("HTTP GET status: ", status, request);
 
 		if (status == "load")
-			callback(xhr.responseText);
+			callback(request.responseText);
 		else
 			callback("");
 	});
 
 	try {
-		xhr.open("GET", url, true);
-		xhr.send();
+		request.open("GET", url, true);
+		request.send();
 	}
 	catch(e) {
 		log("HTTP GET could not start", e);
@@ -379,23 +387,23 @@ PME.Util.HTTP.doGet = function(url, callback, charset) {
 PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
 	log("HTTP POST request: ", url, data);
 	var request = httpRequest(url, function(status) {
-		log("HTTP POST status: ", status, xhr);
+		log("HTTP POST status: ", status, request);
 
 		if (status == "load")
-			callback(xhr.responseText);
+			callback(request.responseText);
 		else
 			callback("");
 	});
 
-	if (! "Content-Type" in headers)
+	if (headers && ! "Content-Type" in headers)
 		headers["Content-Type"] = "application/x-www-form-urlencoded";
 
 	for (var hdrName in headers)
 		request.setRequestHeader(hdrName, headers[hdrName]);
 
 	try {
-		xhr.open("POST", url, true);
-		xhr.send(data);
+		request.open("POST", url, true);
+		request.send(data);
 	}
 	catch(e) {
 		log("HTTP POST could not start", e);
