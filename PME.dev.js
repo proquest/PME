@@ -13,6 +13,10 @@ var urlMatchers = {
 	"(gw2|asinghal|sp)[^\\/]+/ovidweb\\.cgi": "Ovid"
 };
 
+var importers = {
+
+};
+
 var extractorsBaseURL = 'http://' + PME_SRV + "/extractors/";
 
 var pageURL, pageDoc,
@@ -182,6 +186,37 @@ PME.Item = function(type) {
 };
 
 
+PME.loadTranslator = function(type) {
+	var handlers = {},
+		text = "",
+		textIndex = 0,
+		api = {};
+
+	function setTranslator(guid) {
+
+	}
+
+	function setString(newText) {
+		text = newText;
+		textIndex = 0;
+	}
+
+	function setHandler(event, callback) {
+		handlers[event] = callback;
+	}
+
+	function translate() {
+	}
+
+	return {
+		setTranslator: setTranslator,
+		setString: setString,
+		setHandler: setHandler,
+		translate: translate
+	}
+};
+
+
 
 // ------------------------------------------------------------------------
 //  _   _ _   _ _ 
@@ -199,6 +234,10 @@ PME.Util.trim = function(str) {
 
 PME.Util.trimInternal = function(str) {
 	return str.replace(/\s+/g, ' ');
+};
+
+PME.Util.capitalizeTitle = function(str) {
+	return str; // TBI
 };
 
 PME.Util.xpath = function(nodes, selector, namespaces) {
@@ -245,8 +284,8 @@ PME.Util.xpathText = function(nodes, selector, namespaces, delim) {
 	return text.join(delim !== undefined ? delim : ", ");
 };
 
-PME.Util.retrieveDocument = function() {
-	
+PME.Util.retrieveDocument = function(url) {
+	return "";
 };
 
 
@@ -392,12 +431,12 @@ function ValueFilter() {
 
 		trim: function() { return addFilter(
 			function(str) {
-				return str.replace(/^\s+|\s+$/g, '');
+				return PME.Util.trim(str);
 			}
 		);},
 		trimInternal: function() { return addFilter(
 			function(str) {
-				return str.replace(/\s+/g, ' ');
+				return PME.Util.trimInternal(str);
 			}
 		);},
 		replace: function(find, subst) { return addFilter(
@@ -450,7 +489,7 @@ function ValueFilter() {
 		);},
 		capitalizeTitle: function() { return addFilter(
 			function(str) {
-				return str; // TBI
+				return PME.Util.capitalizeTitle(str);
 			}
 		);}
 	};
