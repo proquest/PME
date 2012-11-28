@@ -7,7 +7,7 @@ var urlMatchers = {
 	"^http://(online|blogs)?\\.wsj\\.com/": "wsj",
 	"https?://[^/]*.nih.gov/": "PubMed Central",
 	"^https?://[^/]*science-?direct\\.com[^/]*/science(\\/article)?(\\?(?:.+\\&|)ob=(?:ArticleURL|ArticleListURL|PublicationURL))?": "ScienceDirect",
-	"^https?://search\\.proquest\\.com[^/]*(/pqrl|/pqdt)?/(docview|publication|publicationissue|results)": "ProQuest",
+	"^https?://search\\.proquest\\.com.*\\/(docview|pagepdf|results|publicationissue|browseterms|browsetitles|browseresults|myresearch\\/(figtables|documents))": "ProQuest",
 	"^https?://scholar\\.google\\.(?:com|cat|(?:com?\\.)?[a-z]{2})/scholar(?:_case)?\\?": "Google Scholar",
 	"^http://www\\.scopus\\.com[^/]*": "Scopus",
 	"(gw2|asinghal|sp)[^\\/]+/ovidweb\\.cgi": "Ovid"
@@ -240,6 +240,11 @@ PME.Util.capitalizeTitle = function(str) {
 	return str; // TBI
 };
 
+PME.Util.cleanAuthor = function(str) {
+	return str; // TBI
+};
+
+
 PME.Util.xpath = function(nodes, selector, namespaces) {
 	var out = [];
 
@@ -284,10 +289,16 @@ PME.Util.xpathText = function(nodes, selector, namespaces, delim) {
 	return text.join(delim !== undefined ? delim : ", ");
 };
 
+
 PME.Util.retrieveDocument = function(url) {
 	return "";
 };
 
+
+PME.Util.processDocuments = function(urls, processor, callback, exception) {
+	log("processDocuments")
+	callback();
+};
 
 
 // ------------------------------------------------------------------------
