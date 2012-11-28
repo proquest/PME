@@ -10,7 +10,9 @@ var urlMatchers = {
 	"^https?://search\\.proquest\\.com.*\\/(docview|pagepdf|results|publicationissue|browseterms|browsetitles|browseresults|myresearch\\/(figtables|documents))": "ProQuest",
 	"^https?://scholar\\.google\\.(?:com|cat|(?:com?\\.)?[a-z]{2})/scholar(?:_case)?\\?": "Google Scholar",
 	"^http://www\\.scopus\\.com[^/]*": "Scopus",
-	"(gw2|asinghal|sp)[^\\/]+/ovidweb\\.cgi": "Ovid"
+	"(gw2|asinghal|sp)[^\\/]+/ovidweb\\.cgi": "Ovid",
+	"^http://[^/]+/(?:cgi/searchresults|cgi/search|cgi/content/(?:abstract|full|short|summary)|current.dtl$|content/vol[0-9]+/issue[0-9]+/(?:index.dtl)?$)": "HighWire",
+	"^[^\\?]+(content/([0-9]+[A-Z\\-]*/[0-9]+|current|firstcite|early)|search\\?submit=|search\\?fulltext=|cgi/collection/.+)": "HighWire 2.0"
 };
 
 var importers = {
@@ -197,6 +199,10 @@ PME.loadTranslator = function(type) {
 	function setTranslator(guid) {
 
 	}
+	
+	function setDocument(doc) {
+		
+	}
 
 	function setString(newText) {
 		text = newText;
@@ -212,6 +218,7 @@ PME.loadTranslator = function(type) {
 
 	return {
 		setTranslator: setTranslator,
+		setDocument: setDocument,
 		setString: setString,
 		setHandler: setHandler,
 		translate: translate
