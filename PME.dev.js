@@ -161,15 +161,17 @@ PME.debug = function(str) {
 };
 
 PME.selectItems = function(items, callback) {
-	setTimeout(function() {			// use async return in case code relies on it
-		var out = {};
-		for (var k in items) {
-			out[k] = items[k];		// always just pick the first one for now
-			break;
-		}
+	var out = {};
+	for (var k in items) {
+		out[k] = items[k];		// always just pick the first one for now
+		break;
+	}
 
-		callback(out);
-	}, 1);
+	// selectItems can be called async or sync, depending on existence of callback param
+	if (callback)
+		setTimeout(function() {	callback(out); }, 1);
+	else
+		return out;
 };
 
 
