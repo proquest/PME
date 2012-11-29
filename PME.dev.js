@@ -12,7 +12,8 @@ var urlMatchers = {
 	"^http://www\\.scopus\\.com[^/]*": "Scopus",
 	"(gw2|asinghal|sp)[^\\/]+/ovidweb\\.cgi": "Ovid",
 	"^http://[^/]+/(?:cgi/searchresults|cgi/search|cgi/content/(?:abstract|full|short|summary)|current.dtl$|content/vol[0-9]+/issue[0-9]+/(?:index.dtl)?$)": "HighWire",
-	"^[^\\?]+(content/([0-9]+[A-Z\\-]*/[0-9]+|current|firstcite|early)|search\\?submit=|search\\?fulltext=|cgi/collection/.+)": "HighWire 2.0"
+	"^[^\\?]+(content/([0-9]+[A-Z\\-]*/[0-9]+|current|firstcite|early)|search\\?submit=|search\\?fulltext=|cgi/collection/.+)": "HighWire 2.0",
+	"^https?://onlinelibrary\\.wiley\\.com[^\\/]*/(?:book|doi|advanced/search|search-web/cochrane)": "Wiley Online Library"
 };
 
 var importers = {
@@ -313,9 +314,19 @@ PME.Util.retrieveDocument = function(url) {
 
 
 PME.Util.processDocuments = function(urls, processor, callback, exception) {
-	log("processDocuments")
-	callback();
-};
+	log("processDocuments");
+	
+	if(typeof(urls) == "string") {
+		urls = [ urls ];
+	}
+	
+	for(var i=0; i<urls.length; i++) {
+		log("url: " + urls[i]);
+		processor(document, urls[i]);
+	}
+
+	if(callback) callback();	
+}
 
 
 // ------------------------------------------------------------------------
@@ -402,14 +413,15 @@ PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
 			callback("");
 	});
 
-	if (headers && ! "Content-Type" in headers)
+	if (! headers)
+		headers = {"Content-Type": "application/x-www-form-urlencoded"};
+	else if (! "Content-Type" in headers)
 		headers["Content-Type"] = "application/x-www-form-urlencoded";
-
-	for (var hdrName in headers)
-		request.setRequestHeader(hdrName, headers[hdrName]);
 
 	try {
 		request.open("POST", url, true);
+		for (var hdrName in headers) 
+			request.setRequestHeader(hdrName, headers[hdrName]);
 		request.send(data);
 	}
 	catch(e) {
