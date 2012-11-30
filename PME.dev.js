@@ -4,6 +4,15 @@
 
 var Registry = (function() {
 	var tr = {
+		// -- import
+		"RIS": {
+			g: "32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7"
+		},
+		"BibTeX": {
+			g: "9cb70025-a888-4a29-a210-93ec52da40d4"
+		},
+
+		// -- web
 		"Financial Times": {
 			m: "^https?://(www|search)\\.ft\\.com",
 			g: "fc9b7700-b3cc-4150-ba89-c7e4443bd96d"
@@ -66,9 +75,12 @@ var Registry = (function() {
 	function init() {
 		g2t = {}; m2t = {};
 		each(tr, function(ts, name) {
-			ts.g = ts.g.toLowerCase();
-			g2t[ts.g] = name;
-			m2t[ts.m] = ts.g;
+			if (ts.g) {
+				ts.g = ts.g.toLowerCase();
+				g2t[ts.g] = name;
+			}
+			if (ts.m)
+				m2t[ts.m] = ts.g;
 		});
 	}
 
@@ -98,7 +110,8 @@ var Registry = (function() {
 
 var pageURL, pageDoc,
 	pmeCallback,
-	pmeOK = true;	// when this is false, things have gone pear-shaped and no new actions should be started
+	pmeOK = true,	// when this is false, things have gone pear-shaped and no new actions should be started
+	pmeCompleted = false;
 
 
 // ------------------------------------------------------------------------
@@ -486,9 +499,6 @@ PME.Util.cleanAuthor = function(str) {
 	return str; // TBI
 };
 
-/**
- * Cleans any non-word non-parenthesis characters off the ends of a string
- */
 PME.Util.superCleanString = function(str) {
 	str = str.replace(/^[\x00-\x27\x29-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+/, "");
 	return str.replace(/[\x00-\x28\x2A-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+$/, "");
@@ -568,8 +578,8 @@ PME.Util.processDocuments = function(urls, processor, callback, exception) {
  */
 PME.Util.parseContextObject = function(co, item) {
 	if(!item) {
-		var item = new Array();
-		item.creators = new Array();
+		var item = [];
+		item.creators = [];
 	}
 	
 	var coParts = co.split("&");
@@ -613,7 +623,7 @@ PME.Util.parseContextObject = function(co, item) {
 	var pagesKey = "";
 	
 	// keep track of "aucorp," "aufirst," "aulast"
-	var complexAu = new Array();
+	var complexAu = [];
 	
 	for(var i=0; i<coParts.length; i++) {
 		var keyVal = coParts[i].split("=");
@@ -1204,6 +1214,9 @@ function vanish() {
 			PME_SCR.parentNode.removeChild(PME_SCR);
 	} catch(e) {}
 
+	pmeOK = false;
+	pageURL = pageDoc = pmeCallback = undefined;
+
 	window.PME = undefined;
 	window.FW = undefined;
 
@@ -1212,13 +1225,15 @@ function vanish() {
 }
 
 function completed(data) {
+	if (pmeCompleted)
+		return;
+	pmeCompleted = true;
+
 	if (pmeOK)
 		log("completed, data = ", data);
 
 	pmeCallback && pmeCallback(data);
 
-	pageURL = pageDoc = pmeCallback = undefined;
-	pmeOK = false;
 	setTimeout(vanish, 1);
 }
 
