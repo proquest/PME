@@ -439,5 +439,5 @@ var testCases = [
 	}
 ]
 /** END TEST CASES **/
-PME.extractorLoaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+PME.Translator.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
 }());

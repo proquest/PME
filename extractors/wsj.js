@@ -233,5 +233,5 @@ var testCases = [
 /** END TEST CASES **/
 
 // Generated code, or at least, this will be generated:
-PME.extractorLoaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+PME.Translator.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
 }());

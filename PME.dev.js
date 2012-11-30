@@ -2,22 +2,99 @@
 "use strict";
 // PME.js
 
-var urlMatchers = {
-	"^https?://(www|search)\\.ft\\.com": "Financial Times",
-	"^http://(online|blogs)?\\.wsj\\.com/": "wsj",
-	"https?://[^/]*.nih.gov/": "PubMed Central",
-	"^https?://[^/]*science-?direct\\.com[^/]*/science(\\/article)?(\\?(?:.+\\&|)ob=(?:ArticleURL|ArticleListURL|PublicationURL))?": "ScienceDirect",
-	"^https?://search\\.proquest\\.com.*\\/(docview|pagepdf|results|publicationissue|browseterms|browsetitles|browseresults|myresearch\\/(figtables|documents))": "ProQuest",
-	"^https?://scholar\\.google\\.(?:com|cat|(?:com?\\.)?[a-z]{2})/scholar(?:_case)?\\?": "Google Scholar",
-	"^http://www\\.scopus\\.com[^/]*": "Scopus",
-	"(gw2|asinghal|sp)[^\\/]+/ovidweb\\.cgi": "Ovid"
-};
+var Registry = (function() {
+	var tr = {
+		"Financial Times": {
+			m: "^https?://(www|search)\\.ft\\.com",
+			g: "fc9b7700-b3cc-4150-ba89-c7e4443bd96d"
+		},
+		"wsj": {
+			m: "^http://(online|blogs)?\\.wsj\\.com/",
+			g: "53f8d182-4edc-4eab-b5a1-141698a1303b"
+		},
+		"PubMed Central": {
+			m: "https?://[^/]*.nih.gov/",
+			g: "27ee5b2c-2a5a-4afc-a0aa-d386642d4eed"
+		},
+		"ScienceDirect": {
+			m: "^https?://[^/]*science-?direct\\.com[^/]*/science(\\/article)?(\\?(?:.+\\&|)ob=(?:ArticleURL|ArticleListURL|PublicationURL))?",
+			g: "b6d0a7a-d076-48ae-b2f0-b6de28b194e"
+		},
+		"ProQuest": {
+			m: "^https?://search\\.proquest\\.com.*\\/(docview|pagepdf|results|publicationissue|browseterms|browsetitles|browseresults|myresearch\\/(figtables|documents))",
+			g: "fce388a6-a847-4777-87fb-6595e710b7e7"
+		},
+		"Google Scholar": {
+			m: "^https?://scholar\\.google\\.(?:com|cat|(?:com?\\.)?[a-z]{2})/scholar(?:_case)?\\?",
+			g: "57a00950-f0d1-4b41-b6ba-44ff0fc30289"
+		},
+		"Scopus": {
+			m: "^http://www\\.scopus\\.com[^/]*",
+			g: "a14ac3eb-64a0-4179-970c-92ecc2fec992"
+		},
+		"Ovid": {
+			m: "(gw2|asinghal|sp)[^\\/]+/ovidweb\\.cgi",
+			g: "cde4428-5434-437f-9cd9-2281d14dbf9"
+		},
+		"HighWire": {
+			m: "^http://[^/]+/(?:cgi/searchresults|cgi/search|cgi/content/(?:abstract|full|short|summary)|current.dtl$|content/vol[0-9]+/issue[0-9]+/(?:index.dtl)?$)",
+			g: "5eacdb93-20b9-4c46-a89b-523f62935ae4"
+		},
+		"HighWire 2.0": {
+			m: "^[^\\?]+(content/([0-9]+[A-Z\\-]*/[0-9]+|current|firstcite|early)|search\\?submit=|search\\?fulltext=|cgi/collection/.+)",
+			g: "8c1f42d5-02fa-437b-b2b2-73afc768eb07"
+		},
+		"Wiley Online Library": {
+			m: "^https?://onlinelibrary\\.wiley\\.com[^\\/]*/(?:book|doi|advanced/search|search-web/cochrane)",
+			g: "fe728bc9-595a-4f03-98fc-766f1d8d0936"
+		},
+		"OCLC WorldCat FirstSearch": {
+			m: "https?://[^/]*firstsearch\\.oclc\\.org[^/]*/WebZ/",
+			g: "838d8849-4ffb-9f44-3d0d-aa8a0a079afe"
+		},
+		"Open WorldCat": {
+			m: "^https?://(.+).worldcat\\.org/",
+			g: "c73a4a8c-3ef1-4ec8-8229-7531ee384cc4"
+		},
+		"EBSCOHost": {
+			m: "^https?://[^/]+/(?:eds|bsi|ehost)/(?:results|detail|folder)",
+			g: "d0b1914a-11f1-4dd7-8557-b32fe8a3dd47"
+		}
+	},
+	g2t, m2t;
 
-var guid2TranslatorName = {
+	function init() {
+		g2t = {}; m2t = {};
+		each(tr, function(ts, name) {
+			ts.g = ts.g.toLowerCase();
+			g2t[ts.g] = name;
+			m2t[ts.m] = ts.g;
+		});
+	}
 
-};
+	function findByID(id) {
+		if (! g2t) init();
+		return g2t[id.toLowerCase()];
+	}
 
-var extractorsBaseURL = 'http://' + PME_SRV + "/extractors/";
+	function matchURL(url) {
+		if (! m2t) init();
+
+		for (var re in m2t) {
+			if (new RegExp(re).test(url)) {
+				return m2t[re];
+			}
+		}
+
+		return null;
+	}
+	
+	return {
+		findByID: findByID,
+		matchURL: matchURL
+	};
+}());
+
 
 var pageURL, pageDoc,
 	pmeCallback,
@@ -50,6 +127,8 @@ function warn() {
 }
 
 function fatal() {
+	if (! pmeOK) return;
+
 	var stuff = Array.prototype.slice.call(arguments, 0);
 	stuff.unshift("** FATAL **");
 	log.apply(null, stuff);
@@ -60,12 +139,12 @@ function fatal() {
 
 
 // ------------------------------------------------------------------------
-//                                     _   _ _ 
-//   __ _ _ __ _ __ __ _ _   _   _   _| |_(_) |
-//  / _` | '__| '__/ _` | | | | | | | | __| | |
-// | (_| | |  | | | (_| | |_| | | |_| | |_| | |
-//  \__,_|_|  |_|  \__,_|\__, |  \__,_|\__|_|_|
-//                       |___/                 
+//                                                    _   _ _     
+//   ___ ___  _ __ ___  _ __ ___   ___  _ __    _   _| |_(_) |___ 
+//  / __/ _ \| '_ ` _ \| '_ ` _ \ / _ \| '_ \  | | | | __| | / __|
+// | (_| (_) | | | | | | | | | | | (_) | | | | | |_| | |_| | \__ \
+//  \___\___/|_| |_| |_|_| |_| |_|\___/|_| |_|  \__,_|\__|_|_|___/
+//                                                                
 // ------------------------------------------------------------------------
 function each(vals, handler) {
 	var arr = "length" in vals,
@@ -80,7 +159,7 @@ function each(vals, handler) {
 	}
 	else {
 		for (var key in vals)
-			pred(vals[key], key, vals);
+			handler(vals[key], key, vals);
 	}
 
 	return out;
@@ -163,6 +242,18 @@ function makeArray(x) {
 	return ("length" in x) ? x : [x];
 }
 
+function waitFor(pred, maxTime, callback) {
+	var interval = 20;
+	if (pred())
+		callback(true);
+	else {
+		if (maxTime - interval > 0)
+			setTimeout(function() { waitFor(pred, maxTime - interval, callback); }, interval);
+		else
+			callback(false);
+	}
+}
+
 
 // ------------------------------------------------------------------------
 //  ____  __  __ _____                      
@@ -213,30 +304,52 @@ PME.Item = function(type) {
 };
 
 
+// ------------------------------------------------------------------------
+//  _____                    _       _             
+// |_   _| __ __ _ _ __  ___| | __ _| |_ ___  _ __ 
+//   | || '__/ _` | '_ \/ __| |/ _` | __/ _ \| '__|
+//   | || | | (_| | | | \__ \ | (_| | || (_) | |   
+//   |_||_|  \__,_|_| |_|___/_|\__,_|\__\___/|_|   
+//                                                 
+// ------------------------------------------------------------------------
 PME.Translator = function(type) {
 	var handlers = {},
 		text = "",
 		textIndex = 0,
+		id = null,
 		spec = null,
 		api = null,
 		script = null,
-		loaded = false;
+		waiting = false,
+		loaded = false,
+		doc = pageDoc,
+		url = pageURL,
+		intf;
 
-	function setTranslator(guid) {
+	function setTranslator(newID) {
 		if (script)
-			fatal("tried to set guid on an inited translator.");
+			fatal("tried to set ID on an inited translator.");
+		id = newID;
 
-		var name = guid2TranslatorName[guid.toLowerCase()];
+		var name = Registry.findByID(id);
 		if (name) {
 			log("loading translator " + name);
+			PME.Translator.cache[id] = intf;
+
 			script = document.createElement("script");
-			script.src = extractorsBaseURL + name + ".js";
+			script.src = PME.Translator.baseURL + name + ".js";
 			script.onerror = function() {
-				script = null;
 				fatal("translator failed to load: ", name);
 			}
 			document.getElementsByTagName("head")[0].appendChild(script);
 		}
+		else {
+			fatal("no translator in registry with ID", id);
+		}
+	}
+
+	function setDocument(newDoc) {
+		doc = newDoc;
 	}
 
 	function setString(newText) {
@@ -251,21 +364,45 @@ PME.Translator = function(type) {
 	}
 
 	function translate() {
-		if (! script)
+		if (! script) {
+			fatal("translate() called on uninited Translator");
 			return;
+		}
+
+		if (! loaded) {
+			if (waiting) return;
+			waiting = true;
+
+			waitFor(
+				function() { return loaded; },
+				5000,
+				function(success) {
+					waiting = false;
+					if (! success)
+						fatal("timeout while trying to load translator ", id);
+					else
+						translate();
+				}
+			);
+
+			return;
+		}
 
 		try {
+			log('run translator with url', url, 'and doc', doc);
 			if (type == "import")
 				api.doImport();
 			else if (type == "web")
-				api.doWeb(pageDoc, pageURL);
+				api.doWeb(doc, url);
+			else
+				fatal("can't handle translators of type:", type);
 		}
 		catch(e) {
 			fatal("error during translation", e, e.message);
 		}
 	}
 
-	function loaded(newSpec, newAPI) {
+	function ready(newSpec, newAPI) {
 		if (loaded) {
 			warn("translator " + spec.label + " got loaded event but is already loaded!", newSpec);
 			return;
@@ -283,26 +420,31 @@ PME.Translator = function(type) {
 		}
 	}
 
-	return {
+	return intf = {
 		setTranslator: setTranslator,
+		setDocument: setDocument,
 		setString: setString,
 		setHandler: setHandler,
-		setExports: setExports,
 		translate: translate,
-		loaded: loaded,
+		ready: ready,
 		unload: unload
 	}
 };
 
+PME.Translator.baseURL = "http://" + PME_SRV + "/extractors/"; // PME_SRV is set by the bookmarklet
 PME.Translator.cache = {};
 
 PME.Translator.loaded = function(spec, api) {
+	// this function is called at the end of each translator script file
 	log("translator loaded ", spec.label);
 
 	var tr = PME.Translator.cache[spec.translatorID];
 	if (! tr) {
 		fatal("got a load event for GUID " + spec.translatorID + ", but cannot find cached translator for it.");
+		return;
 	}
+
+	tr.ready(spec, api);
 };
 
 PME.loadTranslator = function(type) {
@@ -343,6 +485,14 @@ PME.Util.capitalizeTitle = function(str) {
 PME.Util.cleanAuthor = function(str) {
 	return str; // TBI
 };
+
+/**
+ * Cleans any non-word non-parenthesis characters off the ends of a string
+ */
+PME.Util.superCleanString = function(str) {
+	str = str.replace(/^[\x00-\x27\x29-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+/, "");
+	return str.replace(/[\x00-\x28\x2A-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+$/, "");
+}
 
 
 PME.Util.xpath = function(nodes, selector, namespaces) {
@@ -397,8 +547,268 @@ PME.Util.retrieveDocument = function(url) {
 
 PME.Util.processDocuments = function(urls, processor, callback, exception) {
 	log("processDocuments");
-	callback();
-};
+	
+	if(typeof(urls) == "string") {
+		urls = [ urls ];
+	}
+	
+	for(var i=0; i<urls.length; i++) {
+		log("url: " + urls[i]);
+		processor(document, urls[i]);
+	}
+
+	if(callback) callback();	
+}
+
+/*
+ * Generates an item in the format returned by item.fromArray() given an
+ * OpenURL version 1.0 contextObject
+ *
+ * accepts an item array to fill, or creates and returns a new item array
+ */
+PME.Util.parseContextObject = function(co, item) {
+	if(!item) {
+		var item = new Array();
+		item.creators = new Array();
+	}
+	
+	var coParts = co.split("&");
+	
+	// get type
+	for(var i=0; i<coParts.length; i++) {
+		if(coParts[i].substr(0, 12) == "rft_val_fmt=") {
+			var format = decodeURIComponent(coParts[i].substr(12));
+			if(format == "info:ofi/fmt:kev:mtx:journal") {
+				item.itemType = "journalArticle";
+				break;
+			} else if(format == "info:ofi/fmt:kev:mtx:book") {
+				if(coParts.indexOf("rft.genre=bookitem") !== -1) {
+					item.itemType = "bookSection";
+				} else if(coParts.indexOf("rft.genre=conference") !== -1 || coParts.indexOf("rft.genre=proceeding") !== -1) {
+					item.itemType = "conferencePaper";
+				} else if(coParts.indexOf("rft.genre=report") !== -1) {
+					item.itemType = "report";
+				} else if(coParts.indexOf("rft.genre=document") !== -1) {
+					item.itemType = "document";
+				} else {
+					item.itemType = "book";
+				}
+				break;
+			} else if(format == "info:ofi/fmt:kev:mtx:dissertation") {
+				item.itemType = "thesis";
+				break;
+			} else if(format == "info:ofi/fmt:kev:mtx:patent") {
+				item.itemType = "patent";
+				break;
+			} else if(format == "info:ofi/fmt:kev:mtx:dc") {
+				item.itemType = "webpage";
+				break;
+			}
+		}
+	}
+	if(!item.itemType) {
+		return false;
+	}
+	
+	var pagesKey = "";
+	
+	// keep track of "aucorp," "aufirst," "aulast"
+	var complexAu = new Array();
+	
+	for(var i=0; i<coParts.length; i++) {
+		var keyVal = coParts[i].split("=");
+		var key = keyVal[0];
+		var value = decodeURIComponent(keyVal[1].replace(/\+|%2[bB]/g, " "));
+		if(!value) {
+			continue;
+		}
+		
+		if(key == "rft_id") {
+			var firstEight = value.substr(0, 8).toLowerCase();
+			if(firstEight == "info:doi") {
+				item.DOI = value.substr(9);
+			} else if(firstEight == "urn:isbn") {
+				item.ISBN = value.substr(9);
+			} else if(value.match(/^https?:\/\//)) {
+				item.url = value;
+				item.accessDate = "";
+			}
+		} else if(key == "rft.btitle") {
+			if(item.itemType == "book" || item.itemType == "report") {
+				item.title = value;
+			} else if(item.itemType == "bookSection" || item.itemType == "conferencePaper") {
+				item.publicationTitle = value;
+			}
+		} else if(key == "rft.atitle"
+				&& ["journalArticle", "bookSection", "conferencePaper"].indexOf(item.itemType) !== -1) {
+			item.title = value;
+		} else if(key == "rft.jtitle" && item.itemType == "journalArticle") {
+			item.publicationTitle = value;
+		} else if(key == "rft.stitle" && item.itemType == "journalArticle") {
+			item.journalAbbreviation = value;
+		} else if(key == "rft.title") {
+			if(["journalArticle", "bookSection", "conferencePaper"].indexOf(item.itemType) !== -1) {
+				item.publicationTitle = value;
+			} else {
+				item.title = value;
+			}
+		} else if(key == "rft.date") {
+			if(item.itemType == "patent") {
+				item.issueDate = value;
+			} else {
+				item.date = value;
+			}
+		} else if(key == "rft.volume") {
+			item.volume = value;
+		} else if(key == "rft.issue") {
+			item.issue = value;
+		} else if(key == "rft.pages") {
+			pagesKey = key;
+			item.pages = value;
+		} else if(key == "rft.spage") {
+			if(pagesKey != "rft.pages") {
+				// make pages look like start-end
+				if(pagesKey == "rft.epage") {
+					if(value != item.pages) {
+						item.pages = value+"-"+item.pages;
+					}
+				} else {
+					item.pages = value;
+				}
+				pagesKey = key;
+			}
+		} else if(key == "rft.epage") {
+			if(pagesKey != "rft.pages") {
+				// make pages look like start-end
+				if(pagesKey == "rft.spage") {
+					if(value != item.pages) {
+						item.pages = item.pages+"-"+value;
+					}
+				} else {
+					item.pages = value;
+				}
+				pagesKey = key;
+			}
+		} else if(key == "rft.issn" || (key == "rft.eissn" && !item.ISSN)) {
+			item.ISSN = value;
+		} else if(key == "rft.aulast" || key == "rft.invlast") {
+			var lastCreator = complexAu[complexAu.length-1];
+			if(complexAu.length && !lastCreator.lastName && !lastCreator.institutional) {
+				lastCreator.lastName = value;
+			} else {
+				complexAu.push({lastName:value, creatorType:(key == "rft.aulast" ? "author" : "inventor"), offset:item.creators.length});
+			}
+		} else if(key == "rft.aufirst" || key == "rft.invfirst") {
+			var lastCreator = complexAu[complexAu.length-1];
+			if(complexAu.length && !lastCreator.firstName && !lastCreator.institutional) {
+				lastCreator.firstName = value;
+			} else {
+				complexAu.push({firstName:value, creatorType:(key == "rft.aufirst" ? "author" : "inventor"), offset:item.creators.length});
+			}
+		} else if(key == "rft.au" || key == "rft.creator" || key == "rft.contributor" || key == "rft.inventor") {
+			if(key == "rft.contributor") {
+				var type = "contributor";
+			} else if(key == "rft.inventor") {
+				var type = "inventor";
+			} else {
+				var type = "author";
+			}
+			
+			if(value.indexOf(",") !== -1) {
+				item.creators.push(PME.Util.cleanAuthor(value, type, true));
+			} else {
+				item.creators.push(PME.Util.cleanAuthor(value, type, false));
+			}
+		} else if(key == "rft.aucorp") {
+			complexAu.push({lastName:value, isInstitution:true});
+		} else if(key == "rft.isbn" && !item.ISBN) {
+			item.ISBN = value;
+		} else if(key == "rft.pub" || key == "rft.publisher") {
+			item.publisher = value;
+		} else if(key == "rft.place") {
+			item.place = value;
+		} else if(key == "rft.tpages") {
+			item.numPages = value;
+		} else if(key == "rft.edition") {
+			item.edition = value;
+		} else if(key == "rft.series") {
+			item.series = value;
+		} else if(item.itemType == "thesis") {
+			if(key == "rft.inst") {
+				item.publisher = value;
+			} else if(key == "rft.degree") {
+				item.type = value;
+			}
+		} else if(item.itemType == "patent") {
+			if(key == "rft.assignee") {
+				item.assignee = value;
+			} else if(key == "rft.number") {
+				item.patentNumber = value;
+			} else if(key == "rft.appldate") {
+				item.date = value;
+			}
+		} else if(format == "info:ofi/fmt:kev:mtx:dc") {
+			if(key == "rft.identifier") {
+				if(value.length > 8) {	// we could check length separately for
+										// each type, but all of these identifiers
+										// must be > 8 characters
+					if(value.substr(0, 5) == "ISBN ") {
+						item.ISBN = value.substr(5);
+					} else if(value.substr(0, 5) == "ISSN ") {
+						item.ISSN = value.substr(5);
+					} else if(value.substr(0, 8) == "urn:doi:") {
+						item.DOI = value.substr(4);
+					} else if(value.substr(0, 7) == "http://" || value.substr(0, 8) == "https://") {
+						item.url = value;
+					}
+				}
+			} else if(key == "rft.description") {
+				item.abstractNote = value;
+			} else if(key == "rft.rights") {
+				item.rights = value;
+			} else if(key == "rft.language") {
+			  	item.language = value;
+			}  else if(key == "rft.subject") {
+				item.tags.push(value);
+			} else if(key == "rft.type") {
+				if(PME.Util.itemTypeExists(value)) item.itemType = value;
+			} else if(key == "rft.source") {
+				item.publicationTitle = value;
+			}
+		}
+	}
+
+	// To maintain author ordering when complex and simple authors are combined,
+	// we remember where they were and the correct offsets
+	var inserted = 0;
+	
+	// combine two lists of authors, eliminating duplicates
+	for(var i=0; i<complexAu.length; i++) {
+		var pushMe = true;
+		var offset = complexAu[i].offset;
+		delete complexAu[i].offset;
+		for(var j=0; j<item.creators.length; j++) {
+			// if there's a plain author that is close to this author (the
+			// same last name, and the same first name up to a point), keep
+			// the plain author, since it might have a middle initial
+			if(item.creators[j].lastName == complexAu[i].lastName &&
+			   (item.creators[j].firstName == complexAu[i].firstName == "" ||
+			   (item.creators[j].firstName.length >= complexAu[i].firstName.length &&
+			   item.creators[j].firstName.substr(0, complexAu[i].firstName.length) == complexAu[i].firstName))) {
+				pushMe = false;
+				break;
+			}
+		}
+		// Splice in the complex creator at the correct location,
+		// accounting for previous insertions
+		if(pushMe) {
+			item.creators.splice(offset + inserted, 0, complexAu[i]);
+			inserted++;
+		}
+	}
+	
+	return item;
+}
 
 
 // ------------------------------------------------------------------------
@@ -439,14 +849,14 @@ function httpRequest(reqURL, callback) {
 
 	if (request) {
 		if ("addEventListener" in request) {
-			xhr.addEventListener("load", loadHandler, false);
-			xhr.addEventListener("error", errorHandler, false);
-			xhr.addEventListener("abort", abortHandler, false);
+			request.addEventListener("load", loadHandler, false);
+			request.addEventListener("error", errorHandler, false);
+			request.addEventListener("abort", abortHandler, false);
 		}
 		else {
-			xhr.onload = loadHandler;
-			xhr.onerror = errorHandler;
-			xhr.onabort = abortHandler;
+			request.onload = loadHandler;
+			request.onerror = errorHandler;
+			request.onabort = abortHandler;
 		}
 	}
 
@@ -456,17 +866,17 @@ function httpRequest(reqURL, callback) {
 PME.Util.HTTP.doGet = function(url, callback, charset) {
 	log("HTTP GET request: ", url);
 	var request = httpRequest(url, function(status) {
-		log("HTTP GET status: ", status, xhr);
+		log("HTTP GET status: ", status, request);
 
 		if (status == "load")
-			callback(xhr.responseText);
+			callback(request.responseText);
 		else
 			callback("");
 	});
 
 	try {
-		xhr.open("GET", url, true);
-		xhr.send();
+		request.open("GET", url, true);
+		request.send();
 	}
 	catch(e) {
 		log("HTTP GET could not start", e);
@@ -477,23 +887,24 @@ PME.Util.HTTP.doGet = function(url, callback, charset) {
 PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
 	log("HTTP POST request: ", url, data);
 	var request = httpRequest(url, function(status) {
-		log("HTTP POST status: ", status, xhr);
+		log("HTTP POST status: ", status, request);
 
 		if (status == "load")
-			callback(xhr.responseText);
+			callback(request.responseText);
 		else
 			callback("");
 	});
 
-	if (! "Content-Type" in headers)
+	if (! headers)
+		headers = {"Content-Type": "application/x-www-form-urlencoded"};
+	else if (! "Content-Type" in headers)
 		headers["Content-Type"] = "application/x-www-form-urlencoded";
 
-	for (var hdrName in headers)
-		request.setRequestHeader(hdrName, headers[hdrName]);
-
 	try {
-		xhr.open("POST", url, true);
-		xhr.send(data);
+		request.open("POST", url, true);
+		for (var hdrName in headers) 
+			request.setRequestHeader(hdrName, headers[hdrName]);
+		request.send(data);
 	}
 	catch(e) {
 		log("HTTP POST could not start", e);
@@ -779,32 +1190,6 @@ window.FW = (function(){
 
 
 // ------------------------------------------------------------------------
-//            _                  _                 
-//   _____  _| |_ _ __ __ _  ___| |_ ___  _ __ ___ 
-//  / _ \ \/ / __| '__/ _` |/ __| __/ _ \| '__/ __|
-// |  __/>  <| |_| | | (_| | (__| || (_) | |  \__ \
-//  \___/_/\_\\__|_|  \__,_|\___|\__\___/|_|  |___/
-//                                                 
-// ------------------------------------------------------------------------
-function translatorGUIDForURL(url) {
-	var guid = null;
-
-	for (var re in urlMatchers) {
-		if (new RegExp(re).test(url)) {
-			guid = urlMatchers[re];
-			break;
-		}
-	}
-
-	return guid;
-}
-
-PME.extractorLoaded = function(spec, api) {
-	PME.Translator.loaded(spec, api);
-};
-
-
-// ------------------------------------------------------------------------
 //                   _   _                
 //  _ __ _   _ _ __ | |_(_)_ __ ___   ___ 
 // | '__| | | | '_ \| __| | '_ ` _ \ / _ \
@@ -845,12 +1230,12 @@ PME.getPageMetaData = function(callback) {
 		pageDoc = document;
 		pmeCallback = callback;
 
-		var transGUID = translatorGUIDForURL(pageURL);
-		if (! transGUID)
+		var trans = Registry.matchURL(pageURL);
+		if (! trans)
 			completed(null);
 		else {
 			var t = PME.loadTranslator("web");
-			t.setTranslator(transGUID);
+			t.setTranslator(trans);
 			t.translate();
 		}
 	}

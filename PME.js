@@ -558,6 +558,10 @@ function extractorLoaded(spec, api) {
 	}
 }
 
+/* compat shim for updated tr entry point */
+PME.Translator = {};
+PME.Translator.loaded = function(spec, api) { extractorLoaded(spec, api); };
+
 function exporterNameForURL(url) {
 	var name = null;
 

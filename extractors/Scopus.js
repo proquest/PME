@@ -47,6 +47,7 @@ function getEID(url) {
 
 function getBoxes(doc) {
 	var namespace = doc.documentElement.namespaceURI;
+	PME.debug("namespace: " + namespace);
 	var nsResolver = namespace ? function(prefix) {
 		if (prefix == 'x') return namespace; else return null;
 	} : null;
@@ -123,5 +124,5 @@ function scrape(articles) {
 		});
 	});
 }
-PME.extractorLoaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+PME.Translator.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
 }());
