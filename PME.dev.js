@@ -13,7 +13,7 @@ var urlMatchers = {
 	"(gw2|asinghal|sp)[^\\/]+/ovidweb\\.cgi": "Ovid"
 };
 
-var importers = {
+var guid2TranslatorName = {
 
 };
 
@@ -21,8 +21,17 @@ var extractorsBaseURL = 'http://' + PME_SRV + "/extractors/";
 
 var pageURL, pageDoc,
 	pmeCallback,
-	transScript;
+	pmeOK = true;	// when this is false, things have gone pear-shaped and no new actions should be started
 
+
+// ------------------------------------------------------------------------
+//  _                   _             
+// | | ___   __ _  __ _(_)_ __   __ _ 
+// | |/ _ \ / _` |/ _` | | '_ \ / _` |
+// | | (_) | (_| | (_| | | | | | (_| |
+// |_|\___/ \__, |\__, |_|_| |_|\__, |
+//          |___/ |___/         |___/ 
+// ------------------------------------------------------------------------
 function log() {
 	var stuff = Array.prototype.slice.call(arguments, 0);
 	stuff.unshift("PME");
@@ -30,9 +39,25 @@ function log() {
 		if (console.info.apply)
 			console.info.apply(console, stuff);
 		else // IE...
-			console.info(stuff.join(", "));
+			console.info(stuff.join(" "));
 	}
 }
+
+function warn() {
+	var stuff = Array.prototype.slice.call(arguments, 0);
+	stuff.unshift("_Warning_");
+	log.apply(null, stuff);
+}
+
+function fatal() {
+	var stuff = Array.prototype.slice.call(arguments, 0);
+	stuff.unshift("** FATAL **");
+	log.apply(null, stuff);
+
+	pmeOK = false;
+	completed(null);
+}
+
 
 // ------------------------------------------------------------------------
 //                                     _   _ _ 
@@ -163,8 +188,8 @@ PME.debug = function(str) {
 PME.selectItems = function(items, callback) {
 	var out = {};
 	for (var k in items) {
-		out[k] = items[k];		// always just pick the first one for now
-		break;
+		out[k] = items[k];
+		break;		// always just pick the first one for now
 	}
 
 	// selectItems can be called async or sync, depending on existence of callback param
@@ -188,14 +213,30 @@ PME.Item = function(type) {
 };
 
 
-PME.loadTranslator = function(type) {
+PME.Translator = function(type) {
 	var handlers = {},
 		text = "",
 		textIndex = 0,
-		api = {};
+		spec = null,
+		api = null,
+		script = null,
+		loaded = false;
 
 	function setTranslator(guid) {
+		if (script)
+			fatal("tried to set guid on an inited translator.");
 
+		var name = guid2TranslatorName[guid.toLowerCase()];
+		if (name) {
+			log("loading translator " + name);
+			script = document.createElement("script");
+			script.src = extractorsBaseURL + name + ".js";
+			script.onerror = function() {
+				script = null;
+				fatal("translator failed to load: ", name);
+			}
+			document.getElementsByTagName("head")[0].appendChild(script);
+		}
 	}
 
 	function setString(newText) {
@@ -203,19 +244,76 @@ PME.loadTranslator = function(type) {
 		textIndex = 0;
 	}
 
-	function setHandler(event, callback) {
-		handlers[event] = callback;
+	function setHandler(event, handler) {
+		if (! handlers[event])
+			handlers[event] = [];
+		handlers[event].push(handler);
 	}
 
 	function translate() {
+		if (! script)
+			return;
+
+		try {
+			if (type == "import")
+				api.doImport();
+			else if (type == "web")
+				api.doWeb(pageDoc, pageURL);
+		}
+		catch(e) {
+			fatal("error during translation", e, e.message);
+		}
+	}
+
+	function loaded(newSpec, newAPI) {
+		if (loaded) {
+			warn("translator " + spec.label + " got loaded event but is already loaded!", newSpec);
+			return;
+		}
+
+		loaded = true;
+		spec = newSpec;
+		api = newAPI;
+	}
+
+	function unload() {
+		if (script) {
+			script.parentNode.removeChild(script);
+			script = null;
+		}
 	}
 
 	return {
 		setTranslator: setTranslator,
 		setString: setString,
 		setHandler: setHandler,
-		translate: translate
+		setExports: setExports,
+		translate: translate,
+		loaded: loaded,
+		unload: unload
 	}
+};
+
+PME.Translator.cache = {};
+
+PME.Translator.loaded = function(spec, api) {
+	log("translator loaded ", spec.label);
+
+	var tr = PME.Translator.cache[spec.translatorID];
+	if (! tr) {
+		fatal("got a load event for GUID " + spec.translatorID + ", but cannot find cached translator for it.");
+	}
+};
+
+PME.loadTranslator = function(type) {
+	return PME.Translator(type);
+};
+
+PME.freeTranslators = function() {
+	each(PME.Translator.cache, function(t) {
+		t.unload();
+	});
+	PME.Translator.cache = {};
 };
 
 
@@ -298,7 +396,7 @@ PME.Util.retrieveDocument = function(url) {
 
 
 PME.Util.processDocuments = function(urls, processor, callback, exception) {
-	log("processDocuments")
+	log("processDocuments");
 	callback();
 };
 
@@ -688,46 +786,22 @@ window.FW = (function(){
 //  \___/_/\_\\__|_|  \__,_|\___|\__\___/|_|  |___/
 //                                                 
 // ------------------------------------------------------------------------
-function loadExtractor(name) {
-	log("loading extractor " + name);
-	var scr = document.createElement("script");
-	scr.src = extractorsBaseURL + name + ".js";
-	transScript = scr;
-	scr.onerror = function() {
-		log("ERROR: extractor failed to load: ", name);
-		completed(null);
-	}
-	document.getElementsByTagName("head")[0].appendChild(scr);
-}
-
-function extractorLoaded(spec, api) {
-	log("extractor loaded ", spec.label, spec);
-	try {
-		var detect = api.detectWeb(pageDoc, pageURL)
-		log("detectWeb returned ", detect);
-		if (detect)
-			api.doWeb(pageDoc, pageURL);
-		else
-			completed(null);
-	}
-	catch(e) {
-		log("ERROR during extraction", e, e.message);
-		completed(null);
-	}
-}
-
-function exporterNameForURL(url) {
-	var name = null;
+function translatorGUIDForURL(url) {
+	var guid = null;
 
 	for (var re in urlMatchers) {
 		if (new RegExp(re).test(url)) {
-			name = urlMatchers[re];
+			guid = urlMatchers[re];
 			break;
 		}
 	}
 
-	return name;
+	return guid;
 }
+
+PME.extractorLoaded = function(spec, api) {
+	PME.Translator.loaded(spec, api);
+};
 
 
 // ------------------------------------------------------------------------
@@ -739,35 +813,31 @@ function exporterNameForURL(url) {
 //                                        
 // ------------------------------------------------------------------------
 function vanish() {
-return;
-	window.PME = undefined;
-	window.FW = undefined;
-
 	try {
-		if (transScript)
-			transScript.parentNode.removeChild(transScript);
+		PME.freeTranslators();
 		if (window.PME_SCR)
 			PME_SCR.parentNode.removeChild(PME_SCR);
 	} catch(e) {}
+
+	window.PME = undefined;
+	window.FW = undefined;
 
 	window.PME_SCR = undefined;
 	window.PME_SRV = undefined;
 }
 
-function normalizeData(data) {
-	return data;
-}
-
 function completed(data) {
-	if (data)
-		data = normalizeData(data);
-	log("completed, data = ", data);
+	if (pmeOK)
+		log("completed, data = ", data);
 
 	pmeCallback && pmeCallback(data);
+
+	pageURL = pageDoc = pmeCallback = undefined;
+	pmeOK = false;
 	setTimeout(vanish, 1);
 }
 
-function getPageMetaData(callback) {
+PME.getPageMetaData = function(callback) {
 	log("getPageMetdaData start");
 	try {
 		// main accesspoint
@@ -775,22 +845,19 @@ function getPageMetaData(callback) {
 		pageDoc = document;
 		pmeCallback = callback;
 
-		var expName = exporterNameForURL(pageURL);
-
-		if (! expName)
+		var transGUID = translatorGUIDForURL(pageURL);
+		if (! transGUID)
 			completed(null);
-		else
-			loadExtractor(expName);
+		else {
+			var t = PME.loadTranslator("web");
+			t.setTranslator(transGUID);
+			t.translate();
+		}
 	}
 	catch(e) {
 		log("ERROR during initialisation", e, e.message);
 		completed(null);
 	}
-}
-
-// -- expose extractor APIs
-PME.loadExtractor = loadExtractor;
-PME.extractorLoaded = extractorLoaded;
-PME.getPageMetaData = getPageMetaData;
+};
 
 }());
