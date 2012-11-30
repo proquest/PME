@@ -80,7 +80,7 @@ function handleRequests(requests) {
 		});
 		translator.translate();
 
-		handleRequests(requests);
+		//handleRequests(requests);
 	});
 }
 
