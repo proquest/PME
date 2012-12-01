@@ -279,14 +279,14 @@ function waitFor(pred, maxTime, callback) {
 window.PME = {};
 PME.items = [];
 
+PME.debug = function(str) {
+	log("[ext]", str);
+};
+
 PME.wait = function() {};
 PME.done = function() {
 	log("done(), item count: " + PME.items.length);
 	completed(PME.items.length ? { items: PME.items } : null);
-};
-
-PME.debug = function(str) {
-	log("[ext]", str);
 };
 
 PME.selectItems = function(items, callback) {
@@ -301,6 +301,11 @@ PME.selectItems = function(items, callback) {
 		setTimeout(function() {	callback(out); }, 1);
 	else
 		return out;
+};
+
+
+PME.read = function() {
+
 };
 
 
@@ -368,6 +373,10 @@ PME.Translator = function(type) {
 	function setString(newText) {
 		text = newText;
 		textIndex = 0;
+	}
+
+	function read(size) {
+
 	}
 
 	function setHandler(event, handler) {
@@ -439,6 +448,7 @@ PME.Translator = function(type) {
 		setString: setString,
 		setHandler: setHandler,
 		translate: translate,
+		read: read,
 		ready: ready,
 		unload: unload
 	}
