@@ -512,8 +512,269 @@ PME.Util.cleanAuthor = function(str) {
 PME.Util.superCleanString = function(str) {
 	str = str.replace(/^[\x00-\x27\x29-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+/, "");
 	return str.replace(/[\x00-\x28\x2A-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+$/, "");
-}
+};
 
+PME.Util.locale = function() {
+	var l_lang;
+	if (navigator.userLanguage) // Explorer
+	  l_lang = navigator.userLanguage;
+	else if (navigator.language) // FF
+	  l_lang = navigator.language;
+	else
+	  l_lang = "en_US";
+	
+	return l_lang.split("-");
+}; 
+
+PME.Util.getLocaleDateOrder = function() {
+	var locale = PME.Util.locale();
+
+	var ldo = 'dmy';
+	switch (locale[1]) {
+		// middle-endian
+		case 'US': // The United States
+		case 'BZ': // Belize
+		case 'FM': // The Federated States of Micronesia
+		case 'PA': // Panama
+		case 'PH':	// The Philippines
+		case 'PW':	// Palau
+		case 'ZW': // Zimbabwe
+			ldo = 'mdy';
+			break;
+
+		// big-endian
+		case 'fa': // Persian
+		case 'AL': // Albania
+		case 'CA': // Canada
+		case 'CN': // China
+		case 'HU': // Hungary
+		case 'JP': // Japan
+		case 'KE': // Kenya
+		case 'KR': // Korea
+		case 'LT': // Lithuania
+		case 'LV': // Latvia
+		case 'MN': // Mongolia
+		case 'SE': // Sweden
+		case 'TW': // Taiwan
+		case 'ZA': // South Africa
+			ldo = 'ymd';
+			break;
+
+		// little-endian
+		default:
+			ldo = 'dmy';
+	}
+	return ldo;
+}; 
+
+PME.Util.formatDate = function(date, shortFormat) {
+	var localeDateOrder = PME.Util.getLocaleDateOrder();
+	var formattedDate = localeDateOrder[0]+"/"+localeDateOrder[1]+"/"+localeDateOrder[2];
+	return formattedDate.replace("y", (date.year !== undefined ? date.year : "00"))
+	             .replace("m", (date.month !== undefined ? 1+date.month : "0"))
+	             .replace("d", (date.day !== undefined ? date.day : "0"));
+};
+
+PME.Util.cleanTags = function(str) {
+	return str.replace(/<br[^>]*>/gi, "\n").replace(/<[^>]+>/g, "");
+};
+
+PME.Util.strToDate = function(str) {
+	var date = new Object();
+	
+	// return empty date if string is undefined
+	if (! string) return date;
+	
+	var lc = str.toLowerCase();	
+	if (lc === "yesterday" || lc === "today" || lc === "tomorrow") {
+		var d = new Date();
+		if (lc === "yesterday")
+			d = d.setDate(d.getDate() - 1);
+		if (lc === "tomorrow")
+			d = d.setDate(d.getDate() + 1);
+		
+		date.year = d.getFullYear();
+		date.month = d.getMonth();
+		date.day = d.getDate();
+		return date;
+	}
+	
+	str.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\s+/, " ");
+	
+	var _slashRe = /^(.*?)\b([0-9]{1,4})(?:(\/)([0-9]{1,2}))?(?:(\/)([0-9]{1,4}))?((?:\b|[^0-9]).*?)$/;
+	var m = str.match(_slashRe);
+	
+	// str matched pattern {date part}/{date part}/{date part}
+	if(m && (m[2] && m[4] && m[6])) {
+		// figure out date based on parts
+		if(m[2].length == 3 || m[2].length == 4) {
+			// ISO 8601 style date (big endian)
+			date.year = m[2];
+			date.month = m[4];
+			date.day = m[6];
+		} else if(m[2] && !m[4] && m[6]) {
+			date.month = m[2];
+			date.year = m[6];
+		} else {
+			// local style date (middle or little endian)
+			date.year = m[6];
+			
+			var locale = PME.Util.locale();
+			if(locale[1] == "US" ||	// The United States
+			   locale[1] == "FM" ||	// The Federated States of Micronesia
+			   locale[1] == "PW" ||	// Palau
+			   locale[1] == "PH") {	// The Philippines
+				date.month = m[2];
+				date.day = m[4];
+			} else {
+				date.month = m[4];
+				date.day = m[2];
+			}
+		}
+		
+		if(date.year) date.year = parseInt(date.year, 10);
+		if(date.day) date.day = parseInt(date.day, 10);
+		if(date.month) {
+			date.month = parseInt(date.month, 10);
+			
+			if(date.month > 12) {
+				// swap day and month
+				var tmp = date.day;
+				date.day = date.month
+				date.month = tmp;
+			}
+		}
+		
+		// sanity check
+		if((!date.month || date.month <= 12) && (!date.day || date.day <= 31)) {
+			if(date.year && date.year < 100) {	// for two digit years, determine proper
+												// four digit year
+				var today = new Date();
+				var year = today.getFullYear();
+				var twoDigitYear = year % 100;
+				var century = year - twoDigitYear;
+				
+				if(date.year <= twoDigitYear) {
+					// assume this date is from our century
+					date.year = century + date.year;
+				} else {
+					// assume this date is from the previous century
+					date.year = century - 100 + date.year;
+				}
+			}
+			
+			if(date.month) date.month--;		// subtract one for JS style
+			PME.debug("DATE: retrieved with algorithms: "+JSON.stringify(date));
+			
+			date.part = m[1]+m[7];
+		} else {
+			// give up; we failed the sanity check
+			PME.debug("DATE: algorithms failed sanity check");
+			date = {"part":string};
+		}
+	} else {
+		PME.debug("DATE: could not apply algorithms");
+		date.part = string;
+	}
+	
+	// couldn't find something with the slash format; use regexp for YEAR
+	if(!date.year) {
+		var _yearRe = /^(.*?)\b((?:circa |around |about |c\.? ?)?[0-9]{1,4}(?: ?B\.? ?C\.?(?: ?E\.?)?| ?C\.? ?E\.?| ?A\.? ?D\.?)|[0-9]{3,4})\b(.*?)$/i;
+		var m = str.match(_yearRe);
+		if(m) {
+			date.year = m[2];
+			date.part = m[1]+m[3];
+			PME.debug("DATE: got year ("+date.year+", "+date.part+")");
+		}
+	}
+	
+	// MONTH
+	if(!date.month) {
+		// compile month regular expression
+		var months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul',
+			'aug', 'sep', 'oct', 'nov', 'dec'];
+		
+		var _monthRe = new RegExp("^(.*)\\b("+months.join("|")+")[^ ]*(?: (.*)$|$)", "i");
+		
+		var m = str.match(_monthRe);
+		if(m) {
+			date.month = months.indexOf(m[2].toLowerCase()) ;
+			date.part = m[1]+m[3];
+			PME.debug("DATE: got month ("+date.month+", "+date.part+")");
+		}
+	}
+	
+	// DAY
+	if(!date.day) {
+		
+		var daySuffixes = "st, nd, rd, th".replace(/, ?/g, "|");
+		_dayRe = new RegExp("\\b([0-9]{1,2})(?:"+daySuffixes+")?\\b(.*)", "i");
+		
+		var m = str.match(_dayRe);
+		if(m) {
+			var day = parseInt(m[1], 10);
+			// Sanity check
+			if (day <= 31) {
+				date.day = day;
+				if(m.index > 0) {
+					date.part = date.part.substr(0, m.index);
+					if(m[2]) {
+						date.part += " "+m[2];
+					}
+				} else {
+					date.part = m[2];
+				}
+				
+				PME.debug("DATE: got day ("+date.day+", "+date.part+")");
+			}
+		}
+	}
+	
+	// clean up date part
+	if(date.part) {
+		date.part = date.part.replace(/^[^A-Za-z0-9]+/, "").replace(/[^A-Za-z0-9]+$/, "");
+	}
+	
+	if(date.part === "" || date.part == undefined) {
+		delete date.part;
+	}
+	
+	return date;
+};
+
+PME.Util.text2html = function(str, singleNewlineIsParagraph) {
+	str = PME.Util.htmlSpecialChars(str);
+	
+	// \n => <p>
+	if (singleNewlineIsParagraph) {
+		str = '<p>'
+				+ str.replace(/\n/g, '</p><p>')
+					.replace(/  /g, '&nbsp; ')
+			+ '</p>';
+	}
+	// \n\n => <p>, \n => <br/>
+	else {
+		str = '<p>'
+				+ str.replace(/\n\n/g, '</p><p>')
+					.replace(/\n/g, '<br/>')
+					.replace(/  /g, '&nbsp; ')
+			+ '</p>';
+	}
+	return str.replace(/<p>\s*<\/p>/g, '<p>&nbsp;</p>');
+};
+
+PME.Util.htmlSpecialChars = function(str) {	
+	return str.replace(/&/g, '&amp;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&apos;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+};
+
+// this seems to only be used in export for BibTeX
+PME.Util.removeDiacritics = function(str, lowerCaseOnly) {
+	return str; 
+};
 
 PME.Util.xpath = function(nodes, selector, namespaces) {
 	var out = [];
@@ -578,13 +839,14 @@ PME.Util.processDocuments = function(urls, processor, callback, exception) {
 	}
 
 	if(callback) callback();	
-}
+};
 
 /*
  * Generates an item in the format returned by item.fromArray() given an
  * OpenURL version 1.0 contextObject
  *
  * accepts an item array to fill, or creates and returns a new item array
+ * POSSIBLE TODO: rewrite in PME style (picture Psy on his horse)
  */
 PME.Util.parseContextObject = function(co, item) {
 	if(!item) {
@@ -828,7 +1090,7 @@ PME.Util.parseContextObject = function(co, item) {
 	}
 	
 	return item;
-}
+};
 
 
 // ------------------------------------------------------------------------

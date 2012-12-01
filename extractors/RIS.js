@@ -641,7 +641,7 @@ function doExport() {
 		}
 
 		// tags
-		for each(var tag in item.tags) {
+		for (var tag in item.tags) {
 			addTag("KW", tag.tag);
 		}
 
