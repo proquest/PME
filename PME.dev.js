@@ -328,6 +328,7 @@ PME.Item = function(type) {
 	log("creating item of type " + type);
 	this.itemType = type;
 	this.creators = [];
+	this.attachments = [];
 
 	this.complete = function() {
 		log("item completed", this);
@@ -460,12 +461,18 @@ PME.Translator = function(type) {
 		if (! text.length)
 			return false;
 
+		var shouldTrim = false;
+
 		if (size === undefined) {
-			var nli = text.indexOf("\n", textIndex);
-			if (nli < 0)
+			var nlre = /(\n|\r\n|\r)/g,
+				nli = nlre.test(text.substr(textIndex));
+
+			if (! nli)
 				size = text.length - textIndex;
-			else
-				size = nli;
+			else {
+				size = nlre.lastIndex;
+				shouldTrim = true;
+			}
 		}
 		else
 			size -= textIndex;
@@ -475,6 +482,9 @@ PME.Translator = function(type) {
 
 		var sub = text.substr(textIndex, size);
 		textIndex += size;
+		if (shouldTrim)
+			sub = sub.replace(/(\n|\r\n|\r)$/, "");
+
 		return sub;
 	}
 
