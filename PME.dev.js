@@ -70,6 +70,19 @@ var Registry = (function() {
 		"EBSCOHost": {
 			m: "^https?://[^/]+/(?:eds|bsi|ehost)/(?:results|detail|folder)",
 			g: "d0b1914a-11f1-4dd7-8557-b32fe8a3dd47"
+		},
+		"GaleGDC": {
+			m: "/gdc/ncco/",
+			g: "04e63564-b92b-41cd-a9d5-366a02056d10"
+		}, 
+		"Galegroup": {
+			m: "https?://(find|go)\\.galegroup\\.com",
+			g: "4ea89035-3dc4-4ae3-b22d-726bc0d83a64"
+		},
+		"IEEE Xplore": {
+			m: "^https?://[^/]*ieeexplore\\.ieee\\.org[^/]*/(?:[^\\?]+\\?(?:|.*&)arnumber=[0-9]+|search/(?:searchresult.jsp|selected.jsp)|xpl\\/(mostRecentIssue|tocresult).jsp\\?)",
+			g: "92d4ed84-8d0-4d3c-941f-d4b9124cfbb"
+			
 		}
 	},
 	g2t, m2t;
