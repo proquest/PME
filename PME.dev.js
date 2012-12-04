@@ -82,7 +82,6 @@ var Registry = (function() {
 		"IEEE Xplore": {
 			m: "^https?://[^/]*ieeexplore\\.ieee\\.org[^/]*/(?:[^\\?]+\\?(?:|.*&)arnumber=[0-9]+|search/(?:searchresult.jsp|selected.jsp)|xpl\\/(mostRecentIssue|tocresult).jsp\\?)",
 			g: "92d4ed84-8d0-4d3c-941f-d4b9124cfbb"
-			
 		}
 	},
 	g2t, m2t;
@@ -166,6 +165,11 @@ function fatal() {
 	pmeOK = false;
 	completed(null);
 }
+
+PME.debug = function(str) {
+	log("[trans]", str);
+};
+
 
 
 // ------------------------------------------------------------------------
@@ -284,10 +288,6 @@ function waitFor(pred, maxTime, callback) {
 	}
 }
 
-PME.debug = function(str) {
-	log("[trans]", str);
-};
-
 
 // ------------------------------------------------------------------------
 //  _ _  __      _   _                
@@ -370,9 +370,16 @@ PME.selectItems = function(items, callback) {
 		break;		// always just pick the first one for now
 	}
 
+
 	// selectItems can be called async or sync, depending on existence of callback param
-	if (callback)
-		setTimeout(function() {	callback(out); }, 1);
+	if (callback) {
+		taskStarted();
+
+		setTimeout(function() {
+			callback(out);
+			taskEnded();
+		}, 1);
+	}
 	else
 		return out;
 };
@@ -983,25 +990,6 @@ PME.Util.xpathText = function(nodes, selector, namespaces, delim) {
 	return text.join(delim !== undefined ? delim : ", ");
 };
 
-
-PME.Util.retrieveDocument = function(url) {
-	return "";
-};
-
-
-PME.Util.processDocuments = function(urls, processor, callback, exception) {
-	log("processDocuments", urls);
-	
-	urls = makeArray(urls);
-	
-	for(var i=0; i<urls.length; i++) {
-		log("url: " + urls[i]);
-		processor(document, urls[i]);
-	}
-
-	if(callback) callback();
-};
-
 /*
  * Generates an item in the format returned by item.fromArray() given an
  * OpenURL version 1.0 contextObject
@@ -1251,6 +1239,25 @@ PME.Util.parseContextObject = function(co, item) {
 	}
 	
 	return item;
+};
+
+
+
+PME.Util.retrieveDocument = function(url) {
+	return "";
+};
+
+PME.Util.processDocuments = function(urls, processor, callback, exception) {
+	log("processDocuments", urls);
+	
+	urls = makeArray(urls);
+	
+	for(var i=0; i<urls.length; i++) {
+		log("url: " + urls[i]);
+		processor(document, urls[i]);
+	}
+
+	if(callback) callback();
 };
 
 
