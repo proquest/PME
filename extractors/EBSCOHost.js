@@ -53,10 +53,10 @@ function downloadFunction(text, url) {
 
 		if (!text.match(/^TY\s\s-/m)) { text = text+"\nTY  - JOUR\n"; }
 		// load translator for RIS
-		var translator = Zotero.loadTranslator("import");
+		var translator = PME.loadTranslator("import");
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(text);
-		//Zotero.debug(text);
+		//PME.debug(text);
 		translator.setHandler("itemDone", function(obj, item) {
 			if (text.match(/^L3\s+-\s*(.*)/m)) {
 				item.DOI = text.match(/^L3\s+\-\s*(.*)/m)[1];
@@ -101,7 +101,7 @@ function downloadFunction(text, url) {
 					item.date = extra[1];
 				}
 				// Frequently have dates like "Spring2009";
-				// need to insert space to keep Zotero happy
+				// need to insert space to keep PME happy
 				item.date = item.date.replace(/([a-z])([0-9]{4})$/,"$1 $2");
 			}
 
@@ -127,14 +127,14 @@ function downloadFunction(text, url) {
 		else stablelink = url;
 		
 		// Since order of requests might matter, let's grab the stable link, then the PDF
-		Zotero.Utilities.doGet(stablelink, function (doc) { Zotero.Utilities.doGet(pdf, function (text) {
+		PME.Util.doGet(stablelink, function (doc) { PME.Util.doGet(pdf, function (text) {
 				var realpdf = text.match(/<embed id="pdfEmbed"[^>]*>/);
 				if(realpdf) {
 					realpdf = text.match(/<embed[^>]*src="([^"]+)"/);
 					if (realpdf) {
 						realpdf = realpdf[1].replace(/&amp;/g, "&").replace(/#.*$/,'')
 								.replace(/K=\d+/,"K="+an);
-						//Zotero.debug("PDF for "+item.title+": "+realpdf);
+						//PME.debug("PDF for "+item.title+": "+realpdf);
 						item.attachments.push({url:realpdf,
 								title: "EBSCO Full Text",
 								mimeType:"application/pdf"});
@@ -178,13 +178,13 @@ function doWeb(doc, url) {
 		/* load up urls, title text and records keys (DB, AN, tag) */
 		while (title = titles.iterateNext()) {
 			items[title.href] = title.textContent;
-//Z.debug(items[title.href])
+//PME.debug(items[title.href])
 			folderInfo = folderData.iterateNext();
 			folderInfos[title.href] = folderInfo.textContent;
-			//Z.debug(folderInfos[title.href])
+			//PME.debug(folderInfos[title.href])
 		}
 
-		Zotero.selectItems(items, function (items) {
+		PME.selectItems(items, function (items) {
 				if(!items) {
 					return true;
 				}
@@ -201,24 +201,24 @@ function doWeb(doc, url) {
 				var run = function(urls, infos) {
 					var url, info;
 					if (urls.length == 0 || infos.length == 0) {
-						Zotero.done();
+						PME.done();
 						return true;
 					}
 					url = urls.shift();
 					info = infos.shift();
-					Zotero.Utilities.processDocuments(url.replace(/#.*$/,''),
+					PME.Util.processDocuments(url.replace(/#.*$/,''),
 						function (newDoc) { doDelivery(doc, nsResolver, info, function () { run(urls, infos) }); },
 						function () { return true; });
 				};
 
 				run(urls, infos);
 
-				Zotero.wait();
+				PME.wait();
 		});
 	} else {
 		/* Individual record. Record key exists in attribute for add to folder link in DOM */
-		doDelivery(doc, nsResolver, null, function () { Zotero.done(); return true; });
-		Zotero.wait();
+		doDelivery(doc, nsResolver, null, function () { PME.done(); return true; });
+		PME.wait();
 	}
 }
 function doDelivery(doc, nsResolver, folderData, onDone) {
@@ -259,7 +259,7 @@ function doDelivery(doc, nsResolver, folderData, onDone) {
 
 	/* ExportFormat = 1 for RIS file */
 	postURL = host+"/ehost/delivery/ExportPanelSave/"+folderData.Db+"_"+folderData.Term+"_"+folderData.Tag+"?sid="+queryString["sid"]+"&vid="+queryString["vid"]+"&bdata="+queryString["bdata"]+"&theExportFormat=1";
-	Zotero.Utilities.HTTP.doGet(postURL, function (text) { downloadFunction(text, postURL); }, onDone);
+	PME.Util.HTTP.doGet(postURL, function (text) { downloadFunction(text, postURL); }, onDone);
 }
 
 /** BEGIN TEST CASES **/
