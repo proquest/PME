@@ -559,8 +559,9 @@ function extractorLoaded(spec, api) {
 }
 
 /* compat shim for updated tr entry point */
-PME.Translator = {};
-PME.Translator.loaded = function(spec, api) { extractorLoaded(spec, api); };
+PME.TranslatorClass = {};
+PME.TranslatorClass.loaded = function(spec, api) { extractorLoaded(spec, api); };
+PME.Translator = PME.TranslatorClass;
 
 function exporterNameForURL(url) {
 	var name = null;

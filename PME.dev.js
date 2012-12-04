@@ -2,6 +2,8 @@
 "use strict";
 // PME.js
 
+window.PME = {};
+
 var Registry = (function() {
 	var tr = {
 		// -- import
@@ -84,9 +86,9 @@ var Registry = (function() {
 		});
 	}
 
-	function findByID(id) {
+	function findByID(classID) {
 		if (! g2t) init();
-		return g2t[id.toLowerCase()];
+		return g2t[classID.toLowerCase()];
 	}
 
 	function matchURL(url) {
@@ -111,7 +113,8 @@ var Registry = (function() {
 var pageURL, pageDoc,
 	pmeCallback,
 	pmeOK = true,	// when this is false, things have gone pear-shaped and no new actions should be started
-	pmeCompleted = false;
+	pmeCompleted = false,
+	pmeWaitForExplicitDone = false;
 
 
 // ------------------------------------------------------------------------
@@ -276,14 +279,16 @@ function waitFor(pred, maxTime, callback) {
 // |_|   |_|  |_|_____|  \___\___/|_|  \___|
 //                                          
 // ------------------------------------------------------------------------
-window.PME = {};
 PME.items = [];
 
 PME.debug = function(str) {
 	log("[ext]", str);
 };
 
-PME.wait = function() {};
+PME.wait = function() {
+	pmeWaitForExplicitDone = true;
+};
+
 PME.done = function() {
 	log("done(), item count: " + PME.items.length);
 	completed(PME.items.length ? { items: PME.items } : null);
@@ -304,8 +309,18 @@ PME.selectItems = function(items, callback) {
 };
 
 
-PME.read = function() {
+PME.read = function(size) {
+	var data = false,
+		trIx = 0,
+		tr;
 
+	do {
+		tr = PME.Translator.stack[trIx++];
+		if (tr)
+			data = tr.read(size);
+	} while ((! data) && tr);
+
+	return data;
 };
 
 
@@ -323,6 +338,82 @@ PME.Item = function(type) {
 
 
 // ------------------------------------------------------------------------
+//  _____                    _       _              ____ _               
+// |_   _| __ __ _ _ __  ___| | __ _| |_ ___  _ __ / ___| | __ _ ___ ___ 
+//   | || '__/ _` | '_ \/ __| |/ _` | __/ _ \| '__| |   | |/ _` / __/ __|
+//   | || | | (_| | | | \__ \ | (_| | || (_) | |  | |___| | (_| \__ \__ \
+//   |_||_|  \__,_|_| |_|___/_|\__,_|\__\___/|_|   \____|_|\__,_|___/___/
+//                                                                       
+// ------------------------------------------------------------------------
+PME.TranslatorClass = function(classID) {
+	if (! pmeOK)
+		return null;
+
+	var intf = {
+		name: null,
+		id: null,
+		api: null,
+		spec: null,
+		script: null
+	};
+
+	if (PME.TranslatorClass.cache[classID])
+		return PME.TranslatorClass.cache[classID];
+	PME.TranslatorClass.cache[classID] = intf;
+	intf.id = classID;
+
+	// -- find and load script
+	intf.name = Registry.findByID(classID);
+	if (intf.name) {
+		log("loading translator class " + intf.name);
+
+		intf.script = document.createElement("script");
+		intf.script.src = PME.TranslatorClass.baseURL + intf.name + ".js";
+		intf.script.onerror = function() {
+			fatal("translator class failed to load: ", intf.name);
+		}
+		document.getElementsByTagName("head")[0].appendChild(intf.script);
+	}
+	else {
+		fatal("no translator class in registry with ID", classID);
+		return null;
+	}
+
+	intf.unload = function() {
+		if (intf.script)
+			intf.script.parentNode.removeChild(intf.script);
+		intf = {};
+	};
+
+	return intf;
+};
+
+PME.TranslatorClass.loaded = function(spec, api) {
+	// this function is called at the end of each translator script file
+	log("translator class loaded ", spec.label);
+
+	var trClass = PME.TranslatorClass.cache[spec.translatorID];
+	if (! trClass) {
+		fatal("got a load event for ", spec, "which was not found in the cache.");
+		return;
+	}
+	trClass.spec = spec;
+	trClass.api = api;
+};
+
+PME.TranslatorClass.unloadAll = function() {
+	each(PME.TranslatorClass.cache, function(t) {
+		t.unload();
+	});
+	PME.TranslatorClass.cache = {};
+};
+
+
+PME.TranslatorClass.cache = {};
+PME.TranslatorClass.baseURL = "http://" + PME_SRV + "/extractors/"; // PME_SRV is set by the bookmarklet
+
+
+// ------------------------------------------------------------------------
 //  _____                    _       _             
 // |_   _| __ __ _ _ __  ___| | __ _| |_ ___  _ __ 
 //   | || '__/ _` | '_ \/ __| |/ _` | __/ _ \| '__|
@@ -334,36 +425,26 @@ PME.Translator = function(type) {
 	var handlers = {},
 		text = "",
 		textIndex = 0,
-		id = null,
-		spec = null,
-		api = null,
-		script = null,
-		waiting = false,
-		loaded = false,
+
+		trClass = null,
+
 		doc = pageDoc,
 		url = pageURL,
 		intf;
 
-	function setTranslator(newID) {
-		if (script)
-			fatal("tried to set ID on an inited translator.");
-		id = newID;
+	function setTranslator(classID) {
+		if (trClass)
+			fatal("tried to modify an inited translator.");
+		trClass = PME.TranslatorClass(classID);
+	}
 
-		var name = Registry.findByID(id);
-		if (name) {
-			log("loading translator " + name);
-			PME.Translator.cache[id] = intf;
+	function getTranslatorObject(cont) {
+		if (! (trClass && trClass.api)) {
+			fatal("getTranslatorObject called on uninited or unloaded translator");
+			return;
+		}
 
-			script = document.createElement("script");
-			script.src = PME.Translator.baseURL + name + ".js";
-			script.onerror = function() {
-				fatal("translator failed to load: ", name);
-			}
-			document.getElementsByTagName("head")[0].appendChild(script);
-		}
-		else {
-			fatal("no translator in registry with ID", id);
-		}
+		cont(trClass.api);
 	}
 
 	function setDocument(newDoc) {
@@ -376,7 +457,29 @@ PME.Translator = function(type) {
 	}
 
 	function read(size) {
+		if (! text.length)
+			return false;
 
+		if (size === undefined) {
+			var nli = text.indexOf("\n", textIndex);
+			if (nli < 0)
+				size = text.length - textIndex;
+			else
+				size = nli;
+		}
+		else
+			size -= textIndex;
+
+		if (size <= 0)
+			return false;
+
+		var sub = text.substr(textIndex, size);
+		textIndex += size;
+		return sub;
+	}
+
+	function setSearch(opt) {
+		// not supported
 	}
 
 	function setHandler(event, handler) {
@@ -385,100 +488,80 @@ PME.Translator = function(type) {
 		handlers[event].push(handler);
 	}
 
+	function notifyHandlers(event /*, param1, .., paramN */) {
+		var ha = handlers[event];
+		if (! ha) return;
+		var args = Array.prototype.slice.call(arguments, 1);
+		each(ha, function(h) { h.apply(null, args); });
+	}
+
+	function waitForTranslatorClass(cont) {
+		if (trClass && trClass.api) {
+			cont();
+			return;
+		}
+
+		waitFor(
+			function() { return !!trClass.api; },
+			5000,
+			function(success) {
+				if (! success)
+					fatal("timeout while waiting for translator class", trClass.name, "(" + trClass.id + ")");
+				else
+	 				cont();
+			}
+		);
+	}
+
 	function translate() {
-		if (! script) {
+		if (! pmeOK) return;
+		if (! trClass) {
 			fatal("translate() called on uninited Translator");
 			return;
 		}
 
-		if (! loaded) {
-			if (waiting) return;
-			waiting = true;
+		waitForTranslatorClass(function() {
+			try {
+				log('run translator', trClass.name, 'with url', url, 'and doc', doc);
+				if (type == "import")
+					trClass.api.doImport();
+				else if (type == "web")
+					trClass.api.doWeb(doc, url);
+				else
+					fatal("can't handle translators of type", type);
+			}
+			catch(e) {
+				fatal("error during translation", e, e.message);
+				return;
+			}
 
-			waitFor(
-				function() { return loaded; },
-				5000,
-				function(success) {
-					waiting = false;
-					if (! success)
-						fatal("timeout while trying to load translator ", id);
-					else
-						translate();
-				}
-			);
-
-			return;
-		}
-
-		try {
-			log('run translator with url', url, 'and doc', doc);
-			if (type == "import")
-				api.doImport();
-			else if (type == "web")
-				api.doWeb(doc, url);
-			else
-				fatal("can't handle translators of type:", type);
-		}
-		catch(e) {
-			fatal("error during translation", e, e.message);
-		}
-	}
-
-	function ready(newSpec, newAPI) {
-		if (loaded) {
-			warn("translator " + spec.label + " got loaded event but is already loaded!", newSpec);
-			return;
-		}
-
-		loaded = true;
-		spec = newSpec;
-		api = newAPI;
-	}
-
-	function unload() {
-		if (script) {
-			script.parentNode.removeChild(script);
-			script = null;
-		}
+			notifyHandlers("syncExit");
+		});
 	}
 
 	return intf = {
 		setTranslator: setTranslator,
+		getTranslatorObject: getTranslatorObject,
+
 		setDocument: setDocument,
 		setString: setString,
+		setSearch: setSearch,
 		setHandler: setHandler,
 		translate: translate,
-		read: read,
-		ready: ready,
-		unload: unload
+
+		read: read
 	}
 };
 
-PME.Translator.baseURL = "http://" + PME_SRV + "/extractors/"; // PME_SRV is set by the bookmarklet
-PME.Translator.cache = {};
-
-PME.Translator.loaded = function(spec, api) {
-	// this function is called at the end of each translator script file
-	log("translator loaded ", spec.label);
-
-	var tr = PME.Translator.cache[spec.translatorID];
-	if (! tr) {
-		fatal("got a load event for GUID " + spec.translatorID + ", but cannot find cached translator for it.");
-		return;
-	}
-
-	tr.ready(spec, api);
+PME.Translator.stack = [];
+PME.Translator.clearAll = function() {
+	PME.Translator.stack = [];
 };
 
 PME.loadTranslator = function(type) {
-	return PME.Translator(type);
-};
-
-PME.freeTranslators = function() {
-	each(PME.Translator.cache, function(t) {
-		t.unload();
-	});
-	PME.Translator.cache = {};
+	var tr = PME.Translator(type);
+	PME.Translator.stack.unshift(tr);
+	return tr;
 };
 
 
@@ -580,7 +663,7 @@ PME.Util.cleanTags = function(str) {
 };
 
 PME.Util.strToDate = function(str) {
-	var date = new Object();
+	var date = {};
 	
 	// return empty date if string is undefined
 	if (! string) return date;
@@ -1481,7 +1564,8 @@ window.FW = (function(){
 // ------------------------------------------------------------------------
 function vanish() {
 	try {
-		PME.freeTranslators();
+		PME.Translator.clearAll();
+		PME.TranslatorClass.unloadAll();
 		if (window.PME_SCR)
 			PME_SCR.parentNode.removeChild(PME_SCR);
 	} catch(e) {}

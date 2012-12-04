@@ -124,5 +124,5 @@ function scrape(articles) {
 		});
 	});
 }
-PME.Translator.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
 }());
