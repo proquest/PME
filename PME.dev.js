@@ -1654,7 +1654,6 @@ window.FW = (function(){
 //                                
 // ------------------------------------------------------------------------
 PME.getPageMetaData = function(callback) {
-	log("getPageMetdaData start");
 	try {
 		// main accesspoint
 		pageURL = document.location.href;
@@ -1671,8 +1670,7 @@ PME.getPageMetaData = function(callback) {
 		}
 	}
 	catch(e) {
-		log("ERROR during initialisation", e, e.message);
-		completed(null);
+		fatal("exception during initialisation", e, e.message);
 	}
 };
 
