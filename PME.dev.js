@@ -273,6 +273,9 @@ function makeArray(x) {
 	if (x == null)
 		return [];
 
+	if (x instanceof String || typeof x === "string") 
+		return [x];
+	
 	return ("length" in x) ? x : [x];
 }
 
@@ -1613,7 +1616,7 @@ window.FW = (function(){
 
 	function doWeb(doc, url) {
 		log("FW.doWeb called");
-
+		PME.wait();
 		var scraper = filter(scrapers, function(sc) {
 			return !!sc.evalItem(sc.spec.detect, doc, url);
 		})[0];
