@@ -178,8 +178,8 @@ function doWeb(doc, url, pdfUrl) {
 		}
 
 		var items = new Array();
-		for(var i=0, n=results.length; i<n; i++) {
-			items[results[i].href] = results[i].textContent;
+		for(var i=0; ; i<results.length; i++) {
+			items[i] = results[i].href;
 		}
 
 		PME.selectItems(items, function (items) {
@@ -218,7 +218,7 @@ function doWeb(doc, url, pdfUrl) {
 			doWeb(doc, doc.location.href, pdfUrl) 
 		});
 	}
-	PME.done();
+	//PME.done();
 }
 
 function scrape(doc, url, type, pdfUrl) {
