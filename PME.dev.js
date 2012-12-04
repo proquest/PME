@@ -114,7 +114,8 @@ var pageURL, pageDoc,
 	pmeCallback,
 	pmeOK = true,	// when this is false, things have gone pear-shaped and no new actions should be started
 	pmeCompleted = false,
-	pmeWaitForExplicitDone = false;
+	pmeWaitForExplicitDone = false,
+	pmeTaskCount = 0;
 
 
 // ------------------------------------------------------------------------
@@ -270,20 +271,62 @@ function waitFor(pred, maxTime, callback) {
 	}
 }
 
-
-// ------------------------------------------------------------------------
-//  ____  __  __ _____                      
-// |  _ \|  \/  | ____|   ___ ___  _ __ ___ 
-// | |_) | |\/| |  _|    / __/ _ \| '__/ _ \
-// |  __/| |  | | |___  | (_| (_) | | |  __/
-// |_|   |_|  |_|_____|  \___\___/|_|  \___|
-//                                          
-// ------------------------------------------------------------------------
-PME.items = [];
-
 PME.debug = function(str) {
-	log("[ext]", str);
+	log("[trans]", str);
 };
+
+
+// ------------------------------------------------------------------------
+//  _ _  __      _   _                
+// | (_)/ _| ___| |_(_)_ __ ___   ___ 
+// | | | |_ / _ \ __| | '_ ` _ \ / _ \
+// | | |  _|  __/ |_| | | | | | |  __/
+// |_|_|_|  \___|\__|_|_| |_| |_|\___|
+//                                    
+// ------------------------------------------------------------------------
+function vanish() {
+	try {
+		PME.Translator.clearAll();
+		PME.TranslatorClass.unloadAll();
+		if (window.PME_SCR)
+			PME_SCR.parentNode.removeChild(PME_SCR);
+	} catch(e) {}
+
+	pmeOK = false;
+	pageURL = pageDoc = pmeCallback = undefined;
+
+	window.PME = undefined;
+	window.FW = undefined;
+
+	window.PME_SCR = undefined;
+	window.PME_SRV = undefined;
+}
+
+function completed(data) {
+	if (pmeCompleted)
+		return;
+	pmeCompleted = true;
+
+	if (pmeOK)
+		log("completed, data = ", data);
+
+	pmeCallback && pmeCallback(data);
+
+	setTimeout(vanish, 1);
+}
+
+function taskStarted() {
+	++pmeTaskCount;
+	log("taskStarted: ", pmeTaskCount);
+}
+
+function taskEnded() {
+	--pmeTaskCount;
+	log("taskEnded: ", pmeTaskCount);
+
+	if ((! pmeTaskCount) && (! pmeWaitForExplicitDone))
+		setTimeout(function() { PME.done(); }, 1);
+}
 
 PME.wait = function() {
 	pmeWaitForExplicitDone = true;
@@ -293,6 +336,19 @@ PME.done = function() {
 	log("done(), item count: " + PME.items.length);
 	completed(PME.items.length ? { items: PME.items } : null);
 };
+
+
+
+
+// ------------------------------------------------------------------------
+//  _ _                     
+// (_) |_ ___ _ __ ___  ___ 
+// | | __/ _ \ '_ ` _ \/ __|
+// | | ||  __/ | | | | \__ \
+// |_|\__\___|_| |_| |_|___/
+//                          
+// ------------------------------------------------------------------------
+PME.items = [];
 
 PME.selectItems = function(items, callback) {
 	var out = {};
@@ -306,21 +362,6 @@ PME.selectItems = function(items, callback) {
 		setTimeout(function() {	callback(out); }, 1);
 	else
 		return out;
-};
-
-
-PME.read = function(size) {
-	var data = false,
-		trIx = 0,
-		tr;
-
-	do {
-		tr = PME.Translator.stack[trIx++];
-		if (tr)
-			data = tr.read(size);
-	} while ((! data) && tr);
-
-	return data;
 };
 
 
@@ -530,6 +571,8 @@ PME.Translator = function(type) {
 			return;
 		}
 
+		taskStarted();
+
 		waitForTranslatorClass(function() {
 			try {
 				log('run translator', trClass.name, 'with url', url, 'and doc', doc);
@@ -545,7 +588,7 @@ PME.Translator = function(type) {
 				return;
 			}
 
-			notifyHandlers("syncExit");
+			taskEnded();
 		});
 	}
 
@@ -574,6 +617,20 @@ PME.loadTranslator = function(type) {
 	return tr;
 };
 
+// -- import translators use PME.read() to read from data set by trans.setString()
+PME.read = function(size) {
+	var data = false,
+		trIx = 0,
+		tr;
+
+	do {
+		tr = PME.Translator.stack[trIx++];
+		if (tr)
+			data = tr.read(size);
+	} while ((! data) && tr);
+
+	return data;
+};
 
 
 // ------------------------------------------------------------------------
@@ -920,18 +977,16 @@ PME.Util.retrieveDocument = function(url) {
 
 
 PME.Util.processDocuments = function(urls, processor, callback, exception) {
-	log("processDocuments");
+	log("processDocuments", urls);
 	
-	if(typeof(urls) == "string") {
-		urls = [ urls ];
-	}
+	urls = makeArray(urls);
 	
 	for(var i=0; i<urls.length; i++) {
 		log("url: " + urls[i]);
 		processor(document, urls[i]);
 	}
 
-	if(callback) callback();	
+	if(callback) callback();
 };
 
 /*
@@ -1247,15 +1302,18 @@ PME.Util.HTTP.doGet = function(url, callback, charset) {
 			callback(request.responseText);
 		else
 			callback("");
+
+		taskEnded();
 	});
+
+	taskStarted();
 
 	try {
 		request.open("GET", url, true);
 		request.send();
 	}
 	catch(e) {
-		log("HTTP GET could not start", e);
-		setTimeout(function() { callback(""); }, 1);
+		fatal("HTTP GET failed", e);
 	}
 };
 
@@ -1268,7 +1326,11 @@ PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
 			callback(request.responseText);
 		else
 			callback("");
+
+		taskEnded();
 	});
+
+	taskStarted();
 
 	if (! headers)
 		headers = {"Content-Type": "application/x-www-form-urlencoded"};
@@ -1282,8 +1344,7 @@ PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
 		request.send(data);
 	}
 	catch(e) {
-		log("HTTP POST could not start", e);
-		setTimeout(function() { callback(""); }, 1);
+		fatal("HTTP POST failed", e);
 	}
 };
 
@@ -1565,44 +1626,13 @@ window.FW = (function(){
 
 
 // ------------------------------------------------------------------------
-//                   _   _                
-//  _ __ _   _ _ __ | |_(_)_ __ ___   ___ 
-// | '__| | | | '_ \| __| | '_ ` _ \ / _ \
-// | |  | |_| | | | | |_| | | | | | |  __/
-// |_|   \__,_|_| |_|\__|_|_| |_| |_|\___|
-//                                        
+//                  _       
+//  _ __ ___   __ _(_)_ __  
+// | '_ ` _ \ / _` | | '_ \ 
+// | | | | | | (_| | | | | |
+// |_| |_| |_|\__,_|_|_| |_|
+//                                
 // ------------------------------------------------------------------------
-function vanish() {
-	try {
-		PME.Translator.clearAll();
-		PME.TranslatorClass.unloadAll();
-		if (window.PME_SCR)
-			PME_SCR.parentNode.removeChild(PME_SCR);
-	} catch(e) {}
-
-	pmeOK = false;
-	pageURL = pageDoc = pmeCallback = undefined;
-
-	window.PME = undefined;
-	window.FW = undefined;
-
-	window.PME_SCR = undefined;
-	window.PME_SRV = undefined;
-}
-
-function completed(data) {
-	if (pmeCompleted)
-		return;
-	pmeCompleted = true;
-
-	if (pmeOK)
-		log("completed, data = ", data);
-
-	pmeCallback && pmeCallback(data);
-
-	setTimeout(vanish, 1);
-}
-
 PME.getPageMetaData = function(callback) {
 	log("getPageMetdaData start");
 	try {
