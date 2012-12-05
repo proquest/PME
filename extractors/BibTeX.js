@@ -1855,9 +1855,8 @@ function beginRecord(type, closeChar) {
 function doImport() {
 	var read = "", text = "", recordCloseElement = false;
 	var type = false;
-
+	
 	while(read = PME.read(1)) {
-		PME.debug("char = " + read);
 		if(read == "@") {
 			type = "";
 		} else if(type !== false) {

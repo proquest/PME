@@ -565,7 +565,7 @@ PME.Translator = function(type) {
 			}
 		}
 		else
-			size -= textIndex;
+			size = Math.min(size, text.length - textIndex);
 
 		if (size <= 0)
 			return false;
