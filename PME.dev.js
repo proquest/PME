@@ -725,6 +725,12 @@ PME.Util.superCleanString = function(str) {
 	return str.replace(/[\x00-\x28\x2A-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+$/, "");
 };
 
+PME.Util.unescapeHTML = function(str) {
+	// no tags
+	if(str.indexOf("<") === -1) return str;
+	return str.replace(/<br[^>]*>/gi, "\n").replace(/<[^>]+>/g, "");
+};
+
 PME.Util.locale = function() {
 	var l_lang;
 	if (navigator.userLanguage) // Explorer

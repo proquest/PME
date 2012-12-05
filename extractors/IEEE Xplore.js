@@ -52,7 +52,8 @@ function doWeb(doc, url) {
 			var link = linknode.href;
 			var title = "";
 			var strongs = tableRow.getElementsByTagName("h3");
-			for each(var strong in strongs) {
+			for(var s in strongs) {
+				var strong = strongs[s];
 				if (strong.textContent) {
 					title += strong.textContent + " ";
 				}
