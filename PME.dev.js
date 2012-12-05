@@ -1616,20 +1616,19 @@ window.FW = (function(){
 	}
 
 	function doWeb(doc, url) {
-		log("FW.doWeb called");
-		PME.wait();
 		var scraper = filter(scrapers, function(sc) {
 			return !!sc.evalItem(sc.spec.detect, doc, url);
 		})[0];
 
 		log("FW.doWeb using scraper", scraper);
 
+		taskStarted();
 		scraper.run(doc, url,
 			function itemDone(item) {
 				PME.items.push(item);
 			},
 			function allDone() {
-				PME.done();
+				taskEnded();
 			}
 		);
 	}
