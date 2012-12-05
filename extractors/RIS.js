@@ -433,7 +433,7 @@ function doImport(attachments) {
 	var tag = data = false;
 	do {    // first valid line is type
 		line = PME.read();
-		line = line.replace(/^\s+/, "");
+		if (line) line = line.replace(/^\s+/, "");
 	} while(line !== false && !line.substr(0, 6).match(/^TY {1,2}- /));
 
 	var item = new PME.Item();
