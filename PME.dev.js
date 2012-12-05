@@ -535,12 +535,17 @@ PME.Translator = function(type) {
 	}
 
 	function getTranslatorObject(cont) {
-		if (! (trClass && trClass.api)) {
-			fatal("getTranslatorObject called on uninited or unloaded translator");
+		if (!pmeOK) return;
+		if (! trClass) {
+			fatal("getTranslatorObject() called on uninited Translator");
 			return;
 		}
 
-		cont(trClass.api);
+		taskStarted();
+		waitForTranslatorClass(function() {
+			cont(trClass.api);
+			taskEnded();
+		});
 	}
 
 	function setDocument(newDoc) {
