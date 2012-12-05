@@ -19,18 +19,30 @@ function detectWeb(doc, url) {
 	var nsResolver = namespace ? function(prefix) {
 		if (prefix == 'x') { return namespace; } else { return null; }
 	} : null;
-
-	// See if this is a search results or folder results page
-	var searchResult = doc.evaluate('//ul[@class="result-list" or @class="folder-list"]/li/div[@class="result-list-record" or @class="folder-item"]', doc, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
-	if(searchResult) {
+	
+	var searchResult = url.match(/\/results\?/);
+	
+	if (searchResult) {
 		return "multiple";
+	} else {
+		return "journalArticle";
 	}
-
-	var xpath = '//a[@class="permalink-link"]';
+	
+	/* these xpath expressions were not working; they always returned invalid iterator state
+	/*var xpath = '//a[@class="permalink-link"]';
 	var persistentLink = doc.evaluate(xpath, doc, nsResolver, XPathResult.ANY_TYPE, null);
+	PME.debug(persistentLink);
 	if(persistentLink) {
 		return "journalArticle";
 	}
+	
+	var searchResult = doc.evaluate('//ul[@class="result-list" or @class="folder-list"]/li/div[@class="result-list-record" or @class="folder-item"]', doc, nsResolver, XPathResult.ANY_TYPE, null);
+	PME.debug(searchResult);
+	if(searchResult) {
+		return "multiple";
+	}*/
+	
+	
 }
 
 /*
@@ -159,10 +171,8 @@ function doWeb(doc, url) {
 	var hostRe = new RegExp("^(https?://[^/]+)/");
 	var hostMatch = hostRe.exec(url);
 	host = hostMatch[1];
-
-	var searchResult = doc.evaluate('//ul[@class="result-list" or @class="folder-list"]/li/div[@class="result-list-record" or @class="folder-item"]', doc, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
-
-	if(searchResult) {
+	
+	if (detectWeb(doc, url) === "multiple") {
 		/* Get title links and text */
 		var titlex = '//a[@class = "title-link color-p4"]';
 		var titles = doc.evaluate(titlex, doc, nsResolver, XPathResult.ANY_TYPE, null);
@@ -178,10 +188,10 @@ function doWeb(doc, url) {
 		/* load up urls, title text and records keys (DB, AN, tag) */
 		while (title = titles.iterateNext()) {
 			items[title.href] = title.textContent;
-//PME.debug(items[title.href])
+			PME.debug(items[title.href])
 			folderInfo = folderData.iterateNext();
 			folderInfos[title.href] = folderInfo.textContent;
-			//PME.debug(folderInfos[title.href])
+			PME.debug(folderInfos[title.href])
 		}
 
 		PME.selectItems(items, function (items) {
@@ -212,34 +222,35 @@ function doWeb(doc, url) {
 				};
 
 				run(urls, infos);
-
-				PME.wait();
 		});
 	} else {
 		/* Individual record. Record key exists in attribute for add to folder link in DOM */
 		doDelivery(doc, nsResolver, null, function () { PME.done(); return true; });
-		PME.wait();
 	}
 }
 function doDelivery(doc, nsResolver, folderData, onDone) {
 	if(folderData === null)	{
 		/* Get the db, AN, and tag from ep.clientData instead */
 		var script;
-		var scripts = doc.evaluate('//script[@type="text/javascript"]', doc, nsResolver, XPathResult.ANY_TYPE, null);
-		while (script = scripts.iterateNext().textContent) {
-			var clientData = script.match(/var ep\s*=\s*({[^;]*});/);
+		var scripts = doc.evaluate('//script', doc, nsResolver, XPathResult.ANY_TYPE, null);
+		var clientData = null;
+		while (script = scripts.iterateNext()) {
+			script = script ? script.text : "";
+			/* The JSON is technically invalid, since it doesn't quote the
+			   attribute names-- we pull out the valid bit inside it. */
+			//var clientData = script.match(/var ep\s*=\s*({[^;]*});/);
+			var clientData = script.match(/var ep = ({.*})/);
 			if (clientData) break;
 		}
-		if (!clientData) {return false;}
+		if (!clientData) {
+			PME.debug("didn't find any clientData");
+			return false;
+		} else {
 			/* We now have the script containing ep.clientData */
-
-		/* The JSON is technically invalid, since it doesn't quote the
-		   attribute names-- we pull out the valid bit inside it. */
-		var clientData = script.match(/var ep\s*=\s*({[^;]*});/);
-		if (!clientData) { return false; }
-		clientData = clientData[1].match(/"currentRecord"\s*:\s*({[^}]*})/);
-		/* If this starts throwing exceptions, we should probably start try-elsing it */
-		folderData = JSON.parse(clientData[1]);
+			clientData = clientData[1].match(/"currentRecord"\s*:\s*({[^}]*})/);
+			/* If this starts throwing exceptions, we should probably start try-elsing it */
+			folderData = JSON.parse(clientData[1]);
+		}
 	} else {
 		/* Ditto for this. */
 		// The attributes are a little different
@@ -248,7 +259,6 @@ function doDelivery(doc, nsResolver, folderData, onDone) {
 		folderData.Term = folderData.uiTerm;
 		folderData.Tag = folderData.uiTag;
 	}
-
 	var postURL = doc.evaluate('//form[@id="aspnetForm"]/@action', doc, nsResolver, XPathResult.ANY_TYPE, null).iterateNext().textContent;
 
 	var queryString = {};
