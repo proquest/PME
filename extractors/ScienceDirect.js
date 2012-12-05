@@ -15,7 +15,7 @@ var translatorSpec =
 }
 
 function detectWeb(doc, url) {
-  	if ((url.indexOf("_ob=DownloadURL") !== -1) 
+	if ((url.indexOf("_ob=DownloadURL") !== -1) 
 		|| doc.title == "ScienceDirect Login" 
 		|| doc.title == "ScienceDirect - Dummy"
 		|| (url.indexOf("/science/advertisement/") !== -1)) { 
@@ -153,7 +153,7 @@ function scrapeByISBN(doc) {
 }
 
 function getArticleList(doc) {
-	return PME.Utils.xpath(doc,
+	return PME.Util.xpath(doc,
 		'(//table[@class="resultRow"]/tbody/tr/td[2]/a\
 		|//table[@class="resultRow"]/tbody/tr/td[2]/h3/a\
 		|//td[@class="nonSerialResultsList"]/h3/a)\
@@ -162,6 +162,7 @@ function getArticleList(doc) {
 
 function doWeb(doc, url) {
 	if(detectWeb(doc, url) == "multiple") {
+		PME.debug("MULTIPLE");
 		//search page
 		var itemList = getArticleList(doc);
 		var items = {};
