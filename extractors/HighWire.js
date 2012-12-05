@@ -45,7 +45,7 @@ function handleRequests(requests) {
 		translator.setHandler("itemDone", function(obj, item) {
 			if(item.notes[0]) {
 				item.DOI = PME.Util.unescapeHTML(item.notes[0].note);
-				item.notes = new Array();
+				item.notes = [];
 			}
 			//remove all caps from titles and authors.
 			for (i in item.creators){
@@ -59,7 +59,7 @@ function handleRequests(requests) {
 			if (item.title == item.title.toUpperCase()) {
 				item.title = PME.Util.capitalizeTitle(item.title.toLowerCase(),true);
 			}
-			item.attachments = new Array();
+			item.attachments = [];
 			var snapshot = request.snapshots.shift();
 			var pdf = request.pdfs.shift();
 			if(snapshot) {
@@ -85,7 +85,7 @@ function handleRequests(requests) {
 }
 
 function doWeb(doc, url) {
-	var requests = new Array();
+	var requests = [];
 	var hostRe = /https?:\/\/[^\/]+/;
 
 	var isSearch = doc.title.indexOf("Search Result") != -1
@@ -93,9 +93,9 @@ function doWeb(doc, url) {
 	var isScience = doc.title.indexOf("Science Magazine Search Results") != -1;
 	if(isSearch || isTOC) {
 		// search page
-		var items = new Object();
-		var snapshots = new Object();
-		var pdfs = new Object();
+		var items = {};
+		var snapshots = {};
+		var pdfs = {};
 
 		if(isTOC) {
 			var gcaRe = /^https?:\/\/[^\/]+\/cgi\/reprint\/([0-9]+\/[0-9]+\/[0-9]+)/;
@@ -165,7 +165,7 @@ function doWeb(doc, url) {
 		PME.selectItems(items, function(items) {
 			if(!items) return true;
 
-			var requests = new Array();
+			var requests = [];
 			for(var gca in items) {
 				var m = hostRe.exec(pdfs[gca]);
 				var baseURL = 'http://' + doc.location.host + '/cgi/citmgr?type=refman';
@@ -179,9 +179,9 @@ function doWeb(doc, url) {
 				}
 
 				if(!thisRequest) {
-					thisRequest = new Object();
-					thisRequest.snapshots = new Array();
-					thisRequest.pdfs = new Array();
+					thisRequest = {};
+					thisRequest.snapshots = [];
+					thisRequest.pdfs = [];
 					thisRequest.args = "";
 					thisRequest.baseURL = baseURL;
 					requests.push(thisRequest);

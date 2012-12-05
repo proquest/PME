@@ -183,11 +183,9 @@ function processTag(item, tag, value) {
 			tempType = "author";
 		}
 		var names = value.split(/, ?/);
-		if (! item.creators) item.creators = [];
 		item.creators.push({lastName:names[0], firstName:names[1], creatorType:tempType});
 	} else if(tag == "ED") {
 		var names = value.split(/, ?/);
-		if (! item.creators) item.creators = [];
 		item.creators.push({lastName:names[0], firstName:names[1], creatorType:"editor"});
 	} else if(tag == "A2") {
 		// contributing author (patent: assignee)
@@ -201,7 +199,6 @@ function processTag(item, tag, value) {
 			}
 		} else {
 			var names = value.split(/, ?/);
-			if (! item.creators) item.creators = [];
 			item.creators.push({lastName:names[0], firstName:names[1], creatorType:"contributor"});
 		}
 	} else if(tag == "Y1" || tag == "PY") {
@@ -292,7 +289,6 @@ function processTag(item, tag, value) {
 		// notes
 		if(value != item.title) {       // why does EndNote do this!?
 			var clean = PME.Util.cleanTags(value);
-			if (! item.notes) item.notes = [];
 			if (clean == value) {
 				// \n\n => <p>, \n => <br/>
 				//str = PME.Util.htmlSpecialChars(str);
@@ -316,7 +312,7 @@ function processTag(item, tag, value) {
 		
 		// technically, treating newlines as new tags breaks the RIS spec, but
 		// it's required to work with EndNote
-		item.tags = item.tags ? item.tags.concat(value.split("\n")) : [];
+		item.tags = item.tags.concat(value.split("\n"));
 	} else if(tag == "SP") {
 		// start page
 		if(!item.pages) {
@@ -351,7 +347,6 @@ function processTag(item, tag, value) {
 			item.ISSN = value;
 		}
 	} else if(tag == "UR" || tag == "L1" || tag == "L2" || tag == "L4") {
-		if (! item.attachments) item.attachments = [];
 		// URL
 		if(!item.url) {
 			item.url = value;
@@ -433,7 +428,7 @@ function doImport(attachments) {
 	var tag = data = false;
 	do {    // first valid line is type
 		line = PME.read();
-		if (line) line = line.replace(/^\s+/, "");
+		line = line.replace(/^\s+/, "");
 	} while(line !== false && !line.substr(0, 6).match(/^TY {1,2}- /));
 
 	var item = new PME.Item();

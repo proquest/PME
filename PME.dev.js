@@ -418,6 +418,8 @@ PME.Item = function(type) {
 	this.itemType = type;
 	this.creators = [];
 	this.attachments = [];
+	this.tags = [];
+	this.notes = [];
 
 	this.complete = function() {
 		log("item completed", this);
@@ -526,6 +528,10 @@ PME.Translator = function(type) {
 		if (trClass)
 			fatal("tried to modify an inited translator.");
 		trClass = PME.TranslatorClass(classID);
+	}
+
+	function getTranslatorClassName() {
+		return trClass && trClass.name;
 	}
 
 	function getTranslatorObject(cont) {
@@ -644,6 +650,7 @@ PME.Translator = function(type) {
 	return intf = {
 		setTranslator: setTranslator,
 		getTranslatorObject: getTranslatorObject,
+		getTranslatorClassName: getTranslatorClassName,
 
 		setDocument: setDocument,
 		setString: setString,
@@ -676,7 +683,7 @@ PME.read = function(size) {
 		tr = PME.Translator.stack[trIx++];
 		if (tr)
 			data = tr.read(size);
-	} while ((! data) && tr);
+	} while ((data === false) && tr);
 
 	return data;
 };
