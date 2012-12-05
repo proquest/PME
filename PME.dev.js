@@ -180,8 +180,12 @@ PME.debug = function(str) {
 //  \___\___/|_| |_| |_|_| |_| |_|\___/|_| |_|  \__,_|\__|_|_|___/
 //                                                                
 // ------------------------------------------------------------------------
+function isArrayLike(x) {
+	return (typeof x == "object") && ("length" in x) && (x.constructor != String);
+}
+
 function each(vals, handler) {
-	var arr = "length" in vals,
+	var arr = isArrayLike(vals),
 		out = arr ? [] : {};
 
 	if (arr) {
@@ -200,7 +204,7 @@ function each(vals, handler) {
 }
 
 function map(vals, pred) {
-	var arr = "length" in vals,
+	var arr = isArrayLike(vals),
 		out = arr ? [] : {};
 
 	if (arr) {
@@ -226,7 +230,7 @@ function map(vals, pred) {
 }
 
 function filter(vals, pred) {
-	var arr = "length" in vals,
+	var arr = isArrayLike(vals),
 		out = arr ? [] : {};
 
 	if (arr) {
@@ -249,13 +253,13 @@ function filter(vals, pred) {
 }
 
 function flatten(vals) {
-	if (! ("length" in vals))
+	if (! isArrayLike(vals))
 		return vals;
 
 	var out = [];
 	for (var ix = 0; ix < vals.length; ++ix) {
 		var v = vals[ix];
-		if(v instanceof Array)
+		if (isArrayLike(v))
 			out = out.concat(flatten(v));
 		else
 			out.push(v);
@@ -273,10 +277,7 @@ function makeArray(x) {
 	if (x == null)
 		return [];
 
-	if (x instanceof String || typeof x === "string") 
-		return [x];
-	
-	return ("length" in x) ? x : [x];
+	return isArrayLike(x) ? x : [x];
 }
 
 function waitFor(pred, maxTime, callback) {
