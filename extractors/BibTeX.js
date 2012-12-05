@@ -1597,9 +1597,9 @@ function processField(item, field, value) {
 		item.publicationTitle = value;
 	} else if(field == "author" || field == "editor" || field == "translator") {
 		// parse authors/editors/translators
-		var names = value.split(/ and /i); // now case insensitive
-		for(var i in names) {
-			var name = names[i];
+		var names = value.split(/ and /i) ; // now case insensitive
+		PME.debug("names: " + names);
+		for(var name in names) {
 			// skip empty names
 			if (name.trim() == '') {
 				continue;
