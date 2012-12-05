@@ -171,6 +171,30 @@ PME.debug = function(str) {
 };
 
 
+// ------------------------------------------------------------------------
+//                                  _   _ _     _ _ _ _         
+//   ___ ___  _ __ ___  _ __   __ _| |_(_) |__ (_) (_) |_ _   _ 
+//  / __/ _ \| '_ ` _ \| '_ \ / _` | __| | '_ \| | | | __| | | |
+// | (_| (_) | | | | | | |_) | (_| | |_| | |_) | | | | |_| |_| |
+//  \___\___/|_| |_| |_| .__/ \__,_|\__|_|_.__/|_|_|_|\__|\__, |
+//                     |_|                                |___/ 
+// ------------------------------------------------------------------------
+if ((! window.DOMParser) && window.ActiveXObject) {
+	window.DOMParser = function() {
+		this.parseFromString = function(text, mimeType) {
+			mimeType = mimeType.toLowerCase();
+			if ((mimeType != "text/xml") && (mimeType != "application/xml")) {
+				fatal("DOMParser shim cannot parse documents of type", mimeType);
+				throw new Error("forced stop in PME DOMParser shim");
+			}
+
+			var doc = new ActiveXObject("Microsoft.XMLDOM");
+			doc.async = false;
+			doc.loadXML(text); 
+		}
+	};
+}
+
 
 // ------------------------------------------------------------------------
 //                                                    _   _ _     
@@ -277,7 +301,7 @@ function makeArray(x) {
 	if (x == null)
 		return [];
 
-	return isArrayLike(x) ? x : [x];
+	return isArrayLike(x) ? Array.prototype.slice.call(x, 0) : [x];
 }
 
 function waitFor(pred, maxTime, callback) {
@@ -518,6 +542,7 @@ PME.Translator = function(type) {
 	}
 
 	function setString(newText) {
+		log("setString: ", newText);
 		text = newText;
 		textIndex = 0;
 	}
@@ -599,7 +624,7 @@ PME.Translator = function(type) {
 
 		waitForTranslatorClass(function() {
 			try {
-				log('run translator', trClass.name, 'with url', url, 'and doc', doc);
+				log('run translator', trClass.name, trClass, 'with url', url, 'and doc', doc);
 				if (type == "import")
 					trClass.api.doImport();
 				else if (type == "web")
@@ -1246,22 +1271,75 @@ PME.Util.parseContextObject = function(co, item) {
 };
 
 
+// ------------------------------------------------------------------------
+//                                    ____                 
+//  _ __  _ __ ___   ___ ___  ___ ___|  _ \  ___   ___ ___ 
+// | '_ \| '__/ _ \ / __/ _ \/ __/ __| | | |/ _ \ / __/ __|
+// | |_) | | | (_) | (_|  __/\__ \__ \ |_| | (_) | (__\__ \
+// | .__/|_|  \___/ \___\___||___/___/____/ \___/ \___|___/
+// |_|                                                     
+// ------------------------------------------------------------------------
+function HiddenDocument(url, cont) {
+	var iframe = document.createElement("iframe");
+	iframe.width = iframe.height = 1;
+	iframe.frameBorder = 0;
+	iframe.style.position = "absolute";
+	iframe.style.left = iframe.style.top = 0; 
+	iframe.style.opacity = 0;
 
-PME.Util.retrieveDocument = function(url) {
-	return "";
-};
-
-PME.Util.processDocuments = function(urls, processor, callback, exception) {
-	log("processDocuments", urls);
-	
-	urls = makeArray(urls);
-	
-	for(var i=0; i<urls.length; i++) {
-		log("url: " + urls[i]);
-		processor(document, urls[i]);
+	function doc() {
+		return iframe && (iframe.contentWindow || iframe.contentDocument).document;
 	}
 
-	if(callback) callback();
+	function kill() {
+		if (iframe)
+			iframe.parentNode.removeChild(iframe);
+		iframe = null;
+	}
+
+	pageDoc.body.appendChild(iframe);
+	iframe.onload = function() {
+		cont({
+			doc: doc,
+			kill: kill
+		})
+	};
+	iframe.src = url;
+}
+
+PME.Util.processDocuments = function(urls, processor, onDone, onError) {
+	urls = makeArray(urls);
+	log("processDocuments", urls);
+
+	function next() {
+		var url = urls.pop();
+		taskStarted();		// single doc
+
+		HiddenDocument(url, function(hdoc) {
+			try {
+				processor(hdoc.doc(), url);
+			}
+			catch(e) {
+				if (onError) onError(e);
+				else fatal("error while processing hidden document", e);
+			}
+
+			hdoc.kill();
+			taskEnded();	// single doc
+		});
+
+		if (urls.length)
+			next();
+		else {
+			onDone && onDone();
+			taskEnded();	// PD
+		}
+	}
+
+	if (urls.length) {
+		taskStarted();		// PD
+		next();
+	}
 };
 
 

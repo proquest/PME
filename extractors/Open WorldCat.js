@@ -15,9 +15,9 @@ var translatorSpec =
 }
 
 /**
- * Gets Zotero item from a WorldCat icon src
+ * Gets item type from a WorldCat icon src
  */
-function getZoteroType(iconSrc) {
+function getItemType(iconSrc) {
 	// only specify types not specified in COinS
 	if (iconSrc.indexOf("icon-rec") != -1) {
 		return "audioRecording";
@@ -87,7 +87,7 @@ function scrape(doc, url, callDoneWhenFinished) {
 }
 
 /**
- * Generates a Zotero item from a single item WorldCat page, or the first item on a multiple item
+ * Generates an item from a single item WorldCat page, or the first item on a multiple item
  * page
  */
 function generateItem(doc, node) {
@@ -99,7 +99,7 @@ function generateItem(doc, node) {
 		type = doc.evaluate('//img[@class="icn"][contains(@src, "icon-")]/@src', doc, null, XPathResult.ANY_TYPE, null).iterateNext().nodeValue;
 	} catch (e) {}
 	if (type) {
-		type = getZoteroType(type);
+		type = getItemType(type);
 		if (type) item.itemType = type;
 	}
 	return item;
