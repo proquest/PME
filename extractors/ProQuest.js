@@ -178,8 +178,8 @@ function doWeb(doc, url, pdfUrl) {
 		}
 
 		var items = new Array();
-		for(var i=0; ; i<results.length; i++) {
-			items[i] = results[i].href;
+		for(var i=0; i<results.length; i++) {
+			items.push(results[i].href);
 		}
 
 		PME.selectItems(items, function (items) {
@@ -188,7 +188,7 @@ function doWeb(doc, url, pdfUrl) {
 			var articles = new Array();
 			for (var i in items) {
 				// Recursive call to doWeb. May not be good
-				PME.Util.processDocuments(i,
+				PME.Util.processDocuments(items[i],
 					//call doWeb so that we rerun detectWeb to get type and
 					//initialize translations
 					function(doc) { doWeb(doc, doc.location.href) });
