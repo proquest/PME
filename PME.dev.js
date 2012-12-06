@@ -124,8 +124,7 @@ var Registry = (function() {
 
 var pageURL, pageDoc,
 	pmeCallback,
-	pmeOK = true,	// when this is false, things have gone pear-shaped and no new actions should be started
-	pmeCompleted = false;
+	pmeOK = true;	// when this is false, things have gone pear-shaped and no new actions should be started
 
 
 // ------------------------------------------------------------------------
@@ -299,15 +298,6 @@ function makeArray(x) {
 	return isArrayLike(x) ? Array.prototype.slice.call(x, 0) : [x];
 }
 
-function all(vals, pred) {
-	var res = true;
-	each(vals, function(v, k) {
-		if (! pred(v, k))
-			res = false;
-	});
-	return res;
-}
-
 function waitFor(pred, maxTime, callback) {
 	var interval = 20;
 	if (pred())
@@ -330,7 +320,8 @@ function waitFor(pred, maxTime, callback) {
 //                                    
 // ------------------------------------------------------------------------
 var pmeTaskStack = [],
-	pmeWaitForExplicitDone = false;
+	pmeCompleted = false;
+
 
 function vanish() {
 	try {
@@ -356,22 +347,16 @@ function completed(data) {
 	pmeCompleted = true;
 
 	if (pmeOK)
-		log("completed, data = ", data);
+		log("completed, item count = ", (data && data.items) ? data.items.length : 0, " data = ", data);
 
 	pmeCallback && pmeCallback(data);
 
 	setTimeout(vanish, 1);
 }
 
-PME.wait = function() {
-	pmeWaitForExplicitDone = true;
-};
-
-PME.done = function() {
-	log("done(), item count: " + PME.items.length);
+function success() {
 	completed(PME.items.length ? { items: PME.items } : null);
-};
-
+}
 
 function taskStarted(label) {
 	var task = {
@@ -416,12 +401,15 @@ function leafTaskCompleted() {
 			leafTaskCompleted();
 	}
 	else {
-		if (! pmeWaitForExplicitDone)
-			setTimeout(function() { PME.done(); }, 1);
+		setTimeout(success, 1);
 	}
 }
 
-
+// -- wait and done are ignored (the async task tracking handles lifetime)
+PME.wait = function() {};
+PME.done = function(returnValue) {
+	// TODO: if returnValue === false then the result should be discarded and null returned as output
+};
 
 
 
