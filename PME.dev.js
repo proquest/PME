@@ -376,7 +376,7 @@ PME.done = function() {
 function taskStarted(label) {
 	var task = {
 			label: label,
-			onComplete: null
+			onComplete: null,
 			ready: false
 		},
 		taskIndex = pmeTaskStack.push(task) - 1;
@@ -1406,7 +1406,7 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 		if (urls.length)
 			next();
 		else
-			procReady("processDocuments", function() {
+			procReady(function() {
 				// this task completion func will only be called once all subtasks (the documents) are also completed
 				onDone && onDone();
 			});
