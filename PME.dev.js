@@ -125,9 +125,7 @@ var Registry = (function() {
 var pageURL, pageDoc,
 	pmeCallback,
 	pmeOK = true,	// when this is false, things have gone pear-shaped and no new actions should be started
-	pmeCompleted = false,
-	pmeWaitForExplicitDone = false,
-	pmeTaskCount = 0;
+	pmeCompleted = false;
 
 
 // ------------------------------------------------------------------------
@@ -209,8 +207,7 @@ function isArrayLike(x) {
 }
 
 function each(vals, handler) {
-	var arr = isArrayLike(vals),
-		out = arr ? [] : {};
+	var arr = isArrayLike(vals);
 
 	if (arr) {
 		for (var ix = 0; ix < vals.length; ++ix) {
@@ -223,8 +220,6 @@ function each(vals, handler) {
 		for (var key in vals)
 			handler(vals[key], key, vals);
 	}
-
-	return out;
 }
 
 function map(vals, pred) {
@@ -304,6 +299,15 @@ function makeArray(x) {
 	return isArrayLike(x) ? Array.prototype.slice.call(x, 0) : [x];
 }
 
+function all(vals, pred) {
+	var res = true;
+	each(vals, function(v, k) {
+		if (! pred(v, k))
+			res = false;
+	});
+	return res;
+}
+
 function waitFor(pred, maxTime, callback) {
 	var interval = 20;
 	if (pred())
@@ -325,6 +329,9 @@ function waitFor(pred, maxTime, callback) {
 // |_|_|_|  \___|\__|_|_| |_| |_|\___|
 //                                    
 // ------------------------------------------------------------------------
+var pmeTaskStack = [],
+	pmeWaitForExplicitDone = false;
+
 function vanish() {
 	try {
 		PME.Translator.clearAll();
@@ -356,19 +363,6 @@ function completed(data) {
 	setTimeout(vanish, 1);
 }
 
-function taskStarted() {
-	++pmeTaskCount;
-	log("taskStarted: ", pmeTaskCount);
-}
-
-function taskEnded() {
-	--pmeTaskCount;
-	log("taskEnded: ", pmeTaskCount);
-
-	if ((! pmeTaskCount) && (! pmeWaitForExplicitDone))
-		setTimeout(function() { PME.done(); }, 1);
-}
-
 PME.wait = function() {
 	pmeWaitForExplicitDone = true;
 };
@@ -377,6 +371,56 @@ PME.done = function() {
 	log("done(), item count: " + PME.items.length);
 	completed(PME.items.length ? { items: PME.items } : null);
 };
+
+
+function taskStarted(label) {
+	var task = {
+			label: label,
+			onComplete: null
+			ready: false
+		},
+		taskIndex = pmeTaskStack.push(task) - 1;
+
+	log("taskStarted: ", task.label, "(" + taskIndex + ")");
+
+	// return "taskReady" callback
+	return function(onComplete) {
+		task.ready = true;
+		task.onComplete = onComplete;
+		log ("taskReady: ", task.label);
+
+		// am I the innermost task? if not, we will be completed by our subtask
+		if (taskIndex == pmeTaskStack.length - 1)
+			leafTaskCompleted();
+	};
+}
+
+function leafTaskCompleted() {
+	if (! pmeTaskStack.length) {
+		fatal("leafTaskCompleted called with empty task stack");
+		return;
+	}
+
+	var task = pmeTaskStack.pop();
+	if (! task.ready) {
+		fatal("leafTaskCompleted with leaf task that is not ready", task);
+		return;
+	}
+
+	log("taskCompleted: ", task.label, "(" + pmeTaskStack.length + ")");
+	task.onComplete && task.onComplete();
+
+	if (pmeTaskStack.length) {
+		// go up stack and complete tasks if they are ready
+		if (pmeTaskStack[pmeTaskStack.length - 1].ready)
+			leafTaskCompleted();
+	}
+	else {
+		if (! pmeWaitForExplicitDone)
+			setTimeout(function() { PME.done(); }, 1);
+	}
+}
+
 
 
 
@@ -401,11 +445,11 @@ PME.selectItems = function(items, callback) {
 
 	// selectItems can be called async or sync, depending on existence of callback param
 	if (callback) {
-		taskStarted();
+		var selectReady = taskStarted("selectItems");
 
 		setTimeout(function() {
 			callback(out);
-			taskEnded();
+			selectReady();
 		}, 1);
 	}
 	else
@@ -541,10 +585,10 @@ PME.Translator = function(type) {
 			return;
 		}
 
-		taskStarted();
+		var gtoReady = taskStarted("getTranslatorObject");
 		waitForTranslatorClass(function() {
 			cont(trClass.api);
-			taskEnded();
+			gtoReady();
 		});
 	}
 
@@ -631,7 +675,7 @@ PME.Translator = function(type) {
 			return;
 		}
 
-		taskStarted();
+		var translateReady = taskStarted("translate");
 
 		waitForTranslatorClass(function() {
 			try {
@@ -648,7 +692,7 @@ PME.Translator = function(type) {
 				return;
 			}
 
-			taskEnded();
+			translateReady();
 		});
 	}
 
@@ -1298,7 +1342,9 @@ PME.Util.parseContextObject = function(co, item) {
 // |_|                                                     
 // ------------------------------------------------------------------------
 function HiddenDocument(url, cont) {
-	var iframe = document.createElement("iframe");
+	var timer, iframe;
+
+	iframe = document.createElement("iframe");
 	iframe.width = iframe.height = 1;
 	iframe.frameBorder = 0;
 	iframe.style.position = "absolute";
@@ -1317,21 +1363,32 @@ function HiddenDocument(url, cont) {
 
 	pageDoc.body.appendChild(iframe);
 	iframe.onload = function() {
+		clearTimeout(timer);
+		timer = 0;
+		log("hidden document loaded", url);
+
 		cont({
 			doc: doc,
 			kill: kill
 		})
 	};
+
+	timer = setTimeout(function() {
+		// page gets a finite time to load
+		warn("timeout while loading hidden doc: ", url);
+		cont(null);
+	}, 20 * 1000);
+
 	iframe.src = url;
 }
 
 PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 	urls = makeArray(urls);
-	log("processDocuments", urls);
+	var procReady;
 
 	function next() {
 		var url = urls.pop();
-		taskStarted();		// single doc
+		var docReady = taskStarted("procDoc: " + url);
 
 		HiddenDocument(url, function(hdoc) {
 			try {
@@ -1343,19 +1400,20 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 			}
 
 			hdoc.kill();
-			taskEnded();	// single doc
+			docReady();
 		});
 
 		if (urls.length)
 			next();
-		else {
-			onDone && onDone();
-			taskEnded();	// PD
-		}
+		else
+			procReady("processDocuments", function() {
+				// this task completion func will only be called once all subtasks (the documents) are also completed
+				onDone && onDone();
+			});
 	}
 
 	if (urls.length) {
-		taskStarted();		// PD
+		procReady = taskStarted("processDocuments");
 		next();
 	}
 };
@@ -1415,18 +1473,17 @@ function httpRequest(reqURL, callback) {
 
 PME.Util.HTTP.doGet = function(url, callback, charset) {
 	log("HTTP GET request: ", url);
-	var request = httpRequest(url, function(status) {
-		log("HTTP GET status: ", status, request);
+	var getReady = taskStarted("HTTP.doGet"),
+		request = httpRequest(url, function(status) {
+			log("HTTP GET status: ", status, request);
 
-		if (status == "load")
-			callback(request.responseText);
-		else
-			callback("");
+			if (status == "load")
+				callback(request.responseText);
+			else
+				callback("");
 
-		taskEnded();
-	});
-
-	taskStarted();
+			getReady();
+		});
 
 	try {
 		request.open("GET", url, true);
@@ -1439,18 +1496,18 @@ PME.Util.HTTP.doGet = function(url, callback, charset) {
 
 PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
 	log("HTTP POST request: ", url, data);
-	var request = httpRequest(url, function(status) {
-		log("HTTP POST status: ", status, request);
 
-		if (status == "load")
-			callback(request.responseText);
-		else
-			callback("");
+	var postReady = taskStarted("HTTP.doPost"),
+		request = httpRequest(url, function(status) {
+			log("HTTP POST status: ", status, request);
 
-		taskEnded();
-	});
+			if (status == "load")
+				callback(request.responseText);
+			else
+				callback("");
 
-	taskStarted();
+			postReady();
+		});
 
 	if (! headers)
 		headers = {"Content-Type": "application/x-www-form-urlencoded"};
@@ -1718,13 +1775,13 @@ window.FW = (function(){
 
 		log("FW.doWeb using scraper", scraper);
 
-		taskStarted();
+		var fwReady = taskStarted("FW.doWeb");
 		scraper.run(doc, url,
 			function itemDone(item) {
 				PME.items.push(item);
 			},
 			function allDone() {
-				taskEnded();
+				fwReady();
 			}
 		);
 	}

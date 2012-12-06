@@ -78,9 +78,9 @@ function doWeb(doc, url) {
 				urls.push(i);
 			}
 			PME.Util.processDocuments(urls, scrape, function () {
-				//PME.done();
+				PME.done();
 			});
-			//PME.wait();
+			PME.wait();
 		});
 
 	} else {
@@ -92,9 +92,9 @@ function doWeb(doc, url) {
 			var arnumber = url.match(/arnumber=(\d+)/)[1];
 			url = url.replace(/\/(?:search|stamp|ielx[45])\/.*$/, "/xpls/abs_all.jsp?arnumber=" + arnumber);
 			PME.Util.processDocuments([url], scrape, function () {
-				//PME.done();
+				PME.done();
 			});
-			//PME.wait();
+			PME.wait();
 		} else {
 			scrape(doc, url);
 		}
