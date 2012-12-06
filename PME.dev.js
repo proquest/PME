@@ -819,9 +819,10 @@ PME.Util.getLocaleDateOrder = function() {
 PME.Util.formatDate = function(date, shortFormat) {
 	var localeDateOrder = PME.Util.getLocaleDateOrder();
 	var formattedDate = localeDateOrder[0]+"/"+localeDateOrder[1]+"/"+localeDateOrder[2];
-	return formattedDate.replace("y", (date.year !== undefined ? date.year : "00"))
-	             .replace("m", (date.month !== undefined ? 1+date.month : "0"))
-	             .replace("d", (date.day !== undefined ? date.day : "0"));
+	return formattedDate.replace("y", (date.year !== undefined ? date.year : ""))
+	             .replace("m", (date.month !== undefined ? 1+date.month : ""))
+	             .replace("d", (date.day !== undefined ? date.day : ""))
+	             .replace("\/\/", "/").replace(/^\//, '') ;
 };
 
 PME.Util.cleanTags = function(str) {
