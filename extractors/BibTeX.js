@@ -2415,5 +2415,5 @@ var testCases = [
 ]
 /** END TEST CASES **/
 
-PME.TranslatorClass.loaded(translatorSpec, { doImport: doImport, setKeywordDelimRe: setKeywordDelimRe, setKeywordSplitOnSpace: setKeywordSplitOnSpace });
+PME.TranslatorClass.loaded(translatorSpec, exports);
 }());

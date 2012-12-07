@@ -1774,7 +1774,6 @@ window.FW = (function(){
 		);
 	}
 
-
 	return {
 		Scraper: Scraper,
 		MultiScraper: MultiScraper,
