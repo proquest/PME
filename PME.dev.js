@@ -777,53 +777,13 @@ PME.Util.locale = function() {
 	return l_lang.split("-");
 }; 
 
-PME.Util.getLocaleDateOrder = function() {
-	var locale = PME.Util.locale();
-
-	var ldo = 'dmy';
-	switch (locale[1]) {
-		// middle-endian
-		case 'US': // The United States
-		case 'BZ': // Belize
-		case 'FM': // The Federated States of Micronesia
-		case 'PA': // Panama
-		case 'PH':	// The Philippines
-		case 'PW':	// Palau
-		case 'ZW': // Zimbabwe
-			ldo = 'mdy';
-			break;
-
-		// big-endian
-		case 'fa': // Persian
-		case 'AL': // Albania
-		case 'CA': // Canada
-		case 'CN': // China
-		case 'HU': // Hungary
-		case 'JP': // Japan
-		case 'KE': // Kenya
-		case 'KR': // Korea
-		case 'LT': // Lithuania
-		case 'LV': // Latvia
-		case 'MN': // Mongolia
-		case 'SE': // Sweden
-		case 'TW': // Taiwan
-		case 'ZA': // South Africa
-			ldo = 'ymd';
-			break;
-
-		// little-endian
-		default:
-			ldo = 'dmy';
-	}
-	return ldo;
-}; 
-
 PME.Util.formatDate = function(date, shortFormat) {
-	var localeDateOrder = PME.Util.getLocaleDateOrder();
-	var formattedDate = localeDateOrder[0]+"/"+localeDateOrder[1]+"/"+localeDateOrder[2];
-	return formattedDate.replace("y", (date.year !== undefined ? date.year : "00"))
-	             .replace("m", (date.month !== undefined ? 1+date.month : "0"))
-	             .replace("d", (date.day !== undefined ? date.day : "0"));
+	var formattedDate = "day month_name year";
+	var monthNames = [ "January", "February", "March", "April", "May", "June",
+	    "July", "August", "September", "October", "November", "December" ];
+	return formattedDate.replace("year", (date.year !== undefined ? date.year : ""))
+	             .replace("month_name", (date.month !== undefined ? monthNames[date.month] : ""))
+	             .replace("day", (date.day !== undefined ? date.day : ""))
 };
 
 PME.Util.cleanTags = function(str) {
