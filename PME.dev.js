@@ -424,12 +424,14 @@ PME.done = function(returnValue) {
 PME.items = [];
 
 PME.selectItems = function(items, callback) {
-	var out = {};
+	var out = {}, itemCount = 0;
 	for (var k in items) {
+		++itemCount;
 		out[k] = items[k];
 		break;		// always just pick the first one for now
 	}
-
+	if (! itemCount)
+		return false;
 
 	// selectItems can be called async or sync, depending on existence of callback param
 	if (callback) {
