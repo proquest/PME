@@ -422,6 +422,12 @@ function scrape(doc, url, type, pdfUrl) {
 	} else {
 		var pdfLink = PME.Util.xpath(doc, '//div[@id="side_panel"]//\
 			a[contains(@class,"format_pdf") and contains(@href,"fulltext")][1]');
+
+		// [AL] [FIXME] PQ pages have embedded PDFs in them which may launch external PDF viewers
+		// we can sandbox the iframe and not allow plugins but that is not a solution for all
+		// browsers, i.e. IE. Nulling out this call until we have an acceptable solution.
+		pdfLink = null;
+
 		if(pdfLink.length) {
 			fetchEmbeddedPdf(pdfLink[0].href, item,
 				function() { item.complete(); });
