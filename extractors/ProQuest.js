@@ -428,14 +428,14 @@ function scrape(doc, url, type, pdfUrl) {
 		// browsers, i.e. IE. Nulling out this call until we have an acceptable solution.
 		pdfLink = null;
 
-		if(pdfLink.length) {
+		if(pdfLink && pdfLink.length) {
 			fetchEmbeddedPdf(pdfLink[0].href, item,
 				function() { item.complete(); });
 			
 		}
 	}
 
-	if(pdfUrl || !pdfLink.length) {
+	if(pdfUrl || !pdfLink) {
 		item.complete();
 	}
 }
