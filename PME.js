@@ -1329,6 +1329,12 @@ function HiddenDocument(url, cont) {
 		cont(null);
 	}, 20 * 1000);
 
+	// this is to thwart a strange FF bug
+	// that doesn't allow you to load the same page in an iframe
+	if (document.location.href === url) {
+		log("document url matches iframe url. Fixing.");
+		url += url.indexOf("?") !== -1 ? "&" : "?" + "randPMEParam=1";
+	}
 	iframe.src = url;
 }
 
