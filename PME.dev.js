@@ -1390,6 +1390,7 @@ function hostNameForURL(url) {
 }
 
 function httpRequest(reqURL, callback) {
+	log("http request");
 	var pageHost = hostNameForURL(pageURL),
 		reqHost = hostNameForURL(reqURL),
 		request = null;
@@ -1404,7 +1405,9 @@ function httpRequest(reqURL, callback) {
 			request = new XMLHttpRequest();
 		else if (window.ActiveXObject)
 			request = new ActiveXObject("Microsoft.XMLHTTP");
-	} catch(e) {}
+	} catch(e) {
+		log("there was an error " + e.message);
+	}
 
 	// -- xhr events
 	function loadHandler()  { callback("load", request); }
@@ -1421,6 +1424,13 @@ function httpRequest(reqURL, callback) {
 			request.onload = loadHandler;
 			request.onerror = errorHandler;
 			request.onabort = abortHandler;
+			
+			// stupid IE. this is a hack. Check with Arthur.
+			request.onreadystatechange = function() {
+				if (request.readyState == 4) {
+					loadHandler();
+				}
+			}
 		}
 	}
 
