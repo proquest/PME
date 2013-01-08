@@ -1685,11 +1685,10 @@ window.FW = (function(){
 						return undefined;
 
 					var procVal = scrp.evalItem(val, doc, url);
-					// log("Scraper got kv", key, procVal);
-
+					log("Scraper got kv", key, procVal);
+					
 					if (key in multiList)
 						return flatten([procVal]);
-
 					return (procVal instanceof Array) ? procVal[0] : procVal;
 				});
 
