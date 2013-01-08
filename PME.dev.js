@@ -1613,7 +1613,7 @@ function Xpath(selector) {
 	var xp = ValueFilter();
 	xp.text = function() { return xp.addFilter(
 		function(obj) {
-			return obj.textContent || obj;
+			return obj.textContent || obj.innerText || obj.text || obj.nodeValue;
 		}
 	);};
 

@@ -48,6 +48,7 @@ function scrape(doc, url, callDoneWhenFinished) {
 	//PME.debug(newurl)
 	PME.Util.HTTP.doGet(newurl, function (text) {
 		//LA is not an actual RIS tag, but we like to get that information where we can
+		PME.debug(text);
 		if (text.match(/LA  -/)) {
 			var language = text.match(/LA  -.+/)[0].replace(/LA  - /, "");
 		};
