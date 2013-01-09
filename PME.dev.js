@@ -994,11 +994,10 @@ PME.Util.xpath = function(nodes, selector, namespaces) {
 		var doc = node.ownerDocument ? node.ownerDocument : (node.documentElement ? node : null);
 
 		function resolver(prefix) { return namespaces && namespaces[prefix]; }
-
+		
 		if ("evaluate" in doc) {
 			var xp = doc.evaluate(selector, node, resolver, XPathResult.ANY_TYPE, null),
 				el;
-
 			while (el = xp.iterateNext())
 				out.push(el);
 		}
@@ -1312,7 +1311,8 @@ function HiddenDocument(url, cont) {
 	}
 
 	pageDoc.body.appendChild(iframe);
-	iframe.onload = function() {
+	
+	function clearTimer() {
 		clearTimeout(timer);
 		timer = 0;
 		log("hidden document loaded", url);
@@ -1321,7 +1321,26 @@ function HiddenDocument(url, cont) {
 			doc: doc,
 			kill: kill
 		})
-	};
+	}
+	
+	if (iframe.addEventListener) {
+		iframe.onload = function () {
+			clearTimer();
+		};
+	} else if (iframe.readyState) {
+		request.onerror = errorHandler;
+		request.onabort = abortHandler;
+		
+		// for IE8 and Opera
+		iframe.onreadystatechange = function() {
+			if (iframe.readyState == "complete") {
+				clearTimer();
+			} else {
+				log("ready state change: " + iframe.readyState);
+			}
+
+		};
+	}
 
 	timer = setTimeout(function() {
 		// page gets a finite time to load
@@ -1335,6 +1354,7 @@ function HiddenDocument(url, cont) {
 		log("document url matches iframe url. Fixing.");
 		url += url.indexOf("?") !== -1 ? "&" : "?" + "randPMEParam=1";
 	}
+	
 	iframe.src = url;
 }
 
@@ -1421,10 +1441,6 @@ function httpRequest(reqURL, callback) {
 			request.addEventListener("abort", abortHandler, false);
 		}
 		else {
-			request.onload = loadHandler;
-			request.onerror = errorHandler;
-			request.onabort = abortHandler;
-			
 			// stupid IE. this is a hack. Check with Arthur.
 			request.onreadystatechange = function() {
 				if (request.readyState == 4) {

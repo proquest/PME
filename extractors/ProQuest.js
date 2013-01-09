@@ -54,12 +54,13 @@ function getTextValue(doc, fields) {
 
 	var allValues = [], values;
 	for(var i=0, n=fields.length; i<n; i++) {
+		PME.debug("checking field: " + fields[i]);
 		values = PME.Util.xpath(doc,
 			'//div[@class="display_record_indexing_fieldname" and\
 				normalize-space(text())="' + fields[i] +
 			'"]/following-sibling::div[@class="display_record_indexing_data"][1]');
-
-		if(values.length) values = [values[0].textContent];
+			
+		if(values.length) values = [values[0].textContent || values[0].innerText || values[0].text || values[0].nodeValue ];
 
 		allValues = allValues.concat(values);
 	}
@@ -128,10 +129,13 @@ function detectWeb(doc, url) {
 	//Check for multiple first
 	if (url.indexOf('docview') == -1 &&
 		url.indexOf('pagepdf') == -1) {
+		PME.debug("detected multiple!");
 		var resultitem = PME.Util.xpath(doc, '//a[contains(@href, "/docview/")]');
 		if (resultitem.length) {
 			return "multiple";
 		}
+	} else {
+		PME.debug("not multiple!");
 	}
 
 	var types = getTextValue(doc, ["Source type", "Document type", "Record type"]);
@@ -236,12 +240,12 @@ function scrape(doc, url, type, pdfUrl) {
 
 		if(!label || !value) continue;
 
-		label = label.textContent.trim();
-		value = value.textContent.trim();	//trimInternal?
+		label = (label.textContent || label.innerText || label.text || label.nodeValue).trim();
+		value = (value.textContent || value.innerText || value.text || value.nodeValue).trim();	//trimInternal?
 
 		//translate label
 		enLabel = L[label] || label;
-
+		PME.debug("label: " + enLabel);
 		switch(enLabel) {
 			case 'Title':
 				if(value == value.toUpperCase()) value = PME.Util.capitalizeTitle(value, true);
@@ -250,15 +254,15 @@ function scrape(doc, url, type, pdfUrl) {
 			case 'Author':
 			case 'Editor':	//test case?
 				var type = (enLabel == 'Author')? 'author' : 'editor';
-
 				// Use titles of a tags if they exist, since these don't include
 				// affiliations
 				value = PME.Util.xpathText(rows[i].childNodes[1], "a/@title", null, "; ") || value;
-
+				PME.debug("line 261");
 				value = value.replace(/^by\s+/i,'')	//sometimes the authors begin with "By"
 							.split(/\s*;\s*|\s+and\s+/i);
-
+				PME.debug("line 264");
 				for(var j=0, m=value.length; j<m; j++) {
+					PME.debug("line 266: j: " + j + " m: " + m);
 					/**TODO: might have to detect proper creator type from item type*/
 					item.creators.push(
 						PME.Util.cleanAuthor(value[j], type, value[j].indexOf(',') != -1));
@@ -355,7 +359,7 @@ function scrape(doc, url, type, pdfUrl) {
 				PME.debug('Unhandled field: "' + label + '"');
 		}
 	}
-
+	PME.debug("done processing rows");
 	item.url = url;
 
 	if(place.publicationPlace) {
@@ -398,7 +402,7 @@ function scrape(doc, url, type, pdfUrl) {
 	item.abstractNote = PME.Util.xpath(doc,
 		'//div[@id="abstractZone" or contains(@id,"abstractFull")]/\
 			p[normalize-space(text())]')
-		.map(function(p) { return PME.Util.trimInternal(p.textContent) })
+		.map(function(p) { return PME.Util.trimInternal(p.textContent || p.innerText || p.text || p.nodeValue) })
 		.join('\n');
 
 	if(!item.tags && altKeywords.length) {
