@@ -59,6 +59,7 @@ function getTextValue(doc, fields) {
 			'//div[@class="display_record_indexing_fieldname" and\
 				normalize-space(text())="' + fields[i] +
 			'"]/following-sibling::div[@class="display_record_indexing_data"][1]');
+		PME.debug("found " + values.length + " values on this page");
 			
 		if(values.length) values = [values[0].textContent || values[0].innerText || values[0].text || values[0].nodeValue ];
 
@@ -129,14 +130,11 @@ function detectWeb(doc, url) {
 	//Check for multiple first
 	if (url.indexOf('docview') == -1 &&
 		url.indexOf('pagepdf') == -1) {
-		PME.debug("detected multiple!");
 		var resultitem = PME.Util.xpath(doc, '//a[contains(@href, "/docview/")]');
 		if (resultitem.length) {
 			return "multiple";
 		}
-	} else {
-		PME.debug("not multiple!");
-	}
+	} 
 
 	var types = getTextValue(doc, ["Source type", "Document type", "Record type"]);
 	var zoteroType = getItemType(types);
@@ -149,7 +147,7 @@ function detectWeb(doc, url) {
 	}
 
 	// Fall back on journalArticle-- even if we couldn't guess the type
-	if(types.length) return "journalArticle";
+	if(!types.length) return "journalArticle";
 
 	if (url.indexOf("/results/") === -1) {
 		//we might be on a page with a link to the abstract/metadata
@@ -245,7 +243,6 @@ function scrape(doc, url, type, pdfUrl) {
 
 		//translate label
 		enLabel = L[label] || label;
-		PME.debug("label: " + enLabel);
 		switch(enLabel) {
 			case 'Title':
 				if(value == value.toUpperCase()) value = PME.Util.capitalizeTitle(value, true);
@@ -256,14 +253,10 @@ function scrape(doc, url, type, pdfUrl) {
 				var type = (enLabel == 'Author')? 'author' : 'editor';
 				// Use titles of a tags if they exist, since these don't include
 				// affiliations
-				// IE hates this
 				value = PME.Util.xpathText(rows[i].childNodes[1], "a/@title", null, "; ") || value;
-				PME.debug("line 261");
 				value = value.replace(/^by\s+/i,'')	//sometimes the authors begin with "By"
 							.split(/\s*;\s*|\s+and\s+/i);
-				PME.debug("line 264");
 				for(var j=0, m=value.length; j<m; j++) {
-					PME.debug("line 266: j: " + j + " m: " + m);
 					/**TODO: might have to detect proper creator type from item type*/
 					item.creators.push(
 						PME.Util.cleanAuthor(value[j], type, value[j].indexOf(',') != -1));
@@ -360,7 +353,6 @@ function scrape(doc, url, type, pdfUrl) {
 				PME.debug('Unhandled field: "' + label + '"');
 		}
 	}
-	PME.debug("done processing rows");
 	item.url = url;
 
 	if(place.publicationPlace) {
@@ -381,6 +373,7 @@ function scrape(doc, url, type, pdfUrl) {
 	// or the date is not complete
 	var byline = PME.Util.xpath(doc, '//span[contains(@class, "titleAuthorETC")][last()]');
 	//add publication title if we don't already have it
+	PME.debug("item pub title: " + item.publicationTitle + " item type: " + item.itemType);
 	if(!item.publicationTitle
 		&& PME.Util.fieldIsValidForType('publicationTitle', item.itemType)) {
 		var pubTitle = PME.Util.xpathText(byline, './/a[@id="lateralSearch"]');

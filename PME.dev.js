@@ -1328,9 +1328,6 @@ function HiddenDocument(url, cont) {
 			clearTimer();
 		};
 	} else if (iframe.readyState) {
-		request.onerror = errorHandler;
-		request.onabort = abortHandler;
-		
 		// for IE8 and Opera
 		iframe.onreadystatechange = function() {
 			if (iframe.readyState == "complete") {
@@ -1443,8 +1440,10 @@ function httpRequest(reqURL, callback) {
 		else {
 			// stupid IE. this is a hack. Check with Arthur.
 			request.onreadystatechange = function() {
-				if (request.readyState == 4) {
+				if (request.readyState == 4 && request.status === 200) {
 					loadHandler();
+				} else if (request.readyState == 4) {
+					log("page has loaded but status is not 200");
 				}
 			}
 		}
