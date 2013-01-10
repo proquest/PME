@@ -185,7 +185,6 @@ function scrapeEM(doc, url, pdfUrl) {
 					var m = text.match(/<iframe id="pdfDocument"[^>]+?src="([^"]+)"/i);
 					if(m) {
 						m[1] = PME.Util.unescapeHTML(m[1]);
-						PME.debug(m[1]);
 						item.attachments.push({url: m[1], title: 'Full Text PDF', mimeType: 'application/pdf'});
 					} else {
 						PME.debug('Could not determine PDF URL.');
@@ -297,7 +296,6 @@ function scrapeBibTeX(doc, url, pdfUrl) {
 						/<iframe id="pdfDocument"[^>]+?src="([^"]+)"/i);
 					if(m) {
 						m[1] = PME.Util.unescapeHTML(m[1]);
-						PME.debug('PDF url: ' + m[1]);
 						item.attachments.push({url: m[1],
 							title: 'Full Text PDF',
 							mimeType: 'application/pdf'});

@@ -987,6 +987,34 @@ PME.Util.removeDiacritics = function(str, lowerCaseOnly) {
 	return str; 
 };
 
+// -- add xpath helper javascript if browser doesn't have native support for xpath (IE)
+PME.Util.xpathHelper = function(docWindow, doc, callback) {
+	log("adding XPath helper script");
+	var h = doc.getElementsByTagName('head')[0];
+	var ie_xpath=doc.createElement('SCRIPT');
+	ie_xpath.src='http://'+ PME_SRV + '/wgxpath.install.js';
+	h.appendChild(ie_xpath);
+	
+	waitFor(
+		function() {
+			return !!(docWindow.wgxpath && docWindow.wgxpath.install);
+		},
+		2000,
+		function(success) {
+			log("waitFor complete", success);
+			if (success) {
+				docWindow.wgxpath.install();
+				log("wgxpath loaded: " + doc.evaluate);
+				if (callback)
+					callback();
+			}
+			else {
+				log("wgxpath not loaded");
+			}
+		}
+	); // waitFor
+}
+
 PME.Util.xpath = function(nodes, selector, namespaces) {
 	var out = [];
 
@@ -1316,11 +1344,24 @@ function HiddenDocument(url, cont) {
 		clearTimeout(timer);
 		timer = 0;
 		log("hidden document loaded", url);
-
-		cont({
-			doc: doc,
-			kill: kill
-		})
+		
+		if (!(iframe.contentWindow || iframe.contentDocument).document.evaluate) {
+			log("adding xpath to iframe");
+			PME.Util.xpathHelper((iframe.contentWindow || iframe.contentDocument), (iframe.contentWindow || iframe.contentDocument).document, 
+				function() {
+					cont({
+						doc: doc,
+						kill: kill
+					})
+				});
+		} else {
+			cont({
+				doc: doc,
+				kill: kill
+			})
+		}
+		
+		
 	}
 	
 	if (iframe.addEventListener) {
@@ -1710,7 +1751,7 @@ window.FW = (function(){
 						return undefined;
 
 					var procVal = scrp.evalItem(val, doc, url);
-					log("Scraper got kv", key, procVal);
+					//log("Scraper got kv", key, procVal);
 					
 					if (key in multiList)
 						return flatten([procVal]);
@@ -1796,12 +1837,26 @@ PME.getPageMetaData = function(callback) {
 		pmeCallback = callback;
 
 		var trans = Registry.matchURL(pageURL);
-		if (! trans)
-			completed(null);
-		else {
+		
+		var doTranslation = function() {
 			var t = PME.loadTranslator("web");
 			t.setTranslator(trans);
 			t.translate();
+		}
+		
+		if (! trans)
+			completed(null);
+		else {
+			// add XPath helper javascript if document.evaluate is not defined
+			// make sure it has loaded before proceeding
+			if (!pageDoc.evaluate) {
+				PME.Util.xpathHelper(window, pageDoc, function() {
+					doTranslation();
+				})
+			} else {
+				doTranslation();
+			}
+			
 		}
 	}
 	catch(e) {

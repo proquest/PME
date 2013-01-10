@@ -54,12 +54,10 @@ function getTextValue(doc, fields) {
 
 	var allValues = [], values;
 	for(var i=0, n=fields.length; i<n; i++) {
-		PME.debug("checking field: " + fields[i]);
 		values = PME.Util.xpath(doc,
 			'//div[@class="display_record_indexing_fieldname" and\
 				normalize-space(text())="' + fields[i] +
 			'"]/following-sibling::div[@class="display_record_indexing_data"][1]');
-		PME.debug("found " + values.length + " values on this page");
 			
 		if(values.length) values = [values[0].textContent || values[0].innerText || values[0].text || values[0].nodeValue ];
 
@@ -373,7 +371,6 @@ function scrape(doc, url, type, pdfUrl) {
 	// or the date is not complete
 	var byline = PME.Util.xpath(doc, '//span[contains(@class, "titleAuthorETC")][last()]');
 	//add publication title if we don't already have it
-	PME.debug("item pub title: " + item.publicationTitle + " item type: " + item.itemType);
 	if(!item.publicationTitle
 		&& PME.Util.fieldIsValidForType('publicationTitle', item.itemType)) {
 		var pubTitle = PME.Util.xpathText(byline, './/a[@id="lateralSearch"]');
