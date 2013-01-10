@@ -256,6 +256,7 @@ function scrape(doc, url, type, pdfUrl) {
 				var type = (enLabel == 'Author')? 'author' : 'editor';
 				// Use titles of a tags if they exist, since these don't include
 				// affiliations
+				// IE hates this
 				value = PME.Util.xpathText(rows[i].childNodes[1], "a/@title", null, "; ") || value;
 				PME.debug("line 261");
 				value = value.replace(/^by\s+/i,'')	//sometimes the authors begin with "By"
