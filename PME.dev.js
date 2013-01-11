@@ -135,7 +135,7 @@ var pageURL, pageDoc,
 // |_|\___/ \__, |\__, |_|_| |_|\__, |
 //          |___/ |___/         |___/ 
 // ------------------------------------------------------------------------
-function log() {
+function log(m1, m2, m3) {
 	var stuff = Array.prototype.slice.call(arguments, 0);
 	stuff.unshift("PME");
 	if(window.console && console.info) {
@@ -187,7 +187,16 @@ if ((! window.DOMParser) && window.ActiveXObject) {
 
 			var doc = new ActiveXObject("Microsoft.XMLDOM");
 			doc.async = false;
-			doc.loadXML(text); 
+
+			// IE does not like certain DTDs, so we just strip out the whole DOCTYPE tag
+			var cleansedText = text.replace(/<\!DOCTYPE([^>]+)>/, "");
+
+			var success = doc.loadXML(cleansedText);
+			if (! success) {
+				fatal("Encountered error in DOMParser shim: ", doc.parseError.reason);
+				throw new Error("forced stop in PME DOMParser shim");
+			}
+			return doc;
 		}
 	};
 }
@@ -1345,6 +1354,7 @@ function HiddenDocument(url, cont) {
 		timer = 0;
 		log("hidden document loaded", url);
 		
+		log("checking if I need to add xpath");
 		if (!(iframe.contentWindow || iframe.contentDocument).document.evaluate) {
 			log("adding xpath to iframe");
 			PME.Util.xpathHelper((iframe.contentWindow || iframe.contentDocument), (iframe.contentWindow || iframe.contentDocument).document, 
@@ -1444,7 +1454,7 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 PME.Util.HTTP = {};
 
 function hostNameForURL(url) {
-	return (/^(https?:\/\/[^\/]+)\//.exec(pageURL)[1] || "").toLowerCase();
+	return (/^(https?:\/\/[^\/]+)\//.exec(url)[1] || "").toLowerCase();
 }
 
 function httpRequest(reqURL, callback) {
@@ -1457,7 +1467,7 @@ function httpRequest(reqURL, callback) {
 		reqHost = pageHost;
 
 	try {
-		if (window.XDomainRequest && pageHost != reqHost)
+		if (window.XDomainRequest && (pageHost != reqHost))
 			request = new XDomainRequest();
 		else if (window.XMLHttpRequest)
 			request = new XMLHttpRequest();
@@ -1479,13 +1489,19 @@ function httpRequest(reqURL, callback) {
 			request.addEventListener("abort", abortHandler, false);
 		}
 		else {
-			// stupid IE. this is a hack. Check with Arthur.
-			request.onreadystatechange = function() {
-				if (request.readyState == 4 && request.status === 200) {
-					loadHandler();
-				} else if (request.readyState == 4) {
-					log("page has loaded but status is not 200");
+			request.onerror = errorHandler;
+
+			if (reqHost == pageHost) {
+				request.onreadystatechange = function() {
+					if (request.readyState == 4 && request.status === 200) {
+						loadHandler();
+					} else if (request.readyState == 4) {
+						log("page has loaded but status is not 200");
+					}
 				}
+			}
+			else {
+				request.onload = function() { loadHandler(); };
 			}
 		}
 	}
@@ -1499,10 +1515,14 @@ PME.Util.HTTP.doGet = function(url, callback, charset) {
 		request = httpRequest(url, function(status) {
 			log("HTTP GET status: ", status, request);
 
-			if (status == "load")
-				callback(request.responseText);
-			else
-				callback("");
+			try {
+				if (status == "load")
+					callback(request.responseText);
+				else
+					callback("");
+			} catch(e) {
+				fatal("Error in HTTP GET callback", e);
+			}
 
 			getReady();
 		});
@@ -1523,10 +1543,14 @@ PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
 		request = httpRequest(url, function(status) {
 			log("HTTP POST status: ", status, request);
 
-			if (status == "load")
-				callback(request.responseText);
-			else
-				callback("");
+			try {
+				if (status == "load")
+					callback(request.responseText);
+				else
+					callback("");
+			} catch(e) {
+				fatal("Error in HTTP POST callback", e);
+			}
 
 			postReady();
 		});
@@ -1751,7 +1775,7 @@ window.FW = (function(){
 						return undefined;
 
 					var procVal = scrp.evalItem(val, doc, url);
-					//log("Scraper got kv", key, procVal);
+					// log("Scraper got kv", key, procVal);
 					
 					if (key in multiList)
 						return flatten([procVal]);

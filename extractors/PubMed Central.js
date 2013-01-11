@@ -53,7 +53,7 @@ function lookupPMCIDs(ids, doc, pdfLink) {
 
 		var articles = PME.Util.xpath(doc, '/pmcarticleset/article');
 
-		for(var i in articles) {
+		for (var i=0; i<articles.length; ++i) {
 			var newItem = new PME.Item("journalArticle");
 			
 			var journal = PME.Util.xpath(articles[i], 'front/journalmeta');
@@ -82,7 +82,7 @@ function lookupPMCIDs(ids, doc, pdfLink) {
 			} else {
 				var abstractSections = PME.Util.xpath(article, 'abstract/sec');
 				var abstract = [];
-				for (var j in abstractSections) {
+				for (var j=0; j<abstractSections.length; ++j) {
 					abstract.push(PME.Util.xpathText(abstractSections[j], 'title') + "\n" + PME.Util.xpathText(abstractSections[j], 'p'));
 				}
 				newItem.abstractNote = abstract.join("\n\n");
@@ -123,7 +123,7 @@ function lookupPMCIDs(ids, doc, pdfLink) {
 			var contributors = PME.Util.xpath(article, 'contribgroup/contrib');
 			if (contributors) {
 				var authors = PME.Util.xpath(article, 'contribgroup/contrib[@contribtype="author"]');
-				for (var j in authors) {
+				for (var j=0; j<authors.length; ++j) {
 					var lastName = PME.Util.xpathText(authors[j], 'name/surname');
 					var firstName = PME.Util.xpathText(authors[j], 'name/givennames');
 					if (firstName || lastName) {
