@@ -1454,6 +1454,9 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 PME.Util.HTTP = {};
 
 function hostNameForURL(url) {
+	log("url: " + url);
+	if (url.indexOf("http") == -1)
+		return "";
 	return (/^(https?:\/\/[^\/]+)\//.exec(url)[1] || "").toLowerCase();
 }
 
@@ -1463,7 +1466,6 @@ function httpRequest(reqURL, callback) {
 		reqHost = hostNameForURL(reqURL),
 		request = null;
 
-	//log("pagehost: " + pageHost + " reqHost: " + reqHost);
 	if (! reqHost.length)
 		reqHost = pageHost;
 
