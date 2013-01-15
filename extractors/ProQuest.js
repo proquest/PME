@@ -241,6 +241,7 @@ function scrape(doc, url, type, pdfUrl) {
 
 		//translate label
 		enLabel = L[label] || label;
+
 		switch(enLabel) {
 			case 'Title':
 				if(value == value.toUpperCase()) value = PME.Util.capitalizeTitle(value, true);
@@ -251,7 +252,8 @@ function scrape(doc, url, type, pdfUrl) {
 				var type = (enLabel == 'Author')? 'author' : 'editor';
 				// Use titles of a tags if they exist, since these don't include
 				// affiliations
-				value = PME.Util.xpathText(rows[i].childNodes[1], "a/@title", null, "; ") || value;
+				value = rows[i].childNodes[1].evaluate ? PME.Util.xpathText(rows[i].childNodes[1], "a/@title", null, "; ") || value : value;
+				
 				value = value.replace(/^by\s+/i,'')	//sometimes the authors begin with "By"
 							.split(/\s*;\s*|\s+and\s+/i);
 				for(var j=0, m=value.length; j<m; j++) {
@@ -352,7 +354,7 @@ function scrape(doc, url, type, pdfUrl) {
 		}
 	}
 	item.url = url;
-
+	
 	if(place.publicationPlace) {
 		item.place = place.publicationPlace;
 		if(place.publicationCountry) {
@@ -361,24 +363,31 @@ function scrape(doc, url, type, pdfUrl) {
 	} else if(place.schoolLocation) {
 		item.place = place.schoolLocation;
 	}
-
 	item.date = dates.pop();
-
+	
 	//sometimes number of pages ends up in pages
 	if(!item.numPages) item.numPages = item.pages;
-
+	
 	//parse some data from the byline in case we're missing publication title
 	// or the date is not complete
-	var byline = PME.Util.xpath(doc, '//span[contains(@class, "titleAuthorETC")][last()]');
+	PME.debug("byline: ")
+	var byline = PME.Util.xpathText(doc, '//span[contains(@class, "titleAuthorETC")]//a[@id="lateralSearch"]');
+	PME.debug("byline: " + byline);
 	//add publication title if we don't already have it
 	if(!item.publicationTitle
 		&& PME.Util.fieldIsValidForType('publicationTitle', item.itemType)) {
-		var pubTitle = PME.Util.xpathText(byline, './/a[@id="lateralSearch"]');
+		//var pubTitle = PME.Util.xpathText(byline, './/a[@id="lateralSearch"]');
 		//remove date range
-		if(pubTitle) item.publicationTitle = pubTitle.replace(/\s*\(.+/, '');
+		if(byline) {
+			byline = byline.split(",");
+			byline = byline[byline.length - 1];
+			PME.debug("byline: " + byline);
+			item.publicationTitle = pubTitle.replace(/\s*\(.+/, '');
+		}
+			
 	}
 
-	var date = PME.Util.xpathText(byline, './text()');
+	var date = byline;
 	// is this regular expression ever right?
 	//if(date) date = date.match(/]\s+(.+?):/);
 	if(date) date = date.match(/\s+\((.*?)\):/);
