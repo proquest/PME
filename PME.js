@@ -1454,6 +1454,8 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 PME.Util.HTTP = {};
 
 function hostNameForURL(url) {
+	if (url.indexOf("http") == -1)
+		return "";
 	return (/^(https?:\/\/[^\/]+)\//.exec(url)[1] || "").toLowerCase();
 }
 
@@ -1466,8 +1468,9 @@ function httpRequest(reqURL, callback) {
 	if (! reqHost.length)
 		reqHost = pageHost;
 
+	var sameHost = pageHost === reqHost ;
 	try {
-		if (window.XDomainRequest && (pageHost != reqHost))
+		if (window.XDomainRequest && (! sameHost))
 			request = new XDomainRequest();
 		else if (window.XMLHttpRequest)
 			request = new XMLHttpRequest();
@@ -1491,7 +1494,7 @@ function httpRequest(reqURL, callback) {
 		else {
 			request.onerror = errorHandler;
 
-			if (reqHost == pageHost) {
+			if (sameHost) {
 				request.onreadystatechange = function() {
 					if (request.readyState == 4 && request.status === 200) {
 						loadHandler();
