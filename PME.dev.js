@@ -1453,6 +1453,7 @@ function httpRequest(reqURL, callback) {
 		reqHost = hostNameForURL(reqURL),
 		request = null;
 
+	//log("pagehost: " + pageHost + " reqHost: " + reqHost);
 	if (! reqHost.length)
 		reqHost = pageHost;
 
