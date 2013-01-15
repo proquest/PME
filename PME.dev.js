@@ -679,6 +679,7 @@ PME.Translator = function(type) {
 		waitForTranslatorClass(function() {
 			try {
 				log('run translator', trClass.name, trClass, 'with url', url, 'and doc', doc);
+				log("type: " + type);
 				if (type == "import")
 					trClass.api.doImport();
 				else if (type == "web")
