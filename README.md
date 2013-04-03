@@ -2,7 +2,7 @@
 
 Publication Metadata Extraction (PME) provides functionality for extracting document-specific journal/article metadata out of site-specific web pages, at the time of viewing the page in a user’s web browser.
 
-PME is a freely available open source project (licensed under AGPLv3) based on the Zotero Web Translators ([on Github](https://github.com/zotero/translators); [project documentation](http://www.zotero.org/support/dev/translators)). PME makes these translators easier to use by implementing some of the boiler plate code referred to in the translators. It also adds/improves on the translators a bit.
+PME is a freely available open source project, licensed under AGPLv3. It is based on the Zotero Web Translators ([on Github](https://github.com/zotero/translators); [project documentation](http://www.zotero.org/support/dev/translators)). PME adapts this work making the translators easier to use by implementing boiler plate code and adding cross-browser support. 
 
 ## Using PME
 
@@ -21,7 +21,7 @@ An object with the following fields:
 
 * `Item[] items`
 
-The Item object:
+where an item is:
 
 * `string title`
 * `string[] authors`
@@ -34,3 +34,24 @@ The Item object:
 * `string docURL`
 
 All fields are optional and dependent on the source page.
+
+# AGPL v3 License
+
+Publication Metadata Extraction – extracts metadata from online publication pages.
+Copyright (C) 2013 ProQuest LLC
+
+Based on the Zotero Web Translators - https://github.com/zotero/translators
+Project documentation at http://www.zotero.org/support/dev/translators.
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
