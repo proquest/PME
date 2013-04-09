@@ -1,3 +1,23 @@
+/*
+    Publication Metadata Extraction – extracts metadata from online publication pages.
+    Copyright (C) 2013 ProQuest LLC
+
+    Based on the Zotero Web Translators - https://github.com/zotero/translators
+    Project documentation at http://www.zotero.org/support/dev/translators.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 (function() {
 "use strict";
 // PME.js
@@ -23,7 +43,7 @@ var Registry = (function() {
 			m: "^http://(online|blogs)?\\.wsj\\.com/",
 			g: "53f8d182-4edc-4eab-b5a1-141698a1303b"
 		},
-		"PubMed Central": {
+		"PubMed Central Dev": {
 			m: "https?://[^/]*.nih.gov/",
 			g: "27ee5b2c-2a5a-4afc-a0aa-d386642d4eed"
 		},
@@ -364,7 +384,7 @@ function completed(data) {
 }
 
 function success() {
-	completed(PME.items.length ? { items: PME.items } : null);
+	completed((PME.items && PME.items.length) ? { items: PME.items } : null);
 }
 
 function taskStarted(label) {
@@ -678,7 +698,7 @@ PME.Translator = function(type) {
 
 		waitForTranslatorClass(function() {
 			try {
-				log('run translator', trClass.name, trClass, 'with url', url, 'and doc', doc);
+				log("run translator", trClass.name, "of type", type, trClass, 'with url', url, 'and doc', doc);
 				if (type == "import")
 					trClass.api.doImport();
 				else if (type == "web")
@@ -1049,6 +1069,10 @@ PME.Util.xpath = function(nodes, selector, namespaces) {
 			var sn = node.selectNodes(selector);
 			for (var i=0; i < sn.length; ++i)
 				out.push(sn[i]);
+		}
+		else {
+			fatal("No XPath selection method available.");
+			throw new Error("forced stop in PME.Util.xpath");
 		}
 	});
 	
@@ -1454,6 +1478,8 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 PME.Util.HTTP = {};
 
 function hostNameForURL(url) {
+	if (url.indexOf("http") == -1)
+		return "";
 	return (/^(https?:\/\/[^\/]+)\//.exec(url)[1] || "").toLowerCase();
 }
 
@@ -1466,8 +1492,9 @@ function httpRequest(reqURL, callback) {
 	if (! reqHost.length)
 		reqHost = pageHost;
 
+	var sameHost = pageHost === reqHost ;
 	try {
-		if (window.XDomainRequest && (pageHost != reqHost))
+		if (window.XDomainRequest && (! sameHost))
 			request = new XDomainRequest();
 		else if (window.XMLHttpRequest)
 			request = new XMLHttpRequest();
@@ -1491,7 +1518,7 @@ function httpRequest(reqURL, callback) {
 		else {
 			request.onerror = errorHandler;
 
-			if (reqHost == pageHost) {
+			if (sameHost) {
 				request.onreadystatechange = function() {
 					if (request.readyState == 4 && request.status === 200) {
 						loadHandler();

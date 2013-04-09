@@ -1,3 +1,23 @@
+/*
+    Publication Metadata Extraction – extracts metadata from online publication pages.
+    Copyright (C) 2013 ProQuest LLC
+
+    Based on the Zotero Web Translators - https://github.com/zotero/translators
+    Project documentation at http://www.zotero.org/support/dev/translators.
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as
+    published by the Free Software Foundation, either version 3 of the
+    License, or (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 (function() {
 "use strict";
 // PME.js
@@ -135,7 +155,7 @@ var pageURL, pageDoc,
 // |_|\___/ \__, |\__, |_|_| |_|\__, |
 //          |___/ |___/         |___/ 
 // ------------------------------------------------------------------------
-function log() {
+function log(m1, m2, m3) {
 	var stuff = Array.prototype.slice.call(arguments, 0);
 	stuff.unshift("PME");
 	if(window.console && console.info) {
@@ -187,7 +207,16 @@ if ((! window.DOMParser) && window.ActiveXObject) {
 
 			var doc = new ActiveXObject("Microsoft.XMLDOM");
 			doc.async = false;
-			doc.loadXML(text); 
+
+			// IE does not like certain DTDs, so we just strip out the whole DOCTYPE tag
+			var cleansedText = text.replace(/<\!DOCTYPE([^>]+)>/, "");
+
+			var success = doc.loadXML(cleansedText);
+			if (! success) {
+				fatal("Encountered error in DOMParser shim: ", doc.parseError.reason);
+				throw new Error("forced stop in PME DOMParser shim");
+			}
+			return doc;
 		}
 	};
 }
@@ -355,7 +384,7 @@ function completed(data) {
 }
 
 function success() {
-	completed(PME.items.length ? { items: PME.items } : null);
+	completed((PME.items && PME.items.length) ? { items: PME.items } : null);
 }
 
 function taskStarted(label) {
@@ -669,7 +698,7 @@ PME.Translator = function(type) {
 
 		waitForTranslatorClass(function() {
 			try {
-				log('run translator', trClass.name, trClass, 'with url', url, 'and doc', doc);
+				log("run translator", trClass.name, "of type", type, trClass, 'with url', url, 'and doc', doc);
 				if (type == "import")
 					trClass.api.doImport();
 				else if (type == "web")
@@ -987,6 +1016,34 @@ PME.Util.removeDiacritics = function(str, lowerCaseOnly) {
 	return str; 
 };
 
+// -- add xpath helper javascript if browser doesn't have native support for xpath (IE)
+PME.Util.xpathHelper = function(docWindow, doc, callback) {
+	log("adding XPath helper script");
+	var h = doc.getElementsByTagName('head')[0];
+	var ie_xpath=doc.createElement('SCRIPT');
+	ie_xpath.src='http://'+ PME_SRV + '/wgxpath.install.js';
+	h.appendChild(ie_xpath);
+	
+	waitFor(
+		function() {
+			return !!(docWindow.wgxpath && docWindow.wgxpath.install);
+		},
+		2000,
+		function(success) {
+			log("waitFor complete", success);
+			if (success) {
+				docWindow.wgxpath.install();
+				log("wgxpath loaded: " + doc.evaluate);
+				if (callback)
+					callback();
+			}
+			else {
+				log("wgxpath not loaded");
+			}
+		}
+	); // waitFor
+}
+
 PME.Util.xpath = function(nodes, selector, namespaces) {
 	var out = [];
 
@@ -994,11 +1051,10 @@ PME.Util.xpath = function(nodes, selector, namespaces) {
 		var doc = node.ownerDocument ? node.ownerDocument : (node.documentElement ? node : null);
 
 		function resolver(prefix) { return namespaces && namespaces[prefix]; }
-
+		
 		if ("evaluate" in doc) {
 			var xp = doc.evaluate(selector, node, resolver, XPathResult.ANY_TYPE, null),
 				el;
-
 			while (el = xp.iterateNext())
 				out.push(el);
 		}
@@ -1013,6 +1069,10 @@ PME.Util.xpath = function(nodes, selector, namespaces) {
 			var sn = node.selectNodes(selector);
 			for (var i=0; i < sn.length; ++i)
 				out.push(sn[i]);
+		}
+		else {
+			fatal("No XPath selection method available.");
+			throw new Error("forced stop in PME.Util.xpath");
 		}
 	});
 	
@@ -1312,16 +1372,47 @@ function HiddenDocument(url, cont) {
 	}
 
 	pageDoc.body.appendChild(iframe);
-	iframe.onload = function() {
+	
+	function clearTimer() {
 		clearTimeout(timer);
 		timer = 0;
 		log("hidden document loaded", url);
+		
+		log("checking if I need to add xpath");
+		if (!(iframe.contentWindow || iframe.contentDocument).document.evaluate) {
+			log("adding xpath to iframe");
+			PME.Util.xpathHelper((iframe.contentWindow || iframe.contentDocument), (iframe.contentWindow || iframe.contentDocument).document, 
+				function() {
+					cont({
+						doc: doc,
+						kill: kill
+					})
+				});
+		} else {
+			cont({
+				doc: doc,
+				kill: kill
+			})
+		}
+		
+		
+	}
+	
+	if (iframe.addEventListener) {
+		iframe.onload = function () {
+			clearTimer();
+		};
+	} else if (iframe.readyState) {
+		// for IE8 and Opera
+		iframe.onreadystatechange = function() {
+			if (iframe.readyState == "complete") {
+				clearTimer();
+			} else {
+				log("ready state change: " + iframe.readyState);
+			}
 
-		cont({
-			doc: doc,
-			kill: kill
-		})
-	};
+		};
+	}
 
 	timer = setTimeout(function() {
 		// page gets a finite time to load
@@ -1335,6 +1426,7 @@ function HiddenDocument(url, cont) {
 		log("document url matches iframe url. Fixing.");
 		url += url.indexOf("?") !== -1 ? "&" : "?" + "randPMEParam=1";
 	}
+	
 	iframe.src = url;
 }
 
@@ -1386,10 +1478,13 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 PME.Util.HTTP = {};
 
 function hostNameForURL(url) {
-	return (/^(https?:\/\/[^\/]+)\//.exec(pageURL)[1] || "").toLowerCase();
+	if (url.indexOf("http") == -1)
+		return "";
+	return (/^(https?:\/\/[^\/]+)\//.exec(url)[1] || "").toLowerCase();
 }
 
 function httpRequest(reqURL, callback) {
+	log("http request");
 	var pageHost = hostNameForURL(pageURL),
 		reqHost = hostNameForURL(reqURL),
 		request = null;
@@ -1397,14 +1492,17 @@ function httpRequest(reqURL, callback) {
 	if (! reqHost.length)
 		reqHost = pageHost;
 
+	var sameHost = pageHost === reqHost ;
 	try {
-		if (window.XDomainRequest && pageHost != reqHost)
+		if (window.XDomainRequest && (! sameHost))
 			request = new XDomainRequest();
 		else if (window.XMLHttpRequest)
 			request = new XMLHttpRequest();
 		else if (window.ActiveXObject)
 			request = new ActiveXObject("Microsoft.XMLHTTP");
-	} catch(e) {}
+	} catch(e) {
+		log("there was an error " + e.message);
+	}
 
 	// -- xhr events
 	function loadHandler()  { callback("load", request); }
@@ -1418,9 +1516,20 @@ function httpRequest(reqURL, callback) {
 			request.addEventListener("abort", abortHandler, false);
 		}
 		else {
-			request.onload = loadHandler;
 			request.onerror = errorHandler;
-			request.onabort = abortHandler;
+
+			if (sameHost) {
+				request.onreadystatechange = function() {
+					if (request.readyState == 4 && request.status === 200) {
+						loadHandler();
+					} else if (request.readyState == 4) {
+						log("page has loaded but status is not 200");
+					}
+				}
+			}
+			else {
+				request.onload = function() { loadHandler(); };
+			}
 		}
 	}
 
@@ -1433,10 +1542,14 @@ PME.Util.HTTP.doGet = function(url, callback, charset) {
 		request = httpRequest(url, function(status) {
 			log("HTTP GET status: ", status, request);
 
-			if (status == "load")
-				callback(request.responseText);
-			else
-				callback("");
+			try {
+				if (status == "load")
+					callback(request.responseText);
+				else
+					callback("");
+			} catch(e) {
+				fatal("Error in HTTP GET callback", e);
+			}
 
 			getReady();
 		});
@@ -1457,10 +1570,14 @@ PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
 		request = httpRequest(url, function(status) {
 			log("HTTP POST status: ", status, request);
 
-			if (status == "load")
-				callback(request.responseText);
-			else
-				callback("");
+			try {
+				if (status == "load")
+					callback(request.responseText);
+				else
+					callback("");
+			} catch(e) {
+				fatal("Error in HTTP POST callback", e);
+			}
 
 			postReady();
 		});
@@ -1613,7 +1730,7 @@ function Xpath(selector) {
 	var xp = ValueFilter();
 	xp.text = function() { return xp.addFilter(
 		function(obj) {
-			return obj.textContent || obj;
+			return obj.textContent || obj.innerText || obj.text || obj.nodeValue;
 		}
 	);};
 
@@ -1686,10 +1803,9 @@ window.FW = (function(){
 
 					var procVal = scrp.evalItem(val, doc, url);
 					// log("Scraper got kv", key, procVal);
-
+					
 					if (key in multiList)
 						return flatten([procVal]);
-
 					return (procVal instanceof Array) ? procVal[0] : procVal;
 				});
 
@@ -1772,12 +1888,26 @@ PME.getPageMetaData = function(callback) {
 		pmeCallback = callback;
 
 		var trans = Registry.matchURL(pageURL);
-		if (! trans)
-			completed(null);
-		else {
+		
+		var doTranslation = function() {
 			var t = PME.loadTranslator("web");
 			t.setTranslator(trans);
 			t.translate();
+		}
+		
+		if (! trans)
+			completed(null);
+		else {
+			// add XPath helper javascript if document.evaluate is not defined
+			// make sure it has loaded before proceeding
+			if (!pageDoc.evaluate) {
+				PME.Util.xpathHelper(window, pageDoc, function() {
+					doTranslation();
+				})
+			} else {
+				doTranslation();
+			}
+			
 		}
 	}
 	catch(e) {
