@@ -175,16 +175,18 @@ function doWeb(doc, url) {
 	if (detectWeb(doc, url) === "multiple") {
 		/* Get title links and text */
 		var titlex = '//a[@class = "title-link color-p4"]';
+		
 		var titles = doc.evaluate(titlex, doc, nsResolver, XPathResult.ANY_TYPE, null);
-
+		
 		/* Get folder data for AN, DB, and tag */
+		// this fails in IE8 with 'Object doesn't support property or method "each"'
 		var folderx = '//span[@class = "item add-to-folder"]/input/@value';
 		var folderData = doc.evaluate(folderx, doc, nsResolver, XPathResult.ANY_TYPE, null);
-
 		var items = {};
 		var folderInfos = {};
 		var title, folderInfo;
-
+		
+		
 		/* load up urls, title text and records keys (DB, AN, tag) */
 		while (title = titles.iterateNext()) {
 			items[title.href] = title.textContent;
@@ -259,7 +261,8 @@ function doDelivery(doc, nsResolver, folderData, onDone) {
 		folderData.Term = folderData.uiTerm;
 		folderData.Tag = folderData.uiTag;
 	}
-	var postURL = doc.evaluate('//form[@id="aspnetForm"]/@action', doc, nsResolver, XPathResult.ANY_TYPE, null).iterateNext().textContent;
+	var postURL = doc.evaluate('//form[@id="aspnetForm"]/@action', doc, nsResolver, XPathResult.ANY_TYPE, null).iterateNext();
+	postURL = postURL.textContent || postURL.innerText || postURL.text || postURL.nodeValue ;
 
 	var queryString = {};
 	postURL.replace(

@@ -15,7 +15,8 @@ var translatorSpec =
 }
 
 function detectWeb(doc, url) {
-	if(doc.defaultView !== doc.defaultView.top) return false;
+	// IE8 doesn't support document.defaultView
+	if(doc.defaultView && (doc.defaultView !== doc.defaultView.top)) return false;
 
 	var articleRe = /[?&]ar(N|n)umber=([0-9]+)/;
 	var m = articleRe.exec(url);
