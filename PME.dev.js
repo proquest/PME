@@ -485,9 +485,24 @@ PME.Item = function(type) {
 	this.notes = [];
 
 	this.complete = function() {
-		log("item completed", this);
-		PME.items.push(this);
-		delete this.complete;
+		log("Item.complete called", this, "checking itemDone handlers");
+		var completeReady = taskStarted("itemComplete");
+
+		function finishComplete() {
+			PME.items.push(this);
+			delete this.complete; // make it an error to try complete again
+			completeReady();
+		};
+
+		this.complete = finishComplete;
+
+		var waitForHandlers = PME.Translator.triggerEvent("itemDone", this, this); // yes, 2x this, likely some legacy thing
+		if (waitForHandlers) {
+			// itemDone handlers will call item.complete again
+			log("Item.complete: itemDone handlers were run");
+		}
+		else
+			finishComplete();
 	};
 };
 
@@ -598,7 +613,7 @@ PME.Translator = function(type) {
 	}
 
 	function getTranslatorObject(cont) {
-		if (!pmeOK) return;
+		if (! pmeOK) return;
 		if (! trClass) {
 			fatal("getTranslatorObject() called on uninited Translator");
 			return;
@@ -664,9 +679,10 @@ PME.Translator = function(type) {
 
 	function notifyHandlers(event /*, param1, .., paramN */) {
 		var ha = handlers[event];
-		if (! ha) return;
+		if ((! ha) || (! ha.length)) return false;
 		var args = Array.prototype.slice.call(arguments, 1);
 		each(ha, function(h) { h.apply(null, args); });
+		return true;
 	}
 
 	function waitForTranslatorClass(cont) {
@@ -677,7 +693,7 @@ PME.Translator = function(type) {
 
 		waitFor(
 			function() { return !!trClass.api; },
-			5000,
+			10 * 1000,
 			function(success) {
 				if (! success)
 					fatal("timeout while waiting for translator class", trClass.name, "(" + trClass.id + ")");
@@ -740,6 +756,22 @@ PME.loadTranslator = function(type) {
 	PME.Translator.stack.unshift(tr);
 	return tr;
 };
+
+// -- trigger an event in the translator chain
+PME.Translator.triggerEvent = function(event /*, param1, .., paramN */) {
+	var handled = false,
+		trIx = 0,
+		tr,
+		args = Array.prototype.slice.call(arguments, 0);
+
+	do {
+		tr = PME.Translator.stack[trIx++];
+		if (tr)
+			handled = tr.notifyHandlers.apply(tr, args); // forward call to tr's notifyHandler
+	} while ((! handled) && tr);
+
+	return handled;
+}
 
 // -- import translators use PME.read() to read from data set by trans.setString()
 PME.read = function(size) {
@@ -1536,7 +1568,7 @@ function httpRequest(reqURL, callback) {
 	return request;
 }
 
-PME.Util.HTTP.doGet = function(url, callback, charset) {
+PME.Util.HTTP.doGet = PME.Util.doGet = function(url, callback, charset) {
 	log("HTTP GET request: ", url);
 	var getReady = taskStarted("HTTP.doGet"),
 		request = httpRequest(url, function(status) {
@@ -1563,7 +1595,7 @@ PME.Util.HTTP.doGet = function(url, callback, charset) {
 	}
 };
 
-PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
+PME.Util.HTTP.doPost = PME.Util.doPost = function(url, data, callback, headers, charset) {
 	log("HTTP POST request: ", url, data);
 
 	var postReady = taskStarted("HTTP.doPost"),
