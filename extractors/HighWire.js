@@ -171,7 +171,8 @@ function doWeb(doc, url) {
 				var baseURL = 'http://' + doc.location.host + '/cgi/citmgr?type=refman';
 
 				var thisRequest = null;
-				for (var request in requests) {
+				for (var request_x=0; request_x<requests.length; request_x++) {
+					var request = requests[request_x];
 					if(request.baseURL == baseURL) {
 						thisRequest = request;
 						break;

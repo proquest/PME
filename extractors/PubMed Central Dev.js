@@ -214,7 +214,7 @@ function doWeb(doc, url) {
 		// Don't display selectItems when there's only one
 		// The actual PMCID is the array key
 		if (resultsCount == 1) {
-			for (var i in ids) {
+			for (var i=0; i<ids.length; i++) {
 				lookupPMCIDs(i, doc);
 				break;
 			}
@@ -227,7 +227,7 @@ function doWeb(doc, url) {
 				return true;
 			}
 			var pmcids = [];
-			for (var i in ids) {
+			for (var i=0; i<ids.length; i++) {
 				pmcids.push(i);
 			}
 			lookupPMCIDs(pmcids, doc);

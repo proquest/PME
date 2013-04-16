@@ -1790,7 +1790,7 @@ function processField(item, field, value) {
 		item.attachments = [{path:value.split(",")[0], mimeType:"application/pdf"}];
 	} else if (field == "file") {
 		var attachments = value.split(";");
-		for(var i in attachments){
+		for(var i=0; i<attachments.length; i++){
 			var attachment = attachments[i];
 			var parts = attachment.split(":");
 			var filetitle = parts[0];
@@ -2264,7 +2264,7 @@ function doExport() {
 			var author = "";
 			var editor = "";
 			var translator = "";
-			for(var i in item.creators) {
+			for(var i=0; i<item.creators.length; i++) {
 				var creator = item.creators[i];
 				var creatorString = creator.lastName;
 
@@ -2317,7 +2317,7 @@ function doExport() {
 		
 		if(item.tags && item.tags.length) {
 			var tagString = "";
-			for(var i in item.tags) {
+			for(var i=0; i<item.tags.length; i++) {
 				var tag = item.tags[i];
 				tagString += ", "+tag.tag;
 			}
@@ -2337,7 +2337,7 @@ function doExport() {
 			writeField("howpublished", item.url);
 		}
 		if (item.notes && PME.getOption("exportNotes")) {
-			for(var i in item.notes) {
+			for(var i=0; i<item.notes.length; i++) {
 				var note = item.notes[i];
 				writeField("annote", PME.Util.unescapeHTML(note["note"]));
 			}
@@ -2346,7 +2346,7 @@ function doExport() {
 		if(item.attachments) {
 			var attachmentString = "";
 			
-			for(var i in item.attachments) {
+			for(var i=0; i<item.attachments.length; i++) {
 				var attachment = item.attachments[i];
 				if(PME.getOption("exportFileData") && attachment.saveFile) {
 					attachment.saveFile(attachment.defaultPath, true);

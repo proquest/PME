@@ -192,7 +192,7 @@ function doWeb(doc, url) {
 		var newItemRe = /^(<[0-9]+\.\s>|[0-9]+\.\s\s)/;
 
 		var newItem = new PME.Item("journalArticle");
-		for (var i in lines) {
+		for (var i=0; i<lines.length; i++) {
 			if (!haveStarted && newItemRe.test(lines[i])) {
 				haveStarted = true;
 			} else if (newItemRe.test(lines[i])) {

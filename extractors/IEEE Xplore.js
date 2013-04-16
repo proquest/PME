@@ -53,7 +53,7 @@ function doWeb(doc, url) {
 			var link = linknode.href;
 			var title = "";
 			var strongs = tableRow.getElementsByTagName("h3");
-			for (var strong_x in strongs) {
+			for (var strong_x=0; strong_x<strongs.length; strong_x++) {
 				var strong = strongs[strong_x];
 				if (PME.Util.getNodeText(strong)) {
 					title += PME.Util.getNodeText(strong) + " ";

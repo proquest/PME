@@ -120,7 +120,7 @@ function processURLs(urls, url) {
 					}
 
 					var tags = match[2].split("--");
-					for(var j in tags) {
+					for(var j=0; j<tags.length; j++) {
 						newItem.tags.push(PME.Util.trimInternal(tags[j]));
 					}
 				}

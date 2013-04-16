@@ -386,7 +386,7 @@ function addHighwireMetadata(doc, newItem) {
 	 */
 	if (newItem.tags.length) {
 		var tags = [];
-		for (var i in newItem.tags) {
+		for (var i=0; i<newItem.tags.length; i++) {
 			newItem.tags[i] = newItem.tags[i].trim();
 			if (newItem.tags[i].indexOf(';') == -1) {
 				//split by comma, since there are no semicolons
