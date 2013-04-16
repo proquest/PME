@@ -445,7 +445,13 @@ function leafTaskCompleted() {
 // -- wait and done are ignored (the async task tracking handles lifetime)
 PME.wait = function() {};
 PME.done = function(returnValue) {
-	// TODO: if returnValue === false then the result should be discarded and null returned as output
+	// if returnValue === false then the result will be discarded and null returned as output
+	if (returnValue === false) {
+		log("PME.done(false) called, extraction failed.");
+		pmeOK = false;
+		completed(null);
+		throw "kill current execution thread.";
+	}
 };
 
 
