@@ -293,19 +293,28 @@ function scrapeBibTeX(doc, url, pdfUrl) {
 					'//meta[@name="citation_pdf_url"]/@content'))) {
 
 				PME.Util.doGet(pdfUrl, function(text) {
-					var m = text.match(
-						/<iframe id="pdfDocument"[^>]+?src="([^"]+)"/i);
-					if(m) {
-						m[1] = PME.Util.unescapeHTML(m[1]);
-						PME.debug('PDF url: ' + m[1]);
-						item.attachments.push({url: m[1],
+					// PME addition, the pdfURL may be a (re)direct link to the actual PDF
+					if (text.substr(0,4) == "%PDF") {
+						PME.debug("pdfUrl is a direct PDF");
+						item.attachments.push({url: pdfUrl,
 							title: 'Full Text PDF',
 							mimeType: 'application/pdf'});
-					} else {
-						PME.debug('Could not determine PDF URL.');
-						m = text.match(/<iframe[^>]*>/i);
-						if(m) PME.debug(m[0]);
-						else PME.debug('No iframe found');
+					}
+					else {
+						var m = text.match(
+							/<iframe id="pdfDocument"[^>]+?src="([^"]+)"/i);
+						if(m) {
+							m[1] = PME.Util.unescapeHTML(m[1]);
+							PME.debug('PDF url: ' + m[1]);
+							item.attachments.push({url: m[1],
+								title: 'Full Text PDF',
+								mimeType: 'application/pdf'});
+						} else {
+							PME.debug('Could not determine PDF URL.');
+							m = text.match(/<iframe[^>]*>/i);
+							if(m) PME.debug(m[0]);
+							else PME.debug('No iframe found');
+						}
 					}
 					item.complete();
 				});

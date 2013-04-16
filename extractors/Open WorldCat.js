@@ -64,13 +64,13 @@ function scrape(doc, url, callDoneWhenFinished) {
 			
 			
 			//creators have period after firstName
-			for (i in item.creators) {
-				if (item.creators[i].firstName){
-				item.creators[i].firstName = item.creators[i].firstName.replace(/\.$/, "");
+			for (var i=0; i<item.creators.length; i++) {
+				if (item.creators[i].firstName) {
+					item.creators[i].firstName = item.creators[i].firstName.replace(/\.$/, "");
 				}
 				else {
 					item.creators[i].lastName = item.creators[i].lastName.replace(/\.$/, "");
-					item.creators[i].fieldMode=1;			
+					item.creators[i].fieldMode = 1;
 				}
 			}
 			//We want ebooks to be treated like books, not webpages (is ISBN the best choice here?)
