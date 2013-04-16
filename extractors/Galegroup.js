@@ -11,7 +11,7 @@ var translatorSpec =
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2012-10-17 10:15:26"
+	"lastUpdated": "2013-04-14 20:39:21"
 }
 
 /*
@@ -31,7 +31,7 @@ var translatorSpec =
 	GNU Affero General Public License for more details.
 	
 	You should have received a copy of the GNU Affero General Public License
-	along with PME.  If not, see <http://www.gnu.org/licenses/>.
+	along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
 	
 	***** END LICENSE BLOCK *****
 */
@@ -77,11 +77,13 @@ function parseRIS(url) {
 		//gale puts issue numbers in M1
 		text = text.replace(/M1\s*\-/, "IS  -");
 		//get the LA tag content until we introduce this in the RIS translator
+		//PME.debug(text)
 		var translator = PME.loadTranslator("import");
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(text);
 		translator.setHandler("itemDone", function (obj, item) {
 			//make sure the attachment URL gets proxied
+			item.attachments.push({url: item.url, title: "Full Text (HTML)", mimeType: "text/html",})
 			for (i in item.attachments) {
 				item.attachments[i].url = item.attachments[i].url.replace(/^https?:\/\/.+?\//, host);
 			}
@@ -95,10 +97,10 @@ function doWeb(doc, url) {
 	var articles = new Array();
 	if (detectWeb(doc, url) == "multiple") {
 		var items = new Object();
-		var titles = doc.evaluate('//p[@class="subTitle"]/a|//span[@class="title"]/a|//div[contains(@class, "Title")]/a|//li[@class="resultInfo"]/p/b/a', doc, null, XPathResult.ANY_TYPE, null);
+		var titles = doc.evaluate('//span[@class="title"]/a|//div[contains(@class, "Title")]/a|//li[@class="resultInfo"]/p/b/a', doc, null, XPathResult.ANY_TYPE, null);
 		var next_title;
 		while (next_title = titles.iterateNext()) {
-			items[next_title.href] = next_title.textContent;
+			items[next_title.href] = PME.Util.getXPathNodeText(next_title);
 		}
 
 		PME.selectItems(items, function (items) {
@@ -178,7 +180,8 @@ var testCases = [
 				"language": "English",
 				"libraryCatalog": "Gale",
 				"archive": "Literature Resources from Gale",
-				"shortTitle": "Borges"
+				"shortTitle": "Borges",
+				"url": "http://go.galegroup.com/ps/i.do?id=GALE%7CH1420025063&v=2.1&u=viva_gmu&it=r&p=LitRG&sw=w"
 			}
 		]
 	},

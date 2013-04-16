@@ -114,16 +114,16 @@ function doWeb(doc, url) {
 			var pdf = undefined;
 
 			if(isTOC) {
-				var title = doc.evaluate('.//strong', tableRow, null, XPathResult.ANY_TYPE, null).iterateNext().textContent;
+				var title = PME.Util.getXPathNodeText(doc.evaluate('.//strong', tableRow, null, XPathResult.ANY_TYPE, null).iterateNext());
 
 				var links = doc.evaluate('.//a', tableRow, null, XPathResult.ANY_TYPE, null);
 				while(link = links.iterateNext()) {
 					// prefer Full Text snapshots, but take abstracts
-					if(link.textContent == "[Abstract]") {
+					if(PME.Util.getXPathNodeText(link) == "[Abstract]") {
 						if(!snapshot) snapshot = link.href;
-					} else if (link.textContent == "[Full Text]") {
+					} else if (PME.Util.getXPathNodeText(link) == "[Full Text]") {
 						snapshot = link.href;
-					} else if(link.textContent == "[PDF]") {
+					} else if(PME.Util.getXPathNodeText(link) == "[PDF]") {
 						pdf = link.href;
 						var m = gcaRe.exec(link.href);
 						var gca = m[1];
@@ -133,21 +133,21 @@ function doWeb(doc, url) {
 				if(isScience) {
 					var tableDT = tableDTs.iterateNext();
 					var gca = doc.evaluate('./input[@type="checkbox"]', tableDT, null, XPathResult.ANY_TYPE, null).iterateNext().value;
-					var title = doc.evaluate('./label', tableDT, null, XPathResult.ANY_TYPE, null).iterateNext().textContent;
+					var title = PME.Util.getXPathNodeText(doc.evaluate('./label', tableDT, null, XPathResult.ANY_TYPE, null).iterateNext());
 				} else {
 					var gca = doc.evaluate('./td/input[@type="checkbox"]', tableRow, null, XPathResult.ANY_TYPE, null).iterateNext().value;
 					var title = doc.evaluate('./td/font/strong', tableRow, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
-					if(title.snapshotItem(0).textContent.toUpperCase() == title.snapshotItem(0).textContent) {
-						title = title.snapshotItem(1).textContent;
+					if(PME.Util.getXPathNodeText(title.snapshotItem(0)).toUpperCase() == PME.Util.getXPathNodeText(title.snapshotItem(0))) {
+						title = PME.Util.getXPathNodeText(title.snapshotItem(1));
 					} else {
-						title = title.snapshotItem(0).textContent;
+						title = PME.Util.getXPathNodeText(title.snapshotItem(0));
 					}
 				}
 
 				var links = doc.evaluate('.//a', tableRow, null, XPathResult.ANY_TYPE, null);
 				while(link = links.iterateNext()) {
 					// prefer Full Text snapshots, but take abstracts
-					var textContent = PME.Util.trimInternal(link.textContent);
+					var textContent = PME.Util.trimInternal(PME.Util.getXPathNodeText(link));
 					if((textContent.substr(0, 8) == "Abstract" && !snapshot) || textContent.substr(0, 9) == "Full Text") {
 						snapshot = link.href;
 					} else if(textContent.substr(0, 3) == "PDF") {

@@ -11,13 +11,13 @@ var translatorSpec =
 	"inRepository": true,
 	"translatorType": 12,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2012-09-04 23:26:27"
+	"lastUpdated": "2013-04-11 11:57:40"
 }
 
 /**
- * Gets item type from a WorldCat icon src
+ * Gets Zotero item from a WorldCat icon src
  */
-function getItemType(iconSrc) {
+function getZoteroType(iconSrc) {
 	// only specify types not specified in COinS
 	if (iconSrc.indexOf("icon-rec") != -1) {
 		return "audioRecording";
@@ -47,13 +47,8 @@ function scrape(doc, url, callDoneWhenFinished) {
 	}
 	//PME.debug(newurl)
 	PME.Util.HTTP.doGet(newurl, function (text) {
-		//LA is not an actual RIS tag, but we like to get that information where we can
-		PME.debug(text);
-		if (text.match(/LA  -/)) {
-			var language = text.match(/LA  -.+/)[0].replace(/LA  - /, "");
-		};
+	
 		//PME.debug("RIS: " + text)
-		// load RIS translator
 		var translator = PME.loadTranslator("import");
 		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 		translator.setString(text);
@@ -64,7 +59,10 @@ function scrape(doc, url, callDoneWhenFinished) {
 			if(item.libraryCatalog == "http://worldcat.org") {
 				item.libraryCatalog = "Open WorldCat";
 			}
-
+			//remove space before colon
+			item.title = item.title.replace(/\s+:/, ":")
+			
+			
 			//creators have period after firstName
 			for (i in item.creators) {
 				if (item.creators[i].firstName){
@@ -75,7 +73,6 @@ function scrape(doc, url, callDoneWhenFinished) {
 					item.creators[i].fieldMode=1;			
 				}
 			}
-			if (language) item.language = language;
 			//We want ebooks to be treated like books, not webpages (is ISBN the best choice here?)
 			if (item.itemType == "webpage" && item.ISBN) {
 				item.itemType = "book";
@@ -88,7 +85,7 @@ function scrape(doc, url, callDoneWhenFinished) {
 }
 
 /**
- * Generates an item from a single item WorldCat page, or the first item on a multiple item
+ * Generates a Zotero item from a single item WorldCat page, or the first item on a multiple item
  * page
  */
 function generateItem(doc, node) {
@@ -100,7 +97,7 @@ function generateItem(doc, node) {
 		type = doc.evaluate('//img[@class="icn"][contains(@src, "icon-")]/@src', doc, null, XPathResult.ANY_TYPE, null).iterateNext().nodeValue;
 	} catch (e) {}
 	if (type) {
-		type = getItemType(type);
+		type = getZoteroType(type);
 		if (type) item.itemType = type;
 	}
 	return item;
@@ -131,7 +128,7 @@ function doWeb(doc, url) {
 			var items = {};
 			var title;
 			while (title = titles.iterateNext()) {
-				items[title.href] = title.textContent;
+				items[title.href] = PME.Util.getXPathNodeText(title);
 			}
 			PME.selectItems(items, function (items) {
 				if (!items) {
@@ -141,19 +138,13 @@ function doWeb(doc, url) {
 					articles.push(i);
 				}
 				//PME.debug(articles)
-				PME.Util.processDocuments(articles, scrape, function () {
-					PME.done();
-				});
-				PME.wait();
+				PME.Util.processDocuments(articles, scrape);
 			});
 		} else { //single item in search results, don't display a select dialog
 			var title = doc.evaluate('//div[@class="name"]/a[1]', doc, null, XPathResult.ANY_TYPE, null).iterateNext();
 			if (!title) PME.done(false);
 			article = title.href;
-			PME.Util.processDocuments(article, scrape, function () {
-				PME.done();
-			});
-			PME.wait();
+			PME.Util.processDocuments(article, scrape);
 		}
 	} else { // regular single item	view
 		scrape(doc, url);
@@ -161,18 +152,17 @@ function doWeb(doc, url) {
 }
 
 function doSearch(item) {
-	PME.Util.processDocuments("http://www.worldcat.org/search?q=isbn%3A" + item.ISBN.replace(/[^0-9]/g, "") + "&=Search&qt=results_page", function (doc, url) {
+	PME.Util.processDocuments("http://www.worldcat.org/search?q=isbn%3A" + item.ISBN.replace(/[^0-9X]/g, "") + "&=Search&qt=results_page", function (doc, url) {
 		//we take the first search result and run scrape on it
 		if (doc.evaluate('//div[@class="name"]/a', doc, null, XPathResult.ANY_TYPE, null).iterateNext()) { //search results view
-			var title = doc.evaluate('//div[@class="name"]/a[1]', doc, null, XPathResult.ANY_TYPE, null).iterateNext();
-			if (!title) PME.done(false);
-			article = title.href;
+			var article = PME.Util.xpathText(doc, '(//div[@class="name"]/a)[1]/@href')
+			if (!article){PME.done(false); return false;}
+			article = "http://www.worldcat.org" + article;
 			PME.Util.processDocuments(article, function(doc, url) { scrape(doc, url, true); });
 		} else {
 			scrape(doc, url, true);
 		}
 	}, null);
-	PME.wait();
 } /** BEGIN TEST CASES **/
 var testCases = [
 	{

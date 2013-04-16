@@ -11,9 +11,8 @@ var translatorSpec =
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsbv",
-	"lastUpdated": "2012-04-24 01:05:37"
+	"lastUpdated": "2012-12-13 23:41:11"
 }
-
 
 
 /*
@@ -66,8 +65,8 @@ attachments      : [
   url: FW.Url(),
   title: "Wall Street Journal Snapshot",
   type: "text/html"}],
-creators         : FW.Xpath('//h3[@class="byline"]/a | //div[@id="recipeACShopAndBuyText"]/h3[@class="byline"] | //meta[@name="author"]/@content').text().capitalizeTitle(true).replace(/^\s*By\s*/, "").split(/,| and /).cleanAuthor("author"),
-date             : FW.Xpath('//li[@class="dateStamp"]').text().replace(/Updated/i, "").capitalizeTitle(true).trim(),
+creators         : FW.Xpath('//meta[@name="author"]/@content').text().capitalizeTitle(true).replace(/^\s*By\s*/, "").split(/,| and /).cleanAuthor("author"),
+date             : FW.Xpath('//li[@class="dateStamp"]').text().capitalizeTitle(true),
 abstractNote     : FW.Xpath('//meta[@name="description"]/@content').text(),
 section          : FW.Xpath('//li[@class="articleSection first"]/a').text().capitalizeTitle(true),
 ISSN			 : "0099-9660",
@@ -80,8 +79,8 @@ FW.MultiScraper({
 itemType         : 'multiple',
 detect           : FW.Url().match(/wsj\.com\/search\//),
 choices          : {
-  titles :  FW.Xpath('//h2/a').text().trim(),
-  urls    :  FW.Xpath('//h2/a').key("href")
+  titles :  FW.Xpath('//h2/a[contains(@href, "/article/") or contains(@href, "blogs.wsj.com")]').text().trim(),
+  urls    :  FW.Xpath('//h2/a[contains(@href, "/article/") or contains(@href, "blogs.wsj.com")]').key("href")
 }
 });
 
@@ -231,7 +230,6 @@ var testCases = [
 	}
 ]
 /** END TEST CASES **/
-
 // Generated code, or at least, this will be generated:
 PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
 }());

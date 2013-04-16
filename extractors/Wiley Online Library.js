@@ -4,14 +4,14 @@ var translatorSpec =
 	"translatorID": "fe728bc9-595a-4f03-98fc-766f1d8d0936",
 	"label": "Wiley Online Library",
 	"creator": "Sean Takats, Michael Berkowitz, Avram Lyon and Aurimas Vinckevicius",
-	"target": "^https?://onlinelibrary\\.wiley\\.com[^\\/]*/(?:book|doi|advanced/search|search-web/cochrane)",
+	"target": "^https?://onlinelibrary\\.wiley\\.com[^\\/]*/(?:book|doi|advanced/search|search-web/cochrane|cochranelibrary/search)",
 	"minVersion": "3.0",
 	"maxVersion": "",
 	"priority": 100,
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2012-11-19 11:07:31"
+	"lastUpdated": "2013-03-13 10:14:17"
 }
 
 /*
@@ -68,14 +68,14 @@ function scrapeBook(doc, url, pdfUrl) {
 	if( !title ) return false;
 
 	var newItem = new PME.Item('book');
-	newItem.title = PME.Util.capitalizeTitle(title.textContent, true);
-
+	newItem.title = PME.Util.capitalizeTitle(PME.Util.getXPathNodeText(title), true);
+	
 	var data = PME.Util.xpath(doc, '//div[@id="metaData"]/p');
 	var dataRe = /^(.+?):\s*(.+?)\s*$/;
 	var match;
 	var isbn = new Array();
 	for( var i=0, n=data.length; i<n; i++) {
-		match = dataRe.exec(data[i].textContent);
+		match = dataRe.exec(PME.Util.getXPathNodeText(data[i]));
 		if(!match) continue;
 
 		switch(match[1].trim().toLowerCase()) {
@@ -138,7 +138,7 @@ function scrapeEM(doc, url, pdfUrl) {
 				var authors = PME.Util.xpath(doc, '//ol[@id="authors"]/li/node()[1]');
 				for(var i=0, n=authors.length; i<n; i++) {
 					item.creators.push(
-						PME.Util.cleanAuthor( getAuthorName(authors[i].textContent),
+						PME.Util.cleanAuthor( getAuthorName(PME.Util.getXPathNodeText(authors[i])),
 											'author',false) );
 				}
 			}
@@ -147,7 +147,7 @@ function scrapeEM(doc, url, pdfUrl) {
 			var editors = PME.Util.xpath(doc, '//ol[@id="editors"]/li/node()[1]');
 			for(var i=0, n=editors.length; i<n; i++) {
 				item.creators.push(
-					PME.Util.cleanAuthor( getAuthorName(editors[i].textContent),
+					PME.Util.cleanAuthor( getAuthorName(PME.Util.getXPathNodeText(editors[i])),
 										'editor',false) );
 			}
 
@@ -181,10 +181,11 @@ function scrapeEM(doc, url, pdfUrl) {
 		if(!pdfUrl) {
 			var u = PME.Util.xpathText(doc, '//meta[@name="citation_pdf_url"]/@content');
 			if(u) {
-				PME.Util.HTTP.doGet(u, function(text) {
+				PME.Util.doGet(u, function(text) {
 					var m = text.match(/<iframe id="pdfDocument"[^>]+?src="([^"]+)"/i);
 					if(m) {
 						m[1] = PME.Util.unescapeHTML(m[1]);
+						PME.debug(m[1]);
 						item.attachments.push({url: m[1], title: 'Full Text PDF', mimeType: 'application/pdf'});
 					} else {
 						PME.debug('Could not determine PDF URL.');
@@ -210,13 +211,13 @@ function scrapeBibTeX(doc, url, pdfUrl) {
 		scrapeEM(doc, url, pdfUrl);
 		return;
 	}
-
-	var baseUrl = url.match(/https?:\/\/[^\/]+/);
-	var postUrl = baseUrl[0] + '/documentcitationdownloadformsubmit';
+	//leaving this here in case it's still needed
+	//var baseUrl = url.match(/https?:\/\/[^\/]+/); 
+	var postUrl = '/documentcitationdownloadformsubmit';
 	var body = 'doi=' + encodeURIComponent(doi) + 
 				'&fileFormat=BIBTEX' +
 				'&hasAbstract=CITATION_AND_ABSTRACT';
-	PME.Util.HTTP.doPost(postUrl, body, function(text) {
+	PME.Util.doPost(postUrl, body, function(text) {
 		var translator = PME.loadTranslator('import');
 		//use BibTeX
 		translator.setTranslator("9cb70025-a888-4a29-a210-93ec52da40d4");
@@ -233,15 +234,15 @@ function scrapeBibTeX(doc, url, pdfUrl) {
 			var editors = PME.Util.xpath(doc, '//ol[@id="editors"]/li/node()[1]');
 			for(var i=0, n=editors.length; i<n; i++) {
 				item.creators.push(
-					PME.Util.cleanAuthor( getAuthorName(editors[i].textContent),
+					PME.Util.cleanAuthor( getAuthorName(PME.Util.getXPathNodeText(editors[i])),
 										'editor',false) );
 			}
-
+			
 			//title
 			if(item.title && item.title.toUpperCase() == item.title) {
 				item.title = PME.Util.capitalizeTitle(item.title, true);
 			}
-
+			
 			//tags
 			if(!item.tags.length) {
 				var keywords = PME.Util.xpathText(doc,
@@ -291,11 +292,12 @@ function scrapeBibTeX(doc, url, pdfUrl) {
 				(pdfUrl = PME.Util.xpathText(doc,
 					'//meta[@name="citation_pdf_url"]/@content'))) {
 
-				PME.Util.HTTP.doGet(pdfUrl, function(text) {
+				PME.Util.doGet(pdfUrl, function(text) {
 					var m = text.match(
 						/<iframe id="pdfDocument"[^>]+?src="([^"]+)"/i);
 					if(m) {
 						m[1] = PME.Util.unescapeHTML(m[1]);
+						PME.debug('PDF url: ' + m[1]);
 						item.attachments.push({url: m[1],
 							title: 'Full Text PDF',
 							mimeType: 'application/pdf'});
@@ -334,6 +336,7 @@ function scrape(doc, url, pdfUrl) {
 function detectWeb(doc, url) {	
 	if( url.indexOf('/issuetoc') != -1 ||
 		url.indexOf('/results') != -1 ||
+		url.indexOf('/search') != -1 ||
 		url.indexOf('/mainSearch?') != -1) {
 		return 'multiple';
 	} else {
@@ -357,7 +360,7 @@ function doWeb(doc, url) {
 		}
 		var availableItems = new Object();
 		for(var i=0, n=articles.length; i<n; i++) {
-			availableItems[articles[i].href] = PME.Util.trimInternal(articles[i].textContent.trim());
+			availableItems[articles[i].href] = PME.Util.trimInternal(PME.Util.getXPathNodeText(articles[i]).trim());
 		}
 
 		PME.selectItems(availableItems, function(selectedItems) {
@@ -367,7 +370,7 @@ function doWeb(doc, url) {
 			for (var i in selectedItems) {
 				urls.push(i);
 			}
-			
+
 			PME.Util.processDocuments(urls, scrape);
 		});
 	} else { //single article
@@ -387,9 +390,7 @@ function doWeb(doc, url) {
 			} else {
 				url = url.replace(/\/[^?#\/]+(?:[?#].*)?$/, '/abstract');
 			}
-			PME.Util.processDocuments(url, function(doc) { 
-				scrape(doc, doc.location.href) 
-			});
+			PME.Util.processDocuments(url, function(doc) { scrape(doc, doc.location.href) });
 		} else {
 			scrape(doc, url);
 		}

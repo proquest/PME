@@ -11,7 +11,7 @@ var translatorSpec =
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "g",
-	"lastUpdated": "2012-10-23 16:44:16"
+	"lastUpdated": "2013-02-25 18:54:22"
 }
 
 function detectWeb(doc, url) {
@@ -39,11 +39,12 @@ function processURLs(urls, url) {
 	else var charset="iso-8859-1"
 	PME.Util.HTTP.doPost(newUrl,
 	'exportselect=record&exporttype=wc-endnote', function(text) {
+		PME.debug(text)
 		var lineRegexp = new RegExp();
 		lineRegexp.compile("^([\\w() ]+): *(.*)$");
 
 		var newItem = new PME.Item("book");
-		newItem.extra = "";
+		var notes = "";
 
 		var lines = text.split('\n');
 		for(var i=0;i<lines.length;i++) {
@@ -68,12 +69,12 @@ function processURLs(urls, url) {
 					}
 					newItem.title = PME.Util.capitalizeTitle(title);
 				} else if(match[1] == "Series") {
-					newItem.series = match[2];
+					newItem.series = PME.Util.trimInternal(match[2]);
 				} else if(match[1] == "Description") {
 				  var pageMatch = /([0-9]+) p\.?/;
 					var m = pageMatch.exec(match[2]);
 					if(m) {
-						newItem.pages = m[1];
+						newItem.numPages = m[1];
 					}
 				} else if(match[1] == 'Author(s)' || match[1] == "Corp Author(s)") {
 					var yearRegexp = /[0-9]{4}-([0-9]{4})?/;
@@ -122,8 +123,14 @@ function processURLs(urls, url) {
 					for(var j in tags) {
 						newItem.tags.push(PME.Util.trimInternal(tags[j]));
 					}
+				}
+				else if(match[1] == "Language") {
+					newItem.language = match[2];
+				}
+				else if(match[1] == "Abstract") {
+					newItem.abstractNote = match[2];
 				} else if(match[1] == "Accession No") {
-					newItem.accessionNumber = PME.Util.superCleanString(match[2]);
+					newItem.accessionNumber = PME.Util.trimInternal(match[2]);
 				} else if(match[1] == "Degree") {
 					newItem.itemType = "thesis";
 					newItem.thesisType = match[2];
@@ -136,7 +143,7 @@ function processURLs(urls, url) {
 				} else if(match[1] != "Availability" &&
 						  match[1] != "Find Items About" &&
 						  match[1] != "Document Type") {
-					newItem.extra += match[1]+": "+match[2]+"\n";
+					notes += match[1]+": "+match[2]+"\n";
 				}
 			} else {
 				if(lines[i] != "" && lines[i] != "SUBJECT(S)") {
@@ -145,8 +152,8 @@ function processURLs(urls, url) {
 			}
 		}
 
-		if(newItem.extra) {
-			newItem.extra = newItem.extra.substr(0, newItem.extra.length-1);
+		if(notes) {
+			newItem.notes.push(notes.substr(0, notes.length-1));
 		}
 
 		newItem.complete();
@@ -192,7 +199,7 @@ function doWeb(doc, url) {
 	} else {
 		var items = PME.Util.getItemArray(doc, doc, '/WebZ/FSFETCH\\?fetchtype=fullrecord', '^(See more details for locating this item|Detailed Record)$');
 		var urls = []
-
+		
 		PME.selectItems(items, function (items) {
 			if (!items) {
 				return true;

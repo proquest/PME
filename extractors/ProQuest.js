@@ -11,7 +11,7 @@ var translatorSpec =
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
-	"lastUpdated": "2012-11-02 06:45:39"
+	"lastUpdated": "2013-03-13 21:04:33"
 }
 
 /*
@@ -58,8 +58,8 @@ function getTextValue(doc, fields) {
 			'//div[@class="display_record_indexing_fieldname" and\
 				normalize-space(text())="' + fields[i] +
 			'"]/following-sibling::div[@class="display_record_indexing_data"][1]');
-			
-		if(values.length) values = [values[0].textContent || values[0].innerText || values[0].text || values[0].nodeValue ];
+
+		if(values.length) values = [PME.Util.getXPathNodeText(values[0])];
 
 		allValues = allValues.concat(values);
 	}
@@ -132,7 +132,7 @@ function detectWeb(doc, url) {
 		if (resultitem.length) {
 			return "multiple";
 		}
-	} 
+	}
 
 	var types = getTextValue(doc, ["Source type", "Document type", "Record type"]);
 	var zoteroType = getItemType(types);
@@ -145,7 +145,7 @@ function detectWeb(doc, url) {
 	}
 
 	// Fall back on journalArticle-- even if we couldn't guess the type
-	if(!types.length) return "journalArticle";
+	if(types.length) return "journalArticle";
 
 	if (url.indexOf("/results/") === -1) {
 		//we might be on a page with a link to the abstract/metadata
@@ -178,8 +178,8 @@ function doWeb(doc, url, pdfUrl) {
 		}
 
 		var items = new Array();
-		for(var i=0; i<results.length; i++) {
-			items.push(results[i].href);
+		for(var i=0, n=results.length; i<n; i++) {
+			items[results[i].href] = PME.Util.getXPathNodeText(results[i]);
 		}
 
 		PME.selectItems(items, function (items) {
@@ -187,8 +187,7 @@ function doWeb(doc, url, pdfUrl) {
 
 			var articles = new Array();
 			for (var i in items) {
-				// Recursive call to doWeb. May not be good
-				PME.Util.processDocuments(items[i],
+				PME.Util.processDocuments(i,
 					//call doWeb so that we rerun detectWeb to get type and
 					//initialize translations
 					function(doc) { doWeb(doc, doc.location.href) });
@@ -213,12 +212,9 @@ function doWeb(doc, url, pdfUrl) {
 			}
 		}
 
-		// Recursive call to doWeb. May not be good
 		PME.Util.processDocuments(link, function(doc) {
-			doWeb(doc, doc.location.href, pdfUrl) 
-		});
+			doWeb(doc, doc.location.href, pdfUrl) });
 	}
-	//PME.done();
 }
 
 function scrape(doc, url, type, pdfUrl) {
@@ -236,8 +232,8 @@ function scrape(doc, url, type, pdfUrl) {
 
 		if(!label || !value) continue;
 
-		label = (label.textContent || label.innerText || label.text || label.nodeValue).trim();
-		value = (value.textContent || value.innerText || value.text || value.nodeValue).trim();	//trimInternal?
+		label = PME.Util.getXPathNodeText(label).trim();
+		value = PME.Util.getXPathNodeText(value).trim();	//trimInternal?
 
 		//translate label
 		enLabel = L[label] || label;
@@ -250,12 +246,14 @@ function scrape(doc, url, type, pdfUrl) {
 			case 'Author':
 			case 'Editor':	//test case?
 				var type = (enLabel == 'Author')? 'author' : 'editor';
+				
 				// Use titles of a tags if they exist, since these don't include
 				// affiliations
-				value = rows[i].childNodes[1].evaluate ? PME.Util.xpathText(rows[i].childNodes[1], "a/@title", null, "; ") || value : value;
-				
+				value = PME.Util.xpathText(rows[i].childNodes[1], "a/@title", null, "; ") || value;
+
 				value = value.replace(/^by\s+/i,'')	//sometimes the authors begin with "By"
 							.split(/\s*;\s*|\s+and\s+/i);
+
 				for(var j=0, m=value.length; j<m; j++) {
 					/**TODO: might have to detect proper creator type from item type*/
 					item.creators.push(
@@ -314,6 +312,7 @@ function scrape(doc, url, type, pdfUrl) {
 			//alternative tags
 			case 'Subject':
 			case 'Journal subject':
+			case 'Publication subject':
 				altKeywords.push(value);
 			break;
 
@@ -328,7 +327,7 @@ function scrape(doc, url, type, pdfUrl) {
 			case 'Country of publication':
 				place.publicationCountry = value;
 			break;
-
+			
 
 			//multiple dates are provided
 			//more complete dates are preferred
@@ -353,44 +352,37 @@ function scrape(doc, url, type, pdfUrl) {
 				PME.debug('Unhandled field: "' + label + '"');
 		}
 	}
+
 	item.url = url;
+	if (item.itemType=="thesis" && place.schoolLocation) {
+		item.place = place.schoolLocation;
+	}
 	
-	if(place.publicationPlace) {
+	else if(place.publicationPlace) {
 		item.place = place.publicationPlace;
 		if(place.publicationCountry) {
 			item.place = item.place + ', ' + place.publicationCountry;
 		}
-	} else if(place.schoolLocation) {
-		item.place = place.schoolLocation;
-	}
+	} 
+
 	item.date = dates.pop();
-	
+
 	//sometimes number of pages ends up in pages
 	if(!item.numPages) item.numPages = item.pages;
-	
+
 	//parse some data from the byline in case we're missing publication title
 	// or the date is not complete
-	PME.debug("byline: ")
-	var byline = PME.Util.xpathText(doc, '//span[contains(@class, "titleAuthorETC")]//a[@id="lateralSearch"]');
-	PME.debug("byline: " + byline);
+	var byline = PME.Util.xpath(doc, '//span[contains(@class, "titleAuthorETC")][last()]');
 	//add publication title if we don't already have it
 	if(!item.publicationTitle
 		&& PME.Util.fieldIsValidForType('publicationTitle', item.itemType)) {
-		//var pubTitle = PME.Util.xpathText(byline, './/a[@id="lateralSearch"]');
+		var pubTitle = PME.Util.xpathText(byline, './/a[@id="lateralSearch"]');
 		//remove date range
-		if(byline) {
-			byline = byline.split(",");
-			byline = byline[byline.length - 1];
-			PME.debug("byline: " + byline);
-			item.publicationTitle = pubTitle.replace(/\s*\(.+/, '');
-		}
-			
+		if(pubTitle) item.publicationTitle = pubTitle.replace(/\s*\(.+/, '');
 	}
 
-	var date = byline;
-	// is this regular expression ever right?
-	//if(date) date = date.match(/]\s+(.+?):/);
-	if(date) date = date.match(/\s+\((.*?)\):/);
+	var date = PME.Util.xpathText(byline, './text()');
+	if(date) date = date.match(/]\s+(.+?):/);
 	if(date) date = date[1];
 	//add date if we only have a year and date is longer in the byline
 	if(date
@@ -402,19 +394,17 @@ function scrape(doc, url, type, pdfUrl) {
 	item.abstractNote = PME.Util.xpath(doc,
 		'//div[@id="abstractZone" or contains(@id,"abstractFull")]/\
 			p[normalize-space(text())]')
-		.map(function(p) { return PME.Util.trimInternal(p.textContent || p.innerText || p.text || p.nodeValue) })
+		.map(function(p) { return PME.Util.trimInternal(PME.Util.getXPathNodeText(p)) })
 		.join('\n');
 
-	if(!item.tags && altKeywords.length) {
+	if(!item.tags.length && altKeywords.length) {
 		item.tags = altKeywords.join(',').split(/\s*(?:,|;)\s*/);
 	}
 
-	/* commented this out because it makes the JSON circular
-	item.attachments = [];
 	item.attachments.push({
 		title: 'Snapshot',
 		document: doc
-	});*/
+	});
 
 	//we may already have a link to the full length PDF
 	if(pdfUrl) {
@@ -426,20 +416,13 @@ function scrape(doc, url, type, pdfUrl) {
 	} else {
 		var pdfLink = PME.Util.xpath(doc, '//div[@id="side_panel"]//\
 			a[contains(@class,"format_pdf") and contains(@href,"fulltext")][1]');
-
-		// [AL] [FIXME] PQ pages have embedded PDFs in them which may launch external PDF viewers
-		// we can sandbox the iframe and not allow plugins but that is not a solution for all
-		// browsers, i.e. IE. Nulling out this call until we have an acceptable solution.
-		pdfLink = null;
-
-		if(pdfLink && pdfLink.length) {
+		if(pdfLink.length) {
 			fetchEmbeddedPdf(pdfLink[0].href, item,
 				function() { item.complete(); });
-			
 		}
 	}
 
-	if(pdfUrl || !pdfLink) {
+	if(pdfUrl || !pdfLink.length) {
 		item.complete();
 	}
 }
@@ -1271,7 +1254,7 @@ var testCases = [
 						"mimeType": "application/pdf"
 					}
 				],
-				"title": "THE PRESIDENT AND ALDRICH.: Railway Age Relates Happenings Behind the Scenes Regarding Rate Regulation.",
+				"title": "THE PRESIDENT AND ALDRICH.: Railway Age Relates Happenings Behind the Scenes Regarding Rate Regulation.",
 				"publicationTitle": "Wall Street Journal (1889-1922)",
 				"pages": "7",
 				"numPages": "1",
@@ -1439,6 +1422,10 @@ var testCases = [
 				"attachments": [
 					{
 						"title": "Snapshot"
+					},
+ 					{
+						"title": "Full Text PDF",  
+						"mimeType": "application/pdf"
 					}
 				],
 				"title": "Microsatellite variation and significant population genetic structure of endangered finless porpoises (Neophocaena phocaenoides) in Chinese coastal waters and the Yangtze River",

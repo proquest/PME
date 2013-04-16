@@ -11,11 +11,11 @@ var translatorSpec =
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2012-11-02 08:46:55"
+	"lastUpdated": "2013-01-29 15:30:07"
 }
 
 function detectWeb(doc, url) {
-	if ((url.indexOf("_ob=DownloadURL") !== -1) 
+  	if ((url.indexOf("_ob=DownloadURL") !== -1) 
 		|| doc.title == "ScienceDirect Login" 
 		|| doc.title == "ScienceDirect - Dummy"
 		|| (url.indexOf("/science/advertisement/") !== -1)) { 
@@ -51,7 +51,7 @@ function detectWeb(doc, url) {
 
 function getExportLink(doc) {
 	var link = PME.Util.xpath(doc, '//div[@class="icon_exportarticlesci_dir"]/a/@href');
-	return link.length ? link[0].textContent : false;
+	return link.length ? PME.Util.getXPathNodeText(link[0]) : false;
 }
 
 function getPDFLink(doc) {
@@ -90,7 +90,7 @@ function getFormValues(text, inputs) {
 function scrapeByExport(doc) {
 	var url = getExportLink(doc);
 	var pdfLink = getPDFLink(doc);
-	PME.Util.HTTP.doGet(url, function(text) {
+	PME.Util.doGet(url, function(text) {
 		//select the correct form
 		text = text.match(/<form[^>]+name=(['"])exportCite\1[\s\S]+?<\/form>/)[0];
 
@@ -108,7 +108,7 @@ function scrapeByExport(doc) {
 			post += key + '=' + postParams[key] + "&";
 		}
 
-		PME.Util.HTTP.doPost('/science', post, function(text) {
+		PME.Util.doPost('/science', post, function(text) {
 				//short title is stored in T2. Fix it to ST.
 				text = text.replace(/^T2\s/mg, 'ST ');
 
@@ -116,11 +116,13 @@ function scrapeByExport(doc) {
 				text = text.replace(
 					/^((?:A[U\d]|ED)\s+-\s+)Editor-in-Chief:\s+/mg, '$1');
 
-				// this is importing the RIS translator
 				var translator = PME.loadTranslator("import");
 				translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 				translator.setString(text);
 				translator.setHandler("itemDone", function(obj, item) {
+					//issue sometimes is set to 0 for single issue volumes (?)
+					if(item.issue == 0) delete item.issue;
+					
 					item.attachments.push({
 						title: "ScienceDirect Snapshot",
 						document: doc
@@ -162,12 +164,11 @@ function getArticleList(doc) {
 
 function doWeb(doc, url) {
 	if(detectWeb(doc, url) == "multiple") {
-		PME.debug("MULTIPLE");
 		//search page
 		var itemList = getArticleList(doc);
 		var items = {};
 		for(var i=0, n=itemList.length; i<n; i++) {
-			items[itemList[i].href] = itemList[i].textContent;
+			items[itemList[i].href] = PME.Util.getXPathNodeText(itemList[i]);
 		}
 
 		PME.selectItems(items, function(selectedItems) {
@@ -337,6 +338,10 @@ var testCases = [
 				"attachments": [
 					{
 						"title": "ScienceDirect Snapshot"
+					},
+					{
+						"title": "ScienceDirect Full Text PDF",
+						"mimeType": "application/pdf"
 					}
 				],
 				"title": "8 - Introduction to discrete dislocation statics and dynamics",
@@ -421,6 +426,10 @@ var testCases = [
 				"attachments": [
 					{
 						"title": "ScienceDirect Snapshot"
+					},
+					{
+						"title": "ScienceDirect Full Text PDF",
+						"mimeType": "application/pdf"
 					}
 				],
 				"title": "Africa",

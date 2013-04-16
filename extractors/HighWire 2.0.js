@@ -52,7 +52,7 @@ function getAbstract(doc) {
 	var paragraph;
 
 	for(var i=0, n=abstrSections.length; i<n; i++) {
-		paragraph = abstrSections[i].textContent.trim();
+		paragraph = PME.Util.getXPathNodeText(abstrSections[i]).trim();
 
 		//ignore the abstract heading
 		if( paragraph.toLowerCase() == 'abstract' ||
@@ -77,7 +77,7 @@ function getKeywords(doc) {
 
 	var kwds = new Array();
 	for(var i=0, n=keywords.length; i<n; i++) {
-		kwds.push(keywords[i].textContent.trim());
+		kwds.push(PME.Util.getXPathNodeText(keywords[i]).trim());
 	}
 
 	return kwds;

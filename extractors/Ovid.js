@@ -108,7 +108,7 @@ function doWeb(doc, url) {
 			var title_container;
 
 			if (title_container = doc.evaluate('.//a[contains(@class,"citation_title")]', tableRow, null, XPathResult.ANY_TYPE, null).iterateNext()) {
-				items[id] = PME.Util.trimInternal(title_container.textContent);
+				items[id] = PME.Util.trimInternal(PME.Util.getXPathNodeText(title_container));
 			}
 
 			if (!items[id]) {
@@ -117,28 +117,28 @@ function doWeb(doc, url) {
 				if (record_type == "record-on-msp" || record_type == "journal-record") { // this is MSP records
 					if (title_container = doc.evaluate('.//span[@class="titles-title"]', tableRow, null, XPathResult.ANY_TYPE, null).iterateNext()) {
 						PME.debug("Journal record");
-						items[id] = PME.Util.trimInternal(title_container.textContent);
+						items[id] = PME.Util.trimInternal(PME.Util.getXPathNodeText(title_container));
 					} else if (title_container = doc.evaluate('.//div[@class="article-title"]', tableRow, null, XPathResult.ANY_TYPE, null).iterateNext()) {
 						PME.debug("without title record");
 						// Find the chapter title from title_container.
 						var title;
 						if (title = doc.evaluate('.//span[@class="chapter_title"]', title_container, null, XPathResult.ANY_TYPE, null).iterateNext()) {
-							items[id] = PME.Util.trimInternal(title.textContent);
+							items[id] = PME.Util.trimInternal(PME.Util.getXPathNodeText(title));
 						}
 						// if chapter_title not found collect entire text.
 						else {
-							items[id] = PME.Util.trimInternal(title_container.textContent);
+							items[id] = PME.Util.trimInternal(PME.Util.getXPathNodeText(title_container));
 						}
 					}
 				} else if (record_type == "record-on-myproject") { //this is for OUS
 					if (title_container = doc.evaluate('.//span[@class="titles-title"] | .//div[@class="muse-title" or @class="chapter-title"] | .//a[contains(@href, "citation_title")]', tableRow, null, XPathResult.ANY_TYPE, null).iterateNext()) {
-						items[id] = PME.Util.trimInternal(title_container.textContent);
+						items[id] = PME.Util.trimInternal(PME.Util.getXPathNodeText(title_container));
 						PME.debug("items[id]" + items[id]);
 					}
 				} else if (record_type == "ovid-citation-labled") {
 					if (table_container = doc.evaluate('.//table[@class="citation-block" or contains(@class, "citation-table") ]', tableRow, null, XPathResult.ANY_TYPE, null).iterateNext()) {
 						if (title_container = doc.evaluate('.//a[contains(@href, "&Buy+PDF=") or contains(@href, "&Complete+Reference=")  or contains(@href, "&Abstract+Reference=") or contains(@href, "&Link+Set=") ]', table_container, null, XPathResult.ANY_TYPE, null).iterateNext()) {
-							items[id] = PME.Util.trimInternal(title_container.textContent);
+							items[id] = PME.Util.trimInternal(PME.Util.getXPathNodeText(title_container));
 						}
 					}
 				}

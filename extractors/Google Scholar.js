@@ -11,7 +11,7 @@ var translatorSpec =
 	"inRepository": true,
 	"translatorType": 4,
 	"browserSupport": "gcsib",
-	"lastUpdated": "2012-11-01 08:10:06"
+	"lastUpdated": "2013-03-14 21:29:25"
 }
 
 /*
@@ -81,14 +81,25 @@ function setGSPCookie(doc, cookie) {
 function setCookieThroughPrefs(doc, callback) {
 	url = doc.location.href.replace(/hl\=[^&]*&?/, "")
 			.replace("scholar?",
-				"scholar_setprefs?hl=en&scis=yes&scisf=4&submit=Save+Preferences&");
-	PME.Util.HTTP.doGet(url, function(scisigDoc) {
+				"scholar_settings?");
+	PME.Util.doGet(url, function(scisigDoc) {
 		var scisig = /<input\s+type="?hidden"?\s+name="?scisig"?\s+value="([^"]+)"/
 					.exec(scisigDoc);
-		url = url + "&scisig="+scisig[1];
+		if(!scisig) {
+			PME.debug('Could not locate scisig');
+			var form = scisigDoc.match(/<form.+?<\/form>/ig);
+			if(!form) {
+				PME.debug('No forms found on page.');
+				PME.debug(scisigDoc);
+			} else {
+				PME.debug(form.join('\n\n'));
+			}
+		}
+		url = url.replace("scholar_settings?", "scholar_setprefs?")
+			+ "&scis=yes&scisf=4&submit=&scisig="+scisig[1];
 		//set prefernces
 		PME.debug('Submitting settings to Google Scholar: ' + url);
-		PME.Util.HTTP.doGet(url, function(response) { callback(doc); });
+		PME.Util.doGet(url, function(response) { callback(doc); });
 	});
 }
 
@@ -102,6 +113,7 @@ function prepareCookie(doc, callback) {
 		}
 		callback(doc);
 	} else {
+		PME.debug("Attempting to set cookie through GS Settings page");
 		//some proxies do not pass cookies through, so we need to set this by
 		//going to the preferences page
 		setCookieThroughPrefs(doc, callback);
@@ -197,13 +209,12 @@ function scrapeArticleResults(doc, articles) {
 	for(var i=0, n=articles.length; i<n; i++) {
 		//using closure so we can link a doGet response to a PDF url
 		(function(doc, article) {
-			PME.Util.HTTP.doGet(article.bibtexUrl,
+			PME.Util.doGet(article.bibtexUrl,
 				function(text) {
-					// importing BibTeX.js translator
 					var translator = PME.loadTranslator('import');
 					translator.setTranslator('9cb70025-a888-4a29-a210-93ec52da40d4');
 					translator.setString(text);
-
+	
 					translator.setHandler('itemDone', function(obj, item) {
 						if(item.creators.length) {
 							var lastCreatorIndex = item.creators.length-1,
@@ -212,11 +223,11 @@ function scrapeArticleResults(doc, articles) {
 								item.creators.splice(lastCreatorIndex, 1);
 							}
 						}
-
+						
 						//clean author names
 						for(var j=0, m=item.creators.length; j<m; j++) {
 							if(!item.creators[j].firstName) continue;
-
+	
 							item.creators[j] = PME.Util.cleanAuthor(
 								item.creators[j].lastName + ', ' +
 									item.creators[j].firstName,
@@ -255,7 +266,7 @@ function scrapeArticleResults(doc, articles) {
 								//a[.//span[@class="gs_ctg2"]]');
 						for(var i=0, n=pdf.length; i<n; i++) {
 							var attach = getAttachment(pdf[i].href,
-											pdf[i].childNodes[0].textContent);
+											PME.Util.getXPathNodeText(pdf[i].childNodes[0]));
 							if(!attach) continue;
 
 							//drop attachment linked by the main link
@@ -278,7 +289,7 @@ function scrapeArticleResults(doc, articles) {
 
 						item.complete();
 					});
-
+	
 					translator.translate();
 				},
 				//restore cookie when the last doGet is done
@@ -294,7 +305,7 @@ function scrapeCaseResults(doc, cases) {
 	for(var i=0, n=cases.length; i<n; i++) {
 		var titleString = PME.Util.xpathText(cases[i].result, './h3[@class="gs_rt"]');
 		var citeletString = PME.Util.xpathText(cases[i].result, './div[@class="gs_a"]');
-
+	
 		var attachmentFrag = PME.Util.xpathText(cases[i].result,
 								'./h3[@class="gs_rt"]/a/@href');
 		if (attachmentFrag) {
@@ -302,11 +313,11 @@ function scrapeCaseResults(doc, cases) {
 		} else {
 			var attachmentLinks = [];
 		}
-
+	
 		// Instantiate item factory with available data
 		var factory = new ItemFactory(citeletString, attachmentLinks,
 										titleString, cases[i].bibtexUrl);
-
+	
 		if (!factory.hasUsefulData()) {
 			decrementCounter(doc)
 			continue;
@@ -322,19 +333,19 @@ function scrapeCaseResults(doc, cases) {
 		} else {
 			//use closure since this is asynchronous
 			(function(doc, factory) {
-				PME.Util.HTTP.doGet(factory.bibtexLink, function(text) {
+				PME.Util.doGet(factory.bibtexLink, function(text) {
 					//check if the BibTeX file has title
 					if(!text.match(/title={{}}/i)) {
 						var bibtexTranslator = PME.loadTranslator("import");
 						//BibTeX
 						bibtexTranslator.setTranslator("9cb70025-a888-4a29-a210-93ec52da40d4");
 						bibtexTranslator.setString(text);
-
+		
 						bibtexTranslator.setHandler("itemDone", function(obj, item) {
 							item.attachments = factory.getAttachments("Page");
 							item.complete();
 						});
-
+		
 						bibtexTranslator.translate();
 					} else {
 						// If BibTeX is empty, this is some kind of case, if anything.
@@ -370,7 +381,7 @@ function scrapeCaseResults(doc, cases) {
 function scrapePatentResults(doc, patents) {
 	for(var i=0, n=patents.length; i<n; i++) {
 		(function(doc, bibtexUrl, result) {
-			PME.Util.HTTP.doGet(bibtexUrl, function(text) {
+			PME.Util.doGet(bibtexUrl, function(text) {
 				var bibtexTranslator = PME.loadTranslator("import");
 				//BibTeX
 				bibtexTranslator.setTranslator("9cb70025-a888-4a29-a210-93ec52da40d4");
@@ -546,7 +557,7 @@ var scrapeCase = function (doc, url) {
 		// citelet looks kind of like this
 		// Powell v. McCormack, 395 US 486 - Supreme Court 1969
 		var item = new PME.Item("case");
-		var factory = new ItemFactory(refFrag.textContent, [url]);
+		var factory = new ItemFactory(PME.Util.getXPathNodeText(refFrag), [url]);
 		factory.repairCitelet();
 		factory.getDate();
 		factory.getCourt();
@@ -717,7 +728,7 @@ ItemFactory.prototype.getDocketNumber = function (doc) {
 		'//center[preceding-sibling::center//h3[@id="gsl_case_name"]]',
 		doc, null, XPathResult.ANY_TYPE, null).iterateNext();
 	if (docNumFrag) {
-		this.v.docketNumber = docNumFrag.textContent
+		this.v.docketNumber = PME.Util.getXPathNodeText(docNumFrag)
 								.replace(/^\s*[Nn][Oo](?:.|\s+)\s*/, "")
 								.replace(/\.\s*$/, "");
 	}
@@ -742,7 +753,7 @@ ItemFactory.prototype.pushAttachments = function (doctype) {
 ItemFactory.prototype.getBibtexData = function (callback) {
 	if (!this.bibtexData) {
 		if (this.bibtexData !== false) {
-			PME.Util.HTTP.doGet(this.bibtexLink, function(bibtexData) {
+			PME.Util.doGet(this.bibtexLink, function(bibtexData) {
 				if (!bibtexData.match(/title={{}}/)) {
 					this.bibtexData = bibtexData;
 				} else {

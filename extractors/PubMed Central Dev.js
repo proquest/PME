@@ -37,6 +37,7 @@ function detectWeb(doc, url) {
 function lookupPMCIDs(ids, doc, pdfLink) {
 	PME.wait();
 	var newUri = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pmc&retmode=xml&id=" + ids.join(",");
+	PME.debug("==DEV PubMed==");
 	PME.debug(newUri);
 	PME.Util.HTTP.doGet(newUri, function (text) {
 		text = text.replace(/(<[^!>][^>]*>)/g, function replacer(str, p1, p2, offset, s) {
@@ -47,11 +48,15 @@ function lookupPMCIDs(ids, doc, pdfLink) {
 		}); //Strip colons from element names, attribute names and attribute values
 		text = text.replace(/<xref[^<\/]*<\/xref>/g, ""); //Strip xref cross reference from e.g. title
 		text = PME.Util.trim(text);
+
+		PME.debug("doc text[0..99] = " + text.substr(0, 100));
 		
 		var parser = new DOMParser();
 		var doc = parser.parseFromString(text, "text/xml");
 
 		var articles = PME.Util.xpath(doc, '/pmcarticleset/article');
+
+		PME.debug("Article count " + articles.length);
 
 		for (var i=0; i<articles.length; ++i) {
 			var newItem = new PME.Item("journalArticle");
