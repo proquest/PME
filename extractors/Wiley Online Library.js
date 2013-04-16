@@ -73,7 +73,7 @@ function scrapeBook(doc, url, pdfUrl) {
 	var data = PME.Util.xpath(doc, '//div[@id="metaData"]/p');
 	var dataRe = /^(.+?):\s*(.+?)\s*$/;
 	var match;
-	var isbn = new Array();
+	var isbn = [];
 	for( var i=0, n=data.length; i<n; i++) {
 		match = dataRe.exec(PME.Util.getNodeText(data[i]));
 		if(!match) continue;
@@ -358,7 +358,7 @@ function doWeb(doc, url) {
 			PME.debug("Cochrane Library");
 			var articles =PME.Util.xpath(doc, '//div[@class="listingContent"]//td/strong/a[contains(@href, "/doi/")]');
 		}
-		var availableItems = new Object();
+		var availableItems = {};
 		for(var i=0, n=articles.length; i<n; i++) {
 			availableItems[articles[i].href] = PME.Util.trimInternal(PME.Util.getNodeText(articles[i]).trim());
 		}
@@ -366,7 +366,7 @@ function doWeb(doc, url) {
 		PME.selectItems(availableItems, function(selectedItems) {
 			if(!selectedItems) return true;
 
-			var urls = new Array();
+			var urls = [];
 			for (var i in selectedItems) {
 				urls.push(i);
 			}

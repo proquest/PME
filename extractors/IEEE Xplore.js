@@ -39,7 +39,7 @@ function doWeb(doc, url) {
 
 	if (detectWeb(doc, url) == "multiple") {
 		// search page
-		var items = new Object();
+		var items = {};
 
 		var xPathRows = '//ul[@class="Results"]/li[@class="noAbstract"]/div[@class="header"]';
 		var tableRows = doc.evaluate(xPathRows, doc, null, XPathResult.ANY_TYPE, null);
@@ -66,7 +66,7 @@ function doWeb(doc, url) {
 			if (!items) {
 				return true;
 			}
-			var urls = new Array();
+			var urls = [];
 			for (var i in items) {
 				// Some pages don't show the metadata we need (http://forums.zotero.org/discussion/16283)
 				// No data: http://ieeexplore.ieee.org/search/srchabstract.jsp?tp=&arnumber=1397982

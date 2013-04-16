@@ -54,9 +54,9 @@ function returnURL(eid) {
 }
 
 function doWeb(doc, url) {
-	var articles = new Array();
+	var articles = [];
 	if (detectWeb(doc, url) == "multiple") {
-		items = new Object();
+		items = {};
 		var boxes = getBoxes(doc);
 		var box;
 		while (box = boxes.iterateNext()) {

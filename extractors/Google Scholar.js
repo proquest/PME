@@ -475,8 +475,8 @@ function doWeb(doc, url) {
 		 */
 		var results = getViableResults(doc);
 
-		var items = new Object();
-		var resultDivs = new Object();
+		var items = {};
+		var resultDivs = {};
 		var bibtexUrl;
 		for(var i=0, n=results.length; i<n; i++) {
 			bibtexUrl = PME.Util.xpathText(results[i],
@@ -494,10 +494,10 @@ function doWeb(doc, url) {
 			if(!selectedItems) return true;
 
 			//different types are handled differently
-			var selectedArticles = new Array();
-			var selectedCases = new Array();
-			var selectedPatents = new Array();
-			var selectedBooks = new Array()
+			var selectedArticles = [];
+			var selectedCases = [];
+			var selectedPatents = [];
+			var selectedBooks = []
 
 			for(var i in selectedItems) {
 				/**Global counter so we know when we can finally restore original

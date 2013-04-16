@@ -75,7 +75,7 @@ function getKeywords(doc) {
 	//e.g. http://jn.nutrition.org/content/130/12/3122S.abstract
 	var keywords = PME.Util.xpath(doc,'//ul[contains(@class,"kwd-group")]//a');
 
-	var kwds = new Array();
+	var kwds = [];
 	for(var i=0, n=keywords.length; i<n; i++) {
 		kwds.push(PME.Util.getNodeText(keywords[i]).trim());
 	}
@@ -179,7 +179,7 @@ function doWeb(doc, url) {
 		var next_res, title, link;
 		var linkx = '(.//a)[1]/@href';
 		var searchres = PME.Util.xpath(doc, searchx);
-		var items = new Object();
+		var items = {};
 
 		for(var i=0, n=searchres.length; i<n; i++) {
 			next_res = searchres[i];
@@ -194,7 +194,7 @@ function doWeb(doc, url) {
 		PME.selectItems(items, function(selectedItems) {
 			if( selectedItems == null ) return true;
 
-			var urls = new Array();
+			var urls = [];
 			for( var item in selectedItems ) {
 				urls.push(item);
 			}

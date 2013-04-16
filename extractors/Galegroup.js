@@ -94,9 +94,9 @@ function parseRIS(url) {
 }
 
 function doWeb(doc, url) {
-	var articles = new Array();
+	var articles = [];
 	if (detectWeb(doc, url) == "multiple") {
-		var items = new Object();
+		var items = {};
 		var titles = doc.evaluate('//span[@class="title"]/a|//div[contains(@class, "Title")]/a|//li[@class="resultInfo"]/p/b/a', doc, null, XPathResult.ANY_TYPE, null);
 		var next_title;
 		while (next_title = titles.iterateNext()) {

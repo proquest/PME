@@ -82,7 +82,7 @@ function doWeb(doc, url) {
 
 	var record_type = "";
 	if (count > 1) { // If page contains multiple Articles.
-		var items = new Object();
+		var items = {};
 		var tableRows;
 		// Go through table rows
 		if (doc.evaluate('//div[@id="titles-records"]/table[starts-with(@class, "titles-row")]', doc, null, XPathResult.ANY_TYPE, null).iterateNext()) {

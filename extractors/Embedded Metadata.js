@@ -413,7 +413,7 @@ function addHighwireMetadata(doc, newItem) {
 	}
 
 	//sometimes RDF has more info, let's not drop it
-	var rdfPages = (newItem.pages)? newItem.pages.split(/\s*-\s*/) : new Array();
+	var rdfPages = (newItem.pages)? newItem.pages.split(/\s*-\s*/) : [];
 	var firstpage = getContentText(doc, 'citation_firstpage') ||
 					rdfPages[0];
 	var lastpage = getContentText(doc, 'citation_lastpage') ||

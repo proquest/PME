@@ -131,7 +131,7 @@ function handleCreators(newItem, creators, creatorType) {
 			if(type) {
 				type = PME.RDF.getResourceURI(type[0]);
 				if(type == n.foaf+"Person") {	// author is FOAF type person
-					var creator = new Object();
+					var creator = {};
 					creator.lastName = getFirstResults(creators[i],
 						[n.foaf+"familyName", n.foaf+"lastName",
 						n.foaf+"surname", n.foaf+"family_name"], true); //unofficial
@@ -149,11 +149,11 @@ function handleCreators(newItem, creators, creatorType) {
 // processes collections recursively
 function processCollection(node, collection) {
 	if(!collection) {
-		collection = new Array();
+		collection = [];
 	}
 	collection.type = "collection";
 	collection.name = getFirstResults(node, [n.dc+"title", n.dcterms+"title"], true);
-	collection.children = new Array();
+	collection.children = [];
 	
 	// check for children
 	var children = getFirstResults(node, [n.dcterms+"hasPart"]);
@@ -182,7 +182,7 @@ function processCollection(node, collection) {
 function processSeeAlso(node, newItem) {
 	var relations;
 	newItem.itemID = PME.RDF.getResourceURI(node);
-	newItem.seeAlso = new Array();
+	newItem.seeAlso = [];
 	if(relations = getFirstResults(node, [n.dc+"relation", n.dcterms+"relation"])) {
 		for each(var relation in relations) {
 			newItem.seeAlso.push(PME.RDF.getResourceURI(relation));
@@ -192,7 +192,7 @@ function processSeeAlso(node, newItem) {
 
 function processTags(node, newItem) {
 	var subjects;
-	newItem.tags = new Array();
+	newItem.tags = [];
 	if(subjects = getFirstResults(node, [n.dc+"subject", n.dcterms+"subject"])) {
 		for each(var subject in subjects) {
 			if(typeof(subject) == "string") {	// a regular tag
@@ -268,7 +268,7 @@ function detectType(newItem, node, ret) {
 	}
 	
 	var container;
-	var t = new Object();
+	var t = {};
 	// rdf:type
 	var type = getFirstResults(node, [rdf+"type"], true);
 	if(type) {
@@ -585,7 +585,7 @@ function detectType(newItem, node, ret) {
 }
 	
 function importItem(newItem, node) {
-	var ret = new Object();
+	var ret = {};
 	newItem.itemType = detectType(newItem, node, ret);
 	var container = ret.container;
 	var isPartOf = ret.isPartOf;
@@ -845,7 +845,7 @@ function importItem(newItem, node) {
 		var type = PME.RDF.getTargets(referentNode, rdf+"type");
 		if(type && PME.RDF.getResourceURI(type[0]) == n.bib+"Memo") {
 			// if this is a memo
-			var note = new Array();
+			var note = [];
 			note.note = getFirstResults(referentNode, [rdf+"value", n.dc+"description", n.dcterms+"description"], true);
 			if(note.note != undefined) {
 				// handle see also
@@ -922,7 +922,7 @@ function importItem(newItem, node) {
 function getNodes(skipCollections) {
 	var nodes = PME.RDF.getAllResources();
 
-	var goodNodes = new Array();
+	var goodNodes = [];
 	for each(var node in nodes) {
 		// figure out if this is a part of another resource, or a linked
 		// attachment, or a creator
@@ -959,7 +959,7 @@ function doImport() {
 	}
 	
 	// keep track of collections while we're looping through
-	var collections = new Array();
+	var collections = [];
 	
 	var i = 0;
 	for each(var node in nodes) {

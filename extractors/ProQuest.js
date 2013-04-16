@@ -177,7 +177,7 @@ function doWeb(doc, url, pdfUrl) {
 			results = PME.Util.xpath(doc, '//a[contains(@href, "/docview/")]');
 		}
 
-		var items = new Array();
+		var items = [];
 		for(var i=0, n=results.length; i<n; i++) {
 			items[results[i].href] = PME.Util.getNodeText(results[i]);
 		}
@@ -185,7 +185,7 @@ function doWeb(doc, url, pdfUrl) {
 		PME.selectItems(items, function (items) {
 			if (!items) return true;
 
-			var articles = new Array();
+			var articles = [];
 			for (var i in items) {
 				PME.Util.processDocuments(i,
 					//call doWeb so that we rerun detectWeb to get type and

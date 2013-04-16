@@ -179,7 +179,7 @@ function doWeb(doc, url) {
 		else return null;
 	} : null;
 
-	var ids = new Array();
+	var ids = [];
 	var pmcid;
 	var pdfLink;
 	var resultsCount = 0;
@@ -221,7 +221,7 @@ function doWeb(doc, url) {
 			if (!ids) {
 				return true;
 			}
-			var pmcids = new Array();
+			var pmcids = [];
 			for (var i in ids) {
 				pmcids.push(i);
 			}

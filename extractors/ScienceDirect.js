@@ -136,7 +136,7 @@ function scrapeByExport(doc) {
 
 					if(item.notes[0]) {
 						item.abstractNote = item.notes[0].note;
-						item.notes = new Array();
+						item.notes = [];
 					}
 					item.DOI = item.DOI.replace(/^doi:\s+/i, '');
 					item.complete();

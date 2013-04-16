@@ -2206,7 +2206,7 @@ function doExport() {
 	PME.write("\n");
 	
 	var first = true;
-	var citekeys = new Object();
+	var citekeys = {};
 	var item;
 	while(item = PME.nextItem()) {
 		//don't export standalone notes and attachments
