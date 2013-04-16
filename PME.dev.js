@@ -221,6 +221,14 @@ if ((! window.DOMParser) && window.ActiveXObject) {
 	};
 }
 
+// quite a few translators use .trim() directly on strings instead of PME.Util.trim
+// .trim() is not supported in IE8 so we shim it here
+if (typeof String.prototype.trim != 'function') {
+	String.prototype.trim = function() {
+		return this.replace(/^\s+|\s+$/g, ''); 
+	};
+}
+
 
 // ------------------------------------------------------------------------
 //                                                    _   _ _     
@@ -489,6 +497,7 @@ PME.Item = function(type) {
 		var completeReady = taskStarted("itemComplete");
 
 		function finishComplete() {
+			log("Item finishComplete called");
 			PME.items.push(this);
 			delete this.complete; // make it an error to try complete again
 			completeReady();
@@ -742,7 +751,9 @@ PME.Translator = function(type) {
 		setHandler: setHandler,
 		translate: translate,
 
-		read: read
+		read: read,
+
+		notifyHandlers: notifyHandlers
 	}
 };
 
@@ -800,7 +811,7 @@ PME.read = function(size) {
 PME.Util = {};
 
 PME.Util.trim = function(str) {
-	return str.replace(/^\s+|\s+$/g, '')
+	return str.replace(/^\s+|\s+$/g, '');
 };
 
 PME.Util.trimInternal = function(str) {
@@ -1111,14 +1122,16 @@ PME.Util.xpath = function(nodes, selector, namespaces) {
 	return out;
 };
 
+PME.Util.getXPathNodeText = function(node) {
+	return node.textContent || node.innerText || node.text || node.nodeValue;
+};
+
 PME.Util.xpathText = function(nodes, selector, namespaces, delim) {
 	nodes = PME.Util.xpath(nodes, selector, namespaces);
 	if (! nodes.length)
 		return null;
 	
-	var text = map(nodes, function(node) {
-		return node.textContent || node.innerText || node.text || node.nodeValue;
-	});
+	var text = map(nodes, PME.Util.getXPathNodeText);
 
 	return text.join(delim !== undefined ? delim : ", ");
 };
@@ -1568,7 +1581,7 @@ function httpRequest(reqURL, callback) {
 	return request;
 }
 
-PME.Util.HTTP.doGet = PME.Util.doGet = function(url, callback, charset) {
+PME.Util.HTTP.doGet = PME.Util.doGet = function(url, callback, done) {
 	log("HTTP GET request: ", url);
 	var getReady = taskStarted("HTTP.doGet"),
 		request = httpRequest(url, function(status) {
@@ -1583,6 +1596,8 @@ PME.Util.HTTP.doGet = PME.Util.doGet = function(url, callback, charset) {
 				fatal("Error in HTTP GET callback", e);
 			}
 
+			if (typeof done == "function")
+				done();
 			getReady();
 		});
 
