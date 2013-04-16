@@ -43,7 +43,7 @@ var Registry = (function() {
 			m: "^http://(online|blogs)?\\.wsj\\.com/",
 			g: "53f8d182-4edc-4eab-b5a1-141698a1303b"
 		},
-		"PubMed Central Dev": {
+		"PubMed Central": {
 			m: "https?://[^/]*.nih.gov/",
 			g: "27ee5b2c-2a5a-4afc-a0aa-d386642d4eed"
 		},

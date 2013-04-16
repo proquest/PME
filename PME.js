@@ -221,6 +221,14 @@ if ((! window.DOMParser) && window.ActiveXObject) {
 	};
 }
 
+// quite a few translators use .trim() directly on strings instead of PME.Util.trim
+// .trim() is not supported in IE8 so we shim it here
+if (typeof String.prototype.trim != 'function') {
+	String.prototype.trim = function() {
+		return this.replace(/^\s+|\s+$/g, ''); 
+	};
+}
+
 
 // ------------------------------------------------------------------------
 //                                                    _   _ _     
@@ -437,7 +445,14 @@ function leafTaskCompleted() {
 // -- wait and done are ignored (the async task tracking handles lifetime)
 PME.wait = function() {};
 PME.done = function(returnValue) {
-	// TODO: if returnValue === false then the result should be discarded and null returned as output
+	// done only has effect if returnValue === false
+	// the result will be discarded and everything will be abandoned immediately
+	if (returnValue === false) {
+		log("PME.done(false) called, extraction failed.");
+		pmeOK = false;
+		completed(null);
+		throw "kill current execution thread.";
+	}
 };
 
 
@@ -485,9 +500,25 @@ PME.Item = function(type) {
 	this.notes = [];
 
 	this.complete = function() {
-		log("item completed", this);
-		PME.items.push(this);
-		delete this.complete;
+		log("Item.complete called", this, "checking itemDone handlers");
+		var completeReady = taskStarted("itemComplete");
+
+		function finishComplete() {
+			log("Item finishComplete called");
+			PME.items.push(this);
+			delete this.complete; // make it an error to try complete again
+			completeReady();
+		};
+
+		this.complete = finishComplete;
+
+		var waitForHandlers = PME.Translator.triggerEvent("itemDone", this, this); // yes, 2x this, likely some legacy thing
+		if (waitForHandlers) {
+			// itemDone handlers will call item.complete again
+			log("Item.complete: itemDone handlers were run");
+		}
+		else
+			finishComplete();
 	};
 };
 
@@ -598,7 +629,7 @@ PME.Translator = function(type) {
 	}
 
 	function getTranslatorObject(cont) {
-		if (!pmeOK) return;
+		if (! pmeOK) return;
 		if (! trClass) {
 			fatal("getTranslatorObject() called on uninited Translator");
 			return;
@@ -664,9 +695,10 @@ PME.Translator = function(type) {
 
 	function notifyHandlers(event /*, param1, .., paramN */) {
 		var ha = handlers[event];
-		if (! ha) return;
+		if ((! ha) || (! ha.length)) return false;
 		var args = Array.prototype.slice.call(arguments, 1);
 		each(ha, function(h) { h.apply(null, args); });
+		return true;
 	}
 
 	function waitForTranslatorClass(cont) {
@@ -677,7 +709,7 @@ PME.Translator = function(type) {
 
 		waitFor(
 			function() { return !!trClass.api; },
-			5000,
+			10 * 1000,
 			function(success) {
 				if (! success)
 					fatal("timeout while waiting for translator class", trClass.name, "(" + trClass.id + ")");
@@ -726,7 +758,9 @@ PME.Translator = function(type) {
 		setHandler: setHandler,
 		translate: translate,
 
-		read: read
+		read: read,
+
+		notifyHandlers: notifyHandlers
 	}
 };
 
@@ -740,6 +774,22 @@ PME.loadTranslator = function(type) {
 	PME.Translator.stack.unshift(tr);
 	return tr;
 };
+
+// -- trigger an event in the translator chain
+PME.Translator.triggerEvent = function(event /*, param1, .., paramN */) {
+	var handled = false,
+		trIx = 0,
+		tr,
+		args = Array.prototype.slice.call(arguments, 0);
+
+	do {
+		tr = PME.Translator.stack[trIx++];
+		if (tr)
+			handled = tr.notifyHandlers.apply(tr, args); // forward call to tr's notifyHandler
+	} while ((! handled) && tr);
+
+	return handled;
+}
 
 // -- import translators use PME.read() to read from data set by trans.setString()
 PME.read = function(size) {
@@ -768,7 +818,7 @@ PME.read = function(size) {
 PME.Util = {};
 
 PME.Util.trim = function(str) {
-	return str.replace(/^\s+|\s+$/g, '')
+	return str.replace(/^\s+|\s+$/g, '');
 };
 
 PME.Util.trimInternal = function(str) {
@@ -982,6 +1032,11 @@ PME.Util.strToDate = function(str) {
 	return date;
 };
 
+PME.Util.cleanDOI = function(doi) {
+	doi = doi.match(/10\.[0-9]{4,}\/[^\s]*[^\s\.,]/);
+	return doi && doi[0];
+};
+
 PME.Util.text2html = function(str, singleNewlineIsParagraph) {
 	str = PME.Util.htmlSpecialChars(str);
 	
@@ -1014,6 +1069,10 @@ PME.Util.htmlSpecialChars = function(str) {
 // this seems to only be used in export for BibTeX
 PME.Util.removeDiacritics = function(str, lowerCaseOnly) {
 	return str; 
+};
+
+PME.Util.getNodeText = function(node) {
+	return node.textContent || node.innerText || node.text || node.nodeValue || "";
 };
 
 // -- add xpath helper javascript if browser doesn't have native support for xpath (IE)
@@ -1084,11 +1143,13 @@ PME.Util.xpathText = function(nodes, selector, namespaces, delim) {
 	if (! nodes.length)
 		return null;
 	
-	var text = map(nodes, function(node) {
-		return node.textContent || node.innerText || node.text || node.nodeValue;
-	});
+	var text = map(nodes, PME.Util.getNodeText);
 
 	return text.join(delim !== undefined ? delim : ", ");
+};
+
+PME.Util.fieldIsValidForType = function(field, itemType) {
+	return true; // TBI
 };
 
 /*
@@ -1536,7 +1597,7 @@ function httpRequest(reqURL, callback) {
 	return request;
 }
 
-PME.Util.HTTP.doGet = function(url, callback, charset) {
+PME.Util.HTTP.doGet = PME.Util.doGet = function(url, callback, done) {
 	log("HTTP GET request: ", url);
 	var getReady = taskStarted("HTTP.doGet"),
 		request = httpRequest(url, function(status) {
@@ -1551,6 +1612,8 @@ PME.Util.HTTP.doGet = function(url, callback, charset) {
 				fatal("Error in HTTP GET callback", e);
 			}
 
+			if (typeof done == "function")
+				done();
 			getReady();
 		});
 
@@ -1563,7 +1626,7 @@ PME.Util.HTTP.doGet = function(url, callback, charset) {
 	}
 };
 
-PME.Util.HTTP.doPost = function(url, data, callback, headers, charset) {
+PME.Util.HTTP.doPost = PME.Util.doPost = function(url, data, callback, headers, charset) {
 	log("HTTP POST request: ", url, data);
 
 	var postReady = taskStarted("HTTP.doPost"),
@@ -1903,7 +1966,7 @@ PME.getPageMetaData = function(callback) {
 			if (!pageDoc.evaluate) {
 				PME.Util.xpathHelper(window, pageDoc, function() {
 					doTranslation();
-				})
+				});
 			} else {
 				doTranslation();
 			}
