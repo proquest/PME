@@ -445,7 +445,8 @@ function leafTaskCompleted() {
 // -- wait and done are ignored (the async task tracking handles lifetime)
 PME.wait = function() {};
 PME.done = function(returnValue) {
-	// if returnValue === false then the result will be discarded and null returned as output
+	// done only has effect if returnValue === false
+	// the result will be discarded and everything will be abandoned immediately
 	if (returnValue === false) {
 		log("PME.done(false) called, extraction failed.");
 		pmeOK = false;
@@ -1956,7 +1957,7 @@ PME.getPageMetaData = function(callback) {
 			if (!pageDoc.evaluate) {
 				PME.Util.xpathHelper(window, pageDoc, function() {
 					doTranslation();
-				})
+				});
 			} else {
 				doTranslation();
 			}
