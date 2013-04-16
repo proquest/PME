@@ -189,7 +189,7 @@ function doWeb(doc, url) {
 	if (pmcid) {
 		try {
 			var formatLinks = doc.evaluate('//td[@class="format-menu"]//a/@href|//div[@class="format-menu"]//a/@href', doc, nsResolver, XPathResult.ANY_TYPE, null);
-			while (formatLink = PME.Util.getXPathNodeText(formatLinks.iterateNext())) {
+			while (formatLink = PME.Util.getNodeText(formatLinks.iterateNext())) {
 				if(pdfLink = formatLink.match(/\/pdf\/([^\/]*\.pdf$)/)) {
 					pdfLink = pdfLink[1];
 				}
@@ -203,7 +203,7 @@ function doWeb(doc, url) {
 		var title;
 		while (pmcid = pmcids.iterateNext()) {
 			title = titles.iterateNext();
-			ids[PME.Util.getXPathNodeText(pmcid).match(/PMC([\d]+)/)[1]] = PME.Util.getXPathNodeText(title);
+			ids[PME.Util.getNodeText(pmcid).match(/PMC([\d]+)/)[1]] = PME.Util.getNodeText(title);
 			resultsCount = resultsCount + 1;
 		}
 		// Don't display selectItems when there's only one

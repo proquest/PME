@@ -59,7 +59,7 @@ function getTextValue(doc, fields) {
 				normalize-space(text())="' + fields[i] +
 			'"]/following-sibling::div[@class="display_record_indexing_data"][1]');
 
-		if(values.length) values = [PME.Util.getXPathNodeText(values[0])];
+		if(values.length) values = [PME.Util.getNodeText(values[0])];
 
 		allValues = allValues.concat(values);
 	}
@@ -179,7 +179,7 @@ function doWeb(doc, url, pdfUrl) {
 
 		var items = new Array();
 		for(var i=0, n=results.length; i<n; i++) {
-			items[results[i].href] = PME.Util.getXPathNodeText(results[i]);
+			items[results[i].href] = PME.Util.getNodeText(results[i]);
 		}
 
 		PME.selectItems(items, function (items) {
@@ -232,8 +232,8 @@ function scrape(doc, url, type, pdfUrl) {
 
 		if(!label || !value) continue;
 
-		label = PME.Util.getXPathNodeText(label).trim();
-		value = PME.Util.getXPathNodeText(value).trim();	//trimInternal?
+		label = PME.Util.getNodeText(label).trim();
+		value = PME.Util.getNodeText(value).trim();	//trimInternal?
 
 		//translate label
 		enLabel = L[label] || label;
@@ -394,7 +394,7 @@ function scrape(doc, url, type, pdfUrl) {
 	item.abstractNote = PME.Util.xpath(doc,
 		'//div[@id="abstractZone" or contains(@id,"abstractFull")]/\
 			p[normalize-space(text())]')
-		.map(function(p) { return PME.Util.trimInternal(PME.Util.getXPathNodeText(p)) })
+		.map(function(p) { return PME.Util.trimInternal(PME.Util.getNodeText(p)) })
 		.join('\n');
 
 	if(!item.tags.length && altKeywords.length) {

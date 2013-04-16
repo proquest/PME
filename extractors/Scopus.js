@@ -61,7 +61,7 @@ function doWeb(doc, url) {
 		var box;
 		while (box = boxes.iterateNext()) {
 			var link = doc.evaluate('.//a', box, null, XPathResult.ANY_TYPE, null).iterateNext();
-			items[link.href] = PME.Util.trimInternal(PME.Util.getXPathNodeText(link));
+			items[link.href] = PME.Util.trimInternal(PME.Util.getNodeText(link));
 		}
 		PME.selectItems(items, function (items) {
 			for (var i in items) {

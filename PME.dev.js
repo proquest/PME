@@ -1059,6 +1059,10 @@ PME.Util.removeDiacritics = function(str, lowerCaseOnly) {
 	return str; 
 };
 
+PME.Util.getNodeText = function(node) {
+	return node.textContent || node.innerText || node.text || node.nodeValue;
+};
+
 // -- add xpath helper javascript if browser doesn't have native support for xpath (IE)
 PME.Util.xpathHelper = function(docWindow, doc, callback) {
 	log("adding XPath helper script");
@@ -1122,16 +1126,12 @@ PME.Util.xpath = function(nodes, selector, namespaces) {
 	return out;
 };
 
-PME.Util.getXPathNodeText = function(node) {
-	return node.textContent || node.innerText || node.text || node.nodeValue;
-};
-
 PME.Util.xpathText = function(nodes, selector, namespaces, delim) {
 	nodes = PME.Util.xpath(nodes, selector, namespaces);
 	if (! nodes.length)
 		return null;
 	
-	var text = map(nodes, PME.Util.getXPathNodeText);
+	var text = map(nodes, PME.Util.getNodeText);
 
 	return text.join(delim !== undefined ? delim : ", ");
 };

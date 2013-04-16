@@ -68,14 +68,14 @@ function scrapeBook(doc, url, pdfUrl) {
 	if( !title ) return false;
 
 	var newItem = new PME.Item('book');
-	newItem.title = PME.Util.capitalizeTitle(PME.Util.getXPathNodeText(title), true);
+	newItem.title = PME.Util.capitalizeTitle(PME.Util.getNodeText(title), true);
 	
 	var data = PME.Util.xpath(doc, '//div[@id="metaData"]/p');
 	var dataRe = /^(.+?):\s*(.+?)\s*$/;
 	var match;
 	var isbn = new Array();
 	for( var i=0, n=data.length; i<n; i++) {
-		match = dataRe.exec(PME.Util.getXPathNodeText(data[i]));
+		match = dataRe.exec(PME.Util.getNodeText(data[i]));
 		if(!match) continue;
 
 		switch(match[1].trim().toLowerCase()) {
@@ -138,7 +138,7 @@ function scrapeEM(doc, url, pdfUrl) {
 				var authors = PME.Util.xpath(doc, '//ol[@id="authors"]/li/node()[1]');
 				for(var i=0, n=authors.length; i<n; i++) {
 					item.creators.push(
-						PME.Util.cleanAuthor( getAuthorName(PME.Util.getXPathNodeText(authors[i])),
+						PME.Util.cleanAuthor( getAuthorName(PME.Util.getNodeText(authors[i])),
 											'author',false) );
 				}
 			}
@@ -147,7 +147,7 @@ function scrapeEM(doc, url, pdfUrl) {
 			var editors = PME.Util.xpath(doc, '//ol[@id="editors"]/li/node()[1]');
 			for(var i=0, n=editors.length; i<n; i++) {
 				item.creators.push(
-					PME.Util.cleanAuthor( getAuthorName(PME.Util.getXPathNodeText(editors[i])),
+					PME.Util.cleanAuthor( getAuthorName(PME.Util.getNodeText(editors[i])),
 										'editor',false) );
 			}
 
@@ -234,7 +234,7 @@ function scrapeBibTeX(doc, url, pdfUrl) {
 			var editors = PME.Util.xpath(doc, '//ol[@id="editors"]/li/node()[1]');
 			for(var i=0, n=editors.length; i<n; i++) {
 				item.creators.push(
-					PME.Util.cleanAuthor( getAuthorName(PME.Util.getXPathNodeText(editors[i])),
+					PME.Util.cleanAuthor( getAuthorName(PME.Util.getNodeText(editors[i])),
 										'editor',false) );
 			}
 			
@@ -360,7 +360,7 @@ function doWeb(doc, url) {
 		}
 		var availableItems = new Object();
 		for(var i=0, n=articles.length; i<n; i++) {
-			availableItems[articles[i].href] = PME.Util.trimInternal(PME.Util.getXPathNodeText(articles[i]).trim());
+			availableItems[articles[i].href] = PME.Util.trimInternal(PME.Util.getNodeText(articles[i]).trim());
 		}
 
 		PME.selectItems(availableItems, function(selectedItems) {

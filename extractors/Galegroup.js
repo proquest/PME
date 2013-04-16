@@ -100,7 +100,7 @@ function doWeb(doc, url) {
 		var titles = doc.evaluate('//span[@class="title"]/a|//div[contains(@class, "Title")]/a|//li[@class="resultInfo"]/p/b/a', doc, null, XPathResult.ANY_TYPE, null);
 		var next_title;
 		while (next_title = titles.iterateNext()) {
-			items[next_title.href] = PME.Util.getXPathNodeText(next_title);
+			items[next_title.href] = PME.Util.getNodeText(next_title);
 		}
 
 		PME.selectItems(items, function (items) {

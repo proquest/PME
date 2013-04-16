@@ -266,7 +266,7 @@ function scrapeArticleResults(doc, articles) {
 								//a[.//span[@class="gs_ctg2"]]');
 						for(var i=0, n=pdf.length; i<n; i++) {
 							var attach = getAttachment(pdf[i].href,
-											PME.Util.getXPathNodeText(pdf[i].childNodes[0]));
+											PME.Util.getNodeText(pdf[i].childNodes[0]));
 							if(!attach) continue;
 
 							//drop attachment linked by the main link
@@ -557,7 +557,7 @@ var scrapeCase = function (doc, url) {
 		// citelet looks kind of like this
 		// Powell v. McCormack, 395 US 486 - Supreme Court 1969
 		var item = new PME.Item("case");
-		var factory = new ItemFactory(PME.Util.getXPathNodeText(refFrag), [url]);
+		var factory = new ItemFactory(PME.Util.getNodeText(refFrag), [url]);
 		factory.repairCitelet();
 		factory.getDate();
 		factory.getCourt();
@@ -728,7 +728,7 @@ ItemFactory.prototype.getDocketNumber = function (doc) {
 		'//center[preceding-sibling::center//h3[@id="gsl_case_name"]]',
 		doc, null, XPathResult.ANY_TYPE, null).iterateNext();
 	if (docNumFrag) {
-		this.v.docketNumber = PME.Util.getXPathNodeText(docNumFrag)
+		this.v.docketNumber = PME.Util.getNodeText(docNumFrag)
 								.replace(/^\s*[Nn][Oo](?:.|\s+)\s*/, "")
 								.replace(/\.\s*$/, "");
 	}

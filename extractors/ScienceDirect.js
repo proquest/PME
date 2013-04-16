@@ -51,7 +51,7 @@ function detectWeb(doc, url) {
 
 function getExportLink(doc) {
 	var link = PME.Util.xpath(doc, '//div[@class="icon_exportarticlesci_dir"]/a/@href');
-	return link.length ? PME.Util.getXPathNodeText(link[0]) : false;
+	return link.length ? PME.Util.getNodeText(link[0]) : false;
 }
 
 function getPDFLink(doc) {
@@ -168,7 +168,7 @@ function doWeb(doc, url) {
 		var itemList = getArticleList(doc);
 		var items = {};
 		for(var i=0, n=itemList.length; i<n; i++) {
-			items[itemList[i].href] = PME.Util.getXPathNodeText(itemList[i]);
+			items[itemList[i].href] = PME.Util.getNodeText(itemList[i]);
 		}
 
 		PME.selectItems(items, function(selectedItems) {

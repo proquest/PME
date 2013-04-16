@@ -54,8 +54,8 @@ function doWeb(doc, url) {
 			var title = "";
 			var strongs = tableRow.getElementsByTagName("h3");
 			for each(var strong in strongs) {
-				if (PME.Util.getXPathNodeText(strong)) {
-					title += PME.Util.getXPathNodeText(strong) + " ";
+				if (PME.Util.getNodeText(strong)) {
+					title += PME.Util.getNodeText(strong) + " ";
 				}
 			}
 

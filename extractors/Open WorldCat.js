@@ -128,7 +128,7 @@ function doWeb(doc, url) {
 			var items = {};
 			var title;
 			while (title = titles.iterateNext()) {
-				items[title.href] = PME.Util.getXPathNodeText(title);
+				items[title.href] = PME.Util.getNodeText(title);
 			}
 			PME.selectItems(items, function (items) {
 				if (!items) {

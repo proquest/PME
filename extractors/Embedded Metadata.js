@@ -372,12 +372,12 @@ function addHighwireMetadata(doc, newItem) {
 	//we might want to look at the citation_keyword metatag later
 	if(!newItem.tags || !newItem.tags.length)
 		 newItem.tags = getContent(doc, 'citation_keywords')
-		 					.map(PME.Util.getXPathNodeText);
+		 					.map(PME.Util.getNodeText);
 
 	//fall back to "keywords"
 	if(!newItem.tags.length)
 		 newItem.tags = PME.Util.xpath(doc, '//x:meta[@name="keywords"]/@content', namespaces)
-		 					.map(PME.Util.getXPathNodeText);
+		 					.map(PME.Util.getNodeText);
 
 	/**If we already have tags - run through them one by one,
 	 * split where ncessary and concat them.
@@ -434,7 +434,7 @@ function addHighwireMetadata(doc, newItem) {
 	//i.e. if there is more than one pdf attachment (not common)
 	var pdfURL = getContent(doc, 'citation_pdf_url');
 	if(pdfURL.length) {
-		pdfURL = PME.Util.getXPathNodeText(pdfURL[0]);
+		pdfURL = PME.Util.getNodeText(pdfURL[0]);
 		//delete any pdf attachments if present
 		//would it be ok to just delete all attachments??
 		for(var i=0, n=newItem.attachments.length; i<n; i++) {

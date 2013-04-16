@@ -208,9 +208,9 @@ function getResultList(doc, items, itemInfo) {
 
 		count++;
 
-		items[title[0].href] = PME.Util.getXPathNodeText(title[0]);
+		items[title[0].href] = PME.Util.getNodeText(title[0]);
 		itemInfo[title[0].href] = {
-			folderData: PME.Util.getXPathNodeText(folderData[0]),
+			folderData: PME.Util.getNodeText(folderData[0]),
 			//let's also store item type
 			itemType: PME.Util.xpathText(results[i],
 						'.//div[@class="pubtype"]/span/@class'),
@@ -296,7 +296,7 @@ function doDelivery(doc, itemInfo) {
 		var script, clientData;
 		var scripts = doc.getElementsByTagName("script");
 		for(var i=0; i<scripts.length; i++) {
-			clientData = PME.Util.getXPathNodeText(scripts[i])
+			clientData = PME.Util.getNodeText(scripts[i])
 				.match(/var ep\s*=\s*({[^;]*})(?:;|\s*$)/);
 			if (clientData) break;
 		}
