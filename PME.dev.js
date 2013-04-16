@@ -596,7 +596,7 @@ PME.TranslatorClass.unloadAll = function() {
 
 
 PME.TranslatorClass.cache = {};
-PME.TranslatorClass.baseURL = "http://" + PME_SRV + "/extractors/"; // PME_SRV is set by the bookmarklet
+PME.TranslatorClass.baseURL = "http://" + PME_SRV + "/extractors_dev/"; // PME_SRV is set by the bookmarklet
 
 
 // ------------------------------------------------------------------------
@@ -1032,6 +1032,11 @@ PME.Util.strToDate = function(str) {
 	return date;
 };
 
+PME.Util.cleanDOI = function(doi) {
+	doi = doi.match(/10\.[0-9]{4,}\/[^\s]*[^\s\.,]/);
+	return doi && doi[0];
+};
+
 PME.Util.text2html = function(str, singleNewlineIsParagraph) {
 	str = PME.Util.htmlSpecialChars(str);
 	
@@ -1067,7 +1072,7 @@ PME.Util.removeDiacritics = function(str, lowerCaseOnly) {
 };
 
 PME.Util.getNodeText = function(node) {
-	return node.textContent || node.innerText || node.text || node.nodeValue;
+	return node.textContent || node.innerText || node.text || node.nodeValue || "";
 };
 
 // -- add xpath helper javascript if browser doesn't have native support for xpath (IE)
@@ -1141,6 +1146,10 @@ PME.Util.xpathText = function(nodes, selector, namespaces, delim) {
 	var text = map(nodes, PME.Util.getNodeText);
 
 	return text.join(delim !== undefined ? delim : ", ");
+};
+
+PME.Util.fieldIsValidForType = function(field, itemType) {
+	return true; // TBI
 };
 
 /*

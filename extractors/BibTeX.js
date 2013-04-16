@@ -1692,7 +1692,7 @@ function processField(item, field, value) {
 	} else if(field == "author" || field == "editor" || field == "translator") {
 		// parse authors/editors/translators
 		var names = value.split(/ and /i); // now case insensitive
-		for(var i in names) {
+		for(var i=0; i<names.length; i++) {
 			var name = names[i];
 			// skip empty names
 			if (name.trim() == '') {
