@@ -263,7 +263,7 @@ var fieldMap = {
 		videoRecordingFormat:["film", "tvBroadcast", "videoRecording"]
 	},
 	C6: {
-		legalStatus:["patent"],
+		legalStatus:["patent"]
 	},
 	CY: {
 		"__default":"place",
@@ -337,7 +337,7 @@ var fieldMap = {
 		"__default":"ISBN",
 		ISSN:["journalArticle", "magazineArticle", "newspaperArticle"],
 		patentNumber:["patent"],
-		reportNumber:["report"],
+		reportNumber:["report"]
 	},
 	SP: {
 		"__default":"pages", //needs extra processing
