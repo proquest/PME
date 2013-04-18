@@ -70,7 +70,7 @@ date             : FW.Xpath('//li[@class="dateStamp"]').text().capitalizeTitle(t
 abstractNote     : FW.Xpath('//meta[@name="description"]/@content').text(),
 section          : FW.Xpath('//li[@class="articleSection first"]/a').text().capitalizeTitle(true),
 ISSN			 : "0099-9660",
-publicationTitle : "Wall Street Journal",
+publicationTitle : "Wall Street Journal"
 });
  
 

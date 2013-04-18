@@ -174,12 +174,12 @@ function warn() {
 
 function fatal() {
 	if (! pmeOK) return;
+	pmeOK = false;
 
 	var stuff = Array.prototype.slice.call(arguments, 0);
 	stuff.unshift("** FATAL **");
 	log.apply(null, stuff);
 
-	pmeOK = false;
 	completed(null);
 }
 
@@ -196,7 +196,19 @@ PME.debug = function(str) {
 //  \___\___/|_| |_| |_| .__/ \__,_|\__|_|_.__/|_|_|_|\__|\__, |
 //                     |_|                                |___/ 
 // ------------------------------------------------------------------------
-if ((! window.DOMParser) && window.ActiveXObject) {
+
+function hasUsefulDOMParser() {
+	// IE9's DOMParser.parseFromString's docs don't expose selectNodes
+	// so we need to replace it
+
+	if (window.DOMParser) {
+		var doc = (new DOMParser).parseFromString("<xml></xml>", "text/xml")
+		return ("evaluate" in doc) || ("selectNodes" in doc);
+	}
+	return false;
+}
+
+if ((! hasUsefulDOMParser()) && window.ActiveXObject) {
 	window.DOMParser = function() {
 		this.parseFromString = function(text, mimeType) {
 			mimeType = mimeType.toLowerCase();
@@ -251,6 +263,11 @@ if (! Array.prototype.indexOf) {
 		}
 		return -1;
 	}
+}
+
+// nuke certain prototype.js overloads that interfere with wgxpath
+if (Array.prototype.filter && Array.prototype.filter.toString().indexOf("[native") < 0) {
+	Array.prototype.filter = undefined;
 }
 
 
@@ -416,10 +433,14 @@ function completed(data) {
 }
 
 function success() {
-	completed((PME.items && PME.items.length) ? { items: PME.items } : null);
+	if (pmeOK)
+		completed((window.PME && PME.items && PME.items.length) ? { "items": PME.items } : null);
 }
 
 function taskStarted(label) {
+	if (! pmeOK)
+		throw "preventing taskStarted because pmeOK == false";
+
 	var task = {
 			label: label,
 			onComplete: null,
@@ -433,7 +454,7 @@ function taskStarted(label) {
 	return function(onComplete) {
 		task.ready = true;
 		task.onComplete = onComplete;
-		log ("taskReady: ", task.label);
+		// log("taskReady: ", task.label);
 
 		// am I the innermost task? if not, we will be completed by our subtask
 		if (taskIndex == pmeTaskStack.length - 1)
@@ -442,6 +463,9 @@ function taskStarted(label) {
 }
 
 function leafTaskCompleted() {
+	if (! pmeOK)
+		throw "preventing leafTaskCompleted because pmeOK == false";
+
 	if (! pmeTaskStack.length) {
 		fatal("leafTaskCompleted called with empty task stack");
 		return;
@@ -469,6 +493,8 @@ function leafTaskCompleted() {
 // -- wait and done are ignored (the async task tracking handles lifetime)
 PME.wait = function() {};
 PME.done = function(returnValue) {
+	if (! pmeOK) return;
+
 	// done only has effect if returnValue === false
 	// the result will be discarded and everything will be abandoned immediately
 	if (returnValue === false) {
@@ -542,7 +568,7 @@ PME.Item = function(type) {
 			log("Item.complete: itemDone handlers were run");
 		}
 		else
-			finishComplete();
+			finishComplete.apply(this);
 	};
 };
 
@@ -1103,26 +1129,24 @@ PME.Util.getNodeText = function(node) {
 PME.Util.xpathHelper = function(docWindow, doc, callback) {
 	log("adding XPath helper script");
 	var h = doc.getElementsByTagName('head')[0];
-	var ie_xpath=doc.createElement('SCRIPT');
-	ie_xpath.src='http://'+ PME_SRV + '/wgxpath.install.js';
+	var ie_xpath = doc.createElement('SCRIPT');
+	ie_xpath.src = 'http://' + PME_SRV + '/wgxpath.install.js';
 	h.appendChild(ie_xpath);
 	
 	waitFor(
 		function() {
 			return !!(docWindow.wgxpath && docWindow.wgxpath.install);
 		},
-		2000,
+		5 * 1000,
 		function(success) {
-			log("waitFor complete", success);
 			if (success) {
 				docWindow.wgxpath.install();
 				log("wgxpath loaded: " + doc.evaluate);
 				if (callback)
 					callback();
 			}
-			else {
-				log("wgxpath not loaded");
-			}
+			else
+				fatal("could not install wgxpath into document");
 		}
 	); // waitFor
 }
@@ -1463,9 +1487,8 @@ function HiddenDocument(url, cont) {
 		timer = 0;
 		log("hidden document loaded", url);
 		
-		log("checking if I need to add xpath");
 		if (!(iframe.contentWindow || iframe.contentDocument).document.evaluate) {
-			log("adding xpath to iframe");
+			log("adding xpath helper to hidden document");
 			PME.Util.xpathHelper((iframe.contentWindow || iframe.contentDocument), (iframe.contentWindow || iframe.contentDocument).document, 
 				function() {
 					cont({
