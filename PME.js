@@ -1,5 +1,5 @@
 /*
-    Publication Metadata Extraction – extracts metadata from online publication pages.
+    Publication Metadata Extraction - extracts metadata from online publication pages.
     Copyright (C) 2013 ProQuest LLC
 
     Based on the Zotero Web Translators - https://github.com/zotero/translators
@@ -1992,6 +1992,10 @@ window.FW = (function(){
 // ------------------------------------------------------------------------
 PME.getPageMetaData = function(callback) {
 	try {
+		// notify if dev
+		if (window.PME_SRV && PME_SRV.indexOf("/dev") > -1)
+			log("=== DEVELOPMENT VERSION ===");
+
 		// main accesspoint
 		pageURL = document.location.href;
 		pageDoc = document;
