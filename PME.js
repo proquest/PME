@@ -520,9 +520,10 @@ PME.items = [];
 PME.selectItems = function(items, callback) {
 	var out = {}, itemCount = 0;
 	for (var k in items) {
-		++itemCount;
-		out[k] = items[k];
-		break;		// always just pick the first one for now
+		if (items.hasOwnProperty(k)) {
+			++itemCount;
+			out[k] = items[k];
+		}
 	}
 	if (! itemCount)
 		return false;
@@ -555,8 +556,18 @@ PME.Item = function(type) {
 
 		function finishComplete() {
 			log("Item finishComplete called");
-			PME.items.push(this);
+
+			// remove empty fields
 			delete this.complete; // make it an error to try complete again
+			var processed = filter(this, function(val, key) {
+				if (isArrayLike(val) && (val.length === 0))
+					return false;
+				if (val === "")
+					return false;
+				return true;
+			});
+
+			PME.items.push(processed);
 			completeReady();
 		};
 
