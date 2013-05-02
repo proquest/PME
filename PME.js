@@ -280,10 +280,11 @@ if (Array.prototype.filter && Array.prototype.filter.toString().indexOf("[native
 //                                                                
 // ------------------------------------------------------------------------
 function isArrayLike(x) {
-	return (typeof x == "object") && ("length" in x) && (x.constructor != String);
+	return (typeof x == "object") && x && ("length" in x) && (x.constructor != String);
 }
 
 function each(vals, handler) {
+	if (! vals) return;
 	var arr = isArrayLike(vals);
 
 	if (arr) {
@@ -300,6 +301,7 @@ function each(vals, handler) {
 }
 
 function map(vals, pred) {
+	if (! vals) return null;
 	var arr = isArrayLike(vals),
 		out = arr ? [] : {};
 
@@ -326,6 +328,7 @@ function map(vals, pred) {
 }
 
 function filter(vals, pred) {
+	if (! vals) return null;
 	var arr = isArrayLike(vals),
 		out = arr ? [] : {};
 
@@ -349,6 +352,7 @@ function filter(vals, pred) {
 }
 
 function flatten(vals) {
+	if (! vals) return null;
 	if (! isArrayLike(vals))
 		return vals;
 
@@ -562,7 +566,7 @@ PME.Item = function(type) {
 			var processed = filter(this, function(val, key) {
 				if (isArrayLike(val) && (val.length === 0))
 					return false;
-				if (val === "")
+				if (val === "" || val === undefined || val === null)
 					return false;
 				return true;
 			});
@@ -1537,7 +1541,7 @@ function HiddenDocument(url, cont) {
 		// page gets a finite time to load
 		warn("timeout while loading hidden doc: ", url);
 		cont(null);
-	}, 20 * 1000);
+	}, 60 * 1000);
 
 	// this is to thwart a strange FF bug
 	// that doesn't allow you to load the same page in an iframe
@@ -1966,6 +1970,11 @@ window.FW = (function(){
 			return !!sc.evalItem(sc.spec.detect, doc, url);
 		})[0];
 
+		if (! scraper) {
+			log("FW.doWeb: no scraper applicable for this URL");
+			return;
+		}
+
 		log("FW.doWeb using scraper", scraper);
 
 		var fwReady = taskStarted("FW.doWeb");
@@ -2025,7 +2034,7 @@ PME.getPageMetaData = function(callback) {
 		else {
 			// add XPath helper javascript if document.evaluate is not defined
 			// make sure it has loaded before proceeding
-			if (!pageDoc.evaluate) {
+			if (! pageDoc.evaluate) {
 				PME.Util.xpathHelper(window, pageDoc, function() {
 					doTranslation();
 				});
