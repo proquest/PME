@@ -102,6 +102,10 @@ var Registry = (function() {
 		"IEEE Xplore": {
 			m: "^https?://[^/]*ieeexplore\\.ieee\\.org[^/]*/(?:[^\\?]+\\?(?:|.*&)arnumber=[0-9]+|search/(?:searchresult.jsp|selected.jsp)|xpl\\/(mostRecentIssue|tocresult).jsp\\?)",
 			g: "92d4ed84-8d0-4d3c-941f-d4b9124cfbb"
+		},
+		"COinS": {
+			m: ".*",
+			g: "05d07af9-105a-4572-99f6-a8e231c0daef"
 		}
 	},
 	g2t, m2t;
