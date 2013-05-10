@@ -108,7 +108,7 @@ function completeItems(newItems, useIndices, couldUseFullItems, doc) {
 	
 	// grab full item if the COinS was missing an author
 
-	//TODO: Uncomment this when PME is able to load the search translator 
+	//TODO: Uncomment this when PME is able to load search translators
 	/*
 	if(couldUseFullItems[i]) {
 		PME.debug("looking up contextObject");
@@ -149,13 +149,13 @@ function completeItems(newItems, useIndices, couldUseFullItems, doc) {
 		
 		search.setSearch(newItems[i]);
 		search.getTranslators();
-	} else {	TODO: Uncomment this when PME is able to load the search translator */
+	} else {	TODO: Uncomment this when PME is able to load search translators */
 		// add doc as attachment
 		newItems[i].attachments.push({document:doc});
 		newItems[i].complete();
 		// call next
 		completeItems(newItems, useIndices, couldUseFullItems);
-	//} TODO: Uncomment this when PME is able to load the search translator 
+	//} TODO: Uncomment this when PME is able to load search translators
 	
 }
 
@@ -196,16 +196,16 @@ function doWeb(doc, url) {
 	}
 	
 	PME.debug(needFullItems);
-	if(needFullItems.length) {
-		// retrieve full items asynchronously
-		PME.wait();
-		retrieveNextCOinS(needFullItems, newItems, couldUseFullItems, doc);
-	} else {
+	// if(needFullItems.length) {
+	// 	// retrieve full items asynchronously		// TODO: requires support for search translators
+	// 	PME.wait();
+	// 	retrieveNextCOinS(needFullItems, newItems, couldUseFullItems, doc);
+	// } else {
 		completeCOinS(newItems, couldUseFullItems, doc);
-	}
+	// }
 }
 
-function doExport() {
+function doExport() { // this function is not exposed as PME does not support Export translators
 	var item;
 	var co;
 	
