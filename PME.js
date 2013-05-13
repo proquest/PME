@@ -104,7 +104,8 @@ var Registry = (function() {
 			g: "92d4ed84-8d0-4d3c-941f-d4b9124cfbb"
 		},
 		"COinS": {
-			m: ".*",
+			//Only using COinS for Summon now
+			m: "^https?://.*\\.summon\\.serialssolutions\\.com/search.*",
 			g: "05d07af9-105a-4572-99f6-a8e231c0daef"
 		}
 	},
