@@ -14,20 +14,30 @@ var translatorSpec =
 	"lastUpdated": "2012-05-04 05:28:01"
 }
 
+function getTitleSpans(doc) {
+	// This and the x: prefix in the XPath are to work around an issue with pages
+	// served as application/xhtml+xml
+	//
+	// https://developer.mozilla.org/en/Introduction_to_using_XPath_in_JavaScript#Implementing_a_default_namespace_for_XML_documents
+
+	function nsResolver() { return 'http://www.w3.org/1999/xhtml'; }
+
+	var q = 'span[contains(@class, " Z3988") or contains(@class, "Z3988 ") or @class="Z3988"][@title]';
+	var res = doc.evaluate('//x:' + q, doc, nsResolver, XPathResult.ANY_TYPE, null);
+	if (! res.iterateNext())
+		res = doc.evaluate('//' + q, doc, null, XPathResult.ANY_TYPE, null);
+	else
+		res = doc.evaluate('//x:' + q, doc, nsResolver, XPathResult.ANY_TYPE, null);
+
+	return res;	
+}
+
 function detectWeb(doc, url) {
 	var spanTags = doc.getElementsByTagName("span");
 
 	var encounteredType = false;
 	
-	// This and the x: prefix in the XPath are to work around an issue with pages
-	// served as application/xhtml+xml
-	//
-	// https://developer.mozilla.org/en/Introduction_to_using_XPath_in_JavaScript#Implementing_a_default_namespace_for_XML_documents
-	function nsResolver() {
-		return 'http://www.w3.org/1999/xhtml';
-	}
-	
-	var spans = doc.evaluate('//x:span[contains(@class, " Z3988") or contains(@class, "Z3988 ") or @class="Z3988"][@title]', doc, nsResolver, XPathResult.ANY_TYPE, null);
+	var spans = getTitleSpans(doc);
 	var span;
 	while(span = spans.iterateNext()) {
 		// determine if it's a valid type
@@ -84,7 +94,7 @@ function retrieveNextCOinS(needFullItems, newItems, couldUseFullItems, doc) {
 function completeCOinS(newItems, couldUseFullItems, doc) {
 	if(newItems.length > 1) {
 		var selectArray = new Array(newItems.length);
-		for(var i in newItems) {
+		for(var i=0; i<newItems.length; i++) {
 			selectArray[i] = newItems[i].title;
 		}
 		
@@ -93,6 +103,7 @@ function completeCOinS(newItems, couldUseFullItems, doc) {
 			for(var i in selectArray) {
 				useIndices.push(i);
 			}
+
 			completeItems(newItems, useIndices, couldUseFullItems, doc);
 		});
 	} else if(newItems.length) {
@@ -164,13 +175,7 @@ function doWeb(doc, url) {
 	var needFullItems = new Array();
 	var couldUseFullItems = new Array();
 	
-	
-	// See note in detectWeb()
-	function nsResolver() {
-		return 'http://www.w3.org/1999/xhtml';
-	}
-	
-	var spans = doc.evaluate('//x:span[contains(@class, " Z3988") or contains(@class, "Z3988 ") or @class="Z3988"][@title]', doc, nsResolver, XPathResult.ANY_TYPE, null);
+	var spans = getTitleSpans(doc);
 	var span;
 	while(span = spans.iterateNext()) {
 		var spanTitle = span.title;
