@@ -1072,7 +1072,7 @@ PME.Util.strToDate = function(str) {
 	if(!date.day) {
 		
 		var daySuffixes = "st, nd, rd, th".replace(/, ?/g, "|");
-		_dayRe = new RegExp("\\b([0-9]{1,2})(?:"+daySuffixes+")?\\b(.*)", "i");
+		var _dayRe = new RegExp("\\b([0-9]{1,2})(?:"+daySuffixes+")?\\b(.*)", "i");
 		
 		var m = str.match(_dayRe);
 		if(m) {
