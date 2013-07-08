@@ -180,7 +180,8 @@ function doWeb(doc, url) {
 //extract PMID from a context object
 function getPMID(co) {
 	var coParts = co.split("&");
-	for (var part in coParts) {
+	for (var i = 0; i < coParts.length; i++) {
+		var part = coParts[i];
 		if(part.substr(0, 7) == "rft_id=") {
 			var value = unescape(part.substr(7));
 			if(value.substr(0, 10) == "info:pmid/") {
