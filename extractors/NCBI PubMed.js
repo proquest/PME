@@ -244,7 +244,7 @@ function processAuthors(newItem, authorsLists) {
 	for(var j=0, m=authorsLists.length; j<m; j++) {
 		//default to 'author' unless it's 'editor'
 		var type = "author";
-		if(authorsLists[j].hasAttribute('Type')
+		if(authorsLists[j].hasAttribute && authorsLists[j].hasAttribute('Type')
 			&& authorsLists[j].getAttribute('Type') === "editors") {
 			type = "editor";
 		}
@@ -397,12 +397,17 @@ function doImportFromText(text, next) {
 		var abstractNote = [];
 		for(var j=0, m=abstractSections.length; j<m; j++) {
 			var abstractSection = abstractSections[j];
-			var paragraph = abstractSection.textContent.trim();
-			if(paragraph) paragraph += '\n';
-			
-			var label = abstractSection.hasAttribute("Label") && abstractSection.getAttribute("Label");
-			if(label && label != "UNLABELLED") {
-				paragraph = label + ": " + paragraph;
+			var paragraph = abstractSection.textContent;
+			if(paragraph) {
+				paragraph = PME.Util.trim(paragraph);
+				paragraph += '\n';
+			}
+
+			if (abstractSection.hasAttribute) {
+				var label = abstractSection.hasAttribute("Label") && abstractSection.getAttribute("Label");
+				if(label && label != "UNLABELLED") {
+					paragraph = label + ": " + paragraph;
+				}
 			}
 			abstractNote.push(paragraph);
 		}
