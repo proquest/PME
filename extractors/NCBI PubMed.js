@@ -39,13 +39,13 @@ function getUID(doc) {
 		uid = PME.Util.xpath(doc, '//input[@id="absid"]/@value');
 	}
 
-	if(uid.length == 1 && uid[0].textContent.search(/^\d+$/) != -1) {
-		return uid[0].textContent;
+	if(uid.length == 1 && PME.Util.getNodeText(uid[0]).search(/^\d+$/) != -1) {
+		return PME.Util.getNodeText(uid[0]);
 	}
 
 	uid = PME.Util.xpath(doc, 'html/head/link[@media="handheld"]/@href');
 	if(uid.length == 1) {
-		uid = uid[0].textContent.match(/\/(\d+)(?:\/|$)/);
+		uid = PME.Util.getNodeText(uid[0]).match(/\/(\d+)(?:\/|$)/);
 		if(uid) return uid[1];
 	}
 	
@@ -54,7 +54,7 @@ function getUID(doc) {
 	if(maincontent) {
 		uid = PME.Util.xpath(maincontent,
 			'.//a[@title="PubMed record of this title" or @title="PubMed record of this page"]');
-		if(uid.length == 1 && uid[0].textContent.search(/^\d+$/) != -1) return uid;
+		if(uid.length == 1 && PME.Util.getNodeText(uid[0]).search(/^\d+$/) != -1) return uid;
 	}
 
 	return false;
