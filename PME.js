@@ -819,9 +819,9 @@ PME.Translator = function(type) {
 			catch(e) {
 				fatal("error during translation", e, e.message);
 				return;
+			} finally {
+				translateReady();
 			}
-
-			translateReady();
 		});
 	}
 
@@ -914,10 +914,16 @@ PME.Util.cleanAuthor = function(str) {
 PME.Util.processAsync = function (sets, callbacks, onDone) {
 	var currentSet;
 	var index = 0;
+	var processed = taskStarted("processAsync");
+	var doneProcessing = function() {
+		console.info("Done processing");
+		processed();
+		onDone();
+	};
 
 	var nextSet = function () {
 			if (!sets.length) {
-					onDone();
+					doneProcessing();
 					return;
 			}
 			index = 0;
@@ -932,7 +938,7 @@ PME.Util.processAsync = function (sets, callbacks, onDone) {
 	// Add a final callback to proceed to the next set
 	callbacks[callbacks.length] = function () {
 			nextSet();
-	}
+	};
 	nextSet();
 };
 
@@ -1740,9 +1746,9 @@ PME.Util.HTTP.doPost = PME.Util.doPost = function(url, data, callback, headers, 
 					callback("");
 			} catch(e) {
 				fatal("Error in HTTP POST callback", e);
+			} finally {
+				postReady();
 			}
-
-			postReady();
 		});
 
 	if (! headers)

@@ -94,11 +94,18 @@ function doWeb(doc, url) {
 		while (currTitleElmt = allTitlesElmts.iterateNext()) {
 			var title = PME.Util.trim(PME.Util.getNodeText(currTitleElmt));
 			// Sometimes JSTOR uses DOIs as JID; here we exclude "?" characters, since it's a URL
-			if (/(?:pss|stable)\/(10\.\d+\/[^?]+)(?:\?.*)?/.test(currTitleElmt.href))
-				var jid = RegExp.$1;
-			else if (currTitleElmt.href) var jid = currTitleElmt.href.match(/(?:stable|pss)\/([a-z]*?\d+)/)[1];
+			var jid = null;
+			if (/(?:pss|stable)\/(10\.\d+\/[^?]+)(?:\?.*)?/.test(currTitleElmt.href)) jid = RegExp.$1;
+			else if (currTitleElmt.href) {
+				var m1 = currTitleElmt.href.match(/(?:stable|pss)\/([a-z]*?\d+)/);
+				jid = m1 ? m1[1] : null;
+			}
 			//for items like Reviews without linked titles
-			else var jid = PME.Util.xpathText(currTitleElmt, './a[contains(@id, "previewResult")]/@href').match(/doi=10.2307\%2F(\d+)/)[1];
+			else {
+				var m1 = PME.Util.xpathText(currTitleElmt, './a[contains(@id, "previewResult")]/@href')
+				var m2 = m1 ? m1.match(/doi=10.2307\%2F(\d+)/) : null
+				jid = m2 ? m2[1] : null;
+			}
 			if (jid) {
 				availableItems[jid] = title;
 			}
@@ -178,7 +185,7 @@ function first(set, next) {
 				item.attachments.push({url:pdfurl, title:"JSTOR Full Text PDF", mimeType:"application/pdf"});
 			}
 			var matches;
-			if (matches = item.ISSN.match(/([0-9]{4})([0-9]{3}[0-9Xx])/)) {
+			if (item.ISSN && (matches = item.ISSN.match(/([0-9]{4})([0-9]{3}[0-9Xx])/))) {
 				item.ISSN = matches[1] + '-' + matches[2];
 			}
 			//reviews don't have titles in RIS - we get them from the item page
