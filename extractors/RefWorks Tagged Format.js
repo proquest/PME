@@ -1,3 +1,5 @@
+(function(){
+var translatorSpec =
 {
 	"translatorID": "1a3506da-a303-4b0a-a1cd-f216e6138d86",
 	"label": "RefWorks Tagged Format",
@@ -28,7 +30,7 @@ http://www.refworks.com/refworks2/help/RefWorks_Tagged_Format.htm
 function detectImport() {
 	var line;
 	var i = 0;
-	while((line = Zotero.read()) !== false) {
+	while((line = PME.read()) !== false) {
 		line = line.replace(/^\s+/, "");
 		if(line != "") {
 			if(line.search(/^RT\s+./) != -1) {
@@ -247,7 +249,7 @@ var fieldMap = {
 		videoRecordingFormat:["film", "tvBroadcast", "videoRecording"]
 	},	
 	U6: {
-		legalStatus:["patent"],
+		legalStatus:["patent"]
 	},
 	PP: {
 		"__default":"place",
@@ -309,7 +311,7 @@ var fieldMap = {
 		"__default":"ISBN",
 		ISSN:["journalArticle", "magazineArticle", "newspaperArticle"],
 		patentNumber:["patent"],
-		reportNumber:["report"],
+		reportNumber:["report"]
 	},
 	SP: {
 		"__default":"pages", //needs extra processing
@@ -404,12 +406,12 @@ var importFields = new TagMapper([fieldMap, degenerateImportFieldMap]);
 
 function processTag(item, entry) {
 	var tag = entry[1];
-	var value = entry[2].trim();
+	var value = PME.Util.trim(entry[2]);
 	var rawLine = entry[0];
 
 	var zField = importFields.getFields(item.itemType, tag)[0];
 	if(!zField) {
-		Z.debug("Unknown field " + tag + " in entry :\n" + rawLine);
+		PME.debug("Unknown field " + tag + " in entry :\n" + rawLine);
 		zField = 'unknown'; //this will result in the value being added as note
 	}
 
@@ -419,7 +421,7 @@ function processTag(item, entry) {
 	zField = zField.split('/');
 
 	if (tag != "NO" && tag != "AB") {
-		value = Zotero.Utilities.unescapeHTML(value);
+		value = PME.Util.unescapeHTML(value);
 	}
 
 	//tag based manipulations
@@ -529,16 +531,16 @@ function applyValue(item, zField, value, rawLine) {
 	if(!value) return;
 
 	if(!zField || zField == 'unknown') {
-		if(!Zotero.parentTranslator) {
-			Z.debug("Entry stored as note: " + rawLine);
+		if(!PME.parentTranslator) {
+			PME.debug("Entry stored as note: " + rawLine);
 			item.unknownFields.push(rawLine);
 		}
 		return;
 	}
 
 	if(zField == 'unsupported') {
-		if(!Zotero.parentTranslator) {
-			Z.debug("Unsupported field will be stored in note: " + value);
+		if(!PME.parentTranslator) {
+			PME.debug("Unsupported field will be stored in note: " + value);
 			item.unsupportedFields.push(value);
 		}
 		return;
@@ -547,10 +549,10 @@ function applyValue(item, zField, value, rawLine) {
 	//check if field is valid for item type
 	if(zField != 'creators' && zField != 'tags' && zField != 'notes'
 		&& zField != 'attachments'
-		&& !ZU.fieldIsValidForType(zField, item.itemType)) {
-		Z.debug("Invalid field '" + zField + "' for item type '" + item.itemType + "'.");
-		if(!Zotero.parentTranslator) {
-			Z.debug("Entry stored in note: " + rawLine);
+		&& !PME.Util.fieldIsValidForType(zField, item.itemType)) {
+		PME.debug("Invalid field '" + zField + "' for item type '" + item.itemType + "'.");
+		if(!PME.parentTranslator) {
+			PME.debug("Entry stored in note: " + rawLine);
 			item.unknownFields.push(rawLine);
 			return;
 		}
@@ -579,7 +581,7 @@ function applyValue(item, zField, value, rawLine) {
 			//check if value already exists
 			if(item[zField]) {
 				//if it's not the new value is not the same as existing value, store it as note
-				if(!Zotero.parentTranslator && item[zField] != value) {
+				if(!PME.parentTranslator && item[zField] != value) {
 					item.notes.push({note:rawLine});
 				}
 			} else {
@@ -610,7 +612,7 @@ function dateRWtoZotero(risDate) {
 		value[1] = parseInt(value[1], 10);
 		if(value[1]) value[1]--;
 	}
-	return ZU.formatDate({
+	return PME.Util.formatDate({
 			'year': value[0],
 			'month': value[1],
 			'day': value[2],
@@ -660,7 +662,7 @@ function completeItem(item) {
 
 	// Clean up DOI
 	if(item.DOI) {
-		item.DOI = ZU.cleanDOI(item.DOI);
+		item.DOI = PME.Util.cleanDOI(item.DOI);
 	}
 
 	// hack for sites like Nature, which only use JA, journal abbreviation
@@ -682,12 +684,12 @@ function completeItem(item) {
 	}
 
 	//don't pass access date if this is called from (most likely) a web translator
-	if(Zotero.parentTranslator) {
+	if(PME.parentTranslator) {
 		item.accessDate = undefined;
 	}
 
 //store unsupported and unknown fields in a single note
-	if(!Zotero.parentTranslator) {
+	if(!PME.parentTranslator) {
 		var note = '';
 		for(var i=0, n=item.unsupportedFields.length; i<n; i++) {
 			note += item.unsupportedFields[i] + '<br/>';
@@ -698,7 +700,7 @@ function completeItem(item) {
 	
 		if(note) {
 			note = "The following values have no corresponding Zotero field:<br/>" + note;
-			item.notes.push({note: note.trim(), tags: ['_RW import']});
+			item.notes.push({note: PME.Util.trim(note), tags: ['_RW import']});
 		}
 	}
 	item.unsupportedFields = undefined;
@@ -721,7 +723,7 @@ function getLine() {
 	}
 
 	var nextLine, temp;
-	while((nextLine = Zotero.read()) !== false) {
+	while((nextLine = PME.read()) !== false) {
 		temp = nextLine.match(RW_format);
 		if(temp && temp[2] === undefined) temp[2] = '';
 		//if we are already processing an entry, then this is the next entry
@@ -767,7 +769,7 @@ function getLine() {
 
 //creates a new item of specified type
 function getNewItem(type) {
-	var item = new Zotero.Item(type);
+	var item = new PME.Item(type);
 			item.unknownFields = [];
 			item.unsupportedFields = [];
 	return item;
@@ -787,10 +789,10 @@ function doImport(attachments){
 			//new item
 			case 'RT':
 				if(item) completeItem(item);
-				var type = exportedOptions.itemType || importTypeMap[entry[2].trim()];
+				var type = exportedOptions.itemType || importTypeMap[PME.Util.trim(entry[2])];
 				if(!type) {
 					type = DEFAULT_IMPORT_TYPE;
-					Z.debug("Unknown RW item type: " + entry[2] + ". Defaulting to " + type);
+					PME.debug("Unknown RW item type: " + entry[2] + ". Defaulting to " + type);
 				}
 				var item = getNewItem(type);
 				//add attachments
@@ -834,17 +836,17 @@ function addTag(tag, value) {
 	for(var i=0, n=value.length; i<n; i++) {
 		if(value[i] === undefined) return;
 		//don't export empty strings
-		var v = (value[i] + '').trim();
+		var v = PME.Util.trim(value[i] + '');
 		if(!v) continue;
 
-		Zotero.write(tag + " " + v + newLineChar);
+		PME.write(tag + " " + v + newLineChar);
 	}
 }
 
 function doExport() {
 	var item, order, tag, fields, field, value;
 
-	while(item = Zotero.nextItem()) {
+	while(item = PME.nextItem()) {
 		// can't store independent notes in RW
 		if(item.itemType == "note" || item.itemType == "attachment") {
 			continue;
@@ -854,7 +856,7 @@ function doExport() {
 		var type = exportTypeMap[item.itemType];
 		if(!type) {
 			type = DEFAULT_EXPORT_TYPE;
-			Z.debug("Unknown item type: " + item.itemType + ". Defaulting to " + type);
+			PME.debug("Unknown item type: " + item.itemType + ". Defaulting to " + type);
 		}
 		addTag("RT", type);
 
@@ -928,7 +930,7 @@ function doExport() {
 				break;
 				case "pages":
 					if(tag == "SP" && item.pages) {
-						var m = item.pages.trim().match(/(.+?)[\u002D\u00AD\u2010-\u2015\u2212\u2E3A\u2E3B\s]+(.+)/);
+						var m = PME.Util.trim(item.pages).match(/(.+?)[\u002D\u00AD\u2010-\u2015\u2212\u2E3A\u2E3B\s]+(.+)/);
 						if(m) {
 							addTag(tag, m[1]);
 							tag = "OP";
@@ -943,7 +945,7 @@ function doExport() {
 			//handle special cases based on RW tag
 			switch(tag) {
 				case "YR":
-					var date = ZU.strToDate(item[field]);
+					var date = PME.Util.strToDate(item[field]);
 					if(date.year) {
 						value = ('000' + date.year).substr(-4); //since this is in export, this should not be a problem with MS JavaScript implementation of substr
 					} else {
@@ -951,7 +953,7 @@ function doExport() {
 					} 
 				break;
 				case "RD":
-					var date = ZU.strToDate(item[field]);
+					var date = PME.Util.strToDate(item[field]);
 					if(date.year) {
 						date.year = ('000' + date.year).substr(-4);
 						date.month = (date.month || date.month===0 || date.month==="0")?('0' + (date.month+1)).substr(-2):'';
@@ -968,7 +970,7 @@ function doExport() {
 			addTag(tag, value);
 		}
 
-		Zotero.write(newLineChar + newLineChar);
+		PME.write(newLineChar + newLineChar);
 	}
 }
 
@@ -1186,3 +1188,5 @@ var testCases = [
 	}
 ]
 /** END TEST CASES **/
+PME.TranslatorClass.loaded(translatorSpec, exports);
+}());
