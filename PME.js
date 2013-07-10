@@ -1612,10 +1612,10 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 			catch(e) {
 				if (onError) onError(e);
 				else fatal("error while processing hidden document", e);
+			} finally {
+				hdoc.kill();
+				docReady();
 			}
-
-			hdoc.kill();
-			docReady();
 		});
 
 		if (urls.length)
@@ -1716,11 +1716,11 @@ PME.Util.HTTP.doGet = PME.Util.doGet = function(url, callback, done) {
 					callback("");
 			} catch(e) {
 				fatal("Error in HTTP GET callback", e);
+			} finally {
+				if (typeof done == "function")
+					done();
+				getReady();
 			}
-
-			if (typeof done == "function")
-				done();
-			getReady();
 		});
 
 	try {
