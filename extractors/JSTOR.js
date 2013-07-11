@@ -212,37 +212,39 @@ function first(set, next) {
 
 function second(set, next) {
 	var item = set.item;
-
-	if (!set.doi) {
-		item.complete();
-		next();
-	}
-
-	var doi = set.doi;
-	var crossrefURL = "http://www.crossref.org/openurl/?req_dat=zter:zter321&url_ver=Z39.88-2004&ctx_ver=Z39.88-2004&rft_id=info%3Adoi/"+doi+"&noredirect=true&format=unixref";
-
-	PME.Util.HTTP.doGet(crossrefURL, function (text) {
-		// parse XML with DOMParser
-		try {
-			var parser = new DOMParser();
-			var xml = parser.parseFromString(text, "text/xml");
-		} catch(e) {
-			item.complete();
-			next();
-			return;
-		}
-
-		var doi = PME.Util.xpathText(xml, '//doi');
-
-		// ensure DOI is valid
-		if(!PME.Util.xpath(xml, '//error').length) {
-			PME.debug("DOI is valid");
-			item.DOI = doi;
-		}
-
-		item.complete();
-		next();
-	});
+	item.complete();
+	next();
+//
+//	if (!set.doi) {
+//		item.complete();
+//		next();
+//	}
+//
+//	var doi = set.doi;
+//	var crossrefURL = "http://www.crossref.org/openurl/?req_dat=zter:zter321&url_ver=Z39.88-2004&ctx_ver=Z39.88-2004&rft_id=info%3Adoi/"+doi+"&noredirect=true&format=unixref";
+//
+//	PME.Util.HTTP.doGet(crossrefURL, function (text) {
+//		// parse XML with DOMParser
+//		try {
+//			var parser = new DOMParser();
+//			var xml = parser.parseFromString(text, "text/xml");
+//		} catch(e) {
+//			item.complete();
+//			next();
+//			return;
+//		}
+//
+//		var doi = PME.Util.xpathText(xml, '//doi');
+//
+//		// ensure DOI is valid
+//		if(!PME.Util.xpath(xml, '//error').length) {
+//			PME.debug("DOI is valid");
+//			item.DOI = doi;
+//		}
+//
+//		item.complete();
+//		next();
+//	});
 }
 
 /** BEGIN TEST CASES **/
