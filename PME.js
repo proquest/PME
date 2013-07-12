@@ -111,8 +111,8 @@ var Registry = (function() {
 			g: "92d4ed84-8d0-4d3c-941f-d4b9124cfbb"
 		},
 		"ebrary": {
-			m: "58bcb958-eb01-42e5-9247-fc5604bf5904",
-			g: "^https?://site\\.ebrary\\.com/lib//.*/(search|docDetail).action"
+			m: "^https?://site\\.ebrary\\.com/lib/.*/(search|docDetail)\\.action",
+			g: "58bcb958-eb01-42e5-9247-fc5604bf5904"
 		},
 		"COinS": {
 			//Only using COinS for Summon now
