@@ -19,13 +19,19 @@
 	}
 
 	function doWeb(doc, url) {
-		//reader page:
-		var docID = url.match(/docID=.+?(&|$)/)[0];
-		var lib = "myproquest"; //TODO: parse from url
-		var url = "http://site.ebrary.com/lib/" + lib + "/biblioExport.action?refworks=1&" + docID;
-		PME.Util.HTTP.doGet(url, function(text) {
-			doImportFromText(text);
-		});
+
+		var results = PME.Util.xpath(doc, '//div[@class="book_item"]//div[@class="book_detail"]//a[@class="title"]/@href');
+
+		if (results.length == 0) {
+			//reader page:
+			doImportFromURL(url);
+		} else {
+			for (var i = 0; i < results.length; i++) {
+				var resultURL = PME.Util.getNodeText(results[i]);
+				PME.debug("result url: " + resultURL);
+				doImportFromURL(resultURL);
+			}
+		}
 
 		/*
 		 search page:
@@ -34,14 +40,19 @@
 
 	}
 
-	function doImportFromText(text) {
-		var translator = PME.loadTranslator("import");
-		translator.setTranslator("1a3506da-a303-4b0a-a1cd-f216e6138d86"); //RefWorks Tagged Format
-		translator.setString(text);
-		translator.setHandler("itemDone", function (obj, item) {
-			item.complete();
+	function doImportFromURL(url) {
+		var docID = url.match(/docID=.+?(&|$)/)[0];
+		var lib = "myproquest"; //TODO: parse from url
+		var newurl = "http://site.ebrary.com/lib/" + lib + "/biblioExport.action?refworks=1&" + docID;
+		PME.Util.HTTP.doGet(newurl, function(text) {
+			var translator = PME.loadTranslator("import");
+			translator.setTranslator("1a3506da-a303-4b0a-a1cd-f216e6138d86"); //RefWorks Tagged Format
+			translator.setString(text);
+			translator.setHandler("itemDone", function (obj, item) {
+				item.complete();
+			});
+			translator.translate();
 		});
-		translator.translate();
 	}
 
 PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
