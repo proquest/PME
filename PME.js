@@ -38,6 +38,10 @@ var Registry = (function() {
 		},
 
 		// -- web
+		"JSTOR": {
+			m: "https?://[^/]*jstor\\.org[^/]*/(action/(showArticle|doBasicSearch|doAdvancedSearch|doLocatorSearch|doAdvancedResults|doBasicResults)|stable/|pss/|betasearch\\?|openurl\\?)",
+			g: "d921155f-0186-1684-615c-ca57682ced9b"
+		},
 		"Financial Times": {
 			m: "^https?://(www|search)\\.ft\\.com",
 			g: "fc9b7700-b3cc-4150-ba89-c7e4443bd96d"
@@ -101,7 +105,7 @@ var Registry = (function() {
 		"GaleGDC": {
 			m: "/gdc/ncco/",
 			g: "04e63564-b92b-41cd-a9d5-366a02056d10"
-		}, 
+		},
 		"Galegroup": {
 			m: "https?://(find|go)\\.galegroup\\.com",
 			g: "4ea89035-3dc4-4ae3-b22d-726bc0d83a64"
@@ -150,7 +154,7 @@ var Registry = (function() {
 
 		return null;
 	}
-	
+
 	return {
 		findByID: findByID,
 		matchURL: matchURL
@@ -252,7 +256,7 @@ if ((! hasUsefulDOMParser()) && window.ActiveXObject) {
 // IE 8 and even 9 in Quirks mode do not support these functions
 if (! String.prototype.trim) {
 	String.prototype.trim = function() {
-		return this.replace(/^\s+|\s+$/g, ''); 
+		return this.replace(/^\s+|\s+$/g, '');
 	};
 }
 
@@ -822,9 +826,9 @@ PME.Translator = function(type) {
 			catch(e) {
 				fatal("error during translation", e, e.message);
 				return;
+			} finally {
+				translateReady();
 			}
-
-			translateReady();
 		});
 	}
 
@@ -914,6 +918,37 @@ PME.Util.cleanAuthor = function(str) {
 	return str; // TBI
 };
 
+PME.Util.processAsync = function (sets, callbacks, onDone) {
+	var currentSet;
+	var index = 0;
+	var processed = taskStarted("processAsync");
+	var doneProcessing = function() {
+		console.info("Done processing");
+		processed();
+		onDone();
+	};
+
+	var nextSet = function () {
+			if (!sets.length) {
+					doneProcessing();
+					return;
+			}
+			index = 0;
+			currentSet = sets.shift();
+			callbacks[0](currentSet, nextCallback);
+	};
+	var nextCallback = function () {
+			index++;
+			callbacks[index](currentSet, nextCallback);
+	};
+
+	// Add a final callback to proceed to the next set
+	callbacks[callbacks.length] = function () {
+			nextSet();
+	};
+	nextSet();
+};
+
 PME.Util.superCleanString = function(str) {
 	str = str.replace(/^[\x00-\x27\x29-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+/, "");
 	return str.replace(/[\x00-\x28\x2A-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+$/, "");
@@ -933,9 +968,9 @@ PME.Util.locale = function() {
 	  l_lang = navigator.language;
 	else
 	  l_lang = "en_US";
-	
+
 	return l_lang.split("-");
-}; 
+};
 
 PME.Util.formatDate = function(date, shortFormat) {
 	var formattedDate = "day month_name year";
@@ -952,29 +987,29 @@ PME.Util.cleanTags = function(str) {
 
 PME.Util.strToDate = function(str) {
 	var date = {};
-	
+
 	// return empty date if string is undefined
 	if (! string) return date;
-	
-	var lc = str.toLowerCase();	
+
+	var lc = str.toLowerCase();
 	if (lc === "yesterday" || lc === "today" || lc === "tomorrow") {
 		var d = new Date();
 		if (lc === "yesterday")
 			d = d.setDate(d.getDate() - 1);
 		if (lc === "tomorrow")
 			d = d.setDate(d.getDate() + 1);
-		
+
 		date.year = d.getFullYear();
 		date.month = d.getMonth();
 		date.day = d.getDate();
 		return date;
 	}
-	
+
 	str.replace(/^\s+/, "").replace(/\s+$/, "").replace(/\s+/, " ");
-	
+
 	var _slashRe = /^(.*?)\b([0-9]{1,4})(?:(\/)([0-9]{1,2}))?(?:(\/)([0-9]{1,4}))?((?:\b|[^0-9]).*?)$/;
 	var m = str.match(_slashRe);
-	
+
 	// str matched pattern {date part}/{date part}/{date part}
 	if(m && (m[2] && m[4] && m[6])) {
 		// figure out date based on parts
@@ -989,7 +1024,7 @@ PME.Util.strToDate = function(str) {
 		} else {
 			// local style date (middle or little endian)
 			date.year = m[6];
-			
+
 			var locale = PME.Util.locale();
 			if(locale[1] == "US" ||	// The United States
 			   locale[1] == "FM" ||	// The Federated States of Micronesia
@@ -1002,12 +1037,12 @@ PME.Util.strToDate = function(str) {
 				date.day = m[2];
 			}
 		}
-		
+
 		if(date.year) date.year = parseInt(date.year, 10);
 		if(date.day) date.day = parseInt(date.day, 10);
 		if(date.month) {
 			date.month = parseInt(date.month, 10);
-			
+
 			if(date.month > 12) {
 				// swap day and month
 				var tmp = date.day;
@@ -1015,7 +1050,7 @@ PME.Util.strToDate = function(str) {
 				date.month = tmp;
 			}
 		}
-		
+
 		// sanity check
 		if((!date.month || date.month <= 12) && (!date.day || date.day <= 31)) {
 			if(date.year && date.year < 100) {	// for two digit years, determine proper
@@ -1024,7 +1059,7 @@ PME.Util.strToDate = function(str) {
 				var year = today.getFullYear();
 				var twoDigitYear = year % 100;
 				var century = year - twoDigitYear;
-				
+
 				if(date.year <= twoDigitYear) {
 					// assume this date is from our century
 					date.year = century + date.year;
@@ -1033,10 +1068,10 @@ PME.Util.strToDate = function(str) {
 					date.year = century - 100 + date.year;
 				}
 			}
-			
+
 			if(date.month) date.month--;		// subtract one for JS style
 			PME.debug("DATE: retrieved with algorithms: "+JSON.stringify(date));
-			
+
 			date.part = m[1]+m[7];
 		} else {
 			// give up; we failed the sanity check
@@ -1047,7 +1082,7 @@ PME.Util.strToDate = function(str) {
 		PME.debug("DATE: could not apply algorithms");
 		date.part = string;
 	}
-	
+
 	// couldn't find something with the slash format; use regexp for YEAR
 	if(!date.year) {
 		var _yearRe = /^(.*?)\b((?:circa |around |about |c\.? ?)?[0-9]{1,4}(?: ?B\.? ?C\.?(?: ?E\.?)?| ?C\.? ?E\.?| ?A\.? ?D\.?)|[0-9]{3,4})\b(.*?)$/i;
@@ -1058,15 +1093,15 @@ PME.Util.strToDate = function(str) {
 			PME.debug("DATE: got year ("+date.year+", "+date.part+")");
 		}
 	}
-	
+
 	// MONTH
 	if(!date.month) {
 		// compile month regular expression
 		var months = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul',
 			'aug', 'sep', 'oct', 'nov', 'dec'];
-		
+
 		var _monthRe = new RegExp("^(.*)\\b("+months.join("|")+")[^ ]*(?: (.*)$|$)", "i");
-		
+
 		var m = str.match(_monthRe);
 		if(m) {
 			date.month = months.indexOf(m[2].toLowerCase()) ;
@@ -1074,13 +1109,13 @@ PME.Util.strToDate = function(str) {
 			PME.debug("DATE: got month ("+date.month+", "+date.part+")");
 		}
 	}
-	
+
 	// DAY
 	if(!date.day) {
-		
+
 		var daySuffixes = "st, nd, rd, th".replace(/, ?/g, "|");
 		var _dayRe = new RegExp("\\b([0-9]{1,2})(?:"+daySuffixes+")?\\b(.*)", "i");
-		
+
 		var m = str.match(_dayRe);
 		if(m) {
 			var day = parseInt(m[1], 10);
@@ -1095,21 +1130,21 @@ PME.Util.strToDate = function(str) {
 				} else {
 					date.part = m[2];
 				}
-				
+
 				PME.debug("DATE: got day ("+date.day+", "+date.part+")");
 			}
 		}
 	}
-	
+
 	// clean up date part
 	if(date.part) {
 		date.part = date.part.replace(/^[^A-Za-z0-9]+/, "").replace(/[^A-Za-z0-9]+$/, "");
 	}
-	
+
 	if(date.part === "" || date.part == undefined) {
 		delete date.part;
 	}
-	
+
 	return date;
 };
 
@@ -1120,7 +1155,7 @@ PME.Util.cleanDOI = function(doi) {
 
 PME.Util.text2html = function(str, singleNewlineIsParagraph) {
 	str = PME.Util.htmlSpecialChars(str);
-	
+
 	// \n => <p>
 	if (singleNewlineIsParagraph) {
 		str = '<p>'
@@ -1139,7 +1174,7 @@ PME.Util.text2html = function(str, singleNewlineIsParagraph) {
 	return str.replace(/<p>\s*<\/p>/g, '<p>&nbsp;</p>');
 };
 
-PME.Util.htmlSpecialChars = function(str) {	
+PME.Util.htmlSpecialChars = function(str) {
 	return str.replace(/&/g, '&amp;')
 		.replace(/"/g, '&quot;')
 		.replace(/'/g, '&apos;')
@@ -1149,7 +1184,7 @@ PME.Util.htmlSpecialChars = function(str) {
 
 // this seems to only be used in export for BibTeX
 PME.Util.removeDiacritics = function(str, lowerCaseOnly) {
-	return str; 
+	return str;
 };
 
 PME.Util.getNodeText = function(node) {
@@ -1163,7 +1198,7 @@ PME.Util.xpathHelper = function(docWindow, doc, callback) {
 	var ie_xpath = doc.createElement('SCRIPT');
 	ie_xpath.src = 'http://' + PME_SRV + '/wgxpath.install.js';
 	h.appendChild(ie_xpath);
-	
+
 	waitFor(
 		function() {
 			return !!(docWindow.wgxpath && docWindow.wgxpath.install);
@@ -1189,7 +1224,7 @@ PME.Util.xpath = function(nodes, selector, namespaces) {
 		var doc = node.ownerDocument ? node.ownerDocument : (node.documentElement ? node : null);
 
 		function resolver(prefix) { return namespaces && namespaces[prefix]; }
-		
+
 		if ("evaluate" in doc) {
 			var xp = doc.evaluate(selector, node, resolver, XPathResult.ANY_TYPE, null),
 				el;
@@ -1213,7 +1248,7 @@ PME.Util.xpath = function(nodes, selector, namespaces) {
 			throw new Error("forced stop in PME.Util.xpath");
 		}
 	});
-	
+
 	return out;
 };
 
@@ -1221,7 +1256,7 @@ PME.Util.xpathText = function(nodes, selector, namespaces, delim) {
 	nodes = PME.Util.xpath(nodes, selector, namespaces);
 	if (! nodes.length)
 		return null;
-	
+
 	var text = map(nodes, PME.Util.getNodeText);
 
 	return text.join(delim !== undefined ? delim : ", ");
@@ -1243,9 +1278,9 @@ PME.Util.parseContextObject = function(co, item) {
 		var item = [];
 		item.creators = [];
 	}
-	
+
 	var coParts = co.split("&");
-	
+
 	// get type
 	for(var i=0; i<coParts.length; i++) {
 		if(coParts[i].substr(0, 12) == "rft_val_fmt=") {
@@ -1281,12 +1316,12 @@ PME.Util.parseContextObject = function(co, item) {
 	if(!item.itemType) {
 		return false;
 	}
-	
+
 	var pagesKey = "";
-	
+
 	// keep track of "aucorp," "aufirst," "aulast"
 	var complexAu = [];
-	
+
 	for(var i=0; i<coParts.length; i++) {
 		var keyVal = coParts[i].split("=");
 		var key = keyVal[0];
@@ -1294,7 +1329,7 @@ PME.Util.parseContextObject = function(co, item) {
 		if(!value) {
 			continue;
 		}
-		
+
 		if(key == "rft_id") {
 			var firstEight = value.substr(0, 8).toLowerCase();
 			if(firstEight == "info:doi") {
@@ -1385,7 +1420,7 @@ PME.Util.parseContextObject = function(co, item) {
 			} else {
 				var type = "author";
 			}
-			
+
 			if(value.indexOf(",") !== -1) {
 				item.creators.push(PME.Util.cleanAuthor(value, type, true));
 			} else {
@@ -1453,7 +1488,7 @@ PME.Util.parseContextObject = function(co, item) {
 	// To maintain author ordering when complex and simple authors are combined,
 	// we remember where they were and the correct offsets
 	var inserted = 0;
-	
+
 	// combine two lists of authors, eliminating duplicates
 	for(var i=0; i<complexAu.length; i++) {
 		var pushMe = true;
@@ -1478,7 +1513,7 @@ PME.Util.parseContextObject = function(co, item) {
 			inserted++;
 		}
 	}
-	
+
 	return item;
 };
 
@@ -1498,7 +1533,7 @@ function HiddenDocument(url, cont) {
 	iframe.width = iframe.height = 1;
 	iframe.frameBorder = 0;
 	iframe.style.position = "absolute";
-	iframe.style.left = iframe.style.top = 0; 
+	iframe.style.left = iframe.style.top = 0;
 	iframe.style.opacity = 0;
 
 	function doc() {
@@ -1512,15 +1547,15 @@ function HiddenDocument(url, cont) {
 	}
 
 	pageDoc.body.appendChild(iframe);
-	
+
 	function clearTimer() {
 		clearTimeout(timer);
 		timer = 0;
 		log("hidden document loaded", url);
-		
+
 		if (!(iframe.contentWindow || iframe.contentDocument).document.evaluate) {
 			log("adding xpath helper to hidden document");
-			PME.Util.xpathHelper((iframe.contentWindow || iframe.contentDocument), (iframe.contentWindow || iframe.contentDocument).document, 
+			PME.Util.xpathHelper((iframe.contentWindow || iframe.contentDocument), (iframe.contentWindow || iframe.contentDocument).document,
 				function() {
 					cont({
 						doc: doc,
@@ -1533,10 +1568,10 @@ function HiddenDocument(url, cont) {
 				kill: kill
 			})
 		}
-		
-		
+
+
 	}
-	
+
 	if (iframe.addEventListener) {
 		iframe.onload = function () {
 			clearTimer();
@@ -1565,7 +1600,7 @@ function HiddenDocument(url, cont) {
 		log("document url matches iframe url. Fixing.");
 		url += url.indexOf("?") !== -1 ? "&" : "?" + "randPMEParam=1";
 	}
-	
+
 	iframe.src = url;
 }
 
@@ -1584,10 +1619,10 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 			catch(e) {
 				if (onError) onError(e);
 				else fatal("error while processing hidden document", e);
+			} finally {
+				hdoc.kill();
+				docReady();
 			}
-
-			hdoc.kill();
-			docReady();
 		});
 
 		if (urls.length)
@@ -1688,11 +1723,11 @@ PME.Util.HTTP.doGet = PME.Util.doGet = function(url, callback, done) {
 					callback("");
 			} catch(e) {
 				fatal("Error in HTTP GET callback", e);
+			} finally {
+				if (typeof done == "function")
+					done();
+				getReady();
 			}
-
-			if (typeof done == "function")
-				done();
-			getReady();
 		});
 
 	try {
@@ -1718,9 +1753,9 @@ PME.Util.HTTP.doPost = PME.Util.doPost = function(url, data, callback, headers, 
 					callback("");
 			} catch(e) {
 				fatal("Error in HTTP POST callback", e);
+			} finally {
+				postReady();
 			}
-
-			postReady();
 		});
 
 	if (! headers)
@@ -1730,7 +1765,7 @@ PME.Util.HTTP.doPost = PME.Util.doPost = function(url, data, callback, headers, 
 
 	try {
 		request.open("POST", url, true);
-		for (var hdrName in headers) 
+		for (var hdrName in headers)
 			request.setRequestHeader(hdrName, headers[hdrName]);
 		request.send(data);
 	}
@@ -1944,7 +1979,7 @@ window.FW = (function(){
 
 					var procVal = scrp.evalItem(val, doc, url);
 					// log("Scraper got kv", key, procVal);
-					
+
 					if (key in multiList)
 						return flatten([procVal]);
 					return (procVal instanceof Array) ? procVal[0] : procVal;
@@ -2010,7 +2045,7 @@ window.FW = (function(){
 		PageText: PageText,
 		Xpath: Xpath,
 		Url: Url,
-		
+
 		detectWeb: detectWeb,
 		doWeb: doWeb
 	};
@@ -2038,13 +2073,13 @@ PME.getPageMetaData = function(callback) {
 		pmeCallback = callback;
 
 		var trans = Registry.matchURL(pageURL);
-		
+
 		var doTranslation = function() {
 			var t = PME.loadTranslator("web");
 			t.setTranslator(trans);
 			t.translate();
 		}
-		
+
 		if (! trans)
 			completed(null);
 		else {
@@ -2057,7 +2092,7 @@ PME.getPageMetaData = function(callback) {
 			} else {
 				doTranslation();
 			}
-			
+
 		}
 	}
 	catch(e) {
