@@ -2081,7 +2081,7 @@ PME.getPageMetaData = function(callback) {
 		}
 
 		if (! trans)
-			completed(null);
+			completed({noTranslator:true});
 		else {
 			// add XPath helper javascript if document.evaluate is not defined
 			// make sure it has loaded before proceeding
