@@ -39,7 +39,7 @@ var Registry = (function() {
 
 		// -- web
 		"Safari Books Online": {
-			m: "^https?://([^\\.]+)\\.safaribooksonline.com",
+			m: "^https?://([^\\.]+)\\.safaribooksonline.com/(browse|category/|publisher/|alltitles|book/)",
 			g: "ec491fc2-10b1-11e3-99d7-1bd4dc830245"
 		},
 		"JSTOR": {
@@ -430,8 +430,6 @@ var pmeTaskStack = [],
 
 
 function vanish() {
-	return;
-
 	try {
 		PME.Translator.clearAll();
 		PME.TranslatorClass.unloadAll();

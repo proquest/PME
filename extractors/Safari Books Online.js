@@ -4,7 +4,7 @@ var translatorSpec =
 	"translatorID": "ec491fc2-10b1-11e3-99d7-1bd4dc830245",
 	"label": "Safari Books Online",
 	"creator": "PME Team",
-	"target": "^https?://([^\\.]+)\\.safaribooksonline.com/(browse|book/)",
+	"target": "^https?://([^\\.]+)\\.safaribooksonline.com/(browse|category/|publisher/|alltitles|book/)",
 	"priority": 100,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
@@ -25,6 +25,8 @@ function mapSBOProp(item, sboProp, value) {
 			description: "abstractNote"
 		},
 		pmeProp = mapping[sboProp];
+
+	value = PME.Util.trim(value);
 
 	if (pmeProp) {
 		if (item[pmeProp] && (typeof item[pmeProp] == "object") && ("length" in item[pmeProp]))
@@ -85,14 +87,14 @@ function importBrowsePage(doc, url) {
 
 
 function detectWeb(doc, url) {
-	if (url.indexOf("safaribooksonline.com/browse") > -1) {
-		// there are tabs in the browse section, current tab is stored in State cookie
-		// searchview=__ is included only on the non-books tab
-		if (unescape(document.cookie).indexOf("searchview=") == -1)
-			return "multiple";
-	}
-	else if (url.indexOf("safaribooksonline.com/book/") > -1)
+	if (url.indexOf("safaribooksonline.com/book/") > -1)
 		return "book";
+
+	// not a single book so we're in a resultlist (url: browse or category/ or publisher/ or alltitles)
+	// there are tabs in the result list, current tab is stored in State cookie
+	// searchview=__ is included only on the non-books tabs (so far only video exists)
+	if (unescape(document.cookie).indexOf("searchview=") == -1)
+		return "multiple";
 }
 
 
