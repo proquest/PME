@@ -4,7 +4,7 @@ var translatorSpec =
 	"translatorID": "ec491fc2-10b1-11e3-99d7-1bd4dc830245",
 	"label": "Safari Books Online",
 	"creator": "PME Team",
-	"target": "^https?://([^\\.]+)\\.safaribooksonline.com/(browse|category/|publisher/|alltitles|book/)",
+	"target": "^https?://([^\\.]+)\\.safaribooksonline.com/(browse|search|category/|publisher/|alltitles|book/|[0-9]{10,}|)",
 	"priority": 100,
 	"translatorType": 4,
 	"browserSupport": "gcsibv",
@@ -40,6 +40,15 @@ function mapSBOProp(item, sboProp, value) {
 
 
 function importBook(doc, url) {
+	// if we're not on the book page itself but some sub-page (likely a reader page)
+	// then we try and process the book root page
+	var parts = url.match(/(.+)\/([0-9]{10,13})\/?(.*)/);
+	if (parts && parts[3]) {
+		// parts 1 and 2 are the full url up to and including the book id
+		PME.Util.processDocuments([parts[1] + "/" + parts[2]], importBook);
+		return;
+	}
+
 	var item = new PME.Item("book");
 
 	// itemprops
@@ -87,7 +96,7 @@ function importBrowsePage(doc, url) {
 
 
 function detectWeb(doc, url) {
-	if (url.indexOf("safaribooksonline.com/book/") > -1)
+	if (url.indexOf("safaribooksonline.com/book/") > -1 || location.href.match(/safaribooksonline\.com\/[0-9]+/))
 		return "book";
 
 	// not a single book so we're in a resultlist (url: browse or category/ or publisher/ or alltitles)

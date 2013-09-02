@@ -39,7 +39,7 @@ var Registry = (function() {
 
 		// -- web
 		"Safari Books Online": {
-			m: "^https?://([^\\.]+)\\.safaribooksonline.com/(browse|category/|publisher/|alltitles|book/)",
+			m: "^https?://([^\\.]+)\\.safaribooksonline.com/(browse|search|category/|publisher/|alltitles|book/|[0-9]{10,}|)",
 			g: "ec491fc2-10b1-11e3-99d7-1bd4dc830245"
 		},
 		"JSTOR": {
@@ -1621,7 +1621,7 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 
 		HiddenDocument(url, function(hdoc) {
 			try {
-				processor(hdoc.doc(), url);
+				processor(hdoc.doc(), hdoc.doc().location.href);
 			}
 			catch(e) {
 				if (onError) onError(e);
