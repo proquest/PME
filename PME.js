@@ -122,6 +122,10 @@ var Registry = (function() {
 			m: "^https?://site\\.ebrary\\.com/lib/.*/(search|docDetail)\\.action",
 			g: "58bcb958-eb01-42e5-9247-fc5604bf5904"
 		},
+		"SIRS": {
+			m: "^https?://sks.sirs.com/cgi-bin/(hst-sub-display|hst-article-display).*",
+			g: "74740e56-5325-493b-8e70-44c0f854fbe9"
+		},
 		"COinS": {
 			//Only using COinS for Summon now
 			m: "^https?://.*\\.summon\\.serialssolutions\\.com/search.*",
