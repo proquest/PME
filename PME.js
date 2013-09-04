@@ -38,6 +38,10 @@ var Registry = (function() {
 		},
 
 		// -- web
+		"Safari Books Online": {
+			m: "^https?://([^\\.]+)\\.safaribooksonline.com/(browse|search|category/|publisher/|alltitles|book/|[0-9]{10,}|)",
+			g: "ec491fc2-10b1-11e3-99d7-1bd4dc830245"
+		},
 		"JSTOR": {
 			m: "https?://[^/]*jstor\\.org[^/]*/(action/(showArticle|doBasicSearch|doAdvancedSearch|doLocatorSearch|doAdvancedResults|doBasicResults)|stable/|pss/|betasearch\\?|openurl\\?)",
 			g: "d921155f-0186-1684-615c-ca57682ced9b"
@@ -902,6 +906,9 @@ PME.read = function(size) {
 // ------------------------------------------------------------------------
 PME.Util = {};
 
+PME.Util.each = each;
+PME.Util.map = map;
+
 PME.Util.trim = function(str) {
 	return str.replace(/^\s+|\s+$/g, '');
 };
@@ -1614,7 +1621,7 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 
 		HiddenDocument(url, function(hdoc) {
 			try {
-				processor(hdoc.doc(), url);
+				processor(hdoc.doc(), hdoc.doc().location.href);
 			}
 			catch(e) {
 				if (onError) onError(e);
