@@ -94,13 +94,7 @@
 			}
 		}
 
-		if (author) {
-			author = PME.Util.trim(author);
-			if (author.toLowerCase().indexOf("by") == 0) {
-				author = PME.Util.trim(author.substring(2))
-			}
-			item.creators = [author];
-		}
+		item.creators = parseAuthors(author);
 
 		item.complete();
 
@@ -116,19 +110,12 @@
 			item.title = PME.Util.trim(PME.Util.xpathText(result, './/div[@class="line1"]/a'));
 
 			var author = PME.Util.xpathText(result, './/div[@class="line1"]/span[@class="author"]');
-			if (author) {
-				if (author.charAt(0) == ',') {
-					author = author.substring(1);
-				}
-				author = PME.Util.trim(author);
-				if (author) {
-					item.creators = [author]; //if there are multiple authors we won't be able to reliably parse them
-				}
-			}
+			item.creators = parseAuthors(author);
 
 			var publicationTitle = PME.Util.xpathText(result, './/div[@class="line1"]/span[@class="pub"]');
 			if (publicationTitle) publicationTitle = PME.Util.trim(publicationTitle);
 			if (publicationTitle && publicationTitle != item.title) {
+				//ugly, but the data is formatted several different way, sometimes the Vol./No. are inside ()'s and sometimes not
 				if (publicationTitle.charAt(publicationTitle.length - 1) == ')') {
 					//probably has the place in ()'s at the end, strip it off
 					var split = publicationTitle.lastIndexOf('(');
@@ -166,8 +153,17 @@
 
 					if (split > -1) publicationTitle = PME.Util.trim(publicationTitle.substring(0, split));
 					if (publicationTitle.charAt(publicationTitle.length - 1) == ',') publicationTitle = publicationTitle.substring(0, publicationTitle.length - 2);
-
 				}
+
+				if (publicationTitle.charAt(publicationTitle.length - 1) == ')') {
+					var split = publicationTitle.lastIndexOf('(');
+					if (split > 4) { //make sure there is some other text
+						var place = publicationTitle.substring(split);
+						item.place = PME.Util.trim(place.substring(1, place.length - 1));
+						publicationTitle = PME.Util.trim(publicationTitle.substring(0, split));
+					}
+				}
+
 				item.publicationTitle = publicationTitle;
 			}
 
@@ -188,6 +184,62 @@
 		});
 	}
 
+	function parseAuthors(author) {
+
+		function andSplit(author) {
+			return PME.Util.map(author.split(" and "), function(a) {
+				return PME.Util.trim(a);
+			});
+		}
+
+		function splitAuthors(author) {
+			var firstSep = author.indexOf(','),
+				firstSpace = author.indexOf(' ');
+
+			if (firstSep > -1 && firstSpace > -1 && firstSpace > firstSep) {
+				//Steve Berkowitz, Jodi Upton and Christopher Schnaars
+				var authors = PME.Util.map(author.split(','), function(a) {
+					a = PME.Util.trim(a);
+					if (a.indexOf("and ") == 0) a = a.substring(4)
+					return a;
+				});
+				if (authors[authors.length - 1].indexOf(" and ")) {
+					var split = andSplit(authors[authors.length - 1]);
+					authors[authors.length - 1] = split[0]
+					authors.push(split[1]);
+				}
+				return authors;
+			} else if (author.indexOf(" and ") > -1) {
+				//Jodi Upton and Christopher Schnaars
+				return andSplit(author);
+			} else {
+				author = PME.Util.trim(author);
+				if (author) {
+					return [author]; //if there are multiple authors that don't match the formats above we won't be able to reliably parse them
+				}
+			}
+		}
+
+		if (!author) return null;
+
+		if (author.charAt(0) == ',') {
+			author = author.substring(1);
+		}
+
+		if (author.toLowerCase().indexOf("by") == 0) {
+			author = PME.Util.trim(author.substring(2))
+		}
+
+		author = author.replace(", and others", "");
+
+		return PME.Util.map(splitAuthors(author), function(a) {
+			//final clean up
+			a = PME.Util.trim(a);
+			if (a.charAt(a.length -1 ) == ',') a = a.substring(0, a.length - 1);
+			return a;
+		});
+
+	}
 	function imageSrcToItemType(typeImage) {
 		var itemType = "journalArticle";
 
