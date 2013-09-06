@@ -21,7 +21,14 @@
 
 		var item = new PME.Item(itemType);
 
-		item.title = PME.Util.trim(PME.Util.xpathText(doc, '//div[@id="artcont"]//h1'));
+		var title = PME.Util.xpathText(doc, '//div[@id="artcont"]//h1')
+
+		if (!title) {
+			PME.debug("Unable to find the title, giving up");
+			return;
+		}
+
+		item.title = PME.Util.trim(title);
 
 		var headerLines = PME.Util.map(PME.Util.xpath(doc, '//div[@id="artcont"]//h5/text()'), function(node) {
 			return PME.Util.trim(PME.Util.getNodeText(node));
@@ -187,28 +194,50 @@
 	function parseAuthors(author) {
 
 		function andSplit(author) {
-			return PME.Util.map(author.split(" and "), function(a) {
-				return PME.Util.trim(a);
+			return PME.Util.filter(PME.Util.map(author.split(" and "), function(a) {
+				a = PME.Util.trim(a);
+				return a;
+			}), function(v) {
+				return !!v;
+			});
+		}
+
+		function commaSplit(author) {
+			var authors = PME.Util.map(author.split(','), function(a) {
+				a = PME.Util.trim(a);
+				if (a.indexOf("and ") == 0) a = a.substring(4)
+				return a;
+			});
+			if (authors[authors.length - 1].indexOf(" and ")) {
+				var split = andSplit(authors[authors.length - 1]);
+				authors[authors.length - 1] = split[0]
+				authors.push(split[1]);
+			}
+
+			return PME.Util.filter(authors, function(v) {
+				return !!v;
 			});
 		}
 
 		function splitAuthors(author) {
-			var firstSep = author.indexOf(','),
+			author = PME.Util.trim(author);
+
+			var firstComma = author.indexOf(','),
 				firstSpace = author.indexOf(' ');
 
-			if (firstSep > -1 && firstSpace > -1 && firstSpace > firstSep) {
+			if (firstComma > -1 && firstSpace > -1 && firstSpace < firstComma) {
 				//Steve Berkowitz, Jodi Upton and Christopher Schnaars
-				var authors = PME.Util.map(author.split(','), function(a) {
-					a = PME.Util.trim(a);
-					if (a.indexOf("and ") == 0) a = a.substring(4)
-					return a;
-				});
-				if (authors[authors.length - 1].indexOf(" and ")) {
-					var split = andSplit(authors[authors.length - 1]);
-					authors[authors.length - 1] = split[0]
-					authors.push(split[1]);
+				return commaSplit(author);
+			} else if (firstComma > -1 && author.lastIndexOf(',') > firstComma) {
+				//Efrati, Amir, Scott Thurm, and Dionne Searcey
+				//many times in SIRS the first author is in the form "last, first", but then the other authors are comma separated "first last"
+				var authors = commaSplit(author);
+				var combined = [];
+				combined.push(authors[0] + ", " + authors[1]);
+				for (var i = 2; i < authors.length; i++) {
+					if (authors[i]) combined.push(authors[i]);
 				}
-				return authors;
+				return combined;
 			} else if (author.indexOf(" and ") > -1) {
 				//Jodi Upton and Christopher Schnaars
 				return andSplit(author);
