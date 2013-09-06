@@ -912,6 +912,7 @@ PME.Util = {};
 
 PME.Util.each = each;
 PME.Util.map = map;
+PME.Util.filter = filter;
 
 PME.Util.trim = function(str) {
 	return str.replace(/^\s+|\s+$/g, '');
