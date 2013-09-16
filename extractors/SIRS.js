@@ -93,6 +93,9 @@
 		var author = PME.Util.xpathText(doc, '//div[@id="artcont"]//i[1]');
 		if (!author) {
 			var altAuthor = PME.Util.xpath(doc, '//div[@id="artcont"]/em');
+			if (!author) {
+				altAuthor = PME.Util.xpath(doc, '//div[@id="artcont"]/cmsheader/em');
+			}
 			if (altAuthor && altAuthor.length > 0) {
 				var altAuthorText = PME.Util.getNodeText(altAuthor[0]);
 				if (altAuthorText.toLowerCase().indexOf("by") == 0) {
