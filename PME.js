@@ -126,6 +126,10 @@ var Registry = (function() {
 			//Only using COinS for Summon now
 			m: "^https?://.*\\.summon\\.serialssolutions\\.com/search.*",
 			g: "05d07af9-105a-4572-99f6-a8e231c0daef"
+		},
+		"DOAJ": {
+			m: "https?://.*\\.doaj\\.org/doaj\\?func=(search|issueTOC|advancedSearch)",
+			g: "db935268-34d1-44f8-a6ee-52a178d598a2"
 		}
 	},
 	g2t, m2t;
