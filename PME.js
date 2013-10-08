@@ -132,7 +132,7 @@ var Registry = (function() {
 			g: "05d07af9-105a-4572-99f6-a8e231c0daef"
 		},
 		"DOAJ": {
-			m: "https?://.*\\.doaj\\.org/doaj\\?func=(search|issueTOC|advancedSearch)",
+			m: "https?://.*\\.?doaj\\.org/doaj\\?func=(search|issueTOC|advancedSearch)",
 			g: "db935268-34d1-44f8-a6ee-52a178d598a2"
 		}
 	},
