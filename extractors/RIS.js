@@ -575,8 +575,15 @@ function processTag(item, entry) {
 				item.backupPublicationTitle = value;
 				value = undefined;
 			break;
-			case "creators":
+            case "creators":
+				//last, first middle
 				var creator = value.split(/\s*,\s*/);
+				if(creator.length == 1){
+					//first middle last
+					var firstSpace = value.indexOf(" ");
+					if(firstSpace > 0)
+						creator = [value.substring(firstSpace+1), value.substring(0, firstSpace)];
+				}
 				value = {lastName: creator[0], firstName:creator[1], creatorType:zField[1]};
 				if(value.firstName === undefined) {	//corporate
 					delete value.firstName;
@@ -685,9 +692,9 @@ function applyValue(item, zField, value, rawLine) {
 
 	//special processing for certain fields
 	switch(zField) {
+        case 'creators':
 		case 'notes':
 		case 'attachments':
-		case 'creators':
 		case 'tags':
 			if(!(value instanceof Array)) {
 				value = [value];
