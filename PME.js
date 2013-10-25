@@ -2077,7 +2077,13 @@ window.FW = (function(){
 // |_| |_| |_|\__,_|_|_| |_|
 //                                
 // ------------------------------------------------------------------------
-PME.getPageMetaData = function(callback) {
+PME.isURLSupported = function (sUrl)
+{
+	return Registry.matchURL(sUrl) ? true : false;
+}
+
+PME.getPageMetaData = function (callback)
+{
 	try {
 		// notify if dev
 		if (window.PME_SRV && PME_SRV.indexOf("/dev") > -1)
