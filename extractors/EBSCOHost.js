@@ -201,7 +201,7 @@ function getResultList(doc, items, itemInfo) {
 	for(var i=0, n=results.length; i<n; i++) {
 		title = PME.Util.xpath(results[i], './/a[@class = "title-link color-p4"]');
 		folderData = PME.Util.xpath(results[i],
-			'.//span[@class = "item add-to-folder"]/input/@value');
+			'.//span[@class = "item add-to-folder"]/a[@class="folder-toggle item-not-in-folder"]/@data-folder');
 
 		//skip if we're missing something
 		if(!title.length || !folderData.length) continue;
