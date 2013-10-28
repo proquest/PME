@@ -67,14 +67,15 @@
 		var sReturn = '';
 		for (p in obj)
 		{
-			sReturn += '<b>' + p + '</b>: ';
-			if (typeof (obj[p]) == "object")
-				sReturn += '<div style="padding-left:10px;">' + getProps(obj[p]) + '</div>';
-			else
-			{
-				sReturn += obj[p];
-				sReturn += "<br/>";
-			}
+		    if (typeof(obj[p]) !== 'function') {
+		        sReturn += '<b>' + p + '</b>: ';
+		        if (typeof (obj[p]) == "object")
+		            sReturn += '<div style="padding-left:10px;">' + getProps(obj[p]) + '</div>';
+		        else {
+		            sReturn += obj[p];
+		            sReturn += "<br/>";
+		        }
+		    }
 		}
 		return sReturn;
 	}
