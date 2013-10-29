@@ -35,6 +35,28 @@ where an item is:
 
 All fields are optional and dependent on the source page.
 
+
+## Setting up the PME Tester
+
+The PME test harness allows you to run and test PME without connecting to Flow. It consists of the files tester.js and TesterBookmark.js in the PME Git repository.
+
+Place the PME files inside a /PME/ directory. Any extractor files should be inside the /PME/extractors/ subdirectory. Set up PME as a site on your localhost via IIS or other server manager.
+
+When your localhost is set up, open the file TesterBookmark.js in a text editor.
+1. Copy the line of JavaScript code found in the comments under ////bookmark////. (This code is duplicated above the comment and broken up with whitespace for reference.)
+2. Open your browser of choice.
+3. Create a new bookmark, and paste that line of JavaScript code into the "Location" or "URL" field.
+4. Save the bookmark. If your bookmarks toolbar is not already visible, make it visible now.
+
+
+
+This bookmarklet allows you to run and test PME without connecting to Flow. Clicking the bookmarklet will call PME, which will detect whether a scraper exists for the current website.
+If a scraper exists, PME will call it and the tester script will output the results of the scrape directly in the browser window.
+If no scraper exists for the site, the tester will output an error message.
+
+The tester iterates through the PME results object and displays the data from each reference as a list of keys and values. It will display all results by default.
+
+
 # AGPL v3 License
 
 Publication Metadata Extraction – extracts metadata from online publication pages.
