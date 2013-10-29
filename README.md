@@ -38,23 +38,39 @@ All fields are optional and dependent on the source page.
 
 ## Setting up the PME Tester
 
-The PME test harness allows you to run and test PME without connecting to Flow. It consists of the files tester.js and TesterBookmark.js in the PME Git repository.
+The PME test harness allows you to run and test PME without connecting to Flow. It consists of the files tester.js and TesterBookmark.js 
+in the PME Git repository. You will also need PME.js as well as any site-specific extractor files (located in the /extractors/ subdirectory) 
+that you plan to work with.
 
-Place the PME files inside a /PME/ directory. Any extractor files should be inside the /PME/extractors/ subdirectory. Set up PME as a site on your localhost via IIS or other server manager.
+Place the PME files inside a /PME/ directory in your development environment.
+Any extractor files should be inside the /PME/extractors/ subdirectory.
+
+Set up PME as a site on your localhost via IIS or other server manager. The bookmark script expects the server to be localhost/PME. If you 
+use a different base directory, make sure you change the setting of the SRV variable in the bookmark script.
 
 When your localhost is set up, open the file TesterBookmark.js in a text editor.
-1. Copy the line of JavaScript code found in the comments under ////bookmark////. (This code is duplicated above the comment and broken up with whitespace for reference.)
-2. Open your browser of choice.
-3. Create a new bookmark, and paste that line of JavaScript code into the "Location" or "URL" field.
-4. Save the bookmark. If your bookmarks toolbar is not already visible, make it visible now.
 
+	1. Copy the line of JavaScript code found in the comments under ////bookmark////. (This line of code is duplicated above the comment 
+		and broken up with whitespace for reference.)
+	2. Open your browser of choice.
+	3. Create a new bookmark, and paste that line of JavaScript code into the "Location" or "URL" field.
+	4. Save the bookmark. If your bookmarks toolbar is not already visible, make it visible now.
 
+Now that your dev environment is set up, clicking the bookmarklet will call PME. To test it, go to http://scholar.google.com , run a search, 
+click your PME tester bookmark, and wait for results to appear.
 
-This bookmarklet allows you to run and test PME without connecting to Flow. Clicking the bookmarklet will call PME, which will detect whether a scraper exists for the current website.
-If a scraper exists, PME will call it and the tester script will output the results of the scrape directly in the browser window.
-If no scraper exists for the site, the tester will output an error message.
+When you activate the PME tester, a light blue field will appear at the top of the current web document where you will see two reload buttons, 
+status messages, and scrape results.
 
-The tester iterates through the PME results object and displays the data from each reference as a list of keys and values. It will display all results by default.
+	--- The tester will first check to see if a scraper exists for the current website. If there isn't one, you'll see a message stating "This 
+			page is not supported yet".
+	--- If a scraper exists, PME will display the "Wait" status message while it calls the scraper and retrieves reference metadata from the 
+			current website. The results of the scrape will appear at the top of the browser window.
+
+The scrape results will tell you the number of references found and display the metadata for each reference as a list of keys and values 
+(e.g. "creators", "title", "publicationTitle", "volume", "url", etc.). You can use the two reload buttons to show only the first reference or 
+reload all references.
+
 
 
 # AGPL v3 License
