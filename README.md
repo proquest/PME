@@ -8,12 +8,11 @@ PME is a freely available open source project, licensed under AGPLv3. It is base
 
 To use PME, simple include it with a `<script>` tag and call it from your scripts. PME exposes one function:
 
-`getMetadataForPage(doc: HTMLDocument, url: string) : PubItems`
+`getPageMetaData(callback: function) : PubItems`
 
 _in:_
 
-A  HTML Document object of the page currently in the user’s browser, and the
-current URL.
+Function that is to be called when extracting successfully completes
 
 _out:_
 
