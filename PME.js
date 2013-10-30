@@ -648,10 +648,11 @@ PME.TranslatorClass = function(classID) {
 	// -- find and load script
 	intf.name = Registry.findByID(classID);
 	if (intf.name) {
-		log("loading translator class " + intf.name);
+	    log("loading translator class " + intf.name);
+	    var dtmp = new Date().getTime();
 
 		intf.script = document.createElement("script");
-		intf.script.src = PME.TranslatorClass.baseURL + intf.name + ".js";
+		intf.script.src = PME.TranslatorClass.baseURL + intf.name + ".js?ver=" + dtmp;
 		intf.script.onerror = function() {
 			fatal("translator class failed to load: ", intf.name);
 		}

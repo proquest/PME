@@ -32,7 +32,7 @@
 	function reloadPME()
 	{
 		var h = document.getElementsByTagName('head')[0];
-		var d = (new Date()).valueOf();
+		var d = new Date().getTime();
 		PME_SRV = SRV;
 		PME_SCR = document.createElement('SCRIPT');
 		PME_SCR.src = 'http://' + PME_SRV + '/PME.js?version=' + d;
@@ -92,7 +92,7 @@
 			}
 			PME.getPageMetaData(function (pmeResult)
 			{
-				var sHTML = '<br/>Items found: ' + pmeResult.items.length;
+			    var sHTML = '<br/>Items found: ' + pmeResult.items.length;
 				if (bReloadAll)
 				{
 					$.each(pmeResult.items, function (n)
