@@ -58,17 +58,17 @@ publicationTitle : FW.Xpath('//h5[@class="blogtitle"]').text().prepend("WSJ Blog
 /** Articles */
 FW.Scraper({
 itemType         : 'newspaperArticle',
-detect           : FW.Url().match(/wsj\.com\/article/),
+detect           : FW.Url().match(/wsj\.com\/news\/articles/),
 title            : FW.Xpath('//h1').text().trim(),
 attachments      : [
   {
   url: FW.Url(),
   title: "Wall Street Journal Snapshot",
   type: "text/html"}],
-creators         : FW.Xpath('//meta[@name="author"]/@content').text().capitalizeTitle(true).replace(/^\s*By\s*/, "").split(/,| and /).cleanAuthor("author"),
-date             : FW.Xpath('//li[@class="dateStamp"]').text().capitalizeTitle(true),
+creators         : FW.Xpath('//meta[@name="article.author"]/@content').text().capitalizeTitle(true).replace(/^\s*By\s*/, "").split(/,| and /).cleanAuthor("author"),
+date             : FW.Xpath('//meta[@name="article.published"]/@content').text().capitalizeTitle(true),
 abstractNote     : FW.Xpath('//meta[@name="description"]/@content').text(),
-section          : FW.Xpath('//li[@class="articleSection first"]/a').text().capitalizeTitle(true),
+section          : FW.Xpath('//meta[@name="article.section"]/@content').text().capitalizeTitle(true),
 ISSN			 : "0099-9660",
 publicationTitle : "Wall Street Journal"
 });
