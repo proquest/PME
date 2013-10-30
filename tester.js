@@ -32,7 +32,7 @@
 	function reloadPME()
 	{
 		var h = document.getElementsByTagName('head')[0];
-		var d = (new Date()).valueOf();
+		var d = new Date().getTime();
 		PME_SRV = SRV;
 		PME_SCR = document.createElement('SCRIPT');
 		PME_SCR.src = 'http://' + PME_SRV + '/PME.js?version=' + d;
@@ -67,14 +67,15 @@
 		var sReturn = '';
 		for (p in obj)
 		{
-			sReturn += '<b>' + p + '</b>: ';
-			if (typeof (obj[p]) == "object")
-				sReturn += '<div style="padding-left:10px;">' + getProps(obj[p]) + '</div>';
-			else
-			{
-				sReturn += obj[p];
-				sReturn += "<br/>";
-			}
+		    if (typeof(obj[p]) !== 'function') {
+		        sReturn += '<b>' + p + '</b>: ';
+		        if (typeof (obj[p]) == "object")
+		            sReturn += '<div style="padding-left:10px;">' + getProps(obj[p]) + '</div>';
+		        else {
+		            sReturn += obj[p];
+		            sReturn += "<br/>";
+		        }
+		    }
 		}
 		return sReturn;
 	}
@@ -91,7 +92,7 @@
 			}
 			PME.getPageMetaData(function (pmeResult)
 			{
-				var sHTML = '<br/>Items found: ' + pmeResult.items.length;
+			    var sHTML = '<br/>Items found: ' + pmeResult.items.length;
 				if (bReloadAll)
 				{
 					$.each(pmeResult.items, function (n)
