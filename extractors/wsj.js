@@ -58,17 +58,17 @@ publicationTitle : FW.Xpath('//link[@type="application/rss+xml"]/@title').text()
 /** Articles */
 FW.Scraper({
 itemType         : 'newspaperArticle',
-detect           : FW.Url().match(/wsj\.com\/news\/articles/),
+detect           : FW.Url().match(/wsj\.com(\/news)?\/articles?/),
 title            : FW.Xpath('//h1').text().trim(),
 attachments      : [
   {
   url: FW.Url(),
   title: "Wall Street Journal Snapshot",
   type: "text/html"}],
-creators         : FW.Xpath('//meta[@name="article.author"]/@content').text().capitalizeTitle(true).replace(/^\s*By\s*/, "").split(/,| and /).cleanAuthor("author"),
-date             : FW.Xpath('//meta[@name="article.published"]/@content').text().capitalizeTitle(true),
+creators         : FW.Xpath('//meta[@name="article.author" or @name="author"]/@content').text().capitalizeTitle(true).replace(/^\s*By\s*/, "").split(/,| and /).cleanAuthor("author"),
+date             : FW.Xpath('//meta[@name="article.published"]/@content|//meta[@itemprop="datePublished"]/@value').text().capitalizeTitle(true),
 abstractNote     : FW.Xpath('//meta[@name="description"]/@content').text(),
-section          : FW.Xpath('//meta[@name="article.section"]/@content').text().capitalizeTitle(true),
+section          : FW.Xpath('//meta[@name="article.section" or @name="subsection"]/@content').text().capitalizeTitle(true),
 ISSN			 : "0099-9660",
 publicationTitle : "Wall Street Journal"
 });
