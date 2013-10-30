@@ -48,10 +48,10 @@ attachments      : [
   url: FW.Url(),
   title: "WSJ-Blogs Snapshot",
   type: "text/html"}],
-creators         : FW.Xpath('//h3[@class="byline"]').text().replace(/^\s*By\s*/, "").cleanAuthor("author"),
+creators         : FW.Xpath('//h3[@class="byline"]|//p[1][preceding-sibling::div[@class="metadata-author clearFix"]]').text().replace(/^\s*By\s*/, "").cleanAuthor("author"),
 date             : FW.Xpath('//li[@class="dateStamp first"]').text(),
 ISSN			 : "0099-9660",
-publicationTitle : FW.Xpath('//h5[@class="blogtitle"]').text().prepend("WSJ Blogs - ")
+publicationTitle : FW.Xpath('//link[@type="application/rss+xml"]/@title').text().replace(' RSS Feed', '').prepend("WSJ Blogs - ")
 }); 
  
  
