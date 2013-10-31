@@ -48,8 +48,8 @@ attachments      : [
   url: FW.Url(),
   title: "WSJ-Blogs Snapshot",
   type: "text/html"}],
-creators         : FW.Xpath('//h3[@class="byline"]|//p[1][preceding-sibling::div[@class="metadata-author clearFix"]]').text().replace(/^\s*By\s*/, "").cleanAuthor("author"),
-date             : FW.Xpath('//li[@class="dateStamp first"]').text(),
+creators         : FW.Xpath('//h3[@class="byline"]|//p[1][preceding-sibling::div[@class="metadata-author clearFix"]]|//a[@class="popTrigger" and contains(@href, "/biography/")]|//span[contains(@class, "post-author")]').text().replace(/^\s*By\s*/, "").cleanAuthor("author"),
+date             : FW.Xpath('//li[@class="dateStamp first"]|//small[@class="post-time"]').text(),
 ISSN			 : "0099-9660",
 publicationTitle : FW.Xpath('//link[@type="application/rss+xml"]/@title').text().replace(' RSS Feed', '').prepend("WSJ Blogs - ")
 }); 
@@ -65,7 +65,7 @@ attachments      : [
   url: FW.Url(),
   title: "Wall Street Journal Snapshot",
   type: "text/html"}],
-creators         : FW.Xpath('//meta[@name="article.author" or @name="author"]/@content').text().capitalizeTitle(true).replace(/^\s*By\s*/, "").split(/,| and /).cleanAuthor("author"),
+creators         : FW.Xpath('//meta[@name="article.author" or @name="author"]/@content').text().capitalizeTitle(true).replace(/^\s*By\s*/, "").split(/,| and | And /).cleanAuthor("author"),
 date             : FW.Xpath('//meta[@name="article.published"]/@content|//meta[@itemprop="datePublished"]/@value').text().capitalizeTitle(true),
 abstractNote     : FW.Xpath('//meta[@name="description"]/@content').text(),
 section          : FW.Xpath('//meta[@name="article.section" or @name="subsection"]/@content').text().capitalizeTitle(true),
