@@ -67,44 +67,54 @@
 		var sReturn = '';
 		for (p in obj)
 		{
-		    if (typeof(obj[p]) !== 'function') {
-		        sReturn += '<b>' + p + '</b>: ';
-		        if (typeof (obj[p]) == "object")
-		            sReturn += '<div style="padding-left:10px;">' + getProps(obj[p]) + '</div>';
-		        else {
-		            sReturn += obj[p];
-		            sReturn += "<br/>";
-		        }
-		    }
+			if (typeof (obj[p]) !== 'function')
+			{
+				sReturn += '<b>' + p + '</b>: ';
+				if (typeof (obj[p]) == "object")
+					sReturn += '<div style="padding-left:10px;">' + getProps(obj[p]) + '</div>';
+				else
+				{
+					sReturn += obj[p];
+					sReturn += "<br/>";
+				}
+			}
 		}
 		return sReturn;
 	}
 
 	function extractItems(pmeAvailable)
-	{		
+	{
 		if (pmeAvailable)
 		{
 			if (!PME.isURLSupported(window.location.href))
-			{				
+			{
 				$("#divWait").html("");
 				$("#divResult").html("<font style='color:red'>This page is not supported yet</font>");
 				return;
 			}
 			PME.getPageMetaData(function (pmeResult)
 			{
-			    var sHTML = '<br/>Items found: ' + pmeResult.items.length;
-				if (bReloadAll)
+				var sHTML;
+				if (!pmeResult)
 				{
-					$.each(pmeResult.items, function (n)
-					{
-						sHTML += "<br>";
-						var oThis = this;
-						sHTML += getProps(oThis);
-					});
+					sHTML = "PME didn't return results";
 				}
 				else
 				{
-					sHTML += '. Showing first only <br/>'+ getProps(pmeResult.items[0]);
+					sHTML = '<br/>Items found: ' + pmeResult.items.length;
+					if (bReloadAll)
+					{
+						$.each(pmeResult.items, function (n)
+						{
+							sHTML += "<br>";
+							var oThis = this;
+							sHTML += getProps(oThis);
+						});
+					}
+					else
+					{
+						sHTML += '. Showing first only <br/>' + getProps(pmeResult.items[0]);
+					}
 				}
 				$("#divWait").html("");
 				$("#divResult").html(sHTML);
@@ -131,19 +141,25 @@
 		scrape();
 
 	});
-	$("body").prepend(
+	$("body").css({ 'padding-top': '200px' }).prepend(
 		"<div id='divTester'>" +
 		"<input type='button' value='Reload (show first only)' id='btnReload'/>" +
 		"<input type='button' value='Reload (show all)' id='btnReloadAll'/><br/>" +
-		"<div id='divWait'>Wait...</div>"+
-		"<div id='divResult'></div>"+
+		"<div id='divWait'>Wait...</div>" +
+		"<div id='divResult'></div>" +
 		"</div>")
 
 	$("#divTester").css({
 		'background-color': 'rgb(218, 232, 243)',
 		'font-size': '11px',
 		'font-family': 'verdana',
-		'text-align': 'left'
+		'text-align': 'left',
+		'position': 'fixed',
+		'top': '0',
+		'width': '100%',
+		'height': '200px',
+		'overflow-y': 'scroll',
+		'z-index': '1000000'
 	});
 	$("#divTester :button").css({
 		'font-size': '11px',
@@ -151,5 +167,5 @@
 	});
 
 	scrape();
-	
+
 }());
