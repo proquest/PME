@@ -22,15 +22,22 @@ An object with the following fields:
 
 where an item is:
 
-* `string title`
-* `string[] authors`
-* `string siteName`
-* `string publicationName`
-* `string publicationDate`
-* `int startPage`
-* `int endPage`
-* `int issue`
-* `string docURL`
+* `title`
+* `object (with lastName and/or firstName props) or  string creators`
+* `string abstractNote`
+* `string date`
+* `string issue`
+* `string volume`
+* `string edition`
+* `string publisher` - publisher name
+* `string place` - publisher location
+* `string language`
+* `string pages`
+* `string publicationTitle`
+* `string ISSN`
+* `string ISBN`
+* `string DOI`
+* `string extra` - the extra field may contain 1 or more xxid: 12345 lines
 
 All fields are optional and dependent on the source page.
 
