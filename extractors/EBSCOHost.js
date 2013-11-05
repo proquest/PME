@@ -334,8 +334,8 @@ function doDelivery(doc, itemInfo) {
 	var arguments = urlToArgs(postURL);
 
 	postURL = "/ehost/delivery/ExportPanelSave/"
-		+ folderData.Db + "_" + folderData.Term + "_" + folderData.Tag
-		+ "?sid=" + arguments["sid"]
+		+ "?recordKey=" + folderData.Db + "__" + folderData.Term + "__" + folderData.Tag
+		+ "&sid=" + arguments["sid"]
 		+ "&vid=" + arguments["vid"]
 		+ "&bdata="+arguments["bdata"]
 		+ "&theExportFormat=1";	//RIS file
