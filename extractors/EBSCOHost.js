@@ -154,8 +154,16 @@ function downloadFunction(text, url, prefs) {
 			PME.debug("Fetching PDF from " + pdf);
 
 			PME.Util.doGet(pdf, function (text) {
-					var realpdf = text.match(/<iframe\s+id="pdfIframe"[^>]+\bsrc="([^"]+)"/i)
-						|| text.match(/<embed\s+id="pdfEmbed"[^>]+\bsrc="([^"]+)"/i);	//this is probably no longer used
+					var realpdf = text.match(/<a\s+id="downloadLink"[^>]+\bhref="([^"]+)"/i);
+
+					if(!realpdf) {
+						realpdf = text.match(/<input\s+id="pdfUrl"[^>]+\bvalue="([^"]+)"/i);
+					}
+
+					if (!realpdf) {
+						realpdf = text.match(/<iframe\s+id="pdfIframe"[^>]+\bsrc="([^"]+)"/i) || text.match(/<embed\s+id="pdfEmbed"[^>]+\bsrc="([^"]+)"/i);
+					}
+
 					if(realpdf) {
 						realpdf = realpdf[1].replace(/&amp;/g, "&")	//that's & amp; (Scaffold parses it)
 											.replace(/#.*$/,'');
