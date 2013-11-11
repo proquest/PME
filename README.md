@@ -8,12 +8,11 @@ PME is a freely available open source project, licensed under AGPLv3. It is base
 
 To use PME, simple include it with a `<script>` tag and call it from your scripts. PME exposes one function:
 
-`getMetadataForPage(doc: HTMLDocument, url: string) : PubItems`
+`getPageMetaData(callback: function) : PubItems`
 
 _in:_
 
-A  HTML Document object of the page currently in the user’s browser, and the
-current URL.
+Function that is to be called when extracting successfully completes
 
 _out:_
 
@@ -23,17 +22,62 @@ An object with the following fields:
 
 where an item is:
 
-* `string title`
-* `string[] authors`
-* `string siteName`
-* `string publicationName`
-* `string publicationDate`
-* `int startPage`
-* `int endPage`
-* `int issue`
-* `string docURL`
+* `title`
+* `object (with lastName and/or firstName props) or  string creators`
+* `string abstractNote`
+* `string date`
+* `string issue`
+* `string volume`
+* `string edition`
+* `string publisher` - publisher name
+* `string place` - publisher location
+* `string language`
+* `string pages`
+* `string publicationTitle`
+* `string ISSN`
+* `string ISBN`
+* `string DOI`
+* `string extra` - the extra field may contain 1 or more xxid: 12345 lines
 
 All fields are optional and dependent on the source page.
+
+
+## Setting up the PME Tester
+
+The PME test harness allows you to run and test PME without connecting to Flow. It consists of the files tester.js and TesterBookmark.js 
+in the PME Git repository. You will also need PME.js as well as any site-specific extractor files (located in the /extractors/ subdirectory) 
+that you plan to work with.
+
+Place the PME files inside a /PME/ directory in your development environment.
+Any extractor files should be inside the /PME/extractors/ subdirectory.
+
+Set up PME as a site on your localhost via IIS or other server manager. The bookmark script expects the server to be localhost/PME. If you 
+use a different base directory, make sure you change the setting of the SRV variable in the bookmark script.
+
+When your localhost is set up, open the file TesterBookmark.js in a text editor.
+
+	1. Copy the line of JavaScript code found in the comments under ////bookmark////. (This line of code is duplicated above the comment 
+		and broken up with whitespace for reference.)
+	2. Open your browser of choice.
+	3. Create a new bookmark, and paste that line of JavaScript code into the "Location" or "URL" field.
+	4. Save the bookmark. If your bookmarks toolbar is not already visible, make it visible now.
+
+Now that your dev environment is set up, clicking the bookmarklet will call PME. To test it, go to http://scholar.google.com , run a search, 
+click your PME tester bookmark, and wait for results to appear.
+
+When you activate the PME tester, a light blue field will appear at the top of the current web document where you will see two reload buttons, 
+status messages, and scrape results.
+
+	--- The tester will first check to see if a scraper exists for the current website. If there isn't one, you'll see a message stating "This 
+			page is not supported yet".
+	--- If a scraper exists, PME will display the "Wait" status message while it calls the scraper and retrieves reference metadata from the 
+			current website. The results of the scrape will appear at the top of the browser window.
+
+The scrape results will tell you the number of references found and display the metadata for each reference as a list of keys and values 
+(e.g. "creators", "title", "publicationTitle", "volume", "url", etc.). You can use the two reload buttons to show only the first reference or 
+reload all references.
+
+
 
 # AGPL v3 License
 

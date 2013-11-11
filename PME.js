@@ -459,12 +459,9 @@ function completed(data) {
 	if (pmeCompleted)
 		return;
 	pmeCompleted = true;
-
 	if (pmeOK)
-		log("completed, item count = ", (data && data.items) ? data.items.length : 0, " data = ", data);
-
+		log("completed, item count = ", (data && !data.noTranslator && data.items) ? data.items.length : 0, " data = ", data);
 	pmeCallback && pmeCallback(data);
-
 	setTimeout(vanish, 1);
 }
 
@@ -648,10 +645,11 @@ PME.TranslatorClass = function(classID) {
 	// -- find and load script
 	intf.name = Registry.findByID(classID);
 	if (intf.name) {
-		log("loading translator class " + intf.name);
+	    log("loading translator class " + intf.name);
+	    var dtmp = new Date().getTime();
 
 		intf.script = document.createElement("script");
-		intf.script.src = PME.TranslatorClass.baseURL + intf.name + ".js";
+		intf.script.src = PME.TranslatorClass.baseURL + intf.name + ".js?ver=" + dtmp;
 		intf.script.onerror = function() {
 			fatal("translator class failed to load: ", intf.name);
 		}
@@ -2077,7 +2075,13 @@ window.FW = (function(){
 // |_| |_| |_|\__,_|_|_| |_|
 //                                
 // ------------------------------------------------------------------------
-PME.getPageMetaData = function(callback) {
+PME.isURLSupported = function (sUrl)
+{
+	return Registry.matchURL(sUrl) ? true : false;
+}
+
+PME.getPageMetaData = function (callback)
+{
 	try {
 		// notify if dev
 		if (window.PME_SRV && PME_SRV.indexOf("/dev") > -1)
@@ -2097,7 +2101,7 @@ PME.getPageMetaData = function(callback) {
 		}
 
 		if (! trans)
-			completed(null);
+			completed({noTranslator:true});
 		else {
 			// add XPath helper javascript if document.evaluate is not defined
 			// make sure it has loaded before proceeding

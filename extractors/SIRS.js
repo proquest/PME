@@ -17,9 +17,95 @@
 		placeRE = new RegExp('\\(.*\\)');
 
 	function importSingle(doc) {
+
+		function getDatePages(line)
+		{
+			var split = line.indexOf('n.p.');
+			if (split > -1) {
+				//no pages
+				item.date = PME.Util.trim(line.substring(0, split));
+			} else {
+				var strip = 2; //length of p.
+				split = line.indexOf('pp.');
+				if (split > -1) {
+					strip = 3; //length of pp.
+				} else {
+					split = line.indexOf('p.');
+				}
+				if (split > -1) {
+					item.date = PME.Util.trim(line.substring(0, split));
+					if (item.date.charAt(item.date.length - 1) == ',') {
+						item.date = item.date.substring(0, item.date.length - 1);
+					}
+					item.pages = line.substring(split + 1 + strip);
+				} else {
+					item.date = line;
+				}
+			}
+		}
+		function getTitleAuthor(node)
+		{
+			if (node.nodeName.toLowerCase() == "#text")
+			{
+				var val = PME.Util.trim(PME.Util.getNodeText(node));
+				if (val.indexOf("by") == 0)
+				{
+					item.creators = parseAuthors(PME.Util.getNodeText(node).replace("by",""));
+					return true;
+				}
+				else if (!item.title && node.parentNode.nodeName.toLowerCase()=="strong")
+					item.title = val;
+			}
+			return false;
+		}
+		function getAbstract()
+		{
+			var summary = PME.Util.xpathText(doc, '//div[@id="results-container"][div[@id="document-view"][a[@name="summary"]]]//p');
+			if (summary && summary != "No summary available")
+				item.abstractNote = summary;
+		}
+
 		var itemType = imageSrcToItemType(PME.Util.xpathText(doc, '//div[@class="result-icon"]/img/@src'));
 
 		var item = new PME.Item(itemType);
+
+		var headerLines = PME.Util.map(PME.Util.xpath(doc, '//div[@id="artcont"]//h5/text()'), function(node) {
+			return PME.Util.trim(PME.Util.getNodeText(node));
+		});
+
+		if (headerLines.length == 0)
+		{
+			var artcont = PME.Util.xpath(doc, '//div[@id="artcont"]/node()');
+			var node = artcont[0];
+			do
+			{
+				if (node.nodeName.toLowerCase() == "strong")
+				{
+					node = node.childNodes[0];
+				}
+				if (getTitleAuthor(node))
+					break;
+				if (!node.nextSibling && item.creators.length==0)
+				{
+					node = node.parentNode.nextSibling;
+				}
+				if (getTitleAuthor(node))
+					break;
+				node = node.nextSibling;
+			} while (node);
+
+			item.publicationTitle = PME.Util.trim(PME.Util.getNodeText(artcont[1]));
+			var date_pages = PME.Util.trim(PME.Util.getNodeText(artcont[3]));
+			if (date_pages.match(placeRE))
+			{
+				item.place = date_pages.replace(/\(|\)/g, '');
+				date_pages = PME.Util.trim(PME.Util.getNodeText(artcont[5]));
+			}
+			getDatePages(date_pages);
+			getAbstract();
+			item.complete();
+			return;
+		}
 
 		var title = PME.Util.xpathText(doc, '//div[@id="artcont"]//h1')
 
@@ -30,37 +116,12 @@
 
 		item.title = PME.Util.trim(title);
 
-		var headerLines = PME.Util.map(PME.Util.xpath(doc, '//div[@id="artcont"]//h5/text()'), function(node) {
-			return PME.Util.trim(PME.Util.getNodeText(node));
-		});
-
 		if (headerLines.length > 0) item.publicationTitle = headerLines[0];
 
 		if (headerLines.length > 1) {
 			PME.Util.each(headerLines.splice(1), function (line) {
-				if (!item.date && line.match(yearRE)) {
-					var split = line.indexOf('n.p.');
-					if (split > -1) {
-						//no pages
-						item.date = PME.Util.trim(line.substring(0, split));
-					} else {
-						var strip = 2; //length of p.
-						split = line.indexOf('pp.');
-						if (split > -1) {
-							strip = 3; //length of pp.
-						} else {
-							split = line.indexOf('p.');
-						}
-						if (split > -1) {
-							item.date = PME.Util.trim(line.substring(0, split));
-							if (item.date.charAt(item.date.length - 1) == ',') {
-								item.date = item.date.substring(0, item.date.length - 1);
-							}
-							item.pages = line.substring(split + 1 + strip);
-						} else {
-							item.date = line;
-						}
-					}
+				if (!item.date && line.match(yearRE))	{
+					getDatePages(line);					
 				} else {
 					var split = -1,
 						match = volRE.exec(line);
@@ -78,13 +139,13 @@
 						item.issue = match[1];
 					}
 
-					if (!item.place && line.match(placeRE)) {
+					if (!item.place && line.match(placeRE)) {						
 						if (split > -1) {
 							var place = line.substring(1, split);
 							if (place) item.place = place;
 						} else {
 							item.place = line.substring(1, line.length - 1);
-						}
+						}						
 					}
 				}
 			});
@@ -105,6 +166,8 @@
 		}
 
 		item.creators = parseAuthors(author);
+
+		getAbstract();
 
 		item.complete();
 
