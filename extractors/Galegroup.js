@@ -83,8 +83,9 @@ function parseRIS(url) {
 		translator.setString(text);
 		translator.setHandler("itemDone", function (obj, item) {
 			//make sure the attachment URL gets proxied
-			item.attachments.push({url: item.url, title: "Full Text (HTML)", mimeType: "text/html",})
-			for (i in item.attachments) {
+			item.attachments.push({ url: item.url, title: "Full Text (HTML)", mimeType: "text/html" })
+			for (var i = 0; i < item.attachments.length; i++)
+			{
 				item.attachments[i].url = item.attachments[i].url.replace(/^https?:\/\/.+?\//, host);
 			}
 			item.complete();
