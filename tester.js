@@ -67,7 +67,7 @@
 		var sReturn = '';
 		for (p in obj)
 		{
-			if (typeof (obj[p]) !== 'function')
+			if ((typeof (obj[p]) !== 'function') && (p !== 'document'))
 			{
 				sReturn += '<b>' + p + '</b>: ';
 				if (typeof (obj[p]) == "object")
