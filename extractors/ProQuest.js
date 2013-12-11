@@ -166,12 +166,11 @@ function detectWeb(doc, url) {
 //from full text pdf view
 function doWeb(doc, url, pdfUrl) {
 	var type = detectWeb(doc, url);
-	if (type != "multiple" && !followLink) {	//see detectWeb
+	if (type != "multiple" && !followLink && type != false) {	//see detectWeb
 		scrape(doc, url, type, pdfUrl);
 	} else if(type == "multiple") {
 		// detect web returned multiple
-		var results = PME.Util.xpath(doc, '//a[contains(@class,"previewTitle") or\
-									contains(@class,"resultTitle")]');
+		var results = PME.Util.xpath(doc, '//a[contains(@href, "/docview/") and contains(@class,"previewTitle") and contains(@class,"resultTitle")]');
 		// If the above didn't get us titles, try agin with a more liberal xPath
 		if (!results.length) {
 			results = PME.Util.xpath(doc, '//a[contains(@href, "/docview/")]');
@@ -233,7 +232,7 @@ function scrape(doc, url, type, pdfUrl) {
 		if(!label || !value) continue;
 
 		label = PME.Util.getNodeText(label).trim();
-		value = PME.Util.getNodeText(value).trim();	//trimInternal?
+		value = PME.Util.getNodeText(value).trim();
 
 		//translate label
 		enLabel = L[label] || label;
@@ -415,7 +414,7 @@ function scrape(doc, url, type, pdfUrl) {
 		});
 	} else {
 		var pdfLink = PME.Util.xpath(doc, '//div[@id="side_panel"]//\
-			a[contains(@class,"format_pdf") and contains(@href,"fulltext")][1]');
+			a[contains(@class,"format_pdf") and contains(@href,"fulltext") or contains(@href, "preview")][last()]');
 		if(pdfLink.length) {
 			fetchEmbeddedPdf(pdfLink[0].href, item,
 				function() { item.complete(); });
