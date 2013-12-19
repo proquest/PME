@@ -1,4 +1,4 @@
-(function () {
+(function() {
 	var translatorSpec = {
 		"translatorID": "d6c6210a-297c-4b2c-8c43-48cb503cc49e",
 		"label": "Springer Link",
@@ -13,30 +13,24 @@
 		"lastUpdated": "2013-08-13 20:03:26"
 	}
 
-	function detectWeb(doc, url)
-	{
+	function detectWeb(doc, url) {
 		var action = url.match(/^https?:\/\/[^\/]+\/([^\/?#]+)/);
 		if (!action) return;
 
-		if (!doc.head || !doc.head.getElementsByTagName('meta').length)
-		{
+		if (!doc.head || !doc.head.getElementsByTagName('meta').length) {
 			PME.debug("Springer Link: No head or meta tags");
 			return;
 		}
 
-		switch (action[1])
-		{
+		switch (action[1]) {
 			case "search":
 			case "journal":
 			case "book":
 			case "referencework":
 				if (getResultList(doc).length > 0)
-				{
 					return "multiple";
-				} else
-				{
+				else
 					return false;
-				}
 				break;
 			case "article":
 				return "journalArticle";
@@ -49,53 +43,38 @@
 		}
 	}
 
-	function getResultList(doc)
-	{
-		var results = PME.Util.xpath(doc,
-			'//ol[@class="content-item-list"]/li/*[self::h3 or self::h2]/a');
+	function getResultList(doc) {
+		var results = PME.Util.xpath(doc, '//ol[@class="content-item-list"]/li/*[self::h3 or self::h2]/a');
 		if (!results.length)
-		{
-			results = PME.Util.xpath(doc,
-				'//div[@class="toc"]/ol//div[contains(@class,"toc-item")]/h3/a');
-		}
+			results = PME.Util.xpath(doc, '//div[@class="toc"]/ol//div[contains(@class,"toc-item")]/h3/a');
 		if (!results.length)
-		{
-			results = PME.Util.xpath(doc, '//div[@class="toc"]/ol\
-			//li[contains(@class,"toc-item")]/p[@class="title"]/a');
-		}
+			results = PME.Util.xpath(doc, '//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a');
 
 		return results;
 	}
 
-	function doWeb(doc, url)
-	{
+	function doWeb(doc, url) {
 		var type = detectWeb(doc, url);
-		if (type == "multiple")
-		{
+		if (type == "multiple") {
 			var list = getResultList(doc);
 			var items = {};
 			for (var i = 0, n = list.length; i < n; i++)
-			{
 				items[list[i].href] = list[i].textContent;
-			}
 
-			PME.selectItems(items, function (selectedItems)
-			{
-				if (!selectedItems) return true;
+			PME.selectItems(items, function (selectedItems) {
+				if (!selectedItems)
+					return true;
 
 				for (var i in selectedItems)
-				{
 					PME.Util.processDocuments(i, scrape);
-				}
 			})
-		} else
-		{
+		}
+		else {
 			scrape(doc)
 		}
 	}
 
-	function scrape(doc)
-	{
+	function scrape(doc) {
 		var itemType = detectWeb(doc, doc.location.href);
 
 		//use Embedded Metadata translator
@@ -103,149 +82,94 @@
 		translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 		translator.setDocument(doc);
 
-		translator.setHandler("itemDone", function (obj, item)
-		{
-			//sometimes we get an error about title not being set
-			if (!item.title)
-			{
+		translator.setHandler("itemDone", function (obj, item) {
+			if (!item.title) {		//sometimes we get an error about title not being set
 				PME.debug("Springer Link: title not found");
 				PME.debug(item);
-				if (doc.head)
-				{
+				if (doc.head) {
 					//clean up and strip out uninteresting content
 					PME.debug(doc.head.innerHTML
 						.replace(/<style[^<]+(?:<\/style>|\/>)/ig, '')
 						.replace(/<link[^>]+>/ig, '')
 						.replace(/(?:\s*[\r\n]\s*)+/g, '\n'));
-				} else
-				{
+				}
+				else {
 					PME.debug("Springer Link: no head tag");
 				}
 			}
 
 			//in case we're missing something, we can try supplementing it from page
 			if (!item.DOI)
-			{
-				item.DOI = PME.Util.xpathText(doc,
-					'//dd[@id="abstract-about-book-chapter-doi"\
-					or @id="abstract-about-doi"][1]');
-			}
+				item.DOI = PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-chapter-doi" or @id="abstract-about-doi"][1]');
 
 			if (!item.publisher)
-			{
-				item.publisher = PME.Util.xpathText(doc,
-					'//dd[@id="abstract-about-publisher"]');
-			}
+				item.publisher = PME.Util.xpathText(doc, '//dd[@id="abstract-about-publisher"]');
 
 			if (!item.date)
-			{
-				item.date = PME.Util.xpathText(doc,
-						'//dd[@id="abstract-about-cover-date"]')
-					|| PME.Util.xpathText(doc,
-						'//dd[@id="abstract-about-book-chapter-copyright-year"]');
-			}
+				item.date = PME.Util.xpathText(doc, '//dd[@id="abstract-about-cover-date"]') || PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-chapter-copyright-year"]');
 
-			//copyright
-			if (!item.rights)
-			{
-				item.rights = PME.Util.xpathText(doc,
-					'//dd[@id="abstract-about-book-copyright-holder"]');
+			if (!item.rights) { //copyright
+				item.rights = PME.Util.xpathText(doc,	'//dd[@id="abstract-about-book-copyright-holder"]');
 
-				var year = PME.Util.xpathText(doc,
-					'//dd[@id="abstract-about-book-chapter-copyright-year"]');
+				var year = PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-chapter-copyright-year"]');
 				if (item.rights && year)
-				{
 					item.rights = '©' + year + ' ' + item.rights;
-				}
 			}
 
 			if (itemType == "journalArticle" && !item.ISSN)
-			{
-				item.ISSN = PME.Util.xpathText(doc,
-					'//dd[@id="abstract-about-issn" or\
-					@id="abstract-about-electronic-issn"]');
-			}
+				item.ISSN = PME.Util.xpathText(doc, '//dd[@id="abstract-about-issn" or @id="abstract-about-electronic-issn"]');
 
-			if (itemType == 'bookSection')
-			{
-				//look for editors
-				var editors = PME.Util.xpath(doc,
-					'//ul[@class="editors"]/li[@itemprop="editor"]\
-					/a[@class="person"]');
+			if (itemType == 'bookSection') {
+				var editors = PME.Util.xpath(doc, '//ul[@class="editors"]/li[@itemprop="editor"]/a[@class="person"]');		//look for editors
 				var m = item.creators.length;
-				for (var i = 0, n = editors.length; i < n; i++)
-				{
-					var editor = PME.Util.cleanAuthor(
-							editors[i].textContent.replace(/\s+Ph\.?D\.?/, ''),
-							'editor');
+				for (var i = 0, n = editors.length; i < n; i++) {
+					var editor = PME.Util.cleanAuthor(editors[i].textContent.replace(/\s+Ph\.?D\.?/, ''), 'editor');
 					//make sure we don't already have this person in the list
 					var haveEditor = false;
-					for (var j = 0; j < m; j++)
-					{
+					for (var j = 0; j < m; j++) {
 						var creator = item.creators[j];
-						if (creator.creatorType == "editor"
-							&& creator.lastName == editor.lastName)
-						{
-							/* we should also check first name, but this could get
-								 messy if we only have initials in one case but not
-								 the other. */
+						if (creator.creatorType == "editor" && creator.lastName == editor.lastName) {
+							/* we should also check first name, but this could get messy if we only have initials in one case but not the other. */
 							haveEditor = true;
 							break;
 						}
 					}
 
 					if (!haveEditor)
-					{
 						item.creators.push(editor);
-					}
 				}
 
 				if (!item.ISBN)
-				{
-					item.ISBN = PME.Util.xpathText(doc,
-						'//dd[@id="abstract-about-book-print-isbn" or\
-						@id="abstract-about-book-online-isbn"]');
-				}
+					item.ISBN = PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-print-isbn" or @id="abstract-about-book-online-isbn"]');
 
-				//series/seriesNumber
 				if (!item.series)
-				{
-					item.series = PME.Util.xpathText(doc,
-						'//dd[@id="abstract-about-book-series-title"]');
-				}
+					item.series = PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-series-title"]');			//series/seriesNumber
 
 				if (!item.seriesNumber)
-				{
-					item.seriesNumber = PME.Util.xpathText(doc,
-						'//dd[@id="abstract-about-book-series-volume"]');
-				}
+					item.seriesNumber = PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-series-volume"]');
 			}
 
-			//add abstract
-			var abs = PME.Util.xpathText(doc,
-						'//div[contains(@class,"abstract-content")][1]');
-			if (abs) item.abstractNote = PME.Util.trimInternal(abs);
+			var abs = PME.Util.xpathText(doc, '//div[contains(@class,"abstract-content")][1]');
+			if (abs)
+				item.abstractNote = PME.Util.trimInternal(abs);
 
-			//add keywords
-			var keywords = PME.Util.xpath(doc,
-				'//ul[@class="abstract-about-subject" or @class="abstract-keywords"]\
-			/li');
+			var keywords = PME.Util.xpath(doc, '//ul[@class="abstract-about-subject" or @class="abstract-keywords"]/li');
 			keywords = keywords.map(function (node) { return node.textContent.trim() });
 			item.tags = keywords;
 
 			item.complete();
 		});
 
-		translator.getTranslatorObject(function (trans)
-		{
-			trans.addCustomFields({
-				"citation_inbook_title": "bookTitle"
-			});
-			if (itemType) trans.itemType = itemType;
+		translator.getTranslatorObject(function (trans) {
+			trans.addCustomFields({	"citation_inbook_title": "bookTitle" });
+			if (itemType)
+				trans.itemType = itemType;
 
 			trans.doWeb(doc, doc.location.href);
 		});
-	}/** BEGIN TEST CASES **/
+	}
+
+	/** BEGIN TEST CASES **/
 	var testCases = [
 		{
 			"type": "web",
@@ -519,5 +443,4 @@
 	]
 	/** END TEST CASES **/
 	PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
-
 }());
