@@ -1788,6 +1788,16 @@ PME.Util.HTTP.doPost = PME.Util.doPost = function(url, data, callback, headers, 
 };
 
 
+PME.Util.HTTP.doProxyJSONP = function (url, callback) {
+	PME.Util.HTTP.proxyCallback = callback;
+	var script = document.createElement("script");
+	//we may want to implement something similar at pme.proquest.com
+	script.src = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from xml where url="' + url + '"') + '&format=xml&callback=PME.Util.HTTP.proxyCallback';
+	document.body.appendChild(script);
+};
+
+PME.Util.HTTP.proxyCallback = function (data) {};
+
 
 // ------------------------------------------------------------------------
 //   __ _ _ _                
