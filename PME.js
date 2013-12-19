@@ -134,6 +134,10 @@ var Registry = (function() {
 		"DOAJ": {
 			m: "https?://.*\\.?doaj\\.org/doaj\\?func=(search|issueTOC|advancedSearch)",
 			g: "db935268-34d1-44f8-a6ee-52a178d598a2"
+		},
+		"Springer Link": {
+			m: "https?://link\\.springer\\.com/(search(?:/page/\\d+)?\\?|(article|chapter|book|referenceworkentry|protocol|journal|referencework)/.+)",
+			g: "d6c6210a-297c-4b2c-8c43-48cb503cc49e"
 		}
 	},
 	g2t, m2t;
