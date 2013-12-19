@@ -55,7 +55,8 @@
 
 	function doWeb(doc, url) {
 		var type = detectWeb(doc, url);
-		if (type == "multiple") {
+		console.log("**** LOG - ref type is : " + type);
+		/*if (type == "multiple") {
 			var list = getResultList(doc);
 			var items = {};
 			for (var i = 0, n = list.length; i < n; i++)
@@ -71,14 +72,18 @@
 		}
 		else {
 			scrape(doc)
+		}*/
+		if (type == "multiple") {
+
+		}
+		else {
+			scrape(doc, type);
 		}
 	}
 
-	function scrape(doc) {
-		var itemType = detectWeb(doc, doc.location.href);
-
+	function scrape(doc, itemType) {
 		//use Embedded Metadata translator
-		var translator = PME.loadTranslator("web");
+		/*var translator = PME.loadTranslator("web");
 		translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
 		translator.setDocument(doc);
 
@@ -97,7 +102,7 @@
 					PME.debug("Springer Link: no head tag");
 				}
 			}
-
+			
 			//in case we're missing something, we can try supplementing it from page
 			if (!item.DOI)
 				item.DOI = PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-chapter-doi" or @id="abstract-about-doi"][1]');
@@ -129,7 +134,7 @@
 					for (var j = 0; j < m; j++) {
 						var creator = item.creators[j];
 						if (creator.creatorType == "editor" && creator.lastName == editor.lastName) {
-							/* we should also check first name, but this could get messy if we only have initials in one case but not the other. */
+							// we should also check first name, but this could get messy if we only have initials in one case but not the other.
 							haveEditor = true;
 							break;
 						}
@@ -166,7 +171,7 @@
 				trans.itemType = itemType;
 
 			trans.doWeb(doc, doc.location.href);
-		});
+		});*/
 	}
 
 	/** BEGIN TEST CASES **/
