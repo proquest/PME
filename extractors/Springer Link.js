@@ -55,8 +55,8 @@
 
 	function doWeb(doc, url) {
 		var type = detectWeb(doc, url);
-		console.log("**** LOG - ref type is : " + type);
-		/*if (type == "multiple") {
+
+		if (type == "multiple") {
 			var list = getResultList(doc);
 			var items = {};
 			for (var i = 0, n = list.length; i < n; i++)
@@ -71,107 +71,38 @@
 			})
 		}
 		else {
-			scrape(doc)
-		}*/
-		if (type == "multiple") {
-
-		}
-		else {
 			scrape(doc, type);
 		}
 	}
 
 	function scrape(doc, itemType) {
-		//use Embedded Metadata translator
-		/*var translator = PME.loadTranslator("web");
-		translator.setTranslator("951c027d-74ac-47d4-a107-9c3069ab7b48");
-		translator.setDocument(doc);
+		var springerURL = "http://link.springer.com";
+		
+		PME.Util.HTTP.doGet(springerURL + PME.Util.xpathText(doc, "//a[@id='export-citation']/@href") + ".ris", function (text) {
+			var translator = PME.loadTranslator("import");
+			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
+			translator.setString(text);
+			translator.setHandler("itemDone", function (obj, item) {
+				item.abstractNote = PME.Util.xpathText(doc, "//div[contains(@class, 'abstract-content')]/p");
 
-		translator.setHandler("itemDone", function (obj, item) {
-			if (!item.title) {		//sometimes we get an error about title not being set
-				PME.debug("Springer Link: title not found");
-				PME.debug(item);
-				if (doc.head) {
-					//clean up and strip out uninteresting content
-					PME.debug(doc.head.innerHTML
-						.replace(/<style[^<]+(?:<\/style>|\/>)/ig, '')
-						.replace(/<link[^>]+>/ig, '')
-						.replace(/(?:\s*[\r\n]\s*)+/g, '\n'));
-				}
-				else {
-					PME.debug("Springer Link: no head tag");
-				}
-			}
-			
-			//in case we're missing something, we can try supplementing it from page
-			if (!item.DOI)
-				item.DOI = PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-chapter-doi" or @id="abstract-about-doi"][1]');
+				if(!item.ISSN)
+					item.ISSN = PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-electronic-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "series-print-issn")]');
 
-			if (!item.publisher)
-				item.publisher = PME.Util.xpathText(doc, '//dd[@id="abstract-about-publisher"]');
+				if(itemType == 'bookSection')
+					item.rights = '© ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-year")]') + ' ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-holder")]');
 
-			if (!item.date)
-				item.date = PME.Util.xpathText(doc, '//dd[@id="abstract-about-cover-date"]') || PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-chapter-copyright-year"]');
+				var PDFlink = PME.Util.xpathText(doc, '//a[contains(@id, "pdf-link") and contains(@id, "action-bar")]/@href');
+				if(PDFlink != null && PDFlink != '')
+				item.attachments.push({
+					url: springerURL + PDFlink,
+					title: "Springer Link Full Text",
+					mimeType: "application/pdf"
+				});
 
-			if (!item.rights) { //copyright
-				item.rights = PME.Util.xpathText(doc,	'//dd[@id="abstract-about-book-copyright-holder"]');
-
-				var year = PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-chapter-copyright-year"]');
-				if (item.rights && year)
-					item.rights = '©' + year + ' ' + item.rights;
-			}
-
-			if (itemType == "journalArticle" && !item.ISSN)
-				item.ISSN = PME.Util.xpathText(doc, '//dd[@id="abstract-about-issn" or @id="abstract-about-electronic-issn"]');
-
-			if (itemType == 'bookSection') {
-				var editors = PME.Util.xpath(doc, '//ul[@class="editors"]/li[@itemprop="editor"]/a[@class="person"]');		//look for editors
-				var m = item.creators.length;
-				for (var i = 0, n = editors.length; i < n; i++) {
-					var editor = PME.Util.cleanAuthor(editors[i].textContent.replace(/\s+Ph\.?D\.?/, ''), 'editor');
-					//make sure we don't already have this person in the list
-					var haveEditor = false;
-					for (var j = 0; j < m; j++) {
-						var creator = item.creators[j];
-						if (creator.creatorType == "editor" && creator.lastName == editor.lastName) {
-							// we should also check first name, but this could get messy if we only have initials in one case but not the other.
-							haveEditor = true;
-							break;
-						}
-					}
-
-					if (!haveEditor)
-						item.creators.push(editor);
-				}
-
-				if (!item.ISBN)
-					item.ISBN = PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-print-isbn" or @id="abstract-about-book-online-isbn"]');
-
-				if (!item.series)
-					item.series = PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-series-title"]');			//series/seriesNumber
-
-				if (!item.seriesNumber)
-					item.seriesNumber = PME.Util.xpathText(doc, '//dd[@id="abstract-about-book-series-volume"]');
-			}
-
-			var abs = PME.Util.xpathText(doc, '//div[contains(@class,"abstract-content")][1]');
-			if (abs)
-				item.abstractNote = PME.Util.trimInternal(abs);
-
-			var keywords = PME.Util.xpath(doc, '//ul[@class="abstract-about-subject" or @class="abstract-keywords"]/li');
-			keywords = keywords.map(function (node) { return node.textContent.trim() });
-			item.tags = keywords;
-
-			item.complete();
+				item.complete();
+			});
+			translator.translate();
 		});
-
-		translator.getTranslatorObject(function (trans) {
-			trans.addCustomFields({	"citation_inbook_title": "bookTitle" });
-			if (itemType)
-				trans.itemType = itemType;
-
-			trans.doWeb(doc, doc.location.href);
-		});*/
 	}
 
 	/** BEGIN TEST CASES **/
