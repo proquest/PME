@@ -44,65 +44,65 @@
 	}
 
 	function getResultList(doc) {
-		var results = PME.Util.xpath(doc, '//ol[@class="content-item-list"]/li/*[self::h3 or self::h2]/a');
+		var results = PME.Util.xpath(doc, '//ol[@class="content-item-list"]/li/*[self::h3 or self::h2]/a/@href');
 		if (!results.length)
-			results = PME.Util.xpath(doc, '//div[@class="toc"]/ol//div[contains(@class,"toc-item")]/h3/a');
+			results = PME.Util.xpath(doc, '//div[@class="toc"]/ol//div[contains(@class,"toc-item")]/h3/a/@href');
 		if (!results.length)
-			results = PME.Util.xpath(doc, '//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a');
+			results = PME.Util.xpath(doc, '//div[@class="toc"]/ol//li[contains(@class,"toc-item")]/p[@class="title"]/a/@href');
 
 		return results;
 	}
 
 	function doWeb(doc, url) {
 		var type = detectWeb(doc, url);
-
-		if (type == "multiple") {
-			var list = getResultList(doc);
-			var items = {};
-			for (var i = 0, n = list.length; i < n; i++)
-				items[list[i].href] = list[i].textContent;
-
-			PME.selectItems(items, function (selectedItems) {
-				if (!selectedItems)
-					return true;
-
-				for (var i in selectedItems)
-					PME.Util.processDocuments(i, scrape);
-			})
-		}
-		else {
-			scrape(doc, type);
-		}
+		scrape(doc, type);
 	}
 
 	function scrape(doc, itemType) {
 		var springerURL = window.location.host;
+		var items;
 		
-		PME.Util.HTTP.doGet(springerURL + PME.Util.xpathText(doc, "//a[@id='export-citation']/@href") + ".ris", function (text) {
-			var translator = PME.loadTranslator("import");
-			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-			translator.setString(text);
-			translator.setHandler("itemDone", function (obj, item) {
-				item.abstractNote = PME.Util.xpathText(doc, "//div[contains(@class, 'abstract-content')]/p");
+		if (itemType == "multiple") {
+			items = getResultList(doc);
+			for (var i = 0; i < items.length; i++) {
+				items[i] = "/export-citation" + PME.Util.getNodeText(items[i]);
+			}
+		}
+		else {
+			items = [PME.Util.xpathText(doc, "//a[@id='export-citation']/@href")];
+		}
+		
+		for (var i = 0; i < items.length; i++) {
+			PME.Util.HTTP.doGet(springerURL + items[i] + ".ris", function (text) {
+				var translator = PME.loadTranslator("import");
+				translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
+				translator.setString(text);
 
-				if(!item.ISSN)
-					item.ISSN = PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-electronic-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "series-print-issn")]');
+				translator.setHandler("itemDone", function (obj, item) {
+					var PDFlink = PME.Util.getNodeText(PME.Util.xpath(doc, '//a[contains(@class, "pdf-link")]/@href')[0]);
+					if (PDFlink != null && PDFlink != '')
+						item.attachments.push({
+							url: springerURL + PDFlink,
+							title: "Springer Link Full Text",
+							mimeType: "application/pdf"
+						});
 
-				if(itemType == 'bookSection')
-					item.rights = '© ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-year")]') + ' ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-holder")]');
+					if (itemType != "multiple") {
+						item.abstractNote = PME.Util.xpathText(doc, "//div[contains(@class, 'abstract-content')]/p");
 
-				var PDFlink = PME.Util.xpathText(doc, '//a[contains(@id, "pdf-link") and contains(@id, "action-bar")]/@href');
-				if(PDFlink != null && PDFlink != '')
-				item.attachments.push({
-					url: springerURL + PDFlink,
-					title: "Springer Link Full Text",
-					mimeType: "application/pdf"
+						if (!item.ISSN)
+							item.ISSN = PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-electronic-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "series-print-issn")]');
+
+						if (itemType == 'bookSection')
+							item.rights = '© ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-year")]') + ' ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-holder")]');
+					}
+
+					item.complete();
 				});
 
-				item.complete();
+				translator.translate();
 			});
-			translator.translate();
-		});
+		}
 	}
 
 	/** BEGIN TEST CASES **/
