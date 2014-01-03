@@ -76,7 +76,7 @@
 	}
 
 	function scrape(doc, itemType) {
-		var springerURL = "http://link.springer.com";
+		var springerURL = window.location.host;
 		
 		PME.Util.HTTP.doGet(springerURL + PME.Util.xpathText(doc, "//a[@id='export-citation']/@href") + ".ris", function (text) {
 			var translator = PME.loadTranslator("import");
