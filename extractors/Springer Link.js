@@ -79,10 +79,10 @@
 				translator.setString(text);
 
 				translator.setHandler("itemDone", function (obj, item) {
-					var PDFlink = PME.Util.getNodeText(PME.Util.xpath(doc, '//a[contains(@class, "pdf-link")]/@href')[0]);
+					var PDFlink = PME.Util.xpath(doc, '//a[contains(@class, "pdf-link") and not(contains(@href, ".png"))]/@href');
 					if (PDFlink != null && PDFlink != '')
 						item.attachments.push({
-							url: springerURL + PDFlink,
+							url: springerURL + PME.Util.getNodeText(PDFlink[0]),
 							title: "Springer Link Full Text",
 							mimeType: "application/pdf"
 						});
