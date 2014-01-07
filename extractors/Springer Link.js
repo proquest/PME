@@ -53,6 +53,31 @@
 		return results;
 	}
 
+	function isolateName(name) {	// strips titles from a name
+		if (/^prof\.?$/i.test(name[0]))
+			name.shift();
+
+		if (/^dr\.?$/i.test(name[0]))
+			name.shift();
+
+		return name;
+	}
+
+	function parseName(name) {	// accepts a name expressed as an array, outputs an integer index
+		var splitIndex = name.length - 1;
+
+		if (splitIndex > 0 && (/^(?:s|j)r\.?$/i.test(name[splitIndex]) || /^I?V?I*X?$/.test(name[splitIndex]))) // catch occurrances of name suffixes
+			splitIndex--;
+
+		if (splitIndex > 1 && /^(?:de)|(?:der)|(?:bin)|(?:ibn)$/i.test(name[splitIndex - 1])) // catch multi-part last names
+			splitIndex--;
+
+		if (splitIndex > 1 && /^van$/i.test(name[splitIndex - 1])) // catch multi-part last names
+			splitIndex--;
+
+		return splitIndex;
+	}
+
 	function doWeb(doc, url) {
 		var type = detectWeb(doc, url);
 		scrape(doc, type);
@@ -79,12 +104,48 @@
 			items[i] = springerURL + items[i];
 
 			if (items[i].indexOf("/book/") > -1) {
-				PME.Util.processDocuments(items[i], function (doc) {
-					var doi = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[@id='abstract-about-book-chapter-doi']")
-					console.log("********* LOG : doi = " + doi);
+				PME.Util.processDocuments(items[i], function(doc) {
+					var bookItem = new PME.Item("book");
+					var bookAuthors = PME.Util.xpath(doc, "//div[@role='main']/div[@class='author-list']/ul[@class='authors']/li[@class='author']/a");
+					var bookEditors = PME.Util.xpath(doc, "//div[@role='main']/div[@class='editor-list']/ul[@class='editors']/li[@class='editor']/a");
+
+					bookItem.bookTitle = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[@id='abstract-about-title']");
+					bookItem.series = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'book-series-title')]");
+					bookItem.volume = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'book-series-volume')]");
+					
+					for (var i = 0; i < bookAuthors.length; i++) {
+						var authorName = isolateName(PME.Util.xpathText(bookAuthors[i], 'text()').split(" "));
+						var authorSplit = parseName(authorName);
+
+						bookItem.creators.push({
+							lastName: authorName.slice(authorSplit, authorName.length).join(" "),
+							firstName: authorName.slice(0, authorSplit).join(" "),
+							creatorType: "author"
+						});
+					}
+
+					for (var i = 0; i < bookEditors.length; i++) {
+						var editorName = isolateName(PME.Util.xpathText(bookEditors[i], 'text()').split(" "));
+						var editorSplit = parseName(editorName);
+
+						bookItem.creators.push({
+							lastName: editorName.slice(editorSplit, editorName.length).join(" "),
+							firstName: editorName.slice(0, editorSplit).join(" "),
+							creatorType: "editor"
+						});
+					}
+
+					bookItem.date = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'copyright-year')]");
+					bookItem.DOI = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'doi')]");
+
+					bookItem.ISBN = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'online-isbn')]");
+					if (!bookItem.ISBN)
+						bookItem.ISBN = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'print-isbn')]");
+
+					bookItem.publisher = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'publisher')]");
+
+					bookItem.complete();
 				});
-
-
 			}
 			else {
 				PME.Util.HTTP.doGet(items[i] + ".ris", function (text) {
