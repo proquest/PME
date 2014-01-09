@@ -17,37 +17,61 @@
 		//not used
 	}
 	function doWeb(doc, url) {
-		var results = PME.Util.xpath(doc, '//ul[@class="sr-list al-article-box al-normal"]/li[@class="sri-module al-article-items"]');
-		//pdf
-		PME.Util.each(results, function (result) {
+
+		if(url.indexOf('article.aspx') >= 0){
+			var result = PME.Util.xpath(doc, '//div[@class="contentHeaderContainer"]');
 			var item = new PME.Item('journalArticle');
-			item.title = PME.Util.xpathText(result, './/h4[@class="sri-title customLink al-title"]/a');
-			var authors = PME.Util.xpathText(result, './/cite[@class="sri-authors al-authors-list"]');
+			item.title = PME.Util.xpathText(result, './/span[@id="scm6MainContent_lblArticleTitle"]');
+			var authors = PME.Util.xpathText(result, './/span[@id="scm6MainContent_lblAuthors"]');
 			authors = authors.split('; ');
 			item.creators = [];
-			for(var i = 0; i < authors.length; i++){
+			for (var i = 0; i < authors.length; i++) {
 				authors[i] = authors[i].split(',')//first m. last, suffix
 				authors[i] = authors[i][0].split(' ')
-				item.creators.push({lastName: authors[i][authors[i].length-1], firstName: authors[i][0]});
+				item.creators.push({lastName: authors[i][authors[i].length - 1], firstName: authors[i][0]});
 			}
-			var source = PME.Util.xpathText(result, './/div[@class="sri-expandedView"]/p[@class="sri-source al-cite-description"]');
+			var source = PME.Util.xpathText(result, './/span[@id="scm6MainContent_lblClientName"]');
 			source = source.split(' doi: ');
 			item.DOI = source[1];
-			source = source[0].replace(/\./,'').split(' ');
+			source = source[0].replace(/\./, '').split(' ');
 			item.journalAbbreviation = source[0];
 			item.date = source[1];
 			source = source[2].split(/\(|\)|:/);
 			item.volume = source[0];
 			item.issue = source[1];
 			item.pages = source[2];
-			var pdf = PME.Util.xpathText(result, './/div[@class="sri-pdflink al-other-resource-links"]/p[@class="sri-source al-cite-description"]/a/@href');
-			item.attachments.push({
-				title: 'Full Text PDF',
-				url: pdf,
-				mimeType: 'application/pdf'
-			});
+			var pdf = PME.Util.xpathText(result, './/a[@id="hypPDFlink"]/@href');
+			item.attachments.push({title: 'Full Text PDF', url: window.location.host + pdf, mimeType: 'application/pdf'});
 			item.complete();
-		});
+		}
+		else {
+			var results = PME.Util.xpath(doc, '//ul[@class="sr-list al-article-box al-normal"]/li[@class="sri-module al-article-items"]');
+			PME.Util.each(results, function (result) {
+				var item = new PME.Item('journalArticle');
+				item.title = PME.Util.xpathText(result, './/h4[@class="sri-title customLink al-title"]/a');
+				var authors = PME.Util.xpathText(result, './/cite[@class="sri-authors al-authors-list"]');
+				authors = authors.split('; ');
+				item.creators = [];
+				for(var i = 0; i < authors.length; i++){
+					authors[i] = authors[i].split(',')//first m. last, suffix
+					authors[i] = authors[i][0].split(' ')
+					item.creators.push({lastName: authors[i][authors[i].length-1], firstName: authors[i][0]});
+				}
+				var source = PME.Util.xpathText(result, './/div[@class="sri-expandedView"]/p[@class="sri-source al-cite-description"]');
+				source = source.split(' doi: ');
+				item.DOI = source[1];
+				source = source[0].replace(/\./,'').split(' ');
+				item.journalAbbreviation = source[0];
+				item.date = source[1];
+				source = source[2].split(/\(|\)|:/);
+				item.volume = source[0];
+				item.issue = source[1];
+				item.pages = source[2];
+				var pdf = PME.Util.xpathText(result, './/div[@class="sri-pdflink al-other-resource-links"]/p[@class="sri-source al-cite-description"]/a/@href');
+				item.attachments.push({title: 'Full Text PDF',url: window.location.host + pdf,mimeType: 'application/pdf'});
+				item.complete();
+			});
+		}
 	}
 
 	PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
