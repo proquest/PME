@@ -46,6 +46,10 @@ var Registry = (function() {
 			m: "https?://[^/]*jstor\\.org[^/]*/(action/(showArticle|doBasicSearch|doAdvancedSearch|doLocatorSearch|doAdvancedResults|doBasicResults)|stable/|pss/|betasearch\\?|openurl\\?)",
 			g: "d921155f-0186-1684-615c-ca57682ced9b"
 		},
+		"JAMA": {
+			m: "https?://.*\\.?jamanetwork.com",
+			g: "0bd7e161-b266-42d0-9c19-f82b80463a0e"
+		},
 		"Financial Times": {
 			m: "^https?://(www|search)\\.ft\\.com",
 			g: "fc9b7700-b3cc-4150-ba89-c7e4443bd96d"
@@ -1786,18 +1790,6 @@ PME.Util.HTTP.doPost = PME.Util.doPost = function(url, data, callback, headers, 
 		fatal("HTTP POST failed", e);
 	}
 };
-
-
-PME.Util.HTTP.doProxyJSONP = function (url, callback) {
-	PME.Util.HTTP.proxyCallback = callback;
-	var script = document.createElement("script");
-	//we may want to implement something similar at pme.proquest.com
-	script.src = 'http://query.yahooapis.com/v1/public/yql?q=' + encodeURIComponent('select * from xml where url="' + url + '"') + '&format=xml&callback=PME.Util.HTTP.proxyCallback';
-	document.body.appendChild(script);
-};
-
-PME.Util.HTTP.proxyCallback = function (data) {};
-
 
 // ------------------------------------------------------------------------
 //   __ _ _ _                
