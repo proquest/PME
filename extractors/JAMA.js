@@ -16,32 +16,44 @@
 	function detectWeb(doc, url) {
 		//not used
 	}
+	function handleCreator(result,path) {
+		var authors = PME.Util.xpathText(result, path);
+		authors = authors.split('; ');
+		var creators = [];
+		for (var i = 0; i < authors.length; i++) {
+			authors[i] = authors[i].split(',')//first m. last, suffix
+			authors[i] = authors[i][0].split(' ')
+			creators.push({lastName: authors[i][authors[i].length - 1], firstName: authors[i][0]});
+		}
+		return creators;
+	}
+	function handleSource(result, path, item) {
+		var source = PME.Util.xpathText(result, path);
+		source = source.split(' doi: ');
+		item.DOI = source[1];
+		source = source[0].replace(/\./, '').split(' ');
+		item.journalAbbreviation = source[0];
+		item.date = source[1];
+		source = source[2].split(/\(|\)|:/);
+		item.volume = source[0];
+		item.issue = source[1];
+		item.pages = source[2];
+	}
+	function handleAttachment(doc,path) {
+		var pdf = PME.Util.xpathText(doc, path);
+		var protocol = 'https:' == document.location.protocol ? 'https://' : 'http://';
+		return [{title: 'Full Text PDF', url: protocol + window.location.host + pdf, mimeType: 'application/pdf'}];
+
+	}
 	function doWeb(doc, url) {
 
 		if(url.indexOf('article.aspx') >= 0){
 			var result = PME.Util.xpath(doc, '//div[@class="contentHeaderContainer"]');
 			var item = new PME.Item('journalArticle');
 			item.title = PME.Util.xpathText(result, './/span[@id="scm6MainContent_lblArticleTitle"]');
-			var authors = PME.Util.xpathText(result, './/span[@id="scm6MainContent_lblAuthors"]');
-			authors = authors.split('; ');
-			item.creators = [];
-			for (var i = 0; i < authors.length; i++) {
-				authors[i] = authors[i].split(',')//first m. last, suffix
-				authors[i] = authors[i][0].split(' ')
-				item.creators.push({lastName: authors[i][authors[i].length - 1], firstName: authors[i][0]});
-			}
-			var source = PME.Util.xpathText(result, './/span[@id="scm6MainContent_lblClientName"]');
-			source = source.split(' doi: ');
-			item.DOI = source[1];
-			source = source[0].replace(/\./, '').split(' ');
-			item.journalAbbreviation = source[0];
-			item.date = source[1];
-			source = source[2].split(/\(|\)|:/);
-			item.volume = source[0];
-			item.issue = source[1];
-			item.pages = source[2];
-			var pdf = PME.Util.xpathText(result, './/a[@id="hypPDFlink"]/@href');
-			item.attachments.push({title: 'Full Text PDF', url: window.location.host + pdf, mimeType: 'application/pdf'});
+			item.creators = handleCreator(result, './/span[@id="scm6MainContent_lblAuthors"]');
+			item.attachments = handleAttachment(doc, '//a[@id="hypPDFlink"]/@href');
+			handleSource(result, './/span[@id="scm6MainContent_lblClientName"]', item);
 			item.complete();
 		}
 		else {
@@ -49,26 +61,9 @@
 			PME.Util.each(results, function (result) {
 				var item = new PME.Item('journalArticle');
 				item.title = PME.Util.xpathText(result, './/h4[@class="sri-title customLink al-title"]/a');
-				var authors = PME.Util.xpathText(result, './/cite[@class="sri-authors al-authors-list"]');
-				authors = authors.split('; ');
-				item.creators = [];
-				for(var i = 0; i < authors.length; i++){
-					authors[i] = authors[i].split(',')//first m. last, suffix
-					authors[i] = authors[i][0].split(' ')
-					item.creators.push({lastName: authors[i][authors[i].length-1], firstName: authors[i][0]});
-				}
-				var source = PME.Util.xpathText(result, './/div[@class="sri-expandedView"]/p[@class="sri-source al-cite-description"]');
-				source = source.split(' doi: ');
-				item.DOI = source[1];
-				source = source[0].replace(/\./,'').split(' ');
-				item.journalAbbreviation = source[0];
-				item.date = source[1];
-				source = source[2].split(/\(|\)|:/);
-				item.volume = source[0];
-				item.issue = source[1];
-				item.pages = source[2];
-				var pdf = PME.Util.xpathText(result, './/div[@class="sri-pdflink al-other-resource-links"]/p[@class="sri-source al-cite-description"]/a/@href');
-				item.attachments.push({title: 'Full Text PDF',url: window.location.host + pdf,mimeType: 'application/pdf'});
+				item.creators = handleCreator(result, './/cite[@class="sri-authors al-authors-list"]');
+				item.attachments = handleAttachment(doc, './/div[@class="sri-pdflink al-other-resource-links"]//a/@href');
+				handleSource(result, './/div[@class="sri-expandedView"]/p[@class="sri-source al-cite-description"]', item);
 				item.complete();
 			});
 		}
