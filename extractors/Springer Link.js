@@ -14,33 +14,7 @@
 	}
 
 	function detectWeb(doc, url) {
-		var action = url.match(/^https?:\/\/[^\/]+\/([^\/?#]+)/);
-		if (!action) return;
 
-		if (!doc.head || !doc.head.getElementsByTagName('meta').length) {
-			PME.debug("Springer Link: No head or meta tags");
-			return;
-		}
-
-		switch (action[1]) {
-			case "search":
-			case "journal":
-			case "book":
-			case "referencework":
-				if (getResultList(doc).length > 0)
-					return "multiple";
-				else
-					return false;
-				break;
-			case "article":
-				return "journalArticle";
-				break;
-			case "chapter":
-			case "referenceworkentry":
-			case "protocol":
-				return "bookSection";
-				break;
-		}
 	}
 
 	function getResultList(doc) {
@@ -79,15 +53,40 @@
 	}
 
 	function doWeb(doc, url) {
-		var type = detectWeb(doc, url);
-		scrape(doc, type);
-	}
+		var action = url.match(/^https?:\/\/[^\/]+\/([^\/?#]+)/);
+		if (!action) return;
 
-	function scrape(doc, itemType) {
+		if (!doc.head || !doc.head.getElementsByTagName('meta').length) {
+			PME.debug("Springer Link: No head or meta tags");
+			return;
+		}
+
+		var type;
+
+		switch (action[1]) {
+			case "search":
+			case "journal":
+			case "book":
+			case "referencework":
+				if (getResultList(doc).length > 0)
+					type = "multiple";
+				else
+					return;
+				break;
+			case "article":
+				type = "journalArticle";
+				break;
+			case "chapter":
+			case "referenceworkentry":
+			case "protocol":
+				type = "bookSection";
+				break;
+		}
+
 		var springerURL = window.location.host;
 		var items;
-		
-		if (itemType == "multiple") {
+
+		if (type == "multiple") {
 			items = getResultList(doc);
 			for (var i = 0; i < items.length; i++) {
 				items[i] = PME.Util.getNodeText(items[i]);
@@ -99,12 +98,12 @@
 		else {
 			items = [PME.Util.xpathText(doc, "//a[@id='export-citation']/@href")];
 		}
-		
+
 		for (var i = 0; i < items.length; i++) {
 			items[i] = springerURL + items[i];
 
 			if (items[i].indexOf("/book/") > -1) {
-				PME.Util.processDocuments(items[i], function(doc) {
+				PME.Util.processDocuments(items[i], function (doc) {
 					var bookItem = new PME.Item("book");
 					var bookAuthors = PME.Util.xpath(doc, "//div[@role='main']/div[@class='author-list']/ul[@class='authors']/li[@class='author']/a");
 					var bookEditors = PME.Util.xpath(doc, "//div[@role='main']/div[@class='editor-list']/ul[@class='editors']/li[@class='editor']/a");
@@ -112,7 +111,7 @@
 					bookItem.bookTitle = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[@id='abstract-about-title']");
 					bookItem.series = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'book-series-title')]");
 					bookItem.volume = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'book-series-volume')]");
-					
+
 					for (var i = 0; i < bookAuthors.length; i++) {
 						var authorName = isolateName(PME.Util.xpathText(bookAuthors[i], 'text()').split(" "));
 						var authorSplit = parseName(authorName);
@@ -162,13 +161,13 @@
 								mimeType: "application/pdf"
 							});
 
-						if (itemType != "multiple") {
+						if (type != "multiple") {
 							item.abstractNote = PME.Util.xpathText(doc, "//div[contains(@class, 'abstract-content')]/p");
 
 							if (!item.ISSN)
 								item.ISSN = PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-electronic-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "series-print-issn")]');
 
-							if (itemType == 'bookSection')
+							if (type == 'bookSection')
 								item.rights = '© ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-year")]') + ' ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-holder")]');
 						}
 
