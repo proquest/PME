@@ -2079,7 +2079,25 @@ PME.isURLSupported = function (sUrl)
 {
 	return Registry.matchURL(sUrl) ? true : false;
 }
-
+	PME = {"Util": {}};
+	PME.Util.trim = function (str) {
+		return str.replace(/^\s+|\s+$/g, '');
+	};
+	PME.genericScrape = function (doc) {
+		var regex = /doi: ?10\.\d+\/[a-z0-9\/\.]+[\s|$]?/i;//10.1093/imamat/hxt016 asdfasdf
+		var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
+		var matches = [];
+		while (walker.nextNode()) {
+			//walk nodes and regex. option 2
+			var match = regex.exec(walker.currentNode.nodeValue);
+			if (match != null)
+				matches.push(PME.Util.trim(match[0]));
+		}
+		//regex against single.
+		console.log(matches);
+	}
+	PME.genericScrape(document);
+	
 PME.getPageMetaData = function (callback)
 {
 	try {
