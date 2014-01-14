@@ -2084,7 +2084,7 @@ PME.isURLSupported = function (sUrl)
 		return str.replace(/^\s+|\s+$/g, '');
 	};
 	PME.genericScrape = function (doc) {
-		var regex = /doi: ?10\.\d+\/[a-z0-9\/\.]+[\s|$]?/i;//10.1093/imamat/hxt016 asdfasdf
+		var regex = /10\.\d+\/[a-z0-9\/\.]+[\s|$]?/i;//10.1093/imamat/hxt016 asdfasdf
 		var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
 		var matches = [];
 		while (walker.nextNode()) {
@@ -2095,6 +2095,7 @@ PME.isURLSupported = function (sUrl)
 		}
 		//regex against single.
 		console.log(matches);
+		//dedupe list
 	}
 	PME.genericScrape(document);
 
