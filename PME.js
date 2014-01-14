@@ -36,6 +36,9 @@ var Registry = (function() {
 		"RefWorks Tagged Format": {
 			g: "1a3506da-a303-4b0a-a1cd-f216e6138d86"
 		},
+		"Embedded Metadata": {
+			g: "951c027d-74ac-47d4-a107-9c3069ab7b48"
+		},
 
 		// -- web
 		"Safari Books Online": {
@@ -675,8 +678,18 @@ PME.TranslatorClass.loaded = function(spec, api) {
 
 	var trClass = PME.TranslatorClass.cache[spec.translatorID];
 	if (! trClass) {
-		fatal("got a load event for ", spec, "which was not found in the cache.");
-		return;
+		if (PME_SRV != "TEST") {
+			fatal("got a load event for ", spec, "which was not found in the cache.");
+			return;
+		}
+
+		// allow loading of TCs in test mode by simply including the
+		// translator files externally.
+		trClass = PME.TranslatorClass.cache[spec.translatorID] = {
+			name: Registry.findByID(spec.translatorID),
+			id: spec.translatorID,
+			script: null
+		};
 	}
 	trClass.spec = spec;
 	trClass.api = api;
