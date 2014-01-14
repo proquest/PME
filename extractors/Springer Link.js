@@ -52,6 +52,38 @@
 		return splitIndex;
 	}
 
+	function getRISdata(urlPath, doc, type) {
+		PME.Util.HTTP.doGet(urlPath + ".ris", function (text) {
+			var translator = PME.loadTranslator("import");
+			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
+			translator.setString(text);
+
+			translator.setHandler("itemDone", function (obj, item) {
+				var PDFlink = PME.Util.xpath(doc, '//a[contains(@class, "pdf-link") and not(contains(@href, ".png"))]/@href');
+				if (PDFlink != null && PDFlink != '')
+					item.attachments.push({
+						url: window.location.host + PME.Util.getNodeText(PDFlink[0]),
+						title: "Springer Link Full Text",
+						mimeType: "application/pdf"
+					});
+
+				if (type != "multiple") {
+					item.abstractNote = PME.Util.xpathText(doc, "//div[contains(@class, 'abstract-content')]/p");
+
+					if (!item.ISSN)
+						item.ISSN = PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-electronic-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "series-print-issn")]');
+
+					if (type == 'bookSection')
+						item.rights = '© ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-year")]') + ' ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-holder")]');
+				}
+
+				item.complete();
+			});
+
+			translator.translate();
+		});
+	}
+
 	function doWeb(doc, url) {
 		var action = url.match(/^https?:\/\/[^\/]+\/([^\/?#]+)/);
 		if (!action) return;
@@ -62,6 +94,7 @@
 		}
 
 		var type;
+		var springerURL = window.location.host;
 
 		switch (action[1]) {
 			case "search":
@@ -83,100 +116,65 @@
 				break;
 		}
 
-		var springerURL = window.location.host;
-		var items;
-
 		if (type == "multiple") {
-			items = getResultList(doc);
+			var items = getResultList(doc);
 			for (var i = 0; i < items.length; i++) {
 				items[i] = PME.Util.getNodeText(items[i]);
 
-				if (items[i].indexOf("/book/") == -1)
-					items[i] = "/export-citation" + items[i];
+				if (items[i].indexOf("/book/") == -1) {
+					items[i] = springerURL + "/export-citation" + items[i];
+
+					getRISdata(items[i], doc, type);
+				}
+				else {
+					PME.Util.processDocuments(springerURL + items[i], function (doc) {
+						var bookItem = new PME.Item("book");
+						var bookAuthors = PME.Util.xpath(doc, "//div[@role='main']/div[@class='author-list']/ul[@class='authors']/li[@class='author']/a");
+						var bookEditors = PME.Util.xpath(doc, "//div[@role='main']/div[@class='editor-list']/ul[@class='editors']/li[@class='editor']/a");
+
+						bookItem.bookTitle = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[@id='abstract-about-title']");
+						bookItem.series = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'book-series-title')]");
+						bookItem.volume = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'book-series-volume')]");
+
+						for (var i = 0; i < bookAuthors.length; i++) {
+							var authorName = isolateName(PME.Util.xpathText(bookAuthors[i], 'text()').split(" "));
+							var authorSplit = parseName(authorName);
+
+							bookItem.creators.push({
+								lastName: authorName.slice(authorSplit, authorName.length).join(" "),
+								firstName: authorName.slice(0, authorSplit).join(" "),
+								creatorType: "author"
+							});
+						}
+
+						for (var i = 0; i < bookEditors.length; i++) {
+							var editorName = isolateName(PME.Util.xpathText(bookEditors[i], 'text()').split(" "));
+							var editorSplit = parseName(editorName);
+
+							bookItem.creators.push({
+								lastName: editorName.slice(editorSplit, editorName.length).join(" "),
+								firstName: editorName.slice(0, editorSplit).join(" "),
+								creatorType: "editor"
+							});
+						}
+
+						bookItem.date = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'copyright-year')]");
+						bookItem.DOI = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'doi')]");
+
+						bookItem.ISBN = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'online-isbn')]");
+						if (!bookItem.ISBN)
+							bookItem.ISBN = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'print-isbn')]");
+
+						bookItem.publisher = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'publisher')]");
+
+						bookItem.complete();
+					});
+				}
 			}
 		}
 		else {
-			items = [PME.Util.xpathText(doc, "//a[@id='export-citation']/@href")];
-		}
-
-		for (var i = 0; i < items.length; i++) {
-			items[i] = springerURL + items[i];
-
-			if (items[i].indexOf("/book/") > -1) {
-				PME.Util.processDocuments(items[i], function (doc) {
-					var bookItem = new PME.Item("book");
-					var bookAuthors = PME.Util.xpath(doc, "//div[@role='main']/div[@class='author-list']/ul[@class='authors']/li[@class='author']/a");
-					var bookEditors = PME.Util.xpath(doc, "//div[@role='main']/div[@class='editor-list']/ul[@class='editors']/li[@class='editor']/a");
-
-					bookItem.bookTitle = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[@id='abstract-about-title']");
-					bookItem.series = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'book-series-title')]");
-					bookItem.volume = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'book-series-volume')]");
-
-					for (var i = 0; i < bookAuthors.length; i++) {
-						var authorName = isolateName(PME.Util.xpathText(bookAuthors[i], 'text()').split(" "));
-						var authorSplit = parseName(authorName);
-
-						bookItem.creators.push({
-							lastName: authorName.slice(authorSplit, authorName.length).join(" "),
-							firstName: authorName.slice(0, authorSplit).join(" "),
-							creatorType: "author"
-						});
-					}
-
-					for (var i = 0; i < bookEditors.length; i++) {
-						var editorName = isolateName(PME.Util.xpathText(bookEditors[i], 'text()').split(" "));
-						var editorSplit = parseName(editorName);
-
-						bookItem.creators.push({
-							lastName: editorName.slice(editorSplit, editorName.length).join(" "),
-							firstName: editorName.slice(0, editorSplit).join(" "),
-							creatorType: "editor"
-						});
-					}
-
-					bookItem.date = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'copyright-year')]");
-					bookItem.DOI = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'doi')]");
-
-					bookItem.ISBN = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'online-isbn')]");
-					if (!bookItem.ISBN)
-						bookItem.ISBN = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'print-isbn')]");
-
-					bookItem.publisher = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'publisher')]");
-
-					bookItem.complete();
-				});
-			}
-			else {
-				PME.Util.HTTP.doGet(items[i] + ".ris", function (text) {
-					var translator = PME.loadTranslator("import");
-					translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-					translator.setString(text);
-
-					translator.setHandler("itemDone", function (obj, item) {
-						var PDFlink = PME.Util.xpath(doc, '//a[contains(@class, "pdf-link") and not(contains(@href, ".png"))]/@href');
-						if (PDFlink != null && PDFlink != '')
-							item.attachments.push({
-								url: springerURL + PME.Util.getNodeText(PDFlink[0]),
-								title: "Springer Link Full Text",
-								mimeType: "application/pdf"
-							});
-
-						if (type != "multiple") {
-							item.abstractNote = PME.Util.xpathText(doc, "//div[contains(@class, 'abstract-content')]/p");
-
-							if (!item.ISSN)
-								item.ISSN = PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "abstract-about-electronic-issn")]') || PME.Util.xpathText(doc, '//dd[contains(@id, "series-print-issn")]');
-
-							if (type == 'bookSection')
-								item.rights = '© ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-year")]') + ' ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-holder")]');
-						}
-
-						item.complete();
-					});
-
-					translator.translate();
-				});
-			}
+			var singleRef = springerURL + PME.Util.xpathText(doc, "//a[@id='export-citation']/@href");
+			getRISdata(singleRef, doc, type);
 		}
 	}
 
