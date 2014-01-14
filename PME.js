@@ -2087,13 +2087,13 @@ PME.isURLSupported = function (sUrl)
 		var regex = /10\.\d+\/[a-z0-9\/\.\-]+[\s|$]?/i;//10.1093/imamat/hxt016 asdfasdf
 		var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
 		var matches = [];
+		// add attributes (href, etc) which can contain doi
+		// stripping out elements in the middle of a doi (hit highlighting)
 		while (walker.nextNode()) {
-			//walk nodes and regex. option 2
 			var match = regex.exec(walker.currentNode.nodeValue);
 			if (match != null)
 				matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
 		}
-		//regex against single.
 		console.log(matches);
 		//dedupe list
 	}
