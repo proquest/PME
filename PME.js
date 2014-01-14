@@ -2091,13 +2091,13 @@ PME.isURLSupported = function (sUrl)
 			//walk nodes and regex. option 2
 			var match = regex.exec(walker.currentNode.nodeValue);
 			if (match != null)
-				matches.push(PME.Util.trim(match[0]));
+				matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
 		}
 		//regex against single.
 		console.log(matches);
 	}
 	PME.genericScrape(document);
-	
+
 PME.getPageMetaData = function (callback)
 {
 	try {
