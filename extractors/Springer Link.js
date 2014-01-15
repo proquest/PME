@@ -14,7 +14,6 @@
 	}
 
 	function detectWeb(doc, url) {
-
 	}
 
 	function getResultList(doc) {
@@ -88,20 +87,16 @@
 		var action = url.match(/^https?:\/\/[^\/]+\/([^\/?#]+)/);
 		if (!action) return;
 
-		if (!doc.head || !doc.head.getElementsByTagName('meta').length) {
-			PME.debug("Springer Link: No head or meta tags");
-			return;
-		}
-
 		var type;
 		var springerURL = window.location.host;
+		var items = getResultList(doc);
 
 		switch (action[1]) {
 			case "search":
 			case "journal":
 			case "book":
 			case "referencework":
-				if (getResultList(doc).length > 0)
+				if (items.length > 0)
 					type = "multiple";
 				else
 					return;
@@ -117,16 +112,13 @@
 		}
 
 		if (type == "multiple") {
-			var items = getResultList(doc);
 			for (var i = 0; i < items.length; i++) {
 				items[i] = PME.Util.getNodeText(items[i]);
 
 				if (items[i].indexOf("/book/") == -1) {
-					items[i] = springerURL + "/export-citation" + items[i];
-
-					getRISdata(items[i], doc, type);
+					getRISdata(springerURL + "/export-citation" + items[i], doc, type);
 				}
-				else {
+				else {		// treat a search result differently if it's an entire book
 					PME.Util.processDocuments(springerURL + items[i], function (doc) {
 						var bookItem = new PME.Item("book");
 						var bookAuthors = PME.Util.xpath(doc, "//div[@role='main']/div[@class='author-list']/ul[@class='authors']/li[@class='author']/a");
@@ -160,12 +152,11 @@
 
 						bookItem.date = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'copyright-year')]");
 						bookItem.DOI = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'doi')]");
+						bookItem.publisher = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'publisher')]");
 
 						bookItem.ISBN = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'online-isbn')]");
 						if (!bookItem.ISBN)
 							bookItem.ISBN = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'print-isbn')]");
-
-						bookItem.publisher = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'publisher')]");
 
 						bookItem.complete();
 					});
@@ -173,8 +164,7 @@
 			}
 		}
 		else {
-			var singleRef = springerURL + PME.Util.xpathText(doc, "//a[@id='export-citation']/@href");
-			getRISdata(singleRef, doc, type);
+			getRISdata(springerURL + PME.Util.xpathText(doc, "//a[@id='export-citation']/@href"), doc, type);
 		}
 	}
 
