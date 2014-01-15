@@ -3,11 +3,41 @@
 // This script has to be run using phantomjs
 // it takes 1 parameter: the filename of the translator to test
 
+// --------------------------
+const DEBUG = true; // debug logging, turn off to see nothing but emptiness
+const PME_TEST_HOST = "localhost:8081"; // an instance of PME needs to run and be accessible by the client page, defaults to localhost
+
+// node modules
+var webpage = require("webpage"),
+	system = require("system");
+
 // in- and output of this process, webCases is the filtered set of
 // testCases from the translator and testResult will be output to
 // the stdout as JSON for the calling process to deal with.
 var webCases = [],
-	testResult = { success: false, message: "test did not complete" };
+	testResult = { success: false, message: "test did not start", translator: null };
+
+
+// --------------------------
+function debugLog() {
+	if (DEBUG)
+		console.info.apply(console, ["PME_TEST"].concat([].slice.call(arguments, 0)));
+}
+
+// waitFor repeatedly tests a predicate for a specified time
+// and reports success or timeout as failure.
+function waitFor(pred, maxTime, callback) {
+	var interval = 20;
+	if (pred())
+		callback(true);
+	else {
+		if (maxTime - interval > 0)
+			setTimeout(function() { waitFor(pred, maxTime - interval, callback); }, interval);
+		else
+			callback(false);
+	}
+}
+
 
 // --------------------------
 // scaffolding to allow PME translators to load in this environment
@@ -38,6 +68,8 @@ PME = {
 				return c.type == "web" && c.items != "multiple";
 			});
 
+			debugLog("translator file loaded in server context");
+
 			if (webCases.length)
 				runNextTestCase();
 			else {
@@ -50,30 +82,16 @@ PME = {
 
 
 // --------------------------
-// waitFor repeatedly tests a predicate for a specified time
-// and reports success or timeout as failure.
-function waitFor(pred, maxTime, callback) {
-	var interval = 20;
-	if (pred())
-		callback(true);
-	else {
-		if (maxTime - interval > 0)
-			setTimeout(function() { waitFor(pred, maxTime - interval, callback); }, interval);
-		else
-			callback(false);
-	}
-}
-
-
+// result synthesis
 function resultFailure(message) {
 	testResult.success = false;
-	testResult.message = "FAIL: " + message;
+	testResult.message = message;
 }
 
 
 function resultSuccess(optMessage) {
 	testResult.success = true;
-	testResult.message = "PASS" + (optMessage ? (": " + optMessage) : "");
+	testResult.message = optMessage || "";
 }
 
 
@@ -81,6 +99,8 @@ function resultSuccess(optMessage) {
 // Notification endpoint for when something has gone wrong.
 // Outputs error info for the testcase and message.
 function gotErrorForTestCase(testCase, message) {
+	debugLog("gotErrorForTestCase", message);
+
 	resultFailure(testCase.url + "; REASON: " + message);
 }
 
@@ -89,6 +109,8 @@ function gotErrorForTestCase(testCase, message) {
 // an array of items and the array was not empty so we
 // verify the contents of the returned and expected data here.
 function didReceiveTestCaseItems(testCase, actual) {
+	debugLog("didReceiveTestCaseItems");
+
 	var expected = testCase.items;
 
 	if (expected.length != actual.length)
@@ -102,6 +124,8 @@ function didReceiveTestCaseItems(testCase, actual) {
 // All testcases have been completed or an error has occurred.
 // Output the results and exit the phantomjs session.
 function didCompleteTestCases() {
+	debugLog("didCompleteTestCases");
+
 	console.info(JSON.stringify(testResult));
 	phantom.exit();
 }
@@ -112,9 +136,12 @@ function didCompleteTestCases() {
 // a call to either gotErrorForTestCase or didReceiveTestCaseItems.
 // If all tests are complete it calls didCompleteTestCases and ends.
 function runNextTestCase() {
+	debugLog("runNextTestCase");
+
 	if (! webCases.length) {
 		// errors shortcut the test process so if we get here then
 		// all went well and we report success.
+		debugLog("all testcases done");
 		resultSuccess();
 		return didCompleteTestCases();
 	}
@@ -122,19 +149,23 @@ function runNextTestCase() {
 	var tc = webCases.shift(),
 		page = webpage.create();
 
+	debugLog("new testCase: ", tc.url);
+
 	page.open(tc.url, function(status) {
+		debugLog("client page loaded");
+
 		// insert PME from locally running instance
 		// phantom has an includeJs method but we need to set the PME_SCR var
 		// anyway, so doing it bookmarklet style.
-		page.evaluate(function() {
+		page.evaluate(function(testHost) {
 			var h = document.getElementsByTagName('head')[0];
-			PME_SRV = 'localhost:8081';
+			PME_SRV = testHost;
 			PME_SCR = document.createElement('SCRIPT');
 			PME_SCR.src = 'http://' + PME_SRV + '/PME.js?' + (new Date().getTime());
 			h.appendChild(PME_SCR);
 
 			PME_TEST_RESULTS = null;
-		});
+		}, PME_TEST_HOST); // pass PME_TEST_HOST to the function running on the client page
 
 		// wait for PME to load in the page
 		waitFor(function() {
@@ -157,6 +188,8 @@ function runNextTestCase() {
 			});
 
 			// give the translator up to 30s to return the results
+			debugLog("waiting for resultset");
+
 			waitFor(function() {
 				return page.evaluate(function() {
 					return !!window.PME_TEST_RESULTS;
@@ -165,6 +198,8 @@ function runNextTestCase() {
 			30000,
 			function(foundResults) {
 				if (foundResults) {
+					debugLog("found resultset");
+
 					// the translator completed, but results may be empty (0 items)
 					// try and get the array from the result object in a paranoid way
 					// to avoid unexpected errors.
@@ -192,9 +227,6 @@ function runNextTestCase() {
 
 // --------------------------
 // main
-var webpage = require("webpage"),
-	system = require("system");
-
 if (system.args.length != 2) {
 	resultFailure("the test script must be called with the translator filename as the only parameter");
 	didCompleteTestCases();
@@ -204,5 +236,8 @@ else {
 	// is a call to a PME function to register itself and we've mocked
 	// that above to intercept the call and then access any testCases
 	// the translator may export.
-	require("../extractors/" + system.args[1]);
+	testResult.translator = system.args[1];
+	debugLog("requested translator: ", testResult.translator);
+
+	require("../extractors/" + testResult.translator);
 }
