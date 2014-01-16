@@ -21,29 +21,34 @@
 		authors = authors.split('; ');
 		var creators = [];
 		for (var i = 0; i < authors.length; i++) {
-			authors[i] = authors[i].split(',')//first m. last, suffix
-			authors[i] = authors[i][0].split(' ')
-			creators.push({lastName: authors[i][authors[i].length - 1], firstName: authors[i][0]});
+			//first m. last, suffix - we just drop the suffix, we'll always have at least one element
+			creators.push({rawName: authors[i].split(',')[0]});
 		}
 		return creators;
 	}
 	function handleSource(result, path, item) {
 		var source = PME.Util.xpathText(result, path);
 		source = source.split(' doi: ');
-		item.DOI = source[1];
+		if(source.length == 2)
+			item.DOI = source[1];
 		source = source[0].replace(/\./, '').split(' ');
-		item.journalAbbreviation = source[0];
-		item.date = source[1];
-		source = source[2].split(/\(|\)|:/);
-		item.volume = source[0];
-		item.issue = source[1];
-		item.pages = source[2];
+		if (source.length == 3){
+			item.journalAbbreviation = source[0];
+			item.date = source[1];
+			source = source[2].split(/\(|\)|:/);
+			if(source.length == 3){
+				item.volume = source[0];
+				item.issue = source[1];
+				item.pages = source[2];
+			}
+		}
 	}
 	function handleAttachment(doc,path) {
 		var pdf = PME.Util.xpathText(doc, path);
-		var protocol = 'https:' == document.location.protocol ? 'https://' : 'http://';
-		return [{title: 'Full Text PDF', url: protocol + window.location.host + pdf, mimeType: 'application/pdf'}];
-
+		if(pdf){
+			var protocol = 'https:' == document.location.protocol ? 'https://' : 'http://';
+			return [{title: 'Full Text PDF', url: protocol + window.location.host + pdf, mimeType: 'application/pdf'}];
+		}
 	}
 	function doWeb(doc, url) {
 
