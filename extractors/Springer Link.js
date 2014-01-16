@@ -11,7 +11,7 @@
 		"translatorType": 4,
 		"browserSupport": "gcsbv",
 		"lastUpdated": "2013-08-13 20:03:26"
-	}
+	};
 
 	function detectWeb(doc, url) {
 	}
@@ -54,18 +54,11 @@
 	function getRISdata(urlPath, doc, type) {
 		PME.Util.HTTP.doGet(urlPath + ".ris", function (text) {
 			var translator = PME.loadTranslator("import");
+			var PDFlink;
 			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 			translator.setString(text);
 
 			translator.setHandler("itemDone", function (obj, item) {
-				var PDFlink = PME.Util.xpath(doc, '//a[contains(@class, "pdf-link") and not(contains(@href, ".png"))]/@href');
-				if (PDFlink != null && PDFlink != '')
-					item.attachments.push({
-						url: window.location.host + PME.Util.getNodeText(PDFlink[0]),
-						title: "Springer Link Full Text",
-						mimeType: "application/pdf"
-					});
-
 				if (type != "multiple") {
 					item.abstractNote = PME.Util.xpathText(doc, "//div[contains(@class, 'abstract-content')]/p");
 
@@ -74,7 +67,19 @@
 
 					if (type == 'bookSection')
 						item.rights = '© ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-year")]') + ' ' + PME.Util.xpathText(doc, '//dd[contains(@id, "copyright-holder")]');
+
+					PDFlink = PME.Util.xpath(doc, '//a[contains(@class, "pdf-link") and not(contains(@href, ".png"))]/@href');
 				}
+				else {
+					PDFlink = PME.Util.xpath(doc, '//a[contains(@class, "pdf-link") and contains(@doi, "'+ item.DOI +'")]/@href');
+				}
+
+				if (PDFlink != null && PDFlink != '')
+					item.attachments.push({
+						url: window.location.host + PME.Util.getNodeText(PDFlink[0]),
+						title: "Springer Link Full Text",
+						mimeType: "application/pdf"
+					});
 
 				item.complete();
 			});
@@ -95,6 +100,7 @@
 			case "search":
 			case "journal":
 			case "book":
+			case "bookseries":
 			case "referencework":
 				if (items.length > 0)
 					type = "multiple";
@@ -115,7 +121,7 @@
 			for (var i = 0; i < items.length; i++) {
 				items[i] = PME.Util.getNodeText(items[i]);
 
-				if (items[i].indexOf("/book/") == -1) {
+				if ((items[i].indexOf("/book/") == -1) && (items[i].indexOf("/journal/") == -1) && (items[i].indexOf("/bookseries/") == -1)) {
 					getRISdata(springerURL + "/export-citation" + items[i], doc, type);
 				}
 				else {		// treat a search result differently if it's an entire book
@@ -124,7 +130,7 @@
 						var bookAuthors = PME.Util.xpath(doc, "//div[@role='main']/div[@class='author-list']/ul[@class='authors']/li[@class='author']/a");
 						var bookEditors = PME.Util.xpath(doc, "//div[@role='main']/div[@class='editor-list']/ul[@class='editors']/li[@class='editor']/a");
 
-						bookItem.bookTitle = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[@id='abstract-about-title']");
+						bookItem.title = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[@id='abstract-about-title']");
 						bookItem.series = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'book-series-title')]");
 						bookItem.volume = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'book-series-volume')]");
 
