@@ -2095,24 +2095,27 @@ PME.isURLSupported = function (sUrl)
 		}
 
 		var attributeMatch = PME.Util.xpath(doc, '//*[@doi]/@doi');
+		//if(!attributeMatch)
+		//	attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content');
+
 		for (var i = 0; i < attributeMatch.length; i++) {
-			attributeMatch[i] = attributeMatch[i].value;
+			var match = regex.exec(attributeMatch[i].value);
 
-			console.log(attributeMatch[i]);
+			console.log("*** attributeMatch : " + attributeMatch[i].value);
 
-			if (attributeMatch[i] != null && attributeMatch[i] != '') {
-				matches.push({ "ref": { "doi": PME.Util.trim(attributeMatch[i]).replace(/\.$/, '') } });
+			if (match != null) {
+				matches.push({ "ref": { "doi": PME.Util.trim(match[0]).replace(/\.$/, '') } });
 			}
 		}
 
-		console.log(matches);
+		console.log("all matches : " + matches);
 
 		//dedupe list
 		return matches;
 	}
 
 	var testResults = PME.genericScrape(document);
-	console.log(testResults);
+	console.log("***testResults : " + testResults);
 
 PME.getPageMetaData = function (callback)
 {
