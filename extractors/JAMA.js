@@ -22,9 +22,10 @@
 		var creators = [];
 		for (var i = 0; i < authors.length; i++) {
 			//first m. last, suffix - we just drop the suffix, we'll always have at least one element
-			authors[i] = authors[i].split(',')[0];//first m. last, suffix
+			authors[i] = authors[i].split(',')[0];//first m. last jr, suffix
+
 			if(authors[i].indexOf(' ') >= 0){
-				authors[i] = authors[i].split(' ')
+				authors[i] = authors[i].replace(/ (s|j)r\.?$/i, '').split(' ')
 				creators.push({lastName: authors[i][authors[i].length - 1], firstName: authors[i][0]});
 			}
 			else
