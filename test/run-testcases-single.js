@@ -6,6 +6,7 @@
 // --------------------------
 const DEBUG = true; // debug logging, turn off to see nothing but emptiness
 const PME_TEST_HOST = "localhost:8081"; // an instance of PME needs to run and be accessible by the client page, defaults to localhost
+const TESTCASE_LIMIT = 1; // allow override of max # of testCases to run, set to 0 for no limit (i.e. normal operation)
 
 
 // modules
@@ -17,11 +18,11 @@ var waitFor = testUtil.waitFor,
 	debugLog = testUtil.conditionalLogger(DEBUG, "PME_TEST");
 
 
-// in- and output of this process, webCases is the filtered set of
-// testCases from the translator and testResult will be output to
-// the stdout as JSON for the calling process to deal with.
+// in: webCases is the filtered set of testCases from the translator (filename passed in as only arg to this script)
+// out: testResult will contain all testCase results and is passed to caller process in JSON form in stdout
 var webCases = [],
-	testResult = new testUtil.TestResult();
+	translatorName = system.args.slice(1).join(" "), // allow for filenames with spaces in them
+	testResult = new testUtil.TestResult(translatorName);
 
 
 // --------------------------
@@ -55,11 +56,19 @@ PME = {
 
 			debugLog("translator file loaded in server context");
 
-			if (webCases.length)
-				runNextTestCase();
-			else {
-				resultSuccess("no (applicable) testcases");
+			if (! webCases.length) {
+				// nothing to see here
+				debugLog("no (applicable) testcases for this translator");
 				didCompleteTestCases();
+			}
+			else {
+				// allow a debug override of the maximum number of testCases to run per translator
+				if (TESTCASE_LIMIT > 0) {
+					debugLog("TESTCASE_LIMIT was set, limiting to", TESTCASE_LIMIT, "testCase(s)");
+					webCases.splice(TESTCASE_LIMIT);
+				}
+
+				runNextTestCase();
 			}
 		}
 	}
@@ -76,25 +85,19 @@ function convertCreators(creators) {
 }
 
 
-function ItemComparisonResult() {
-	this.errors = [];
-
-	this.ok = function() {
-		return !this.errors.length;
-	};
-}
-
-
 // this function takes a single item as returned by a PME
 // translator and verifies the content against an item specified
 // in its testcase. Certain fields are ignored or loosely
 // compared as PME does things slightly differently.
 // returns an ItemComparisonResult
 function compareTestCaseItemAgainstPMEItem(tcItem, pmeItem) {
-	var icResult = new ItemComparisonResult();
+	var icResult = [];
+	icResult.ok = function() {
+		return ! this.length;
+	};
 
 	if (! pmeItem)
-		icResult.errors.push("the testCase expected more items than were returned");
+		icResult.push("the testCase expected more items than were returned");
 	else {
 		Object.keys(tcItem).forEach(function(key) {
 			var tcVal = tcItem[key];
@@ -116,7 +119,7 @@ function compareTestCaseItemAgainstPMEItem(tcItem, pmeItem) {
 			var tcStr = JSON.stringify(tcVal),
 				pmeStr = JSON.stringify(pmeItem[key] || null);
 			if (tcStr != pmeStr)
-				icResult.errors.push(key + ": " + tcStr + " != " + pmeStr);
+				icResult.push(key + ": " + tcStr + " != " + pmeStr);
 		});
 	}
 
@@ -144,8 +147,8 @@ function compareTestCaseItems(testCase, actualItems) {
 
 
 // --------------------------
-// All testcases have been completed or an error has occurred.
-// Output the results and exit the phantomjs session.
+// all testcases have been completed or an error has occurred.
+// output the results and exit the phantomjs session.
 function didCompleteTestCases() {
 	debugLog("didCompleteTestCases");
 
@@ -154,39 +157,31 @@ function didCompleteTestCases() {
 }
 
 
-// Notification endpoint for when something has gone wrong.
-// Sets error info for the testcase and message.
-function gotErrorForTestCase(testCase, message) {
-	debugLog("gotErrorForTestCase", message);
+// passthrough for a failed testCase, returns control to main test loop
+function testCaseFailed(tc, errors) {
+	testResult.testCaseFailed(tc, errors);
+	runNextTestCase();
+}
 
-	resultFailure(testCase.url + "; REASON: " + message);
+
+// passthrough for a successful testCase, returns control to main test loop
+function testCaseSucceeded(tc) {
+	testResult.testCaseSucceeded(tc);
+	runNextTestCase();
 }
 
 
 // Called for each appropriate testcase for the translator.
-// This function drives the flow of 1 testcase and ends up in
-// a call to either gotErrorForTestCase or didReceiveTestCaseItems.
-// If all tests are complete it calls didCompleteTestCases and ends.
-function runNextTestCase() {
-	debugLog("runNextTestCase");
+// This function drives the flow of 1 testcase.
+function runTestCase(tc) {
+	debugLog("runTestCase", tc.url);
 
-	if (! webCases.length) {
-		// errors shortcut the test process so if we get here then
-		// all went well and we report success.
-		debugLog("all testcases done");
-		resultSuccess();
-		return didCompleteTestCases();
-	}
-
-	var tc = webCases.shift(),
-		page = webpage.create();
-
-	debugLog("new testCase: ", tc.url);
+	var page = webpage.create();
 
 	page.open(tc.url, function(pageStatus) {
-		if (pageStatus != "success") {
-			gotErrorForTestCase(tc, "error loading testcase url");
-		}
+		if (pageStatus != "success")
+			return testCaseFailed(tc, "error loading testcase page");
+
 		debugLog("client page loaded");
 
 		// insert PME from locally running instance
@@ -211,8 +206,8 @@ function runNextTestCase() {
 		3000,
 		function(pmeLoaded) {
 			if (! pmeLoaded) {
-				gotErrorForTestCase(tc, "can't find PME in client page");
-				return runNextTestCase();
+				debugLog("PME did not load within 3s");
+				return testCaseFailed(tc, "PME did not load successfully in the client page");
 			}
 
 			// start PME, will run async inside page
@@ -232,7 +227,9 @@ function runNextTestCase() {
 			},
 			30000,
 			function(foundResults) {
-				if (foundResults) {
+				if (! foundResults)
+					testCaseFailed(tc, "did not find resultset after 30s");
+				else {
 					debugLog("found resultset");
 
 					// the translator completed, but results may be empty (0 items)
@@ -246,27 +243,38 @@ function runNextTestCase() {
 						pageItems = pageItems.items;
 
 					if (pageItems && pageItems.length) {
-						var comparisonResult = compareTestCaseItems(tc, pageItems);
-						if (! comparisonResult.ok)
-							gotErrorForTestCase(tc, "items did not match: ", comparisonResult.errorText);
+						var errors = compareTestCaseItems(tc, pageItems);
+						if (errors.ok())
+							testCaseSucceeded(tc);
+						else
+							testCaseFailed(tc, errors);
 					}
 					else
-						gotErrorForTestCase(tc, "translator returned empty resultset");
+						testCaseFailed(tc, "translator returned empty resultset");
 				}
-				else
-					gotErrorForTestCase(tc, "did not find resultset after 30s");
-
-				runNextTestCase();
 			});
 		});
 	});
 }
 
 
+// testCase runner entrypoint. This drives the loop, walking through the array `webCases`
+function runNextTestCase() {
+	debugLog("runNextTestCase");
+
+	if (webCases.length)
+		runTestCase(webCases.shift());
+	else {
+		debugLog("all testcases done");
+		return didCompleteTestCases();
+	}
+}
+
+
 // --------------------------
 // main
-if (system.args.length != 2) {
-	resultFailure("the test script must be called with the translator filename as the only parameter");
+if (system.args.length < 2) {
+	testResult.fatalError("the test script must be called with only the translator filename");
 	didCompleteTestCases();
 }
 else {
@@ -274,8 +282,7 @@ else {
 	// is a call to a PME function to register itself and we've mocked
 	// that above to intercept the call and then access any testCases
 	// the translator may export.
-	testResult.translator = system.args[1];
-	debugLog("requested translator: ", testResult.translator);
+	debugLog("requested translator:", testResult.translator);
 
 	require("../extractors/" + testResult.translator);
 }

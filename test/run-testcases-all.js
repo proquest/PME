@@ -5,7 +5,7 @@
 // --------------------------
 const DEBUG = true; // debug logging, turn off to see nothing but emptiness
 const PHANTOMJS_PATH = "./philtered"; // path to the phantomjs binary, or by default to the local ./philtered script that filters out noise from phantomjs
-
+const TRANSLATOR_LIMIT = 0; // allow override of max # of translators to test, set to 0 for no limit (i.e. normal operation)
 
 // modules
 var fs = require("fs"),
@@ -21,6 +21,13 @@ var fileNames = [],
 	allResults = [];
 
 
+function translatorError(fileName, message) {
+	var result = new testUtil.TestResult(fileName);
+	result.fatalError(message);
+	return result;
+}
+
+
 // --------------------------
 // run the testcases for a single translator
 // the testcases are run in a separate process and the results are
@@ -31,13 +38,13 @@ function runTranslatorTestCases(fileName, then) {
 			var testResult;
 
 			if (error)
-				testResult = errorResult(fileName, "exec error: " + error);
+				testResult = translatorError(fileName, "exec error: " + error);
 			else {
 				// the json result is at the end of stdout, we need to extract it as
 				// a lot of other logging may have been written before it
 				var from = stdout.indexOf('{"');
 				if (from < 0)
-					testResult = errorResult(fileName, "no result json detected in output");
+					testResult = translatorError(fileName, "no result json detected in output");
 				else {
 					var resultJSON = stdout.substr(from);
 					debugLog("resultJSON =", resultJSON);
@@ -45,7 +52,7 @@ function runTranslatorTestCases(fileName, then) {
 						testResult = JSON.parse(resultJSON);
 					}
 					catch(e) {
-						testResult = errorResult(fileName, "invalid result json in output: " + resultJSON);
+						testResult = translatorError(fileName, "invalid result json in output: " + resultJSON);
 					}
 				}
 			}
@@ -67,10 +74,8 @@ function didCompleteTranslators() {
 }
 
 
-var max = 2;
-
 function nextTranslator() {
-	if (! fileNames.length || !(max--)) {
+	if (! fileNames.length) {
 		debugLog("all translators done");
 		didCompleteTranslators();
 	}
@@ -87,5 +92,11 @@ fs.readdir("../extractors/", function(err, files) {
 	fileNames = files.filter(function(f) {
 		return f.toLowerCase().substr(-3) == ".js";
 	});
+
+	if (TRANSLATOR_LIMIT > 0) {
+		debugLog("TRANSLATOR_LIMIT was set, limiting to", TRANSLATOR_LIMIT, "translator(s)");
+		fileNames.splice(TRANSLATOR_LIMIT);
+	}
+
 	nextTranslator();
 });

@@ -1,31 +1,34 @@
 // test_util.js - node module for the PME testcase runner
 // implements shared testing data objects and methods
 
-exports.TestCaseResult = {
-	create: function(testCase, success, message) {
-		return {
-			testCase: testCase,
-			success: success,
-			message: message,
-			errors: []
-		};
-	},
+var TestCaseResult = exports.TestCaseResult = function(testCase, errors) {
+	// `errors` may be a single error message string or null
+	// ensure it is always an array
+	if (!errors || errors.constructor != Array)
+		errors = errors ? [errors] : [];
 
-	failure: function(testCase, message) {
-		return this.create(false, message);
-	},
-
-	success: function(testCase, optMessage) {
-		return this.create(true, optMessage || "");
-	}
+	this.url = testCase.url,
+	this.success = ! (errors && errors.length),
+	this.errors = errors;
 };
 
 
-exports.TestResult = function(optTranslator) {
+var TestResult = exports.TestResult = function(optTranslator) {
 	this.translator = optTranslator || null;
 	this.testCaseResults = [];
+	this.errorMessage = null;
 
-//	this.
+	this.fatalError = function(message) {
+		this.errorMessage = message;
+	};
+
+	this.testCaseFailed = function(testCase, errors) {
+		this.testCaseResults.push(new TestCaseResult(testCase, errors));
+	};
+
+	this.testCaseSucceeded = function(testCase) {
+		this.testCaseResults.push(new TestCaseResult(testCase, null));
+	};
 };
 
 
