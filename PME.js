@@ -2094,19 +2094,18 @@ PME.isURLSupported = function (sUrl)
 				matches.push({"ref":{"doi":PME.Util.trim(match[0]).replace(/\.$/, '')}});
 		}
 
-		var blah = PME.Util.xpath(doc, '//a[@doi]/@doi');
-		for (var i = 0; i < blah.length; i++) {
-			blah[i] = PME.Util.xpathText(blah[i]);
+		var attributeMatch = PME.Util.xpath(doc, '//*[@doi]/@doi');
+		for (var i = 0; i < attributeMatch.length; i++) {
+			attributeMatch[i] = attributeMatch[i].value;
 
-			console.log(blah[i]);
+			console.log(attributeMatch[i]);
 
-
-		/*	blah[i] = PME.Util.xpathText(blah[i]);
-
-			if (blah[i] != null && blah[i] != '') {
-				matches.push({ "ref": { "doi": PME.Util.trim(match[0]).replace(/\.$/, '') } });
-			}*/
+			if (attributeMatch[i] != null && attributeMatch[i] != '') {
+				matches.push({ "ref": { "doi": PME.Util.trim(attributeMatch[i]).replace(/\.$/, '') } });
+			}
 		}
+
+		console.log(matches);
 
 		//dedupe list
 		return matches;
