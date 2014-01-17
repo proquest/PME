@@ -2093,9 +2093,27 @@ PME.isURLSupported = function (sUrl)
 			if (match != null)
 				matches.push({"ref":{"doi":PME.Util.trim(match[0]).replace(/\.$/, '')}});
 		}
+
+		var blah = PME.Util.xpath(doc, '//a[@doi]/@doi');
+		for (var i = 0; i < blah.length; i++) {
+			blah[i] = PME.Util.xpathText(blah[i]);
+
+			console.log(blah[i]);
+
+
+		/*	blah[i] = PME.Util.xpathText(blah[i]);
+
+			if (blah[i] != null && blah[i] != '') {
+				matches.push({ "ref": { "doi": PME.Util.trim(match[0]).replace(/\.$/, '') } });
+			}*/
+		}
+
 		//dedupe list
 		return matches;
 	}
+
+	var testResults = PME.genericScrape(document);
+	console.log(testResults);
 
 PME.getPageMetaData = function (callback)
 {
