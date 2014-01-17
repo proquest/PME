@@ -359,6 +359,7 @@ function map(vals, pred) {
 	return out;
 }
 
+	PME.map = map;
 function filter(vals, pred) {
 	if (! vals) return null;
 	var arr = isArrayLike(vals),
@@ -383,6 +384,7 @@ function filter(vals, pred) {
 	return out;
 }
 
+	PME.filter = filter;
 function flatten(vals) {
 	if (! vals) return null;
 	if (! isArrayLike(vals))
@@ -2079,10 +2081,7 @@ PME.isURLSupported = function (sUrl)
 {
 	return Registry.matchURL(sUrl) ? true : false;
 }
-	PME = {"Util": {}};
-	PME.Util.trim = function (str) {
-		return str.replace(/^\s+|\s+$/g, '');
-	};
+
 	PME.genericScrape = function (doc) {
 		var regex = /10\.\d+\/[a-z0-9\/\.\-]+[\s|$]?/i;//10.1093/imamat/hxt016 asdfasdf
 		var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
@@ -2092,12 +2091,11 @@ PME.isURLSupported = function (sUrl)
 		while (walker.nextNode()) {
 			var match = regex.exec(walker.currentNode.nodeValue);
 			if (match != null)
-				matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+				matches.push({"ref":{"doi":PME.Util.trim(match[0]).replace(/\.$/, '')}});
 		}
-		console.log(matches);
 		//dedupe list
+		return matches;
 	}
-	PME.genericScrape(document);
 
 PME.getPageMetaData = function (callback)
 {
@@ -2119,9 +2117,8 @@ PME.getPageMetaData = function (callback)
 			t.translate();
 		}
 
-		if (! trans)
-			completed({noTranslator:true});
-		else {
+
+		if(trans) {
 			// add XPath helper javascript if document.evaluate is not defined
 			// make sure it has loaded before proceeding
 			if (! pageDoc.evaluate) {
@@ -2132,6 +2129,14 @@ PME.getPageMetaData = function (callback)
 				doTranslation();
 			}
 
+		}
+		if(PME.items.length == 0){
+			PME.items = PME.genericScrape(document);
+			if (PME.items.length == 0) {
+				completed({noTranslator: true});
+			}
+			else
+				success();
 		}
 	}
 	catch(e) {
