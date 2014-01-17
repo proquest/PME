@@ -6,31 +6,19 @@
 const DEBUG = true; // debug logging, turn off to see nothing but emptiness
 const PHANTOMJS_PATH = "./philtered"; // path to the phantomjs binary, or by default to the local ./philtered script that filters out noise from phantomjs
 
-// node modules
+
+// modules
 var fs = require("fs"),
-	exec = require("child_process").exec;
+	exec = require("child_process").exec,
+	testUtil = require("./test_util.js");
+
+var debugLog = testUtil.conditionalLogger(DEBUG, "PME_TEST_DRIVER");
+
 
 // in: fileNames collected from the ../extractors folder
 // out: an array of testresults as returned by the testcases
 var fileNames = [],
 	allResults = [];
-
-
-// --------------------------
-function debugLog() {
-	if (DEBUG)
-		console.info.apply(console, ["PME_TEST_DRIVER"].concat([].slice.call(arguments, 0)));
-}
-
-
-// synthesize a failure result for the big heap
-function errorResult(fileName, message) {
-	return {
-		success: false,
-		message: message,
-		translator: fileName
-	};
-}
 
 
 // --------------------------
@@ -75,11 +63,14 @@ function runTranslatorTestCases(fileName, then) {
 
 function didCompleteTranslators() {
 	// pass	results to report generator to make TEH PRETTEH
+	console.info(JSON.stringify(allResults));
 }
 
 
+var max = 2;
+
 function nextTranslator() {
-	if (! fileNames.length) {
+	if (! fileNames.length || !(max--)) {
 		debugLog("all translators done");
 		didCompleteTranslators();
 	}

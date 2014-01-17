@@ -7,36 +7,21 @@
 const DEBUG = true; // debug logging, turn off to see nothing but emptiness
 const PME_TEST_HOST = "localhost:8081"; // an instance of PME needs to run and be accessible by the client page, defaults to localhost
 
-// node modules
+
+// modules
 var webpage = require("webpage"),
-	system = require("system");
+	system = require("system"),
+	testUtil = require("./test_util.js");
+
+var waitFor = testUtil.waitFor,
+	debugLog = testUtil.conditionalLogger(DEBUG, "PME_TEST");
+
 
 // in- and output of this process, webCases is the filtered set of
 // testCases from the translator and testResult will be output to
 // the stdout as JSON for the calling process to deal with.
 var webCases = [],
-	testResult = { success: false, message: "test did not start", translator: null };
-
-
-// --------------------------
-function debugLog() {
-	if (DEBUG)
-		console.info.apply(console, ["PME_TEST"].concat([].slice.call(arguments, 0)));
-}
-
-// waitFor repeatedly tests a predicate for a specified time
-// and reports success or timeout as failure.
-function waitFor(pred, maxTime, callback) {
-	var interval = 20;
-	if (pred())
-		callback(true);
-	else {
-		if (maxTime - interval > 0)
-			setTimeout(function() { waitFor(pred, maxTime - interval, callback); }, interval);
-		else
-			callback(false);
-	}
-}
+	testResult = new testUtil.TestResult();
 
 
 // --------------------------
@@ -82,45 +67,83 @@ PME = {
 
 
 // --------------------------
-// result synthesis
-function resultFailure(message) {
-	testResult.success = false;
-	testResult.message = message;
+function convertCreators(creators) {
+	return creators.map(function(c) {
+		if (typeof c != "object")
+			return c;
+		return [c.firstName || "", c.lastName || ""].join(" ").trim();
+	});
 }
 
 
-function resultSuccess(optMessage) {
-	testResult.success = true;
-	testResult.message = optMessage || "";
+function ItemComparisonResult() {
+	this.errors = [];
+
+	this.ok = function() {
+		return !this.errors.length;
+	};
 }
 
 
-// --------------------------
-// Notification endpoint for when something has gone wrong.
-// Outputs error info for the testcase and message.
-function gotErrorForTestCase(testCase, message) {
-	debugLog("gotErrorForTestCase", message);
+// this function takes a single item as returned by a PME
+// translator and verifies the content against an item specified
+// in its testcase. Certain fields are ignored or loosely
+// compared as PME does things slightly differently.
+// returns an ItemComparisonResult
+function compareTestCaseItemAgainstPMEItem(tcItem, pmeItem) {
+	var icResult = new ItemComparisonResult();
 
-	resultFailure(testCase.url + "; REASON: " + message);
+	if (! pmeItem)
+		icResult.errors.push("the testCase expected more items than were returned");
+	else {
+		Object.keys(tcItem).forEach(function(key) {
+			var tcVal = tcItem[key];
+
+			// testCases specify empty collections, which are elided by PME
+			if ((typeof tcVal == "object") && ("length" in tcVal) && tcVal.length === 0)
+				return;
+			// these fields are not (guaranteed to be) present in PME
+			if (["attachments", "accessDate", "url", "shortTitle", "libraryCatalog"].indexOf(key) > -1)
+				return;
+			// FIXME: date fields can differ significantly in formatting, ignored for now
+			if (key == "date")
+				return;
+			// creators need to be in simple string form
+			if (key == "creators" && typeof tcVal == "object")
+				tcVal = convertCreators(tcVal);
+
+			// the JSON representations of the values are used for easy comparison
+			var tcStr = JSON.stringify(tcVal),
+				pmeStr = JSON.stringify(pmeItem[key] || null);
+			if (tcStr != pmeStr)
+				icResult.errors.push(key + ": " + tcStr + " != " + pmeStr);
+		});
+	}
+
+	return icResult;
 }
 
 
 // A translator has completed successfully and has returned
 // an array of items and the array was not empty so we
 // verify the contents of the returned and expected data here.
-function didReceiveTestCaseItems(testCase, actual) {
-	debugLog("didReceiveTestCaseItems");
+function compareTestCaseItems(testCase, actualItems) {
+	debugLog("compareTestCaseItems");
 
-	var expected = testCase.items;
+	// compare all items against their expected versions
+	var result = testCase.items.map(function(tcItem, index) {
+		return compareTestCaseItemAgainstPMEItem(tcItem, actualItems[index]);
+	});
+	// add in ok() method to quickly check all enclosed result's ok-ness
+	result.ok = function() {
+		return this.every(function(icr) { return icr.ok(); });
+	};
 
-	if (expected.length != actual.length)
-		gotErrorForTestCase(testCase, "got " + actual.length + " items but expected to get " + expected.length);
-	else {
-		
-	}
+	return result;
 }
 
 
+// --------------------------
 // All testcases have been completed or an error has occurred.
 // Output the results and exit the phantomjs session.
 function didCompleteTestCases() {
@@ -128,6 +151,15 @@ function didCompleteTestCases() {
 
 	console.info(JSON.stringify(testResult));
 	phantom.exit();
+}
+
+
+// Notification endpoint for when something has gone wrong.
+// Sets error info for the testcase and message.
+function gotErrorForTestCase(testCase, message) {
+	debugLog("gotErrorForTestCase", message);
+
+	resultFailure(testCase.url + "; REASON: " + message);
 }
 
 
@@ -151,7 +183,10 @@ function runNextTestCase() {
 
 	debugLog("new testCase: ", tc.url);
 
-	page.open(tc.url, function(status) {
+	page.open(tc.url, function(pageStatus) {
+		if (pageStatus != "success") {
+			gotErrorForTestCase(tc, "error loading testcase url");
+		}
 		debugLog("client page loaded");
 
 		// insert PME from locally running instance
@@ -211,15 +246,18 @@ function runNextTestCase() {
 						pageItems = pageItems.items;
 
 					if (pageItems && pageItems.length) {
-						didReceiveTestCaseItems(tc, pageItems);
-						runNextTestCase();
+						var comparisonResult = compareTestCaseItems(tc, pageItems);
+						if (! comparisonResult.ok)
+							gotErrorForTestCase(tc, "items did not match: ", comparisonResult.errorText);
 					}
 					else
 						gotErrorForTestCase(tc, "translator returned empty resultset");
 				}
 				else
 					gotErrorForTestCase(tc, "did not find resultset after 30s");
-			})
+
+				runNextTestCase();
+			});
 		});
 	});
 }
