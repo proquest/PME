@@ -2083,7 +2083,7 @@ PME.isURLSupported = function (sUrl)
 }
 
 	PME.genericScrape = function (doc) {
-		var regex = /10\.\d+\/[a-z0-9\/\.\-]+[\s|$]?/i;//10.1093/imamat/hxt016 asdfasdf
+		var regex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016 asdfasdf
 		var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
 		var matches = [];
 		// add attributes (href, etc) which can contain doi
@@ -2095,27 +2095,37 @@ PME.isURLSupported = function (sUrl)
 		}
 
 		var attributeMatch = PME.Util.xpath(doc, '//*[@doi]/@doi');
-		//if(!attributeMatch)
-		//	attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content');
+		if (attributeMatch.length == 0)
+			attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content');
+		if (attributeMatch.length == 0)
+			attributeMatch = PME.Util.xpath(doc, '//*[contains(@name, "doi")]/@value');
+		if (attributeMatch.length == 0)
+			attributeMatch = PME.Util.xpath(doc, '//a[@href]/@href');
 
 		for (var i = 0; i < attributeMatch.length; i++) {
 			var match = regex.exec(attributeMatch[i].value);
 
 			console.log("*** attributeMatch : " + attributeMatch[i].value);
+			console.log("*** match : " + match);
 
 			if (match != null) {
 				matches.push({ "ref": { "doi": PME.Util.trim(match[0]).replace(/\.$/, '') } });
 			}
 		}
 
-		console.log("all matches : " + matches);
-
 		//dedupe list
 		return matches;
 	}
 
+	// remove this stuff later
 	var testResults = PME.genericScrape(document);
-	console.log("***testResults : " + testResults);
+	for (var r in testResults) {
+		for (var data in testResults[r]) {
+			console.log("*** LOG - " + data + " : " + testResults[r][data].doi);
+		}
+	}
+	// end remove
+
 
 PME.getPageMetaData = function (callback)
 {
