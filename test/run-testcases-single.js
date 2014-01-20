@@ -6,7 +6,8 @@
 // --------------------------
 const DEBUG = true; // debug logging, turn off to see nothing but emptiness
 const PME_TEST_HOST = "localhost:8081"; // an instance of PME needs to run and be accessible by the client page, defaults to localhost
-const TESTCASE_LIMIT = 1; // allow override of max # of testCases to run, set to 0 for no limit (i.e. normal operation)
+                                        // run: python -m SimpleHTTPServer 8081 inside the PME dir for a quick server
+const TESTCASE_LIMIT = 0; // allow override of max # of testCases to run, set to 0 for no limit (i.e. normal operation)
 
 
 // modules
@@ -78,6 +79,8 @@ PME = {
 // --------------------------
 function convertCreators(creators) {
 	return creators.map(function(c) {
+		if (typeof c == "string")
+			return c.trim();
 		if (typeof c != "object")
 			return c;
 		return [c.firstName || "", c.lastName || ""].join(" ").trim();
@@ -100,7 +103,14 @@ function compareTestCaseItemAgainstPMEItem(tcItem, pmeItem) {
 		icResult.push("the testCase expected more items than were returned");
 	else {
 		Object.keys(tcItem).forEach(function(key) {
-			var tcVal = tcItem[key];
+			var tcVal = tcItem[key],
+				pmeVal = pmeItem[key] || "";
+
+			// all string vals are trimmed to prevent mismatches based on whitespace
+			if (typeof tcVal == "string")
+				tcVal = tcVal.trim();
+			if (typeof pmeVal == "string")
+				pmeVal = pmeVal.trim();
 
 			// testCases specify empty collections, which are elided by PME
 			if ((typeof tcVal == "object") && ("length" in tcVal) && tcVal.length === 0)
@@ -112,12 +122,16 @@ function compareTestCaseItemAgainstPMEItem(tcItem, pmeItem) {
 			if (key == "date")
 				return;
 			// creators need to be in simple string form
-			if (key == "creators" && typeof tcVal == "object")
-				tcVal = convertCreators(tcVal);
+			if (key == "creators") { 
+				if (typeof tcVal == "object")
+					tcVal = convertCreators(tcVal);
+				if (typeof pmeVal == "object")
+					pmeVal = convertCreators(pmeVal);
+			}
 
 			// the JSON representations of the values are used for easy comparison
 			var tcStr = JSON.stringify(tcVal),
-				pmeStr = JSON.stringify(pmeItem[key] || null);
+				pmeStr = JSON.stringify(pmeVal);
 			if (tcStr != pmeStr)
 				icResult.push(key + ": " + tcStr + " != " + pmeStr);
 		});
