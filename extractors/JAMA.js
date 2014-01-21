@@ -74,7 +74,7 @@
 				var item = new PME.Item('journalArticle');
 				item.title = PME.Util.xpathText(result, './/h4[@class="sri-title customLink al-title"]/a');
 				item.creators = handleCreator(result, './/cite[@class="sri-authors al-authors-list"]');
-				item.attachments = handleAttachment(doc, './/div[@class="sri-pdflink al-other-resource-links"]//a/@href');
+				item.attachments = handleAttachment(result, './/div[@class="sri-pdflink al-other-resource-links"]//a/@href');
 				handleSource(result, './/div[@class="sri-expandedView"]/p[@class="sri-source al-cite-description"]', item);
 				item.complete();
 			});
