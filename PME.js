@@ -359,7 +359,6 @@ function map(vals, pred) {
 	return out;
 }
 
-	PME.map = map;
 function filter(vals, pred) {
 	if (! vals) return null;
 	var arr = isArrayLike(vals),
@@ -384,7 +383,6 @@ function filter(vals, pred) {
 	return out;
 }
 
-	PME.filter = filter;
 function flatten(vals) {
 	if (! vals) return null;
 	if (! isArrayLike(vals))
@@ -2093,6 +2091,8 @@ PME.isURLSupported = function (sUrl)
 				matches.push({"ref":{"doi":PME.Util.trim(match[0]).replace(/\.$/, '')}});
 		}
 
+		//wonder if we should create a collection of the results all of these xpath (will we find different dois?)
+		//or if we'd just get a bunch of duplicates (if anything)
 		var attributeMatch = PME.Util.xpath(doc, '//*[@doi]/@doi');
 		if (attributeMatch.length == 0)
 			attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content');
@@ -2111,9 +2111,8 @@ PME.isURLSupported = function (sUrl)
 				matches.push({ "ref": { "doi": PME.Util.trim(match[0]).replace(/\.$/, '') } });
 			}
 		}
-
 		//dedupe list
-		return matches;
+		return filter(matches,function(item,i,items){return items.indexOf(item,i+1) != -1;});
 	}
 
 	// remove this stuff later
@@ -2161,6 +2160,7 @@ PME.getPageMetaData = function (callback)
 			}
 
 		}
+		//broken translator, or no translator
 		if(PME.items.length == 0){
 			PME.items = PME.genericScrape(document);
 			if (PME.items.length == 0) {
