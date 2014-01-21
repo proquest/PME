@@ -76,7 +76,7 @@
 
 				if (PDFlink != null && PDFlink != '')
 					item.attachments.push({
-						url: window.location.host + PME.Util.getNodeText(PDFlink[0]),
+						url: window.location.protocol + "//" + window.location.host + PME.Util.getNodeText(PDFlink[0]),
 						title: "Springer Link Full Text",
 						mimeType: "application/pdf"
 					});
