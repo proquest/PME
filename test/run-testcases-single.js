@@ -8,6 +8,8 @@ const DEBUG = true; // debug logging, turn off to see nothing but emptiness
 const PME_TEST_HOST = "localhost:8081"; // an instance of PME needs to run and be accessible by the client page, defaults to localhost
                                         // run: python -m SimpleHTTPServer 8081 inside the PME dir for a quick server
 const TESTCASE_LIMIT = 0; // allow override of max # of testCases to run, set to 0 for no limit (i.e. normal operation)
+const PME_WAIT_SECONDS = 3; // number of seconds to wait for PME to show up in the client page
+const RESULTS_WAIT_SECONDS = 60; // number of seconds to wait for the translator to yield results. can take a long time for certain pages
 
 
 // modules
@@ -113,7 +115,7 @@ function compareTestCaseItemAgainstPMEItem(tcItem, pmeItem) {
 				pmeVal = pmeVal.trim();
 
 			// testCases specify empty collections, which are elided by PME
-			if ((typeof tcVal == "object") && ("length" in tcVal) && tcVal.length === 0)
+			if (tcVal.constructor == Array && tcVal.length === 0)
 				return;
 			// these fields are not (guaranteed to be) present in PME
 			if (["attachments", "accessDate", "url", "shortTitle", "libraryCatalog"].indexOf(key) > -1)
@@ -121,6 +123,7 @@ function compareTestCaseItemAgainstPMEItem(tcItem, pmeItem) {
 			// FIXME: date fields can differ significantly in formatting, ignored for now
 			if (key == "date")
 				return;
+
 			// creators need to be in simple string form
 			if (key == "creators") { 
 				if (typeof tcVal == "object")
@@ -128,12 +131,17 @@ function compareTestCaseItemAgainstPMEItem(tcItem, pmeItem) {
 				if (typeof pmeVal == "object")
 					pmeVal = convertCreators(pmeVal);
 			}
+			// arrays are sorted to prevent mismatches on order of items inside array
+			if (typeof tcVal.sort == "function")
+				tcVal.sort();
+			if (typeof pmeVal.sort == "function")
+				pmeVal.sort();
 
 			// the JSON representations of the values are used for easy comparison
 			var tcStr = JSON.stringify(tcVal),
 				pmeStr = JSON.stringify(pmeVal);
 			if (tcStr != pmeStr)
-				icResult.push(key + ": " + tcStr + " != " + pmeStr);
+				icResult.push(key + ": " + tcStr + " DOES NOT EQUAL " + pmeStr);
 		});
 	}
 
@@ -217,7 +225,7 @@ function runTestCase(tc) {
 				return window.PME && PME.getPageMetaData;
 			});
 		},
-		3000,
+		PME_WAIT_SECONDS * 1000,
 		function(pmeLoaded) {
 			if (! pmeLoaded) {
 				debugLog("PME did not load within 3s");
@@ -231,7 +239,7 @@ function runTestCase(tc) {
 				});
 			});
 
-			// give the translator up to 30s to return the results
+			// give the translator some time to return the results
 			debugLog("waiting for resultset");
 
 			waitFor(function() {
@@ -239,10 +247,10 @@ function runTestCase(tc) {
 					return !!window.PME_TEST_RESULTS;
 				});
 			},
-			30000,
+			RESULTS_WAIT_SECONDS * 1000,
 			function(foundResults) {
 				if (! foundResults)
-					testCaseFailed(tc, "did not find resultset after 30s");
+					testCaseFailed(tc, "did not find resultset after " + RESULTS_WAIT_SECONDS + "s");
 				else {
 					debugLog("found resultset");
 

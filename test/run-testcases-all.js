@@ -68,12 +68,62 @@ function runTranslatorTestCases(fileName, then) {
 }
 
 
-function didCompleteTranslators() {
-	// pass	results to report generator to make TEH PRETTEH
-	console.info(JSON.stringify(allResults));
+// read the result template html, replace placeholders in the file and
+// write out the result to a new report.
+function instantiateReport(fields, then) {
+	fs.readFile("test-result-template.html", { encoding: "utf-8" },
+		function(err, template) {
+			template = template.replace(/%%([A-Z_]+)%%/g, function(_, field) {
+				return fields[field] || ("NO_SUCH_FIELD: " + field);
+			});
+
+			var dateTimeFileName = fields["DATETIME"].replace(/:/g, "_"),
+				branchFileName = fields["GIT_BRANCH"].replace(/\//g, "_"),
+				fileName = "pme test report " + branchFileName + " " + dateTimeFileName + ".html";
+
+			fs.writeFile("reports/" + fileName, template, then);
+		}
+	);
 }
 
 
+// called when all tests have completed. collects information about
+// the current context and creates a new template html
+function didCompleteTranslators() {
+	var resultJSON = JSON.stringify(allResults),
+		dateTime = JSON.stringify(new Date()).replace('"', "").replace("T"," ").substring(0,19); // yields string like: 2014-01-23 12:34:56
+
+	debugLog("translators done, creating report html");
+
+	exec("git rev-parse --short HEAD", function(err, gitRevision) {
+		exec("git rev-parse --abbrev-ref HEAD", function(err2, gitBranch) {
+			if (err || err2) {
+				debugLog("could not get git info", err, err2);
+				return;
+			}
+			gitBranch = gitBranch.trim(); // shell output may have newlines etc
+			gitRevision = gitRevision.trim();
+			debugLog("git info:", gitBranch, gitRevision);
+
+			instantiateReport({
+				DATETIME: dateTime,
+				RESULT_JSON: resultJSON,
+				GIT_BRANCH: gitBranch,
+				GIT_REVISION: gitRevision
+			},
+			function(err3) {
+				if (err3)
+					debugLog("could not write report", err3);
+				else
+					debugLog("report written");
+			});
+		});		
+	});
+}
+
+
+// driver function, iterate over the translators serially
+// and call completion handler when all are done.
 function nextTranslator() {
 	if (! fileNames.length) {
 		debugLog("all translators done");
