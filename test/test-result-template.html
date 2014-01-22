@@ -4,7 +4,62 @@
 <meta charset="utf8">
 <title>PME Translator TestCase Result of %%DATETIME%% (%%GIT_BRANCH%%/%%GIT_REVISION%%)</title>
 <style>
-	ul { list-style: none; }
+	body {
+		width: 960px;
+		margin: 0 auto;
+	}
+	header {
+		padding: 1em 0 2em 0;
+	}
+	h1, h2, h3, p {
+		margin: 0;
+		padding: 0 0 .4em 0;
+	}
+	ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
+	}
+	ul.testcases {
+		padding-left: 2em;
+	}
+	ul.testcases li {
+		margin-bottom: 1em;
+	}
+	.translator {
+		padding: 1em 0;
+		border-bottom: 1px solid #999;
+	}
+	.translator.no-tests {
+		background-color: orange;
+	}
+	.testcase.error {
+		background-color: #faa;
+	}
+
+	/* nice emoji */
+	.translator.success h1:before,
+	.testcase.success a:before {
+		content: "\2705  ";
+	}
+	p.fatal:before,
+	.translator.no-tests h1:before,
+	.translator.error h1:before,
+	.testcase.error a:before {
+		content: "\274c  ";
+	}
+
+	/* crap unicode */
+	.cr .translator.success h1:before,
+	.cr .testcase.success a:before {
+		content: "\2714  ";
+	}
+	.cr p.fatal:before,
+	.cr .translator.no-tests h1:before,
+	.cr .translator.error h1:before,
+	.cr .testcase.error a:before {
+		content: "\2716  ";
+	}
 </style>
 
 
@@ -22,6 +77,10 @@ const CLONE_DEEP = true; // used in node.cloneNode() calls to clarify meaning of
 // some convenience functions used in this page
 function $(sel, base) {
 	return (base || document).querySelector(sel);
+}
+
+function removeNode(node) {
+	node.parentNode.removeChild(node);
 }
 
 function flatten(arr) {
@@ -77,9 +136,17 @@ function extractTemplateNode(sel, base) {
 	var tmplNode = $(sel, base),
 		template = tmplNode.cloneNode(CLONE_DEEP);
 
-	tmplNode.parentNode.removeChild(tmplNode);
+	removeNode(tmplNode);
 	template.id = null;	
 	return template;
+}
+
+
+function translatorTestWasSuccessful(test) {
+	var anyTestCaseErrors = test.testCaseResults.some(function(tc) {
+		return !tc.success;
+	});
+	return ! (test.errorMessage || anyTestCaseErrors);
 }
 
 
@@ -90,18 +157,44 @@ function extractTemplateNode(sel, base) {
 // Values are replaced in text and some basic dom manipilation is done
 // to add classes, hide unused elements etc.
 window.onload = function main() {
+	// chrome no know nice looking emoji, likely win will neither, but eh
+	if (navigator.userAgent.indexOf("Chrome/") > -1)
+		document.body.className = "cr";
+
 	var translatorTemplate = extractTemplateNode("#translator-template"),
 		testCaseTemplate = extractTemplateNode("#testcase-template", translatorTemplate),
 		testList = $("ul.translators");
 
+	// iterate over the translator tests
 	testResults.forEach(function(translatorResult) {
 		var trans = replacePlaceholders(translatorResult, translatorTemplate),
 			testCaseList = $("ul.testcases", trans);
 
+		// remove fatal error node if there was no error
+		if (! translatorResult.errorMessage)
+			removeNode($("p.fatal", trans));
+
+		// full-test status as css class
+		if (translatorTestWasSuccessful(translatorResult)) {
+			if (translatorResult.testCaseResults.length)
+				trans.className += " success";
+			else
+				trans.className += " no-tests";
+		}
+		else
+			trans.className += " error";
+
+		// iterate over testcases
 		translatorResult.testCaseResults.forEach(function(testCase) {
 			var tc = replacePlaceholders(testCase, testCaseTemplate),
 				errors = flatten(testCase.errors),
 				errorList = $("ul.errors", tc);
+
+			// single testcase status as css class
+			if (! errors.length)
+				tc.className += " success";
+			else
+				tc.className += " error";
 
 			errors.forEach(function(errText) {
 				appendAsListItem(errText, errorList);

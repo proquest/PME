@@ -8,7 +8,7 @@ var TestCaseResult = exports.TestCaseResult = function(testCase, errors) {
 		errors = errors ? [errors] : [];
 
 	this.url = testCase.url,
-	this.success = ! (errors && errors.length),
+	this.success = !errors.length,
 	this.errors = errors;
 };
 
