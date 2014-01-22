@@ -46,6 +46,10 @@ var Registry = (function() {
 			m: "https?://[^/]*jstor\\.org[^/]*/(action/(showArticle|doBasicSearch|doAdvancedSearch|doLocatorSearch|doAdvancedResults|doBasicResults)|stable/|pss/|betasearch\\?|openurl\\?)",
 			g: "d921155f-0186-1684-615c-ca57682ced9b"
 		},
+		"JAMA": {
+			m: "https?://.*\\.?jamanetwork.com",
+			g: "0bd7e161-b266-42d0-9c19-f82b80463a0e"
+		},
 		"Financial Times": {
 			m: "^https?://(www|search)\\.ft\\.com",
 			g: "fc9b7700-b3cc-4150-ba89-c7e4443bd96d"
@@ -1787,8 +1791,6 @@ PME.Util.HTTP.doPost = PME.Util.doPost = function(url, data, callback, headers, 
 		fatal("HTTP POST failed", e);
 	}
 };
-
-
 
 // ------------------------------------------------------------------------
 //   __ _ _ _                
