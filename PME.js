@@ -2156,7 +2156,6 @@ PME.getPageMetaData = function (callback)
 		//broken translator, or no translator
 		if(PME.items.length == 0){
 			PME.items = PME.genericScrape(document);
-			console.log(PME.items)
 			if (PME.items.length == 0) {
 				completed({noTranslator: true});
 			}
