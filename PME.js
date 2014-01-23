@@ -2085,10 +2085,21 @@ PME.isURLSupported = function (sUrl)
 		var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
 		var matches = [];
 		// stripping out elements in the middle of a doi (hit highlighting)
+		var running = [];
 		while (walker.nextNode()) {
-			var match = regex.exec(walker.currentNode.nodeValue);
-			if (match != null)
-				matches.push({"ref":{"doi":PME.Util.trim(match[0]).replace(/\.$/, '')}});
+			running.push(walker.currentNode.nodeValue);
+			if(running.length > 10)
+				running.shift();
+			var match = regex.exec(running.join(''));
+			if (match != null){
+				matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+				running = [];
+			}
+			else{
+				match = regex.exec(walker.currentNode.nodeValue);
+				if (match != null)
+					matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+			}
 		}
 
 		//wonder if we should create a collection of the results all of these xpath (will we find different dois?)
@@ -2104,27 +2115,12 @@ PME.isURLSupported = function (sUrl)
 		for (var i = 0; i < attributeMatch.length; i++) {
 			var match = regex.exec(attributeMatch[i].value);
 
-			//console.log("*** attributeMatch : " + attributeMatch[i].value);
-			//console.log("*** match : " + match);
-
 			if (match != null) {
-				matches.push({ "ref": { "doi": PME.Util.trim(match[0]).replace(/\.$/, '') } });
+				matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
 			}
 		}
-		//dedupe list
-		return filter(matches,function(item,i,items){return items.indexOf(item,i+1) != -1;});
+		return map(filter(matches,function(item,i,items){return items.indexOf(item,i+1) == -1;}),function(doi){return {"ref":{"doi":doi}}});
 	}
-
-	// remove this stuff later
-	/*
-	var testResults = PME.genericScrape(document);
-	for (var r in testResults) {
-		for (var data in testResults[r]) {
-			console.log("*** LOG - " + data + " : " + testResults[r][data].doi);
-		}
-	}
-	*/
-	// end remove
 
 
 PME.getPageMetaData = function (callback)
@@ -2163,6 +2159,7 @@ PME.getPageMetaData = function (callback)
 		//broken translator, or no translator
 		if(PME.items.length == 0){
 			PME.items = PME.genericScrape(document);
+			console.log(PME.items)
 			if (PME.items.length == 0) {
 				completed({noTranslator: true});
 			}
