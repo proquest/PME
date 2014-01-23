@@ -2113,8 +2113,10 @@ PME.getPageMetaData = function (callback)
 			t.translate();
 		}
 
-		if (! trans)
+		if (! trans) {
+			log("no suitable translator found");
 			completed({noTranslator:true});
+		}
 		else {
 			// add XPath helper javascript if document.evaluate is not defined
 			// make sure it has loaded before proceeding
