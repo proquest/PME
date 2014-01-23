@@ -678,18 +678,8 @@ PME.TranslatorClass.loaded = function(spec, api) {
 
 	var trClass = PME.TranslatorClass.cache[spec.translatorID];
 	if (! trClass) {
-		if (PME_SRV != "TEST") {
-			fatal("got a load event for ", spec, "which was not found in the cache.");
-			return;
-		}
-
-		// allow loading of TCs in test mode by simply including the
-		// translator files externally.
-		trClass = PME.TranslatorClass.cache[spec.translatorID] = {
-			name: Registry.findByID(spec.translatorID),
-			id: spec.translatorID,
-			script: null
-		};
+		fatal("got a load event for ", spec, "which was not found in the cache.");
+		return;
 	}
 	trClass.spec = spec;
 	trClass.api = api;
