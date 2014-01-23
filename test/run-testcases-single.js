@@ -5,14 +5,12 @@
 
 // --------------------------
 const DEBUG = true; // debug logging, turn off to see nothing but emptiness
-const PME_TEST_HOST = "localhost:8081"; // an instance of PME needs to run and be accessible by the client page, defaults to localhost
-                                        // run: python -m SimpleHTTPServer 8081 inside the PME dir for a quick server
 const TESTCASE_LIMIT = 0; // allow override of max # of testCases to run, set to 0 for no limit (i.e. normal operation)
 const PME_WAIT_SECONDS = 3; // number of seconds to wait for PME to show up in the client page
-const RESULTS_WAIT_SECONDS = 60; // number of seconds to wait for the translator to yield results. can take a long time for certain pages
+const RESULTS_WAIT_SECONDS = 10; // number of seconds to wait for the translator to yield results. can take a long time for certain pages
 
 
-// modules
+// imports
 var webpage = require("webpage"),
 	system = require("system"),
 	testUtil = require("./test_util.js");
@@ -206,6 +204,11 @@ function runTestCase(tc) {
 
 		debugLog("client page loaded");
 
+		// the local PME server host and port constants are defined in test_util.js
+		// it is started by the run-testcases-all.js process in normal test runs
+		var localPMEServerHost = testUtil.PME_SERVER_HOST + ":" + testUtil.PME_SERVER_PORT;
+		debugLog("inserting PME using PME_SRV =", localPMEServerHost);
+
 		// insert PME from locally running instance
 		// phantom has an includeJs method but we need to set the PME_SCR var
 		// anyway, so doing it bookmarklet style.
@@ -217,7 +220,7 @@ function runTestCase(tc) {
 			h.appendChild(PME_SCR);
 
 			PME_TEST_RESULTS = null;
-		}, PME_TEST_HOST); // pass PME_TEST_HOST to the function running on the client page
+		}, localPMEServerHost); // pass local server uri to the function running on the client page
 
 		// wait for PME to load in the page
 		waitFor(function() {
@@ -228,7 +231,7 @@ function runTestCase(tc) {
 		PME_WAIT_SECONDS * 1000,
 		function(pmeLoaded) {
 			if (! pmeLoaded) {
-				debugLog("PME did not load within 3s");
+				debugLog("PME did not load within " + PME_WAIT_SECONDS + "s");
 				return testCaseFailed(tc, "PME did not load successfully in the client page");
 			}
 

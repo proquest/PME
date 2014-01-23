@@ -7,12 +7,17 @@ const DEBUG = true; // debug logging, turn off to see nothing but emptiness
 const PHANTOMJS_PATH = "./philtered"; // path to the phantomjs binary, or by default to the local ./philtered script that filters out noise from phantomjs
 const TRANSLATOR_LIMIT = 0; // allow override of max # of translators to test, set to 0 for no limit (i.e. normal operation)
 
-// modules
+// imports
 var fs = require("fs"),
+	http = require("http"),
+	path = require("path"),
+	parseUrl = require("url").parse,
+	unescape = require("querystring").unescape,
 	exec = require("child_process").exec,
 	testUtil = require("./test_util.js");
 
-var debugLog = testUtil.conditionalLogger(DEBUG, "PME_TEST_DRIVER");
+var debugLog = testUtil.conditionalLogger(DEBUG, "PME_TEST_DRIVER"),
+	localPMEServer = null;
 
 
 // in: fileNames collected from the ../extractors folder
@@ -21,6 +26,60 @@ var fileNames = [],
 	allResults = [];
 
 
+// --------------------------
+// a simple HTTP server functions a the PME site host for
+// the duration of the test.
+function startLocalPMEServer() {
+	debugLog("starting local PME server at", testUtil.PME_SERVER_HOST + ":" + testUtil.PME_SERVER_PORT);
+
+	localPMEServer = http.createServer(function(request, response) {
+		var url = parseUrl(request.url),
+			filePath = '..' + unescape(url.pathname);
+			extension = path.extname(filePath).toLowerCase();
+
+		debugLog("local server request:", url.pathname);
+
+		function fail() {
+			response.writeHead(404);
+			response.end();
+		}
+
+		if (extension != ".js")
+			return fail();
+
+		fs.exists(filePath, function(exists) {
+			if (! exists)
+				return fail();
+
+			fs.readFile(filePath, function(error, content) {
+				if (error)
+					fail();
+				else {
+					response.writeHead(200, { "Content-Type": "text/javascript" });
+					response.end(content, "utf-8");
+				}
+			});
+		});
+	});
+
+	localPMEServer.listen(testUtil.PME_SERVER_PORT); // defined in test_util.js
+}
+
+
+// called at script end (failing to do so will cause node to not terminate)
+function stopLocalPMEServer() {
+	debugLog("stopping local PME server");
+	if (localPMEServer)
+		localPMEServer.close(function() {
+			debugLog("stopped");
+		});
+	localPMEServer = null;
+}
+
+
+// --------------------------
+// syntesize a failed TestResult when we cannot get the result back from
+// the child process
 function translatorError(fileName, message) {
 	var result = new testUtil.TestResult(fileName);
 	result.fatalError(message);
@@ -28,12 +87,11 @@ function translatorError(fileName, message) {
 }
 
 
-// --------------------------
 // run the testcases for a single translator
 // the testcases are run in a separate process and the results are
 // returned to us in JSON form at the end of the stdout
 function runTranslatorTestCases(fileName, then) {
-	exec(PHANTOMJS_PATH + " run-testcases-single.js " + fileName,
+	var child = exec(PHANTOMJS_PATH + " run-testcases-single.js " + fileName,
 		function(error, stdout, stderr) {
 			var testResult;
 
@@ -65,6 +123,14 @@ function runTranslatorTestCases(fileName, then) {
 			then && then();
 		}
 	);
+
+	// pipe the stdout of the single test runner process to our stdout
+	if (DEBUG) {
+		child.stdout.setEncoding("utf-8");
+		child.stdout.on("data", function(chunk) {
+			console.info(chunk.replace(/[\n\r]+$/, ""));
+		});
+	}
 }
 
 
@@ -92,6 +158,8 @@ function instantiateReport(fields, then) {
 function didCompleteTranslators() {
 	var resultJSON = JSON.stringify(allResults),
 		dateTime = JSON.stringify(new Date()).replace('"', "").replace("T"," ").substring(0,19); // yields string like: 2014-01-23 12:34:56
+
+	stopLocalPMEServer();
 
 	debugLog("translators done, creating report html");
 
@@ -130,6 +198,7 @@ function nextTranslator() {
 		didCompleteTranslators();
 	}
 	else {
+		debugLog("----------------------------------------------------------");
 		debugLog("next translator: ", fileNames[0]);
 		runTranslatorTestCases(fileNames.shift(), nextTranslator);
 	}
@@ -148,5 +217,6 @@ fs.readdir("../extractors/", function(err, files) {
 		fileNames.splice(TRANSLATOR_LIMIT);
 	}
 
+	startLocalPMEServer();
 	nextTranslator();
 });

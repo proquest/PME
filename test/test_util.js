@@ -1,6 +1,14 @@
 // test_util.js - node module for the PME testcase runner
 // implements shared testing data objects and methods
 
+
+// constants shared by both the run-all and run-single script
+exports.PME_SERVER_HOST = "localhost"; // (always localhost) the server at which a local instance of PME is hosted for use by the client pages
+exports.PME_SERVER_PORT = 8082; // the port number of the above mentioned host to use
+
+
+// contains the in- and output of a single testcase for one translator
+// test. multiple TestCaseResults are contained within TestResult.
 var TestCaseResult = exports.TestCaseResult = function(testCase, errors) {
 	// `errors` may be a single error message string or null
 	// ensure it is always an array
@@ -13,6 +21,10 @@ var TestCaseResult = exports.TestCaseResult = function(testCase, errors) {
 };
 
 
+// contains the name and result of all testcases for one translator
+// test. one instance of this is used to describe an entire test run
+// and the JSON serialized form of an instance is embedded in the
+// HTML test result file.
 var TestResult = exports.TestResult = function(optTranslator) {
 	this.translator = optTranslator || null;
 	this.testCaseResults = [];
