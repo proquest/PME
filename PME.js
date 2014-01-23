@@ -2080,47 +2080,44 @@ PME.isURLSupported = function (sUrl)
 	return Registry.matchURL(sUrl) ? true : false;
 }
 
-	PME.genericScrape = function (doc) {
-		var regex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016 asdfasdf
-		var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
-		var matches = [];
-		// stripping out elements in the middle of a doi (hit highlighting)
-		var running = [];
-		while (walker.nextNode()) {
-			running.push(walker.currentNode.nodeValue);
-			if(running.length > 10)
-				running.shift();
-			var match = regex.exec(running.join(''));
-			if (match != null){
-				matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
-				running = [];
-			}
-			else{
-				match = regex.exec(walker.currentNode.nodeValue);
-				if (match != null)
-					matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
-			}
+PME.genericScrape = function (doc) {
+	var regex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016
+	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
+	var matches = [];
+	var running = [];
+	while (walker.nextNode()) {
+		running.push(walker.currentNode.nodeValue);
+		if(running.length > 10)
+			running.shift();
+		var match = regex.exec(running.join(''));
+		if (match != null){
+			matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+			running = [];
 		}
-
-		//wonder if we should create a collection of the results all of these xpath (will we find different dois?)
-		//or if we'd just get a bunch of duplicates (if anything)
-		var attributeMatch = PME.Util.xpath(doc, '//*[@doi]/@doi');
-		if (attributeMatch.length == 0)
-			attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content');
-		if (attributeMatch.length == 0)
-			attributeMatch = PME.Util.xpath(doc, '//*[contains(@name, "doi")]/@value');
-		if (attributeMatch.length == 0)
-			attributeMatch = PME.Util.xpath(doc, '//a[@href]/@href');
-
-		for (var i = 0; i < attributeMatch.length; i++) {
-			var match = regex.exec(attributeMatch[i].value);
-
-			if (match != null) {
+		else{
+			match = regex.exec(walker.currentNode.nodeValue);
+			if (match != null)
 				matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
-			}
 		}
-		return map(filter(matches,function(item,i,items){return items.indexOf(item,i+1) == -1;}),function(doi){return {"ref":{"doi":doi}}});
 	}
+
+	var attributeMatch = PME.Util.xpath(doc, '//*[@doi]/@doi');
+	if (attributeMatch.length == 0)
+		attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content');
+	if (attributeMatch.length == 0)
+		attributeMatch = PME.Util.xpath(doc, '//*[contains(@name, "doi")]/@value');
+	if (attributeMatch.length == 0)
+		attributeMatch = PME.Util.xpath(doc, '//a[@href]/@href');
+
+	for (var i = 0; i < attributeMatch.length; i++) {
+		var match = regex.exec(attributeMatch[i].value);
+
+		if (match != null) {
+			matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+		}
+	}
+	return map(filter(matches,function(item,i,items){return items.indexOf(item,i+1) == -1;}),function(doi){return {"ref":{"doi":doi}}});
+}
 
 
 PME.getPageMetaData = function (callback)
