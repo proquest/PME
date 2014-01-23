@@ -13,7 +13,7 @@ Pre-requirements
 NodeJS must be installed.
 
 `phantomjs` must be installed as a node module. The wrapper command that calls
-`phantomjs` assumed that the module is available in a `node_modules` directory
+`phantomjs` assumes that the module is available in a `node_modules` directory
 inside this test directory. If this is not the case you may wish to soft link
 your `node_modules` directory into this one or modify the `philtered` command
 in this directory with the proper path to the `phantomjs` binary.
@@ -60,8 +60,8 @@ If you wish to only test a single translator then you can do so by running:
 
     ./philtered run-testcases-single.js 'translator.js'
 
-Where `translator.js` is the filename without of the translator you wish to
-test. Don't include the path. The `philtered` script filters the output of
+Where `translator.js` is the filename of the translator you wish to test.
+Don't include the path. The `philtered` script filters the output of
 `phantomjs` as current versions may yield a ton of warnings about deprecated
 API usage on Mac OS X.
 
