@@ -6,10 +6,10 @@
 // --------------------------
 const DEBUG = true; // debug logging to stdout or mute local logging
 const PIPE_PME_OUTPUT = true; // if set, the script will pipe any output from the main PME script in the client page to the local stdout
-const TESTCASE_LIMIT = 1; // allow override of max # of testCases to run, set to 0 for no limit (i.e. normal operation)
+const TESTCASE_LIMIT = 0; // allow override of max # of testCases to run, set to 0 for no limit (i.e. normal operation)
 
 const PME_WAIT_SECONDS = 3; // number of seconds to wait for PME to show up in the client page
-const RESULTS_WAIT_SECONDS = 10; // number of seconds to wait for the translator to yield results. can take a long time for certain pages
+const RESULTS_WAIT_SECONDS = 45; // number of seconds to wait for the translator to yield results. can take a long time for certain pages
 
 
 // imports
