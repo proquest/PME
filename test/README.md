@@ -22,28 +22,12 @@ in this directory with the proper path to the `phantomjs` binary.
 Usage
 -----
 
-The PME files need to be available to the pages that are being tested over
-HTTP. The easiest way to do this is to run the following command inside the
-PME root directory:
-
-    python -m SimpleHTTPServer 8081
-
-This will create a simple static file hosting server at the address that the
-test scripts are configured to look for PME stuff.
-If you want to host PME in a different way, make sure to update the
-`PME_TEST_HOST` constant at the top of the `run-testcases-single.js` file.
-
-__NOTE WELL__: be aware that the tester assumes that the files hosted using
-this server are _the same_ as the ones in `../extractors/` relative from this
-`test` directory. If they are not the resulting report may contain incorrect
-data.
-
-Now run the tests:
+To run all the tests:
 
     node run-testcases-all.js
 
-Running the tests will take anywhere from 2 to 10 minutes, depending on the
-number of timeouts the test encounters.
+Based on the any timeouts occurring and how the timeout values are configured
+this may take a while.
 
 Once the tests are ready, a report is saved inside the `reports` directory.
 The report's filename has a timestamp and git branch name in it to easily
@@ -56,7 +40,20 @@ to view the results.
 Single Run
 ----------
 
-If you wish to only test a single translator then you can do so by running:
+If you wish to only test a single translator then do the following.
+
+First you need to have a local PME server running. In full tests this is
+provided automatically by the test runner but for single tests you have to
+start one manually. The easiest way to do this is to open a terminal session,
+navigate to the PME root directory and run:
+
+    python -m SimpleHTTPServer 8082
+
+The port number here is the default, if you change it you have to change the
+`PME_SERVER_PORT` constant in `test_util.js`. This will host the files and
+make them available to the client pages in the tester.
+
+With the PME server up, run the following to test a single translator:
 
     ./philtered run-testcases-single.js 'translator.js'
 
