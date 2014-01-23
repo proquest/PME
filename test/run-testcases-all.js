@@ -7,6 +7,9 @@ const DEBUG = true; // debug logging, turn off to see nothing but emptiness
 const PHANTOMJS_PATH = "./philtered"; // path to the phantomjs binary, or by default to the local ./philtered script that filters out noise from phantomjs
 const TRANSLATOR_LIMIT = 0; // allow override of max # of translators to test, set to 0 for no limit (i.e. normal operation)
 
+const TEST_WAIT_SECONDS = 60 * 8; // max time for a single translator to run before we give up
+
+
 // imports
 var fs = require("fs"),
 	http = require("http"),
@@ -69,11 +72,36 @@ function startLocalPMEServer() {
 // called at script end (failing to do so will cause node to not terminate)
 function stopLocalPMEServer() {
 	debugLog("stopping local PME server");
-	if (localPMEServer)
+	if (localPMEServer) {
 		localPMEServer.close(function() {
-			debugLog("stopped");
+			debugLog("local PME server stopped");
 		});
+	}
 	localPMEServer = null;
+}
+
+
+// --------------------------
+// escape base html characters in output to JSON to it doesn't cause
+// problems when the JSON is embedded in a page.
+
+// read the result template html, replace placeholders in the file and
+// write out the result to a new report.
+function instantiateReport(fields, then) {
+	fs.readFile("test-result-template.html", { encoding: "utf-8" },
+		function(err, template) {
+			template = template.replace(/%%([A-Z_]+)%%/g, function(_, field) {
+				var value = fields[field] || ("NO_SUCH_FIELD: " + field);
+				return value.replace(/<\//g, "<_");
+			});
+
+			var dateTimeFileName = fields["DATETIME"].replace(/:/g, "_"),
+				branchFileName = fields["GIT_BRANCH"].replace(/\//g, "_"),
+				fileName = "pme test report " + branchFileName + " " + dateTimeFileName + ".html";
+
+			fs.writeFile("reports/" + fileName, template, then);
+		}
+	);
 }
 
 
@@ -91,7 +119,11 @@ function translatorError(fileName, message) {
 // the testcases are run in a separate process and the results are
 // returned to us in JSON form at the end of the stdout
 function runTranslatorTestCases(fileName, then) {
-	var child = exec(PHANTOMJS_PATH + " run-testcases-single.js " + fileName,
+	var child = exec(
+		PHANTOMJS_PATH + " run-testcases-single.js " + fileName,
+		{
+			timeout: TEST_WAIT_SECONDS * 1000
+		},
 		function(error, stdout, stderr) {
 			var testResult;
 
@@ -131,25 +163,6 @@ function runTranslatorTestCases(fileName, then) {
 			console.info(chunk.replace(/[\n\r]+$/, ""));
 		});
 	}
-}
-
-
-// read the result template html, replace placeholders in the file and
-// write out the result to a new report.
-function instantiateReport(fields, then) {
-	fs.readFile("test-result-template.html", { encoding: "utf-8" },
-		function(err, template) {
-			template = template.replace(/%%([A-Z_]+)%%/g, function(_, field) {
-				return fields[field] || ("NO_SUCH_FIELD: " + field);
-			});
-
-			var dateTimeFileName = fields["DATETIME"].replace(/:/g, "_"),
-				branchFileName = fields["GIT_BRANCH"].replace(/\//g, "_"),
-				fileName = "pme test report " + branchFileName + " " + dateTimeFileName + ".html";
-
-			fs.writeFile("reports/" + fileName, template, then);
-		}
-	);
 }
 
 

@@ -254,8 +254,10 @@ function runTestCase(tc) {
 			},
 			RESULTS_WAIT_SECONDS * 1000,
 			function(foundResults) {
-				if (! foundResults)
+				if (! foundResults) {
+					debugLog("did not detect resultset in page");
 					testCaseFailed(tc, "did not find resultset after " + RESULTS_WAIT_SECONDS + "s");
+				}
 				else {
 					debugLog("found resultset");
 
