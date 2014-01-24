@@ -2084,6 +2084,8 @@ PME.genericScrape = function (doc) {
 	var regex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
 	var matches = [];
+	//running is used to handle dois that have elements embedded in them (usually hit highlighting)
+	//it captures the last few text nodes and joins them together
 	var running = [];
 	while (walker.nextNode()) {
 		running.push(walker.currentNode.nodeValue);
@@ -2116,7 +2118,9 @@ PME.genericScrape = function (doc) {
 			matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
 		}
 	}
-	return map(filter(matches,function(item,i,items){return items.indexOf(item,i+1) == -1;}),function(doi){return {"ref":{"doi":doi}}});
+	//remove duplicates
+	matches = filter(matches, function (item, i, items) {return items.indexOf(item, i + 1) == -1;});
+	return map(matches,function(doi){return {"ref":{"doi":doi}}});
 }
 
 
