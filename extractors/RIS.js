@@ -265,6 +265,9 @@ var fieldMap = {
 	C6: {
 		legalStatus:["patent"]
 	},
+	C7: {
+		articleNumber:["journalArticle"]
+	},
 	CY: {
 		"__default":"place",
 		"__exclude":["conferencePaper"] //should be exported as C1
