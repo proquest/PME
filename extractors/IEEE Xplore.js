@@ -393,7 +393,7 @@ var testCases = [
 				"issue": "6",
 				"pages": "1491-1502",
 				"abstractNote": "In this paper, we study some variants of fuzzy Turing machines (FTMs) and universal FTM. First, we give several formulations of FTMs, including, in particular, deterministic FTMs (DFTMs) and nondeterministic FTMs (NFTMs). We then show that DFTMs and NFTMs are not equivalent as far as the power of recognizing fuzzy languages is concerned. This contrasts sharply with classical TMs. Second, we show that there is no universal FTM that can exactly simulate any FTM on it. But if the membership degrees of fuzzy sets are restricted to a fixed finite subset A of [0,1], such a universal machine exists. We also show that a universal FTM exists in some approximate sense. This means, for any prescribed accuracy, that we can construct a universal machine that simulates any FTM with the given accuracy. Finally, we introduce the notions of fuzzy polynomial time-bounded computation and nondeterministic fuzzy polynomial time-bounded computation, and investigate their connections with polynomial time-bounded computation and nondeterministic polynomial time-bounded computation.",
-				"DOI": "10.1109/TFUZPME.2008.2004990",
+				"DOI": "10.1109/TFUZZ.2008.2004990",
 				"ISSN": "1063-6706",
 				"conferenceName": "IEEE Transactions on Fuzzy Systems",
 				"proceedingsTitle": "IEEE Transactions on Fuzzy Systems",
@@ -492,5 +492,5 @@ var testCases = [
 	}
 ]
 /** END TEST CASES **/
-PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });
 }());

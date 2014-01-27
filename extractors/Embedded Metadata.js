@@ -465,14 +465,6 @@ function addHighwireMetadata(doc, newItem) {
 	newItem.libraryCatalog = doc.location.host;
 }
 
-var exports = {
-	"doWeb": doWeb,
-	"detectWeb": detectWeb,
-	"addCustomFields": addCustomFields,
-	"itemType": false,
-	"fixSchemaURI": setPrefixRemap
-}
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -841,6 +833,16 @@ var testCases = [
 		]
 	}
 ];
+
+var exports = {
+	"doWeb": doWeb,
+	"detectWeb": detectWeb,
+	"addCustomFields": addCustomFields,
+	"itemType": false,
+	"fixSchemaURI": setPrefixRemap,
+	"testCases": testCases
+};
+
 /** END TEST CASES **/
 PME.TranslatorClass.loaded(translatorSpec, exports);
 }());

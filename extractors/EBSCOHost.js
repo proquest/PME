@@ -400,5 +400,5 @@ var testCases = [
 /** END TEST CASES **/
 
 // Generated code, or at least, this will be generated:
-PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });
 }());

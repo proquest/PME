@@ -36,6 +36,9 @@ var Registry = (function() {
 		"RefWorks Tagged Format": {
 			g: "1a3506da-a303-4b0a-a1cd-f216e6138d86"
 		},
+		"Embedded Metadata": {
+			g: "951c027d-74ac-47d4-a107-9c3069ab7b48"
+		},
 
 		// -- web
 		"Safari Books Online": {
@@ -2106,8 +2109,10 @@ PME.getPageMetaData = function (callback)
 			t.translate();
 		}
 
-		if (! trans)
+		if (! trans) {
+			log("no suitable translator found");
 			completed({noTranslator:true});
+		}
 		else {
 			// add XPath helper javascript if document.evaluate is not defined
 			// make sure it has loaded before proceeding

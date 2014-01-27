@@ -1203,12 +1203,6 @@ function doExport() {
 	}
 }
 
-var exports = {
-	"doExport": doExport,
-	"doImport": doImport,
-	"options": exportedOptions
-}
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -3784,6 +3778,14 @@ var testCases = [
 		]
 	}
 ];
+
+var exports = {
+	"doExport": doExport,
+	"doImport": doImport,
+	"options": exportedOptions,
+	"testCases": testCases
+};
+
 /** END TEST CASES **/
 PME.TranslatorClass.loaded(translatorSpec, exports);
 }());

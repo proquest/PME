@@ -2365,13 +2365,6 @@ function doExport() {
 	}
 }
 
-var exports = {
-	"doExport": doExport,
-	"doImport": doImport,
-	"setKeywordDelimRe": setKeywordDelimRe,
-	"setKeywordSplitOnSpace": setKeywordSplitOnSpace
-}
-
 /** BEGIN TEST CASES **/
 var testCases = [
 	{
@@ -2670,6 +2663,14 @@ var testCases = [
 	}
 ]
 /** END TEST CASES **/
+
+var exports = {
+	"doExport": doExport,
+	"doImport": doImport,
+	"setKeywordDelimRe": setKeywordDelimRe,
+	"setKeywordSplitOnSpace": setKeywordSplitOnSpace,
+	"testCases": testCases
+};
 
 PME.TranslatorClass.loaded(translatorSpec, exports);
 }());
