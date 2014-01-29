@@ -466,6 +466,12 @@ function vanish() {
 function completed(data) {
 	if (pmeCompleted)
 		return;
+	if(! (data))
+		data = {};
+	if (!(data.items && data.items.length > 0)) {
+		log("attempting generic scrape")
+		data.items = PME.genericScrape(document);
+	}
 	pmeCompleted = true;
 	if (pmeOK)
 		log("completed, item count = ", (data && !data.noTranslator && data.items) ? data.items.length : 0, " data = ", data);
@@ -2086,7 +2092,8 @@ PME.isURLSupported = function (sUrl)
 	return Registry.matchURL(sUrl) ? true : false;
 }
 
-PME.genericScrape = function (doc) {
+PME.genericScrape = function (doc)
+{
 	var regex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
 	var matches = [];
@@ -2126,7 +2133,7 @@ PME.genericScrape = function (doc) {
 	}
 	//remove duplicates
 	matches = filter(matches, function (item, i, items) {return items.indexOf(item, i + 1) == -1;});
-	return map(matches,function(doi){return {"ref":{"doi":doi}}});
+	return map(matches,function(doi){return {"doi":doi}});
 }
 
 
@@ -2151,7 +2158,10 @@ PME.getPageMetaData = function (callback)
 		}
 
 
-		if(trans) {
+		if(! trans) {
+			completed({noTranslator: true});
+		}
+		else {
 			// add XPath helper javascript if document.evaluate is not defined
 			// make sure it has loaded before proceeding
 			if (! pageDoc.evaluate) {
@@ -2162,15 +2172,6 @@ PME.getPageMetaData = function (callback)
 				doTranslation();
 			}
 
-		}
-		//broken translator, or no translator
-		if(PME.items.length == 0){
-			PME.items = PME.genericScrape(document);
-			if (PME.items.length == 0) {
-				completed({noTranslator: true});
-			}
-			else
-				success();
 		}
 	}
 	catch(e) {
