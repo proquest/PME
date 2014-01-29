@@ -473,8 +473,7 @@ function completed(data) {
 		data.items = PME.genericScrape(document);
 	}
 	pmeCompleted = true;
-	if (pmeOK)
-		log("completed, item count = ", (data && !data.noTranslator && data.items) ? data.items.length : 0, " data = ", data);
+	log("completed, item count = ", (data && !data.noTranslator && data.items) ? data.items.length : 0, " data = ", data);
 	pmeCallback && pmeCallback(data);
 	setTimeout(vanish, 1);
 }
@@ -2133,7 +2132,7 @@ PME.genericScrape = function (doc)
 	}
 	//remove duplicates
 	matches = filter(matches, function (item, i, items) {return items.indexOf(item, i + 1) == -1;});
-	return map(matches,function(doi){return {"doi":doi}});
+	return map(matches,function(doi){return {"DOI":doi}});
 }
 
 
