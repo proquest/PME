@@ -46,7 +46,7 @@ var Registry = (function() {
 			g: "ec491fc2-10b1-11e3-99d7-1bd4dc830245"
 		},
 		"JSTOR": {
-			m: "https?://[^/]*jstor\\.org[^/]*/(action/(showArticle|doBasicSearch|doAdvancedSearch|doLocatorSearch|doAdvancedResults|doBasicResults)|stable/|pss/|betasearch\\?|openurl\\?)",
+			m: "https?://[^/]*jstor\\.org[^/]*/(action/(showArticle|doBasicSearch|doAdvancedSearch|doLocatorSearch|doAdvancedResults|doBasicResults)|discover|stable/|pss/|betasearch\\?|openurl\\?)",
 			g: "d921155f-0186-1684-615c-ca57682ced9b"
 		},
 		"JAMA": {
