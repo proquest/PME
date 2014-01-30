@@ -74,7 +74,7 @@ var Registry = (function() {
 			g: "b6d0a7a-d076-48ae-b2f0-b6de28b194e"
 		},
 		"ProQuest": {
-			m: "^https?://search\\.proquest\\.com.*\\/(docview|pagepdf|results|publicationissue|browseterms|browsetitles|browseresults|myresearch\\/(figtables|documents))",
+			m: "^https?://.*(search|aa1)\\.proquest\\.com.*\\/(docview|pagepdf|results|publicationissue|browseterms|browsetitles|browseresults|myresearch\\/(figtables|documents))",
 			g: "fce388a6-a847-4777-87fb-6595e710b7e7"
 		},
 		"Google Scholar": {
