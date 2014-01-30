@@ -471,6 +471,8 @@ function completed(data) {
 	if (!(data.items && data.items.length > 0)) {
 		log("attempting generic scrape")
 		data.items = PME.genericScrape(document);
+		if(data.noTranslator && data.items.length > 0)
+			delete data.noTranslator;
 	}
 	pmeCompleted = true;
 	log("completed, item count = ", (data && !data.noTranslator && data.items) ? data.items.length : 0, " data = ", data);
