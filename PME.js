@@ -469,9 +469,16 @@ function vanish() {
 function completed(data) {
 	if (pmeCompleted)
 		return;
+	if(! (data))
+		data = {};
+	if (!(data.items && data.items.length > 0)) {
+		log("attempting generic scrape")
+		data.items = PME.genericScrape(document);
+		if(data.noTranslator && data.items.length > 0)
+			delete data.noTranslator;
+	}
 	pmeCompleted = true;
-	if (pmeOK)
-		log("completed, item count = ", (data && !data.noTranslator && data.items) ? data.items.length : 0, " data = ", data);
+	log("completed, item count = ", (data && !data.noTranslator && data.items) ? data.items.length : 0, " data = ", data);
 	pmeCallback && pmeCallback(data);
 	setTimeout(vanish, 1);
 }
@@ -2089,6 +2096,51 @@ PME.isURLSupported = function (sUrl)
 	return Registry.matchURL(sUrl) ? true : false;
 }
 
+PME.genericScrape = function (doc)
+{
+	var regex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016
+	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
+	var matches = [];
+	//running is used to handle dois that have elements embedded in them (usually hit highlighting)
+	//it captures the last few text nodes and joins them together
+	var running = [];
+	while (walker.nextNode()) {
+		running.push(walker.currentNode.nodeValue);
+		if(running.length > 10)
+			running.shift();
+		var match = regex.exec(running.join(''));
+		if (match != null){
+			matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+			running = [];
+		}
+		else{
+			match = regex.exec(walker.currentNode.nodeValue);
+			if (match != null)
+				matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+		}
+	}
+
+	var attributeMatch = PME.Util.xpath(doc, '//*[@doi]/@doi');
+	if (attributeMatch.length == 0)
+		attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content');
+	if (attributeMatch.length == 0)
+		attributeMatch = PME.Util.xpath(doc, '//*[contains(@name, "doi")]/@value');
+	if (attributeMatch.length == 0)
+		attributeMatch = PME.Util.xpath(doc, '//a[@href]/@href');
+
+	for (var i = 0; i < attributeMatch.length; i++) {
+		var match = regex.exec(attributeMatch[i].value);
+
+		if (match != null) {
+			matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+		}
+	}
+	//remove duplicates
+	matches = filter(matches, function (item, i, items) {return items.indexOf(item, i + 1) == -1;});
+	return map(matches,function(doi){return {"DOI":doi}});
+}
+
+
 PME.getPageMetaData = function (callback)
 {
 	try {
@@ -2109,9 +2161,9 @@ PME.getPageMetaData = function (callback)
 			t.translate();
 		}
 
-		if (! trans) {
-			log("no suitable translator found");
-			completed({noTranslator:true});
+
+		if(! trans) {
+			completed({noTranslator: true});
 		}
 		else {
 			// add XPath helper javascript if document.evaluate is not defined

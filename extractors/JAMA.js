@@ -37,7 +37,7 @@
 		var source = PME.Util.xpathText(result, path);
 		source = source.split(' doi: ');
 		if(source.length == 2)
-			item.DOI = source[1];
+			item.DOI = PME.Util.trim(source[1]);
 		source = source[0].replace(/\./, '').split(' ');
 		if (source.length == 3){
 			item.journalAbbreviation = source[0];
