@@ -939,6 +939,25 @@ PME.Util.capitalizeTitle = function(str) {
 	return str; // TBI
 };
 
+PME.Util.parseAuthors = function(str, options) {
+	options = options || {authorDelimit: ';', authorFormat: 'last, first middle'};
+	var authors = str.split(options.authorDelimit), creators = [];
+	for(var i = 0; i < authors.length; i++) {
+		switch(options.authorFormat) {
+			case "last, first middle":
+				var author = authors[i].split(/, ?/), lastName = PME.Util.trim(author.splice(0,1)[0]);
+				creators.push({firstName: PME.Util.trim(author.join(' ')), lastName: lastName});
+				break;
+			case "first middle last":
+				var author = authors[i].split(' '), lastName = PME.Util.trim(author.splice(author.length - 1)[0]);
+				creators.push({firstName: PME.Util.trim(author.join(' ')),lastName: lastName});
+				break;
+
+		}
+	}
+	return creators;
+}
+
 PME.Util.cleanAuthor = function(str) {
 	return str; // TBI
 };

@@ -12,17 +12,60 @@ var translatorSpec = {
 	"browserSupport": "gcsibv",
 	"lastUpdated": "2013-09-25 16:42:33"
 }
-
+var mapping = {
+	"Authors":"creators",
+	"Publisher": "publisher",
+	"Date of publication": "publicationDate",
+	"Published in": "source",
+	"ISSN(s)": "ISSN",
+	"DOI": "DOI",
+	"Country of publication": "place"
+};
 function doWeb(doc, url) {
-	console.log('test')
-    var results = PME.Util.xpath(doc, '//div[@id="facetview_results"]//td');
-	console.log(results.length)
-	PME.Util.each(results, function (result) {console.log('row')
+    var results = PME.Util.xpath(doc, '//table[@id="facetview_results"]//td');
+	PME.Util.each(results, function (result) {
 		var item = new PME.Item('journalArticle');
-        var resulttext = PME.Util.getNodeText(result);
-		console.log(resulttext)
+		item.title = PME.Util.xpathText(result,'.//span[@class="title"]')
+        var fields = result.innerHTML.split('<br>');
+		for(var i = 0; i < fields.length; i++){
+			if(fields[i].indexOf('<strong>') == 0){
+				var field = fields[i].replace(/<\/?strong>/g, '').split(/: ?/);
+				var fieldType = mapping[field.splice(0,1)[0]], fieldValue = field.join('');
+				switch(fieldType){
+					case "creators":
+						item[fieldType] = PME.Util.parseAuthors(fieldValue,{authorDelimit:',', authorFormat:'first middle last'});
+						break;
+					case "source":
+						parseSource(fieldValue,item);
+						break;
+					case undefined:
+						break;
+					default:
+						item[fieldType] = PME.Util.trim(fieldValue.replace(/<.+?>/g,''));
+				}
+
+			}
+		}
+		item.complete();
     });
 }
+function parseSource(values,item) {
+	values = values.split(/, ?/);
+	for(var i = 0; i < values.length; i++) {
+		if(values[i].toLowerCase().indexOf('iss') == 0) {
+			item.issue = PME.Util.trim(values[i].replace(/[^\d]/g,''));
+		}
+		else if (values[i].toLowerCase().indexOf('vol') == 0) {
+			item.volume = PME.Util.trim(values[i].replace(/[^\d]/g, ''));
+		}
+		else if (values[i].toLowerCase().indexOf('pp') == 0) {
+			item.pages = PME.Util.trim(values[i].replace(/\(\d+\)|[^\d-]/g, ''));
 
+		}
+		else if(! item.publicationTitle){
+			item.publicationTitle = PME.Util.trim(values[i]);
+		}
+	}
+}
 PME.TranslatorClass.loaded(translatorSpec, { doWeb: doWeb });
 }());
