@@ -26,8 +26,8 @@ To run all the tests:
 
     node run-testcases-all.js
 
-Based on the any timeouts occurring and how the timeout values are configured
-this may take a while.
+Depending on whether any timeouts occur and how the timeout values are
+configured this may take a while (up to 10 mins)
 
 Once the tests are ready, a report is saved inside the `reports` directory.
 The report's filename has a timestamp and git branch name in it to easily
