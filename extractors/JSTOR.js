@@ -61,8 +61,6 @@ function doWeb(doc, url) {
 		dois = PME.Util.map(PME.Util.xpath(doc, '//li[@class="row result-item"]//input[@name="doi"]/@value'),PME.Util.getNodeText);
 	}
 	PME.Util.each(dois, function (doi) {
-		if(doi.indexOf("10.2307/") != 0)
-			doi = "10.2307/" + doi;
 
 		var downloadString = "redirectUri=%2Faction%2FexportSingleCitation%3FsingleCitation%3Dtrue%26doi%3D" + doi + "&noDoi=yesDoi&doi=" + doi;
 		PME.Util.HTTP.doPost("/action/downloadSingleCitation?userAction=export&format=refman&direct=true&singleCitation=true", downloadString, function (text) {
