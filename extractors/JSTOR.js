@@ -3,7 +3,7 @@ var translatorSpec = {
 	"translatorID": "d921155f-0186-1684-615c-ca57682ced9b",
 	"label": "JSTOR",
 	"creator": "Simon Kornblith, Sean Takats, Michael Berkowitz, and Eli Osherovich",
-	"target": "https?://[^/]*jstor\\.org[^/]*/(action/(showArticle|doBasicSearch|doAdvancedSearch|doLocatorSearch|doAdvancedResults|doBasicResults)|stable/|pss/|betasearch\\?|openurl\\?)",
+	"target": "https?://[^/]*jstor\\.org[^/]*/(action/(showArticle|doBasicSearch|doAdvancedSearch|doLocatorSearch|doAdvancedResults|doBasicResults)|discover|stable/|pss/|betasearch\\?|openurl\\?)",
 	"minVersion": "2.1.9",
 	"maxVersion": "",
 	"priority": 100,
@@ -44,207 +44,67 @@ function doWeb(doc, url) {
 	if (prefix == 'x') return namespace; else return null;
 	} : null;
 
-	var host = doc.location.host;
-
-	// If this is a view page, find the link to the citation
-	var xpath = '//a[@id="favorites"]';
-	var elmt = doc.evaluate(xpath, doc, nsResolver, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-	var allJids = [], m;
-	if (elmt && (m = /jid=(10\.([0-9]{4,})%2F(\d+))/.exec(elmt.href))) {
-		if(m[2] == "2307") {
-			allJids.push(m[3]);
-			var jid = m[3];
-		} else {
-			allJids.push(m[1]);
-			var jid = m[1];
-		}
-		PME.debug("JID found 1 " + jid);
-		setupSets(allJids, host)
+	var singleDoi = PME.Util.xpathText(doc, "//div[@id='doi']");console.log(singleDoi)
+	var dois = [];
+	if (singleDoi) {
+		dois.push(singleDoi);
 	}
-	// Sometimes JSTOR uses DOIs as JID; here we exclude "?" characters, since it's a URL
-	// And exclude TOC for journal issues that have their own DOI
-	else if (/(?:pss|stable)\/(10\.\d+\/[^?]+)(?:\?.*)?/.test(url)
-		 && !doc.evaluate('//form[@id="toc"]', doc, nsResolver,
-			XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue) {
-		PME.debug("URL " + url);
-		jid = RegExp.$1;
-		allJids.push(jid);
-		PME.debug("JID found 2 " + jid);
-		setupSets(allJids, host)
-	}
-	else if (/(?:pss|stable)\/(\d+)/.test(url)
-		 && !doc.evaluate('//form[@id="toc"]', doc, nsResolver,
-			XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue) {
-		PME.debug("URL " + url);
-		jid = RegExp.$1;
-		allJids.push(jid);
-		PME.debug("JID found 3 " + jid);
-		setupSets(allJids, host)
+	else if (/(?:pss|stable)\/(10\.\d+\/[^?]+)(?:\?.*)?|(?:pss|stable)\/(\d+)/.test(url)
+		 && !doc.evaluate('//form[@id="toc"]', doc, nsResolver, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue) {
+		dois.push(RegExp.$1);
 	}
 	else {
-		// We have multiple results
-		var resultsBlock = doc.evaluate('//fieldset[@id="results" or @id="resultsBlock"]', doc, nsResolver, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-		if (! resultsBlock) {
-			return true;
-		}
-
-		var allTitlesElmts = doc.evaluate('//li//a[@class="title"]|//li//div[@class="title" and not(a[@class="title"])]', resultsBlock, nsResolver,  XPathResult.ANY_TYPE, null);
-		var currTitleElmt;
-		var availableItems = new Object();
-		while (currTitleElmt = allTitlesElmts.iterateNext()) {
-			var title = PME.Util.trim(PME.Util.getNodeText(currTitleElmt));
-			// Sometimes JSTOR uses DOIs as JID; here we exclude "?" characters, since it's a URL
-			var jid = null;
-			if (/(?:pss|stable)\/(10\.\d+\/[^?]+)(?:\?.*)?/.test(currTitleElmt.href)) jid = RegExp.$1;
-			else if (currTitleElmt.href) {
-				var m1 = currTitleElmt.href.match(/(?:stable|pss)\/([a-z]*?\d+)/);
-				jid = m1 ? m1[1] : null;
-			}
-			//for items like Reviews without linked titles
-			else {
-				var m1 = PME.Util.xpathText(currTitleElmt, './a[contains(@id, "previewResult")]/@href')
-				var m2 = m1 ? m1.match(/doi=10.2307\%2F(\d+)/) : null
-				jid = m2 ? m2[1] : null;
-			}
-			if (jid) {
-				availableItems[jid] = title;
-			}
-			PME.debug("Found title " + title+" with JID "+ jid);
-		}
-		PME.debug("End of titles");
-
-		PME.selectItems(availableItems, function (selectedItems) {
-			if (!selectedItems) {
-				return true;
-			}
-			for (var j in selectedItems) {
-				PME.debug("Pushing " + j);
-				allJids.push(j);
-			}
-			setupSets(allJids, host)
-		});
-
+		dois = PME.Util.map(PME.Util.xpath(doc, '//li[@class="row result-item"]//input[@name="doi"]/@value'),PME.Util.getNodeText);
 	}
-}
+	PME.Util.each(dois, function (doi) {
+		if(doi.indexOf("10.2307/") != 0)
+			doi = "10.2307/" + doi;
 
-function setupSets(allJids, host){
-	var sets = [];
-	for (var i = 0; i < allJids.length; i++) {
-        var jid = allJids[i];
-		sets.push({ jid: jid, host: host });
-	}
-	var callbacks = [first, second];
-	PME.Util.processAsync(sets, callbacks, function(){PME.done()});
-}
-
-
-function first(set, next) {
-	var jid = set.jid;
-	var host = set.host;
-	//distinguish JID from DOI
-	if (jid.search(/^10\./)!=-1){
-		var doi = jid
-	}
-	else var doi = "10.2307/" + jid;
-
-	var downloadString = "redirectUri=%2Faction%2FexportSingleCitation%3FsingleCitation%3Dtrue%26doi%3D" + doi + "&noDoi=yesDoi&doi=" + doi;
-	//PME.debug(downloadString)
-	PME.Util.HTTP.doPost("/action/downloadSingleCitation?userAction=export&format=refman&direct=true&singleCitation=true", downloadString, function(text) {
-		// load translator for RIS
-		var translator = PME.loadTranslator("import");
-		translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-		//PME.debug(text)
-		translator.setString(text);
-		translator.setHandler("itemDone", function(obj, item) {
-			//author names are not supplied as lasName, firstName in RIS
-			//we fix it here
-			var m;
-			for(var i=0, n=item.creators.length; i<n; i++) {
-				if(!item.creators[i].firstName
-					&& (m = item.creators[i].lastName.match(/^(.+?)\s+(\S+)$/))) {
-					item.creators[i].firstName = m[1];
-					item.creators[i].lastName = m[2];
-					delete item.creators[i].fieldMode;
+		var downloadString = "redirectUri=%2Faction%2FexportSingleCitation%3FsingleCitation%3Dtrue%26doi%3D" + doi + "&noDoi=yesDoi&doi=" + doi;
+		PME.Util.HTTP.doPost("/action/downloadSingleCitation?userAction=export&format=refman&direct=true&singleCitation=true", downloadString, function (text) {
+			var translator = PME.loadTranslator("import");
+			translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
+			translator.setString(text);
+			translator.setHandler("itemDone", function (obj, item) {
+				var m;
+				for (var i = 0, n = item.creators.length; i < n; i++) {
+					if (!item.creators[i].firstName && (m = item.creators[i].lastName.match(/^(.+?)\s+(\S+)$/))) {
+						item.creators[i].firstName = m[1];
+						item.creators[i].lastName = m[2];
+						delete item.creators[i].fieldMode;
+					}
 				}
-			}
-				if(item.notes && item.notes[0]) {
-				// For some reason JSTOR exports abstract with 'AB' tag istead of 'N1'
-				item.abstractNote = item.notes[0].note;
-				item.abstractNote = item.abstractNote.replace(/^<p>(ABSTRACT )?/,'').replace(/<\/p>$/,'');
-				delete item.notes;
-				item.notes = undefined;
-			}
-
-			// Don't save HTML snapshot from 'UR' tag
-			item.attachments = [];
-
-			set.doi = "10.2307/" + jid;
-
-			if (/stable\/(\d+)/.test(item.url)) {
-				var pdfurl = "http://" + host + "/stable/pdfplus/"+ jid  + ".pdf?acceptTC=true";
-				item.attachments.push({url:pdfurl, title:"JSTOR Full Text PDF", mimeType:"application/pdf"});
-			}
-			var matches;
-			if (item.ISSN && (matches = item.ISSN.match(/([0-9]{4})([0-9]{3}[0-9Xx])/))) {
-				item.ISSN = matches[1] + '-' + matches[2];
-			}
-			//reviews don't have titles in RIS - we get them from the item page
-			if (!item.title && item.url){
-				PME.Util.processDocuments(item.url, function(doc){
-				if (PME.Util.xpathText(doc, '//div[@class="bd"]/div[@class="rw"]')){
-					item.title = "Review of: " + PME.Util.xpathText(doc, '//div[@class="bd"]/div[@class="rw"]')
+				if (item.notes && item.notes[0]) {
+					// For some reason JSTOR exports abstract with 'AB' tag istead of 'N1'
+					item.abstractNote = item.notes[0].note;
+					item.abstractNote = item.abstractNote.replace(/^<p>(ABSTRACT )?/, '').replace(/<\/p>$/, '');
+					delete item.notes;
 				}
-				//this is almost certainly not necessary, but let's be safe
-				else item.title = PME.Util.xpathText(doc, '//div[@class="bd"]/h2')
-				set.item = item;
-				next();
-				})
-			}
-			else{
-				set.item = item;
-				next();
-			}
-		});
+				item.attachments = [];
 
-		translator.translate();
+				item.doi = doi;
+
+				if (/stable\/(\d+)/.test(item.url)) {
+					var pdfurl = window.location.protocol + "//" + window.location.host + "/stable/pdfplus/" + doi + ".pdf?acceptTC=true";
+					item.attachments.push({url: pdfurl, title: "JSTOR Full Text PDF", mimeType: "application/pdf"});
+				}
+				var matches;
+				if (item.ISSN && (matches = item.ISSN.match(/([0-9]{4})([0-9]{3}[0-9Xx])/))) {
+					item.ISSN = matches[1] + '-' + matches[2];
+				}
+				if (!item.title && item.url) {
+					PME.Util.processDocuments(item.url, function (doc) {
+						if (PME.Util.xpathText(doc, '//div[@class="bd"]/div[@class="rw"]')) {
+							item.title = "Review of: " + PME.Util.xpathText(doc, '//div[@class="bd"]/div[@class="rw"]')
+						}
+						else item.title = PME.Util.xpathText(doc, '//div[@class="bd"]/h2');
+					})
+				}
+				item.complete();
+			});
+			translator.translate();
+		});
 	});
-}
-
-function second(set, next) {
-	var item = set.item;
-	item.complete();
-	next();
-//
-//	if (!set.doi) {
-//		item.complete();
-//		next();
-//	}
-//
-//	var doi = set.doi;
-//	var crossrefURL = "http://www.crossref.org/openurl/?req_dat=zter:zter321&url_ver=Z39.88-2004&ctx_ver=Z39.88-2004&rft_id=info%3Adoi/"+doi+"&noredirect=true&format=unixref";
-//
-//	PME.Util.HTTP.doGet(crossrefURL, function (text) {
-//		// parse XML with DOMParser
-//		try {
-//			var parser = new DOMParser();
-//			var xml = parser.parseFromString(text, "text/xml");
-//		} catch(e) {
-//			item.complete();
-//			next();
-//			return;
-//		}
-//
-//		var doi = PME.Util.xpathText(xml, '//doi');
-//
-//		// ensure DOI is valid
-//		if(!PME.Util.xpath(xml, '//error').length) {
-//			PME.debug("DOI is valid");
-//			item.DOI = doi;
-//		}
-//
-//		item.complete();
-//		next();
-//	});
 }
 
 /** BEGIN TEST CASES **/
