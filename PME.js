@@ -139,7 +139,7 @@ var Registry = (function() {
 			g: "05d07af9-105a-4572-99f6-a8e231c0daef"
 		},
 		"DOAJ": {
-			m: "https?://.*\\.?doaj\\.org/doaj\\?func=(search|issueTOC|advancedSearch)",
+			m: "https?://.*\\.?doaj\\.org",
 			g: "db935268-34d1-44f8-a6ee-52a178d598a2"
 		},
 		"Springer Link": {
@@ -945,6 +945,25 @@ PME.Util.trimInternal = function(str) {
 PME.Util.capitalizeTitle = function(str) {
 	return str; // TBI
 };
+
+PME.Util.parseAuthors = function(str, options) {
+	options = options || {authorDelimit: ';', authorFormat: 'last, first middle'};
+	var authors = str.split(options.authorDelimit), creators = [];
+	for(var i = 0; i < authors.length; i++) {
+		switch(options.authorFormat) {
+			case "last, first middle":
+				var author = authors[i].split(/, ?/), lastName = PME.Util.trim(author.splice(0,1)[0]);
+				creators.push({firstName: PME.Util.trim(author.join(' ')), lastName: lastName});
+				break;
+			case "first middle last":
+				var author = authors[i].split(' '), lastName = PME.Util.trim(author.splice(author.length - 1)[0]);
+				creators.push({firstName: PME.Util.trim(author.join(' ')),lastName: lastName});
+				break;
+
+		}
+	}
+	return creators;
+}
 
 PME.Util.cleanAuthor = function(str) {
 	return str; // TBI
