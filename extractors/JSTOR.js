@@ -44,9 +44,13 @@ function doWeb(doc, url) {
 	if (prefix == 'x') return namespace; else return null;
 	} : null;
 
-	var singleDoi = PME.Util.xpathText(doc, "//div[@id='doi']");console.log(singleDoi)
+	var singleDoi = PME.Util.xpathText(doc, "//div[@id='doi']");
+	var singleLink = PME.Util.xpathText(doc, "//a[@id='viewCitation']/@href");
 	var dois = [];
-	if (singleDoi) {
+	if(singleLink) {
+		dois.push(decodeURIComponent(singleLink.replace(/.*doi=/, '')));
+	}
+	else if (singleDoi) {
 		dois.push(singleDoi);
 	}
 	else if (/(?:pss|stable)\/(10\.\d+\/[^?]+)(?:\?.*)?|(?:pss|stable)\/(\d+)/.test(url)
