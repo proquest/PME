@@ -709,7 +709,7 @@ PME.TranslatorClass.unloadAll = function() {
 
 
 PME.TranslatorClass.cache = {};
-PME.TranslatorClass.baseURL = "http://" + PME_SRV + "/extractors/"; // PME_SRV is set by the bookmarklet
+PME.TranslatorClass.baseURL = (PME_SRV.indexOf('http') == 0 ? '' : 'http://') + PME_SRV + "/extractors/"; // PME_SRV is set by the bookmarklet
 
 
 // ------------------------------------------------------------------------
