@@ -2124,7 +2124,7 @@ PME.pdfScrape = function(doc)
 	var url = window.location.toString();
 	if(url.indexOf('.pdf') > 0) {
 		var item = new PME.Item('journalArticle');
-		item.title = "Unknown PDF";
+		item.title = url;
 		item.attachments= [
 			{title: 'Full Text PDF', url: url, mimeType: 'application/pdf'}
 		];
