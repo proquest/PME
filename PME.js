@@ -1251,7 +1251,7 @@ PME.Util.xpathHelper = function(docWindow, doc, callback) {
 	log("adding XPath helper script");
 	var h = doc.getElementsByTagName('head')[0];
 	var ie_xpath = doc.createElement('SCRIPT');
-	ie_xpath.src = 'http://' + PME_SRV + '/wgxpath.install.js';
+	ie_xpath.src = (PME_SRV.indexOf('http') == 0 ? '' : 'http://') + PME_SRV + '/wgxpath.install.js';
 	h.appendChild(ie_xpath);
 
 	waitFor(
