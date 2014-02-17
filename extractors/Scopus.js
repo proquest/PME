@@ -50,7 +50,7 @@ function getBoxes(doc) {
 }
 
 function returnURL(eid) {
-	return 'http://www.scopus.com/citation/output.url?origin=recordpage&eid=' + eid + '&src=s&view=FullDocument&outputType=export';
+	return window.location.protocol +'//www.scopus.com/citation/output.url?origin=recordpage&eid=' + eid + '&src=s&view=FullDocument&outputType=export';
 }
 
 function doWeb(doc, url) {
@@ -90,7 +90,7 @@ function scrape(doc, url) {
 		var eid = text.match(/<input[^>]*name="eid"[^>]*>/);
 		if (!eid) PME.debug("No eid");
 		else eid = eid[0].match(/value="([^"]*)"/)[1];
-		var get = 'http://www.scopus.com/citation/export.url';
+		var get = window.location.protocol +'//www.scopus.com/citation/export.url';
 		var post = 'origin=recordpage&sid=&src=s&stateKey=' + stateKey + '&eid=' + eid + '&sort=&exportFormat=RIS&view=CiteAbsKeyws&selectedCitationInformationItemsAll=on';
 		var rislink = get + "?" + post;	
 		PME.Util.HTTP.doGet(rislink, function(text) {

@@ -168,7 +168,7 @@ function doWeb(doc, url) {
 			var requests = [];
 			for(var gca in items) {
 				var m = hostRe.exec(pdfs[gca]);
-				var baseURL = 'http://' + doc.location.host + '/cgi/citmgr?type=refman';
+				var baseURL = window.location.protocol +'//' + doc.location.host + '/cgi/citmgr?type=refman';
 
 				var thisRequest = null;
 				for (var request_x=0; request_x<requests.length; request_x++) {

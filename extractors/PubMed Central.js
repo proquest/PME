@@ -36,7 +36,7 @@ function detectWeb(doc, url) {
 
 function lookupPMCIDs(ids, doc, pdfLink) {
 	PME.wait();
-	var newUri = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pmc&retmode=xml&id=" + ids.join(",");
+	var newUri = window.location.protocol +"//eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pmc&retmode=xml&id=" + ids.join(",");
 	PME.debug(newUri);
 	PME.Util.HTTP.doGet(newUri, function (text) {
 		text = text.replace(/(<[^!>][^>]*>)/g, function replacer(str, p1, p2, offset, s) {
@@ -135,7 +135,7 @@ function lookupPMCIDs(ids, doc, pdfLink) {
 				}
 			}
 
-			var linkurl = "http://www.ncbi.nlm.nih.gov/pmc/articles/PMC" + ids[i] + "/";
+			var linkurl = window.location.protocol +"//www.ncbi.nlm.nih.gov/pmc/articles/PMC" + ids[i] + "/";
 			newItem.url = linkurl;
 			newItem.attachments = [{
 				url: linkurl,
@@ -154,7 +154,7 @@ function lookupPMCIDs(ids, doc, pdfLink) {
 			}
 			
 			if (pdfFileName) {
-				var pdfURL = "http://www.ncbi.nlm.nih.gov/pmc/articles/PMC" + ids[i] + "/pdf/" + pdfFileName;
+				var pdfURL = window.location.protocol +"//www.ncbi.nlm.nih.gov/pmc/articles/PMC" + ids[i] + "/pdf/" + pdfFileName;
 				newItem.attachments.push({
 				title:"PubMed Central Full Text PDF",
 				mimeType:"application/pdf",
