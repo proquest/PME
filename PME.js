@@ -42,47 +42,47 @@ var Registry = (function() {
 
 		// -- web
 		"Safari Books Online": {
-			m: "^https?://([^\\.]+)\\.safaribooksonline.com/(browse|search|category/|publisher/|alltitles|book/|[0-9]{10,}|)",
+			m: "safaribooksonline\\.com",
 			g: "ec491fc2-10b1-11e3-99d7-1bd4dc830245"
 		},
 		"JSTOR": {
-			m: "https?://[^/]*jstor\\.org[^/]*/(action/(showArticle|doBasicSearch|doAdvancedSearch|doLocatorSearch|doAdvancedResults|doBasicResults)|discover|stable/|pss/|betasearch\\?|openurl\\?)",
+			m: "jstor\\.org",
 			g: "d921155f-0186-1684-615c-ca57682ced9b"
 		},
 		"JAMA": {
-			m: "https?://.*\\.?jamanetwork.com",
+			m: "jamanetwork\\.com",
 			g: "0bd7e161-b266-42d0-9c19-f82b80463a0e"
 		},
 		"Financial Times": {
-			m: "^https?://(www|search)\\.ft\\.com",
+			m: "ft\\.com",
 			g: "fc9b7700-b3cc-4150-ba89-c7e4443bd96d"
 		},
 		"wsj": {
-			m: "^http://(online|blogs)?\\.wsj\\.com/",
+			m: "wsj\\.com/",
 			g: "53f8d182-4edc-4eab-b5a1-141698a1303b"
 		},
 		"NCBI PubMed": {
-			m: "https?://[^/]*(www|preview)[\\.\\-]ncbi[\\.\\-]nlm[\\.\\-]nih[\\.\\-]gov[^/]*/(books|pubmed|sites/pubmed|sites/entrez|entrez/query\\.fcgi\\?.*db=PubMed|myncbi/browse/collection/|myncbi/collections/)",
+			m: "(www|preview)[\\.\\-]ncbi[\\.\\-]nlm[\\.\\-]nih[\\.\\-]gov[^/]*/(books|pubmed|sites/pubmed|sites/entrez|entrez/query\\.fcgi\\?.*db=PubMed|myncbi/browse/collection/|myncbi/collections/)",
 			g: "fcf41bed-0cbc-3704-85c7-8062a0068a7a"
 		},
 		"PubMed Central": {
-			m: "https?://[^/]*.nih.gov/",
+			m: "\\.nih\\.gov/",
 			g: "27ee5b2c-2a5a-4afc-a0aa-d386642d4eed"
 		},
 		"ScienceDirect": {
-			m: "^https?://[^/]*science-?direct\\.com[^/]*/science(\\/article)?(\\?(?:.+\\&|)ob=(?:ArticleURL|ArticleListURL|PublicationURL))?",
+			m: "science-?direct\\.com",
 			g: "b6d0a7a-d076-48ae-b2f0-b6de28b194e"
 		},
 		"ProQuest": {
-			m: "^https?://.*(search|aa1)\\.proquest\\.com.*\\/(docview|pagepdf|results|publicationissue|browseterms|browsetitles|browseresults|myresearch\\/(figtables|documents))",
+			m: "proquest\\.com.*",
 			g: "fce388a6-a847-4777-87fb-6595e710b7e7"
 		},
 		"Google Scholar": {
-			m: "^https?://scholar\\.google\\.(?:com|cat|(?:com?\\.)?[a-z]{2})/scholar(?:_case)?\\?",
+			m: "scholar\\.google\\.",
 			g: "57a00950-f0d1-4b41-b6ba-44ff0fc30289"
 		},
 		"Scopus": {
-			m: "^http://www\\.scopus\\.com[^/]*",
+			m: "scopus\\.com",
 			g: "a14ac3eb-64a0-4179-970c-92ecc2fec992"
 		},
 		"Ovid": {
@@ -90,7 +90,7 @@ var Registry = (function() {
 			g: "cde4428-5434-437f-9cd9-2281d14dbf9"
 		},
 		"HighWire": {
-			m: "^http://[^/]+/(?:cgi/searchresults|cgi/search|cgi/content/(?:abstract|full|short|summary)|current.dtl$|content/vol[0-9]+/issue[0-9]+/(?:index.dtl)?$)",
+			m: "(?:cgi/searchresults|cgi/search|cgi/content/(?:abstract|full|short|summary)|current.dtl$|content/vol[0-9]+/issue[0-9]+/(?:index.dtl)?$)",
 			g: "5eacdb93-20b9-4c46-a89b-523f62935ae4"
 		},
 		"HighWire 2.0": {
@@ -98,19 +98,19 @@ var Registry = (function() {
 			g: "8c1f42d5-02fa-437b-b2b2-73afc768eb07"
 		},
 		"Wiley Online Library": {
-			m: "^https?://onlinelibrary\\.wiley\\.com[^\\/]*/(?:book|doi|advanced/search|search-web/cochrane)",
+			m: "onlinelibrary\\.wiley\\.com",
 			g: "fe728bc9-595a-4f03-98fc-766f1d8d0936"
 		},
 		"OCLC WorldCat FirstSearch": {
-			m: "https?://[^/]*firstsearch\\.oclc\\.org[^/]*/WebZ/",
+			m: "firstsearch\\.oclc\\.org",
 			g: "838d8849-4ffb-9f44-3d0d-aa8a0a079afe"
 		},
 		"Open WorldCat": {
-			m: "^https?://(.+).worldcat\\.org/",
+			m: "worldcat\\.org",
 			g: "c73a4a8c-3ef1-4ec8-8229-7531ee384cc4"
 		},
 		"EBSCOHost": {
-			m: "^https?://[^/]+/(?:eds|bsi|ehost)/(?:results|detail|folder)",
+			m: "/(?:eds|bsi|ehost)/(?:results|detail|folder)",
 			g: "d0b1914a-11f1-4dd7-8557-b32fe8a3dd47"
 		},
 		"GaleGDC": {
@@ -118,32 +118,32 @@ var Registry = (function() {
 			g: "04e63564-b92b-41cd-a9d5-366a02056d10"
 		},
 		"Galegroup": {
-			m: "https?://(find|go)\\.galegroup\\.com",
+			m: "galegroup\\.com",
 			g: "4ea89035-3dc4-4ae3-b22d-726bc0d83a64"
 		},
 		"IEEE Xplore": {
-			m: "^https?://[^/]*ieeexplore\\.ieee\\.org[^/]*/(?:[^\\?]+\\?(?:|.*&)arnumber=[0-9]+|search/(?:searchresult.jsp|selected.jsp)|xpl\\/(mostRecentIssue|tocresult).jsp\\?)",
+			m: "ieeexplore\\.ieee\\.org",
 			g: "92d4ed84-8d0-4d3c-941f-d4b9124cfbb"
 		},
 		"ebrary": {
-			m: "^https?://site\\.ebrary\\.com/lib/.*/(search|docDetail)\\.action",
+			m: "site\\.ebrary\\.com",
 			g: "58bcb958-eb01-42e5-9247-fc5604bf5904"
 		},
 		"SIRS": {
-			m: "^https?://sks.sirs.com/cgi-bin/(hst-sub-display|hst-article-display).*",
+			m: "sks.sirs.com",
 			g: "74740e56-5325-493b-8e70-44c0f854fbe9"
 		},
 		"COinS": {
 			//Only using COinS for Summon now
-			m: "^https?://.*\\.summon\\.serialssolutions\\.com/search.*",
+			m: "summon\\.serialssolutions\\.com",
 			g: "05d07af9-105a-4572-99f6-a8e231c0daef"
 		},
 		"DOAJ": {
-			m: "https?://.*\\.?doaj\\.org",
+			m: "doaj\\.org",
 			g: "db935268-34d1-44f8-a6ee-52a178d598a2"
 		},
 		"Springer Link": {
-			m: "https?://link\\.springer\\.com/(search(?:/page/\\d+)?\\?|(article|chapter|book|referenceworkentry|protocol|journal|referencework)/.+)",
+			m: "link\\.springer\\.com",
 			g: "d6c6210a-297c-4b2c-8c43-48cb503cc49e"
 		}
 	},
@@ -169,8 +169,11 @@ var Registry = (function() {
 	function matchURL(url) {
 		if (! m2t) init();
 
+		var urlDecoded = decodeURIComponent(url);
+
 		for (var re in m2t) {
-			if (new RegExp(re).test(url)) {
+			var regex = new RegExp(re);
+			if (regex.test(url) || regex.test(urlDecoded)) {
 				return m2t[re];
 			}
 		}
