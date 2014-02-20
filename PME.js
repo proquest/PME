@@ -472,11 +472,15 @@ function completed(data) {
 	if(! (data))
 		data = {};
 	if (!(data.items && data.items.length > 0)) {
-		log("attempting generic scrape")
-		data.items = PME.genericScrape(document);
-		if(data.noTranslator && data.items.length > 0)
-			delete data.noTranslator;
+		log("attempting pdf scrape");
+		data.items = PME.pdfScrape();
 	}
+	if (!(data.items && data.items.length > 0)) {
+		log("attempting generic scrape");
+		data.items = PME.genericScrape(document);
+	}
+	if (data.noTranslator && data.items.length > 0)
+		delete data.noTranslator;
 	pmeCompleted = true;
 	log("completed, item count = ", (data && !data.noTranslator && data.items) ? data.items.length : 0, " data = ", data);
 	pmeCallback && pmeCallback(data);
@@ -1247,7 +1251,7 @@ PME.Util.xpathHelper = function(docWindow, doc, callback) {
 	log("adding XPath helper script");
 	var h = doc.getElementsByTagName('head')[0];
 	var ie_xpath = doc.createElement('SCRIPT');
-	ie_xpath.src = 'http://' + PME_SRV + '/wgxpath.install.js';
+	ie_xpath.src = (PME_SRV.indexOf('http') == 0 ? '' : 'http://') + PME_SRV + '/wgxpath.install.js';
 	h.appendChild(ie_xpath);
 
 	waitFor(
@@ -2113,6 +2117,19 @@ window.FW = (function(){
 PME.isURLSupported = function (sUrl)
 {
 	return Registry.matchURL(sUrl) ? true : false;
+}
+
+PME.pdfScrape = function(doc)
+{
+	var url = window.location.toString();
+	if(url.indexOf('.pdf') > 0) {
+		var item = new PME.Item('journalArticle');
+		item.title = url;
+		item.attachments= [
+			{title: 'Full Text PDF', url: url, mimeType: 'application/pdf'}
+		];
+		return [item];
+	}
 }
 
 PME.genericScrape = function (doc)

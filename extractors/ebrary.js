@@ -43,7 +43,7 @@
 	function doImportFromURL(url) {
 		var docID = url.match(/docID=.+?(&|$)/)[0];
 		var lib = "myproquest"; //TODO: parse from url
-		var newurl = "http://site.ebrary.com/lib/" + lib + "/biblioExport.action?refworks=1&" + docID;
+		var newurl = window.location.protocol+"//site.ebrary.com/lib/" + lib + "/biblioExport.action?refworks=1&" + docID;
 		PME.Util.HTTP.doGet(newurl, function(text) {
 			var translator = PME.loadTranslator("import");
 			translator.setTranslator("1a3506da-a303-4b0a-a1cd-f216e6138d86"); //RefWorks Tagged Format

@@ -21,7 +21,7 @@ var translatorSpec =
  * General utility functions *
  *****************************/
 function lookupPMIDs(ids, next) {
-	var newUri = "http://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?" +
+	var newUri = window.location.protocol +"//eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?" +
 		"db=PubMed&tool=Zotero&retmode=xml&rettype=citation&id="+ids.join(",");
 	PME.debug(newUri);
 	PME.Util.HTTP.doGet(newUri, function(text) {

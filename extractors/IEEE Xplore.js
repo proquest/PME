@@ -153,7 +153,7 @@ function scrape (doc, url) {
   	var pdf;
   	pdf = PME.Util.xpathText(doc, '//ul[@id="subscription-content-controls"]/li[1]/a/@href')
   	PME.debug(arnumber)
-  	var get = 'http://ieeexplore.ieee.org/xpl/downloadCitations';
+  	var get = window.location.protocol +'//ieeexplore.ieee.org/xpl/downloadCitations';
   	var post = "recordIds=" + arnumber + "&fromPage=&citations-format=citation-abstract&download-format=download-bibtex";
   	PME.Util.HTTP.doPost(get, post, function(text) {
   		text = PME.Util.unescapeHTML(text.replace(/(&[^\s;]+) and/g, '$1;'));

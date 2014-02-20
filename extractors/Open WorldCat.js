@@ -152,12 +152,12 @@ function doWeb(doc, url) {
 }
 
 function doSearch(item) {
-	PME.Util.processDocuments("http://www.worldcat.org/search?q=isbn%3A" + item.ISBN.replace(/[^0-9X]/g, "") + "&=Search&qt=results_page", function (doc, url) {
+	PME.Util.processDocuments(window.location.protocol +"//www.worldcat.org/search?q=isbn%3A" + item.ISBN.replace(/[^0-9X]/g, "") + "&=Search&qt=results_page", function (doc, url) {
 		//we take the first search result and run scrape on it
 		if (doc.evaluate('//div[@class="name"]/a', doc, null, XPathResult.ANY_TYPE, null).iterateNext()) { //search results view
 			var article = PME.Util.xpathText(doc, '(//div[@class="name"]/a)[1]/@href')
 			if (!article){PME.done(false); return false;}
-			article = "http://www.worldcat.org" + article;
+			article = window.location.protocol +"//www.worldcat.org" + article;
 			PME.Util.processDocuments(article, function(doc, url) { scrape(doc, url, true); });
 		} else {
 			scrape(doc, url, true);
