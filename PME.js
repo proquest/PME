@@ -482,6 +482,10 @@ function completed(data) {
 		log("attempting generic scrape");
 		data.items = PME.genericScrape(document);
 	}
+	if (!(data.items && data.items.length > 0)) {
+		log("attempting ISBN scrape");
+		data.items = PME.isbnScrape(document);
+	}
 	if (data.noTranslator && data.items.length > 0)
 		delete data.noTranslator;
 	pmeCompleted = true;
@@ -2179,6 +2183,61 @@ PME.genericScrape = function (doc)
 	return map(matches,function(doi){return {"DOI":doi}});
 }
 
+PME.isbnScrape = function (doc) {
+	var regex = /(?:^|\D)(?:\d{3}[\- ]?)?\d{1,5}[\- ]?\d{1,7}[\- ]?\d{1,6}[\- ]?[\dX](?:$|\D)/i;
+
+	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
+	var matches = [];
+	//running is used to handle dois that have elements embedded in them (usually hit highlighting)
+	//it captures the last few text nodes and joins them together
+	var running = [];
+	while (walker.nextNode()) {
+		running.push(walker.currentNode.nodeValue);
+		if (running.length > 10)
+			running.shift();
+		var match = regex.exec(running.join(''));
+		if (match != null) {
+			matches.push(PME.Util.trim(match[0]).replace(/[^X\d]/g, ''));
+			running = [];
+		}
+		else {
+			match = regex.exec(walker.currentNode.nodeValue);
+			if (match != null)
+				matches.push(PME.Util.trim(match[0]).replace(/^X\d/g, ''));
+		}
+	}
+
+	matches = filter(matches, function(item) { return item.length == 10 || item.length == 13; });
+	matches = filter(matches, function(item, i, items) { return items.indexOf(item, i + 1) == -1; });
+	matches = filter(matches, function (item) {
+		var sum = 0;
+		var modulus = (item.length == 10 ? 11 : 10);
+		var checkDigit;
+
+		if (item.length == 10) {
+			for (var i = 0, weight = item.length; i < item.length - 1; i++, weight--) {
+				sum += weight * parseInt(item.charAt(i), 10);
+			}
+		}
+		else {
+			var weight = 1;
+
+			for(var i = 0; i < item.length - 1; i++) {
+				sum += weight * parseInt(item.charAt(i), 10);
+				weight = (weight == 1 ? 3 : 1);
+			}
+		}
+
+		checkDigit = (modulus * Math.ceil(sum / modulus)) - sum;
+		if (checkDigit == 10) {
+			checkDigit = "X";
+		}
+
+		return item.charAt(item.length - 1) == checkDigit;
+	});
+
+	return map(matches, function (isbn) { return { "ISBN": isbn } });
+}
 
 PME.getPageMetaData = function (callback)
 {
