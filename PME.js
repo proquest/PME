@@ -2184,12 +2184,10 @@ PME.genericScrape = function (doc)
 }
 
 PME.isbnScrape = function (doc) {
-	var regex = /(?:^|\D)(?:\d{3}[\- ]?)?\d{1,5}[\- ]?\d{1,7}[\- ]?\d{1,6}[\- ]?[\dX](?:$|\D)/i;
+	var regex = /(?:^|\D)(?:\d{3}[\- ]?)?\d{1,5}[\- ]?\d{1,7}[\- ]?\d{1,6}[\- ]?[\dX](?:$|\D)/gi;
 
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
 	var matches = [];
-	//running is used to handle dois that have elements embedded in them (usually hit highlighting)
-	//it captures the last few text nodes and joins them together
 	var running = [];
 	while (walker.nextNode()) {
 		running.push(walker.currentNode.nodeValue);
@@ -2209,7 +2207,7 @@ PME.isbnScrape = function (doc) {
 
 	matches = filter(matches, function(item) { return item.length == 10 || item.length == 13; });
 	matches = filter(matches, function(item, i, items) { return items.indexOf(item, i + 1) == -1; });
-	matches = filter(matches, function (item) {
+	matches = filter(matches, function(item) {
 		var sum = 0;
 		var modulus = (item.length == 10 ? 11 : 10);
 		var checkDigit;
@@ -2234,6 +2232,31 @@ PME.isbnScrape = function (doc) {
 		}
 
 		return item.charAt(item.length - 1) == checkDigit;
+	});
+
+	matches.sort(function(a, b) {
+		return parseInt(a) - parseInt(b);
+	});
+
+	matches = filter(matches, function (item, i, items) {
+		if (item.length == 13) {
+			return true;
+		}
+		else {
+			var weight = 1;
+			var testVal = "978" + item;
+			var modulus = 10;
+			var sum = 0;
+
+			for (var p = 0; p < testVal.length - 1; p++) {
+				sum += weight * parseInt(testVal.charAt(p), 10);
+				weight = (weight == 1 ? 3 : 1);
+			}
+			var checkDigit = (modulus * Math.ceil(sum / modulus)) - sum;
+			testVal = testVal.substr(0, testVal.length - 1) + checkDigit;
+
+			return items.indexOf(testVal, i + 1) == -1;
+		}
 	});
 
 	return map(matches, function (isbn) { return { "ISBN": isbn } });
