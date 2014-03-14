@@ -2184,82 +2184,79 @@ PME.genericScrape = function (doc)
 }
 
 PME.isbnScrape = function (doc) {
+	function pushMatches(matchSet) {
+		if (matchSet != null) {
+			for (var i = 0; i < matchSet.length; i++)
+				matches.push(PME.Util.trim(matchSet[0]).replace(/[^X\d]/g, ''));
+		}
+	}
+
+	function killStringDuplicates(stringSet) {
+		if (stringSet != null) {
+			var clean = [];
+			for (var i = 0; i < stringSet.length - 1; i++) {
+				if (stringSet[i] !== stringSet[i + 1])
+					clean.push(stringSet[i]);
+			}
+			clean.push(stringSet[stringSet.length - 1]);
+
+			return clean;
+		}
+	}
+
+	function calculateCheckDigit(isbn) {
+		var sum = 0;
+		var modulus = (isbn.length == 10 ? 11 : 10);
+		var digit;
+
+		if (isbn.length == 10) {
+			for (var i = 0, weight = isbn.length; i < isbn.length - 1; i++, weight--)
+				sum += weight * parseInt(isbn.charAt(i), 10);
+		}
+		else {
+			for (var i = 0, weight = 1; i < isbn.length - 1; i++) {
+				sum += weight * parseInt(isbn.charAt(i), 10);
+				weight = (weight == 1 ? 3 : 1);
+			}
+		}
+
+		digit = (modulus * Math.ceil(sum / modulus)) - sum;
+
+		return (digit == 10 ? "X" : digit);
+	}
+
 	var regex = /(?:^|\D)(?:\d{3}[\- ]?)?\d{1,5}[\- ]?\d{1,7}[\- ]?\d{1,6}[\- ]?[\dX](?:$|\D)/gi;
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
 	var matches = [];
 
-	while (walker.nextNode()) {
-		var match = regex.exec(walker.currentNode.nodeValue);
+	while (walker.nextNode())
+		pushMatches(regex.exec(walker.currentNode.nodeValue));
 
-		if (match != null) {
-			for (var i = 0; i < match.length; i++)
-				matches.push(PME.Util.trim(match[i]).replace(/[^X\d]/g, ''));
-		}
-	}
+	var attributeMatch = PME.Util.xpath(doc, '//a[@href]/@href');
+	for (var i = 0; i < attributeMatch.length; i++)
+		pushMatches(regex.exec(attributeMatch[i].value));
 
-	//matches.push("0000000000");
-
-	matches.sort(function (a, b) {
-		return parseInt(a) - parseInt(b);
-	});
-
+	matches.sort(function (a, b) { return parseInt(a) - parseInt(b); });
+	
 	matches = filter(matches, function(item) { return item.length == 10 || (item.length == 13 && item.substr(0, 3) == "978"); });
-	//matches = matches.filter(function(item, i, items) { return items.indexOf(item, i + 1) == -1; });
-	matches = filter(matches, function(item) {
-		var sum = 0;
-		var modulus = (item.length == 10 ? 11 : 10);
-		var checkDigit;
-
-		if (item.length == 10) {
-			for (var i = 0, weight = item.length; i < item.length - 1; i++, weight--) {
-				sum += weight * parseInt(item.charAt(i), 10);
-			}
-		}
-		else {
-			var weight = 1;
-
-			for(var i = 0; i < item.length - 1; i++) {
-				sum += weight * parseInt(item.charAt(i), 10);
-				weight = (weight == 1 ? 3 : 1);
-			}
-		}
-
-		checkDigit = (modulus * Math.ceil(sum / modulus)) - sum;
-		if (checkDigit == 10) {
-			checkDigit = "X";
-		}
-
-		return item.charAt(item.length - 1) == checkDigit;
+	matches = killStringDuplicates(matches);
+	
+	matches = filter(matches, function(item) {		// verify the check digit so we can keep only valid ISBNs
+		return item.charAt(item.length - 1) == calculateCheckDigit(item);
 	});
 	
-	matches = filter(matches, function (item, i, items) {
+	matches = filter(matches, function (item, i, items) {		// remove duplicate references, so we have only 1 ISBN per book
 		if (item.length == 13) {
 			return true;
 		}
 		else {
-			var weight = 1;
 			var testVal = "978" + item;
-			var modulus = 10;
-			var sum = 0;
-
-			for (var p = 0; p < testVal.length - 1; p++) {
-				sum += weight * parseInt(testVal.charAt(p), 10);
-				weight = (weight == 1 ? 3 : 1);
-			}
-			var checkDigit = (modulus * Math.ceil(sum / modulus)) - sum;
-			testVal = testVal.substr(0, testVal.length - 1) + checkDigit;
+			testVal = testVal.substr(0, testVal.length - 1) + calculateCheckDigit(testVal);
 
 			return items.indexOf(testVal, i + 1) == -1;
 		}
 	});
-
-	for (var i = 0; i < matches.length - 1; i++) {
-		if (matches.indexOf(matches[i], i+1) > -1) {
-			matches.slice(i, i+1);
-			i--;
-		}
-	}
-
+	
 	return map(matches, function (isbn) { return { "ISBN": isbn } });
 }
 
