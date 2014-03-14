@@ -2185,28 +2185,26 @@ PME.genericScrape = function (doc)
 
 PME.isbnScrape = function (doc) {
 	var regex = /(?:^|\D)(?:\d{3}[\- ]?)?\d{1,5}[\- ]?\d{1,7}[\- ]?\d{1,6}[\- ]?[\dX](?:$|\D)/gi;
-
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
 	var matches = [];
-	var running = [];
+
 	while (walker.nextNode()) {
-		running.push(walker.currentNode.nodeValue);
-		if (running.length > 10)
-			running.shift();
-		var match = regex.exec(running.join(''));
+		var match = regex.exec(walker.currentNode.nodeValue);
+
 		if (match != null) {
-			matches.push(PME.Util.trim(match[0]).replace(/[^X\d]/g, ''));
-			running = [];
-		}
-		else {
-			match = regex.exec(walker.currentNode.nodeValue);
-			if (match != null)
-				matches.push(PME.Util.trim(match[0]).replace(/^X\d/g, ''));
+			for (var i = 0; i < match.length; i++)
+				matches.push(PME.Util.trim(match[i]).replace(/[^X\d]/g, ''));
 		}
 	}
 
-	matches = filter(matches, function(item) { return item.length == 10 || item.length == 13; });
-	matches = filter(matches, function(item, i, items) { return items.indexOf(item, i + 1) == -1; });
+	//matches.push("0000000000");
+
+	matches.sort(function (a, b) {
+		return parseInt(a) - parseInt(b);
+	});
+
+	matches = filter(matches, function(item) { return item.length == 10 || (item.length == 13 && item.substr(0, 3) == "978"); });
+	//matches = matches.filter(function(item, i, items) { return items.indexOf(item, i + 1) == -1; });
 	matches = filter(matches, function(item) {
 		var sum = 0;
 		var modulus = (item.length == 10 ? 11 : 10);
@@ -2233,11 +2231,7 @@ PME.isbnScrape = function (doc) {
 
 		return item.charAt(item.length - 1) == checkDigit;
 	});
-
-	matches.sort(function(a, b) {
-		return parseInt(a) - parseInt(b);
-	});
-
+	
 	matches = filter(matches, function (item, i, items) {
 		if (item.length == 13) {
 			return true;
@@ -2258,6 +2252,13 @@ PME.isbnScrape = function (doc) {
 			return items.indexOf(testVal, i + 1) == -1;
 		}
 	});
+
+	for (var i = 0; i < matches.length - 1; i++) {
+		if (matches.indexOf(matches[i], i+1) > -1) {
+			matches.slice(i, i+1);
+			i--;
+		}
+	}
 
 	return map(matches, function (isbn) { return { "ISBN": isbn } });
 }
