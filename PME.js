@@ -133,11 +133,11 @@ var Registry = (function() {
 			m: "sks.sirs.com",
 			g: "74740e56-5325-493b-8e70-44c0f854fbe9"
 		},
-		"COinS": {
+		/*"COinS": {
 			//Only using COinS for Summon now
 			m: "summon\\.serialssolutions\\.com",
 			g: "05d07af9-105a-4572-99f6-a8e231c0daef"
-		},
+		},*/
 		"DOAJ": {
 			m: "doaj\\.org",
 			g: "db935268-34d1-44f8-a6ee-52a178d598a2"
@@ -474,6 +474,10 @@ function completed(data) {
 		return;
 	if(! (data))
 		data = {};
+	if (!(data.items && data.items.length > 0)) {
+		log("attempting COinS scrape");
+		data.items = PME.COINSscrape(document);
+	}
 	if (!(data.items && data.items.length > 0)) {
 		log("attempting pdf scrape");
 		data.items = PME.pdfScrape();
@@ -1339,7 +1343,6 @@ PME.Util.parseContextObject = function(co, item) {
 
 	var coParts = co.split("&");
 
-	// get type
 	for(var i=0; i<coParts.length; i++) {
 		if(coParts[i].substr(0, 12) == "rft_val_fmt=") {
 			var format = decodeURIComponent(coParts[i].substr(12));
@@ -1404,8 +1407,7 @@ PME.Util.parseContextObject = function(co, item) {
 			} else if(item.itemType == "bookSection" || item.itemType == "conferencePaper") {
 				item.publicationTitle = value;
 			}
-		} else if(key == "rft.atitle"
-				&& ["journalArticle", "bookSection", "conferencePaper"].indexOf(item.itemType) !== -1) {
+		} else if(key == "rft.atitle" && ["journalArticle", "bookSection", "conferencePaper"].indexOf(item.itemType) !== -1) {
 			item.title = value;
 		} else if(key == "rft.jtitle" && item.itemType == "journalArticle") {
 			item.publicationTitle = value;
@@ -1514,9 +1516,7 @@ PME.Util.parseContextObject = function(co, item) {
 			}
 		} else if(format == "info:ofi/fmt:kev:mtx:dc") {
 			if(key == "rft.identifier") {
-				if(value.length > 8) {	// we could check length separately for
-										// each type, but all of these identifiers
-										// must be > 8 characters
+				if(value.length > 8) {	// we could check length separately for each type, but all of these identifiers must be > 8 characters
 					if(value.substr(0, 5) == "ISBN ") {
 						item.ISBN = value.substr(5);
 					} else if(value.substr(0, 5) == "ISSN ") {
@@ -1553,8 +1553,7 @@ PME.Util.parseContextObject = function(co, item) {
 		var offset = complexAu[i].offset;
 		delete complexAu[i].offset;
 		for(var j=0; j<item.creators.length; j++) {
-			// if there's a plain author that is close to this author (the
-			// same last name, and the same first name up to a point), keep
+			// if there's a plain author that is close to this author (the same last name, and the same first name up to a point), keep
 			// the plain author, since it might have a middle initial
 			if(item.creators[j].lastName == complexAu[i].lastName &&
 			   (item.creators[j].firstName == complexAu[i].firstName == "" ||
@@ -1564,8 +1563,7 @@ PME.Util.parseContextObject = function(co, item) {
 				break;
 			}
 		}
-		// Splice in the complex creator at the correct location,
-		// accounting for previous insertions
+		// Splice in the complex creator at the correct location, accounting for previous insertions
 		if(pushMe) {
 			item.creators.splice(offset + inserted, 0, complexAu[i]);
 			inserted++;
@@ -2133,6 +2131,16 @@ PME.pdfScrape = function(doc)
 		];
 		return [item];
 	}
+}
+
+PME.COINSscrape = function(doc) {
+	var matches = PME.Util.xpath(doc, '//span[@class="Z3988"]/@title');
+	var results = [];
+
+	for (var i = 0; i < matches.length; i++)
+		results.push(PME.Util.parseContextObject(matches[i].value, new PME.Item));
+
+	return results;
 }
 
 PME.genericScrape = function (doc)
