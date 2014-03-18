@@ -145,6 +145,10 @@ var Registry = (function() {
 		"Springer Link": {
 			m: "link\\.springer\\.com",
 			g: "d6c6210a-297c-4b2c-8c43-48cb503cc49e"
+		},
+		"Amazon": {
+			m: /www\.amazon\.com/,
+			g: "4fcda099-ee8e-4631-a279-a4d3a8b75906"
 		}
 	},
 	g2t, m2t;
