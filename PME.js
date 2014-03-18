@@ -133,11 +133,6 @@ var Registry = (function() {
 			m: "sks.sirs.com",
 			g: "74740e56-5325-493b-8e70-44c0f854fbe9"
 		},
-		/*"COinS": {
-			//Only using COinS for Summon now
-			m: "summon\\.serialssolutions\\.com",
-			g: "05d07af9-105a-4572-99f6-a8e231c0daef"
-		},*/
 		"DOAJ": {
 			m: "doaj\\.org",
 			g: "db935268-34d1-44f8-a6ee-52a178d598a2"
