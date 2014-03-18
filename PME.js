@@ -2134,7 +2134,7 @@ PME.pdfScrape = function(doc)
 }
 
 PME.COINSscrape = function(doc) {
-	var matches = PME.Util.xpath(doc, '//span[@class="Z3988"]/@title');
+	var matches = PME.Util.xpath(doc, '//span[contains(@class, "Z3988")]/@title');
 	var results = [];
 
 	for (var i = 0; i < matches.length; i++)
