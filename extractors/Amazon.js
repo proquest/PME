@@ -6,14 +6,19 @@
 		"lastUpdated": "2014-03-18"
 	}
 
-	function handleCreators(result, aPaths)
+	function handleCreators(doc, aResults, aPaths)
 	{
-		var authors = [], n = 0;
+		var result = authors = [], n = 0;
+		while (!result.length && n < aResults.length)
+		{
+			result = PME.Util.xpath(doc, aResults[n++]);
+		}
+		n = 0;
 		while (n < aPaths.length)
 		{
-			var a = PME.Util.xpathText(result, aPaths[n++]);
+			var a = PME.Util.xpathText(result, aPaths[n++], undefined, '|');
 			if (a)
-				authors.push.apply(authors, a.split(', '));
+				authors.push.apply(authors, a.split('|'));
 		}
 		if (authors.length == 0)
 			return [];
@@ -21,7 +26,7 @@
 		for (var i = 0; i < authors.length; i++)
 		{
 			//first m. last, suffix - we just drop the suffix, we'll always have at least one element
-			authors[i] = authors[i].split(',')[0];//first m. last jr, suffix
+			authors[i] = authors[i].split(', ')[0];//first m. last jr, suffix
 
 			if (authors[i].indexOf(' ') >= 0)
 			{
@@ -118,11 +123,18 @@
 		{
 			case "singleprint":
 				var item = new PME.Item('book');
-				item.title = PME.Util.xpathText(doc, '//div[@id="title"]//span[@id="productTitle"]');
-				item.creators = handleCreators(
-					PME.Util.xpath(doc, '//div[@id="title"]//span[contains(@class, "author") and span[@class="contribution"]/span[contains(text(), "Author")]]'),
+				item.title =
+					PME.Util.xpathText(doc, '//div[@id="title"]//span[@id="productTitle"]') ||
+					PME.Util.xpathText(doc, '//span[@id="btAsinTitle"]');
+
+				var xpath = PME.Util.xpath(doc, '//div[@id="title"]//span[contains(@class, "author") and span[@class="contribution"]/span[contains(text(), "Author")]]') || PME.Util.xpath(doc, '//div[@class="buying"]');
+				item.creators = handleCreators(doc,
+					['//div[@id="title"]//span[contains(@class, "author") and span[@class="contribution"]/span[contains(text(), "Author")]]',
+					 '//div[@class="buying" and h1[contains(@class, "Title")]]']
+					,
 					['./span/a[contains(@class, "contributorNameID")]',
-						'./a'
+						'./a',
+						'./span/a'
 					]);
 				var ifr = PME.Util.xpath(doc, '//iframe[@id="bookDesc_iframe"]')
 				if (ifr[0])
@@ -137,8 +149,8 @@
 			case "kindle":
 				var item = new PME.Item('book');
 				item.title = PME.Util.xpathText(doc, '//span[@id="btAsinTitle"]')//.replace(/\[kindle edition\]/i, "");
-				item.creators = handleCreators(
-					PME.Util.xpath(doc, '//span[starts-with(@class, "contributorName") and following-sibling::span[contains(text(),"Author")]]'),
+				item.creators = handleCreators(doc,
+					['//span[starts-with(@class, "contributorName") and following-sibling::span[contains(text(),"Author")]]'],
 					['a[starts-with(@id, "contributorName")]']
 					);
 				fillDetails(doc, item);
