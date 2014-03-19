@@ -1323,55 +1323,156 @@ PME.Util.fieldIsValidForType = function(field, itemType) {
 	return true; // TBI
 };
 
-/*
- * Generates an item in the format returned by item.fromArray() given an
- * OpenURL version 1.0 contextObject
- *
- * accepts an item array to fill, or creates and returns a new item array
- * POSSIBLE TODO: rewrite in PME style (picture Psy on his horse)
- */
-PME.Util.parseContextObject = function(co, item) {
-	if(!item) {
-		var item = [];
-		item.creators = [];
+
+PME.Util.parseContextObject = function(COstring, item) {
+	if (!item)
+		var item = new PME.Item;
+
+	var contextObject = {};
+	var contextParams = COstring.split('&');
+	var authors = [];
+
+	for (var i = 0; i < contextParams.length; i++) {
+		var property = contextParams[i].split('=');
+
+		if (property[0] == "rft.au")
+			authors.push(decodeURIComponent(property[1].replace(/\+|%2[bB]/g, " ")));
+		else
+			contextObject[property[0]] = decodeURIComponent(property[1].replace(/\+|%2[bB]/g, " "));
 	}
 
-	var coParts = co.split("&");
+	if (contextObject["rft.genre"] == 'bookitem')
+		item.itemType = "bookSection";
+	else if (contextObject["rft.genre"] == 'report')
+		item.itemType = "report";
+	else if (contextObject["rft.genre"] == 'proceeding' || contextObject["rft.genre"] == 'conference')
+		item.itemType = "conferencePaper";
+	else if (contextObject["rft_val_fmt"].indexOf("journal") > -1)
+		item.itemType = "journalArticle";
+	else if (contextObject["rft_val_fmt"].indexOf("book") > -1)
+		item.itemType = "book";
+	else if (contextObject["rft_val_fmt"].indexOf("dissertation") > -1)
+		item.itemType = "thesis";
+	else if (contextObject["rft_val_fmt"].indexOf("patent") > -1)
+		item.itemType = "patent";
+	else
+		return false;
+	
+	if (contextObject["rft.isbn"])
+		item.ISBN = contextObject["rft.isbn"];
 
-	for(var i=0; i<coParts.length; i++) {
-		if(coParts[i].substr(0, 12) == "rft_val_fmt=") {
-			var format = decodeURIComponent(coParts[i].substr(12));
-			if(format == "info:ofi/fmt:kev:mtx:journal") {
-				item.itemType = "journalArticle";
-				break;
-			} else if(format == "info:ofi/fmt:kev:mtx:book") {
-				if(coParts.indexOf("rft.genre=bookitem") !== -1) {
-					item.itemType = "bookSection";
-				} else if(coParts.indexOf("rft.genre=conference") !== -1 || coParts.indexOf("rft.genre=proceeding") !== -1) {
-					item.itemType = "conferencePaper";
-				} else if(coParts.indexOf("rft.genre=report") !== -1) {
-					item.itemType = "report";
-				} else if(coParts.indexOf("rft.genre=document") !== -1) {
-					item.itemType = "document";
-				} else {
-					item.itemType = "book";
+	if (contextObject["rft.eissn"])
+		item.ISSN = contextObject["rft.eissn"];
+	else if (contextObject["rft.issn"])
+		item.ISSN = contextObject["rft.issn"];
+
+	if (contextObject["rft.atitle"])
+		item.title = contextObject["rft.atitle"];
+	else if (contextObject["rft.btitle"])
+		item.title = contextObject["rft.btitle"];
+	else if (contextObject["rft.title"])
+		item.title = contextObject["rft.title"];
+
+	if (contextObject["rft.pub"])
+		item.publisher = contextObject["rft.pub"];
+
+	if (contextObject["rft.place"])
+		item.place = contextObject["rft.place"];
+
+	if (contextObject["rft.jtitle"])
+		item.publicationTitle = contextObject["rft.jtitle"];
+
+	if (contextObject["rft.stitle"])
+		item.journalAbbreviation = contextObject["rft.stitle"];
+
+	if (contextObject["rft.edition"])
+		item.edition = contextObject["rft.edition"];
+
+	if (contextObject["rft.series"])
+		item.series = contextObject["rft.series"];
+
+	if (contextObject["rft.tpages"])
+		item.numPages = contextObject["rft.tpages"];
+
+	if (contextObject["rft.spage"])
+		item.pages = contextObject["rft.spage"] + (contextObject["rft.epage"] ? "-" + contextObject["rft.epage"] : "");
+
+	if (contextObject["rft.issue"])
+		item.issue = contextObject["rft.issue"];
+
+	if (contextObject["rft.volume"])
+		item.volume = contextObject["rft.volume"] + (contextObject["rft.part"] ? contextObject["rft.part"] : '');
+
+	if (contextObject["rft.date"]) {
+		item.date = contextObject["rft.date"];
+
+		if (contextObject["rft.chron"])
+			item.date = contextObject["rft.chron"] + item.date;
+		else if (contextObject["rft.ssn"])
+			item.date = contextObject["rft.ssn"] + " " + item.date;
+		else if (contextObject["rft.quarter"])
+			item.date = "Quarter " + contextObject["rft.quarter"] + ", " + item.date;
+	}
+
+	if (contextObject["rft.aulast"]) {
+		var authFirstName = '';
+		var authLastName = contextObject["rft.aulast"] + (contextObject["rft.ausuffix"] ? contextObject["rft.ausuffix"] : "");
+		
+		if (contextObject["rft.aufirst"] || contextObject["rft.auinit1"]) {
+			authFirstName = (contextObject["rft.aufirst"] ? contextObject["rft.aufirst"] : contextObject["rft.auinit1"]) + (contextObject["rft.auinitm"] ? contextObject["rft.auinitm"] : '');
+		}
+		else if (contextObject["rft.auinit"]) {
+			authFirstName = contextObject["rft.auinit"];
+		}
+		else if (contextObject["rft.aulast"].indexOf(',') > -1) {
+			authLastName = contextObject["rft.aulast"].slice(0, contextObject["rft.aulast"].indexOf(','));
+			authFirstName = contextObject["rft.aulast"].slice(contextObject["rft.aulast"].indexOf(',') + 1);
+		}
+		else {
+			authFirstName = contextObject["rft.aulast"].slice(0, contextObject["rft.aulast"].lastIndexOf(' '));
+			authLastName = contextObject["rft.aulast"].slice(contextObject["rft.aulast"].lastIndexOf(' ') + 1);
+		}
+
+		if (authors.length > 0)
+			authors = filter(authors,
+				function (item) {
+					console.log("Authors filter : " + item + ", authLastName result - " + item.indexOf(authLastName));
+					return (item.indexOf(authLastName) == -1 && item.indexOf(authFirstName) == -1);
 				}
-				break;
-			} else if(format == "info:ofi/fmt:kev:mtx:dissertation") {
-				item.itemType = "thesis";
-				break;
-			} else if(format == "info:ofi/fmt:kev:mtx:patent") {
-				item.itemType = "patent";
-				break;
-			} else if(format == "info:ofi/fmt:kev:mtx:dc") {
-				item.itemType = "webpage";
-				break;
+				);
+
+		item.creators.push({
+			lastName: authLastName,
+			firstName: authFirstName,
+			creatorType: 'author'
+		});
+	}
+
+	if (authors.length > 0 || !contextObject["rft.aulast"]) {
+		for (var i = 0; i < authors.length; i++) {
+			var authFirstName = '', authLastName = '';
+
+			if (authors[i].indexOf(',') > -1) {
+				authLastName = authors[i].slice(0, authors[i].indexOf(','));
+				authFirstName = authors[i].slice(authors[i].indexOf(',') + 1);
 			}
+			else {
+				authFirstName = authors[i].slice(0, authors[i].lastIndexOf(' '));
+				authLastName = authors[i].slice(authors[i].lastIndexOf(' ') + 1);
+			}
+
+			item.creators.push({
+				lastName: authLastName,
+				firstName: authFirstName,
+				creatorType: 'author'
+			});
 		}
 	}
-	if(!item.itemType) {
-		return false;
-	}
+
+	if (contextObject["rft.aucorp"])
+		item.creators.push({ lastName: contextObject["rft.aucorp"], creatorType: 'author' });
+
+	/*
 
 	var pagesKey = "";
 
@@ -1396,63 +1497,12 @@ PME.Util.parseContextObject = function(co, item) {
 				item.url = value;
 				item.accessDate = "";
 			}
-		} else if(key == "rft.btitle") {
-			if(item.itemType == "book" || item.itemType == "report") {
-				item.title = value;
-			} else if(item.itemType == "bookSection" || item.itemType == "conferencePaper") {
-				item.publicationTitle = value;
-			}
-		} else if(key == "rft.atitle" && ["journalArticle", "bookSection", "conferencePaper"].indexOf(item.itemType) !== -1) {
-			item.title = value;
-		} else if(key == "rft.jtitle" && item.itemType == "journalArticle") {
-			item.publicationTitle = value;
-		} else if(key == "rft.stitle" && item.itemType == "journalArticle") {
-			item.journalAbbreviation = value;
-		} else if(key == "rft.title") {
-			if(["journalArticle", "bookSection", "conferencePaper"].indexOf(item.itemType) !== -1) {
-				item.publicationTitle = value;
-			} else {
-				item.title = value;
-			}
 		} else if(key == "rft.date") {
 			if(item.itemType == "patent") {
 				item.issueDate = value;
 			} else {
 				item.date = value;
 			}
-		} else if(key == "rft.volume") {
-			item.volume = value;
-		} else if(key == "rft.issue") {
-			item.issue = value;
-		} else if(key == "rft.pages") {
-			pagesKey = key;
-			item.pages = value;
-		} else if(key == "rft.spage") {
-			if(pagesKey != "rft.pages") {
-				// make pages look like start-end
-				if(pagesKey == "rft.epage") {
-					if(value != item.pages) {
-						item.pages = value+"-"+item.pages;
-					}
-				} else {
-					item.pages = value;
-				}
-				pagesKey = key;
-			}
-		} else if(key == "rft.epage") {
-			if(pagesKey != "rft.pages") {
-				// make pages look like start-end
-				if(pagesKey == "rft.spage") {
-					if(value != item.pages) {
-						item.pages = item.pages+"-"+value;
-					}
-				} else {
-					item.pages = value;
-				}
-				pagesKey = key;
-			}
-		} else if(key == "rft.issn" || (key == "rft.eissn" && !item.ISSN)) {
-			item.ISSN = value;
 		} else if(key == "rft.aulast" || key == "rft.invlast") {
 			var lastCreator = complexAu[complexAu.length-1];
 			if(complexAu.length && !lastCreator.lastName && !lastCreator.institutional) {
@@ -1483,18 +1533,6 @@ PME.Util.parseContextObject = function(co, item) {
 			}
 		} else if(key == "rft.aucorp") {
 			complexAu.push({lastName:value, isInstitution:true});
-		} else if(key == "rft.isbn" && !item.ISBN) {
-			item.ISBN = value;
-		} else if(key == "rft.pub" || key == "rft.publisher") {
-			item.publisher = value;
-		} else if(key == "rft.place") {
-			item.place = value;
-		} else if(key == "rft.tpages") {
-			item.numPages = value;
-		} else if(key == "rft.edition") {
-			item.edition = value;
-		} else if(key == "rft.series") {
-			item.series = value;
 		} else if(item.itemType == "thesis") {
 			if(key == "rft.inst") {
 				item.publisher = value;
@@ -1538,33 +1576,9 @@ PME.Util.parseContextObject = function(co, item) {
 		}
 	}
 
-	// To maintain author ordering when complex and simple authors are combined,
-	// we remember where they were and the correct offsets
-	var inserted = 0;
-
-	// combine two lists of authors, eliminating duplicates
-	for(var i=0; i<complexAu.length; i++) {
-		var pushMe = true;
-		var offset = complexAu[i].offset;
-		delete complexAu[i].offset;
-		for(var j=0; j<item.creators.length; j++) {
-			// if there's a plain author that is close to this author (the same last name, and the same first name up to a point), keep
-			// the plain author, since it might have a middle initial
-			if(item.creators[j].lastName == complexAu[i].lastName &&
-			   (item.creators[j].firstName == complexAu[i].firstName == "" ||
-			   (item.creators[j].firstName.length >= complexAu[i].firstName.length &&
-			   item.creators[j].firstName.substr(0, complexAu[i].firstName.length) == complexAu[i].firstName))) {
-				pushMe = false;
-				break;
-			}
-		}
-		// Splice in the complex creator at the correct location, accounting for previous insertions
-		if(pushMe) {
-			item.creators.splice(offset + inserted, 0, complexAu[i]);
-			inserted++;
 		}
 	}
-
+	*/
 	return item;
 };
 
