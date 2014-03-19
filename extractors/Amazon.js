@@ -40,7 +40,7 @@
 		if (result.length)
 		{
 			var b = PME.Util.xpathText(result, './/li/b').split(',');
-			for (p in b)
+			for (p = 0; p < b.length; p++)
 			{
 				if (PME.Util.trim(b[p]).indexOf('ISBN') == 0)
 				{
@@ -61,7 +61,7 @@
 	function fillDetails(doc, item)
 	{
 		var details = PME.Util.xpath(doc, '//table[@id="productDetailsTable"]//div[@class="content"]//li[b]');
-		for (p in details)
+		for (p = 0; p < details.length; p++)
 		{
 			var li = PME.Util.trim(PME.Util.xpathText(details[p], '.'));
 			var b = PME.Util.trim(PME.Util.xpathText(details[p], './b'));
@@ -150,7 +150,7 @@
 			case 'searchresults':
 				var results = PME.Util.xpath(doc, '//div[@id="resultsCol"]//div[starts-with(@id, "result")]//h3/a');
 				var URLs = [];
-				for (n in results)
+				for (n = 0; n < results.length; n++)
 				{
 					var href = PME.Util.xpathText(results[n], "./@href");
 					if (href.indexOf('http') == 0)
