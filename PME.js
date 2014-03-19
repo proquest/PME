@@ -1434,18 +1434,9 @@ PME.Util.parseContextObject = function(COstring, item) {
 		}
 
 		if (authors.length > 0)
-			authors = filter(authors,
-				function (item) {
-					console.log("Authors filter : " + item + ", authLastName result - " + item.indexOf(authLastName));
-					return (item.indexOf(authLastName) == -1 && item.indexOf(authFirstName) == -1);
-				}
-				);
+			authors = filter(authors, function (item) { return (item.indexOf(authLastName) == -1 && item.indexOf(authFirstName) == -1); });
 
-		item.creators.push({
-			lastName: authLastName,
-			firstName: authFirstName,
-			creatorType: 'author'
-		});
+		item.creators.push({ lastName: authLastName, firstName: authFirstName, creatorType: 'author' });
 	}
 
 	if (authors.length > 0 || !contextObject["rft.aulast"]) {
@@ -1461,124 +1452,13 @@ PME.Util.parseContextObject = function(COstring, item) {
 				authLastName = authors[i].slice(authors[i].lastIndexOf(' ') + 1);
 			}
 
-			item.creators.push({
-				lastName: authLastName,
-				firstName: authFirstName,
-				creatorType: 'author'
-			});
+			item.creators.push({ lastName: authLastName, firstName: authFirstName, creatorType: 'author' });
 		}
 	}
 
 	if (contextObject["rft.aucorp"])
 		item.creators.push({ lastName: contextObject["rft.aucorp"], creatorType: 'author' });
 
-	/*
-
-	var pagesKey = "";
-
-	// keep track of "aucorp," "aufirst," "aulast"
-	var complexAu = [];
-
-	for(var i=0; i<coParts.length; i++) {
-		var keyVal = coParts[i].split("=");
-		var key = keyVal[0];
-		var value = decodeURIComponent(keyVal[1].replace(/\+|%2[bB]/g, " "));
-		if(!value) {
-			continue;
-		}
-
-		if(key == "rft_id") {
-			var firstEight = value.substr(0, 8).toLowerCase();
-			if(firstEight == "info:doi") {
-				item.DOI = value.substr(9);
-			} else if(firstEight == "urn:isbn") {
-				item.ISBN = value.substr(9);
-			} else if(value.match(/^https?:\/\//)) {
-				item.url = value;
-				item.accessDate = "";
-			}
-		} else if(key == "rft.date") {
-			if(item.itemType == "patent") {
-				item.issueDate = value;
-			} else {
-				item.date = value;
-			}
-		} else if(key == "rft.aulast" || key == "rft.invlast") {
-			var lastCreator = complexAu[complexAu.length-1];
-			if(complexAu.length && !lastCreator.lastName && !lastCreator.institutional) {
-				lastCreator.lastName = value;
-			} else {
-				complexAu.push({lastName:value, creatorType:(key == "rft.aulast" ? "author" : "inventor"), offset:item.creators.length});
-			}
-		} else if(key == "rft.aufirst" || key == "rft.invfirst") {
-			var lastCreator = complexAu[complexAu.length-1];
-			if(complexAu.length && !lastCreator.firstName && !lastCreator.institutional) {
-				lastCreator.firstName = value;
-			} else {
-				complexAu.push({firstName:value, creatorType:(key == "rft.aufirst" ? "author" : "inventor"), offset:item.creators.length});
-			}
-		} else if(key == "rft.au" || key == "rft.creator" || key == "rft.contributor" || key == "rft.inventor") {
-			if(key == "rft.contributor") {
-				var type = "contributor";
-			} else if(key == "rft.inventor") {
-				var type = "inventor";
-			} else {
-				var type = "author";
-			}
-
-			if(value.indexOf(",") !== -1) {
-				item.creators.push(PME.Util.cleanAuthor(value, type, true));
-			} else {
-				item.creators.push(PME.Util.cleanAuthor(value, type, false));
-			}
-		} else if(key == "rft.aucorp") {
-			complexAu.push({lastName:value, isInstitution:true});
-		} else if(item.itemType == "thesis") {
-			if(key == "rft.inst") {
-				item.publisher = value;
-			} else if(key == "rft.degree") {
-				item.type = value;
-			}
-		} else if(item.itemType == "patent") {
-			if(key == "rft.assignee") {
-				item.assignee = value;
-			} else if(key == "rft.number") {
-				item.patentNumber = value;
-			} else if(key == "rft.appldate") {
-				item.date = value;
-			}
-		} else if(format == "info:ofi/fmt:kev:mtx:dc") {
-			if(key == "rft.identifier") {
-				if(value.length > 8) {	// we could check length separately for each type, but all of these identifiers must be > 8 characters
-					if(value.substr(0, 5) == "ISBN ") {
-						item.ISBN = value.substr(5);
-					} else if(value.substr(0, 5) == "ISSN ") {
-						item.ISSN = value.substr(5);
-					} else if(value.substr(0, 8) == "urn:doi:") {
-						item.DOI = value.substr(4);
-					} else if(value.substr(0, 7) == "http://" || value.substr(0, 8) == "https://") {
-						item.url = value;
-					}
-				}
-			} else if(key == "rft.description") {
-				item.abstractNote = value;
-			} else if(key == "rft.rights") {
-				item.rights = value;
-			} else if(key == "rft.language") {
-			  	item.language = value;
-			}  else if(key == "rft.subject") {
-				item.tags.push(value);
-			} else if(key == "rft.type") {
-				if(PME.Util.itemTypeExists(value)) item.itemType = value;
-			} else if(key == "rft.source") {
-				item.publicationTitle = value;
-			}
-		}
-	}
-
-		}
-	}
-	*/
 	return item;
 };
 
