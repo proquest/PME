@@ -1324,7 +1324,7 @@ PME.Util.fieldIsValidForType = function(field, itemType) {
 };
 
 
-PME.Util.parseContextObject = function(COstring, item) {
+PME.Util.parseContextObject = function (COstring, item) {
 	if (!item)
 		var item = new PME.Item;
 
@@ -1358,6 +1358,15 @@ PME.Util.parseContextObject = function(COstring, item) {
 	else
 		return false;
 	
+	if (contextObject["rft.atitle"])
+		item.title = contextObject["rft.atitle"];
+	else if (contextObject["rft.btitle"])
+		item.title = contextObject["rft.btitle"];
+	else if (contextObject["rft.title"])
+		item.title = contextObject["rft.title"];
+	else
+		return false;
+
 	if (contextObject["rft.isbn"])
 		item.ISBN = contextObject["rft.isbn"];
 
@@ -1366,15 +1375,10 @@ PME.Util.parseContextObject = function(COstring, item) {
 	else if (contextObject["rft.issn"])
 		item.ISSN = contextObject["rft.issn"];
 
-	if (contextObject["rft.atitle"])
-		item.title = contextObject["rft.atitle"];
-	else if (contextObject["rft.btitle"])
-		item.title = contextObject["rft.btitle"];
-	else if (contextObject["rft.title"])
-		item.title = contextObject["rft.title"];
-
 	if (contextObject["rft.pub"])
 		item.publisher = contextObject["rft.pub"];
+	else if (contextObject["rft.inst"])
+		item.publisher = contextObject["rft.inst"];
 
 	if (contextObject["rft.place"])
 		item.place = contextObject["rft.place"];
@@ -1393,6 +1397,8 @@ PME.Util.parseContextObject = function(COstring, item) {
 
 	if (contextObject["rft.tpages"])
 		item.numPages = contextObject["rft.tpages"];
+	else if (contextObject["rft.pages"])
+		item.numPages = contextObject["rft.pages"];
 
 	if (contextObject["rft.spage"])
 		item.pages = contextObject["rft.spage"] + (contextObject["rft.epage"] ? "-" + contextObject["rft.epage"] : "");
@@ -1458,6 +1464,15 @@ PME.Util.parseContextObject = function(COstring, item) {
 
 	if (contextObject["rft.aucorp"])
 		item.creators.push({ lastName: contextObject["rft.aucorp"], creatorType: 'author' });
+
+	if (contextObject["rft_id"] && contextObject["rft_id"].indexOf("info:doi") > -1)
+		item.DOI = contextObject["rft_id"].slice(contextObject["rft_id"].indexOf("/") + 1);
+
+	if (contextObject["paramdict"])
+		item.language = contextObject["paramdict"];
+
+	if (contextObject["rft_id"] && contextObject["rft_id"].indexOf("http") > -1)
+		item.url = contextObject["rft_id"];
 
 	return item;
 };
@@ -2026,8 +2041,12 @@ PME.COINSscrape = function(doc) {
 	var matches = PME.Util.xpath(doc, '//span[contains(@class, "Z3988")]/@title');
 	var results = [];
 
-	for (var i = 0; i < matches.length; i++)
-		results.push(PME.Util.parseContextObject(matches[i].value, new PME.Item));
+	for (var i = 0; i < matches.length; i++) {
+		var item = PME.Util.parseContextObject(matches[i].value, new PME.Item);
+
+		if (item)
+			results.push(item);
+	}
 
 	return results;
 }
