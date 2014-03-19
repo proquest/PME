@@ -6,19 +6,27 @@
 		"lastUpdated": "2014-03-18"
 	}
 
-	function handleCreators(doc, aResults, aPaths)
+	function handleCreators(doc, info)
 	{
-		var result = authors = [], n = 0;
-		while (!result.length && n < aResults.length)
+		//	var result = authors = [], n = 0;
+		var authors = [];
+		for (p in info)
 		{
-			result = PME.Util.xpath(doc, aResults[n++]);
-		}
-		n = 0;
-		while (n < aPaths.length)
-		{
-			var a = PME.Util.xpathText(result, aPaths[n++], undefined, '|');
-			if (a)
-				authors.push.apply(authors, a.split('|'));
+			var n = 0;
+			var result = PME.Util.xpath(doc, p);
+			var aPaths = info[p];
+			//}
+			////while (!result.length && n < aResults.length)
+			////{
+			////	result = PME.Util.xpath(doc, aResults[n++]);
+			////}
+			//n = 0;
+			while (result.length && n < aPaths.length)
+			{
+				var a = PME.Util.xpathText(result, aPaths[n++], undefined, '|');
+				if (a)
+					authors.push.apply(authors, a.replace(/\|\s*$/,'').split('|'));
+			}
 		}
 		if (authors.length == 0)
 			return [];
@@ -129,13 +137,19 @@
 
 				var xpath = PME.Util.xpath(doc, '//div[@id="title"]//span[contains(@class, "author") and span[@class="contribution"]/span[contains(text(), "Author")]]') || PME.Util.xpath(doc, '//div[@class="buying"]');
 				item.creators = handleCreators(doc,
-					['//div[@id="title"]//span[contains(@class, "author") and span[@class="contribution"]/span[contains(text(), "Author")]]',
-					 '//div[@class="buying" and h1[contains(@class, "Title")]]']
-					,
-					['./span/a[contains(@class, "contributorNameID")]',
-						'./a',
-						'./span/a'
-					]);
+					{
+						'//div[@id="title"]//span[contains(@class, "author") and span[@class="contribution"]/span[contains(text(), "Author")]]':
+							['./span/a[contains(@class, "contributorNameID")]',
+							 './a'],
+						'//div[@class="buying" and h1[contains(@class, "Title")]]':
+							['./span/a[not(@href = "#")]',
+							 '//span[contains(@class, "contributorNameTrigger")]/a']
+					});
+					//,
+					//['./span/a[contains(@class, "contributorNameID")]',
+					//	'./a',
+					//	'./span/a'
+					//]);
 				var ifr = PME.Util.xpath(doc, '//iframe[@id="bookDesc_iframe"]')
 				if (ifr[0])
 					item.abstractNote = ifr[0].contentWindow.document.getElementById("iframeContent").innerText;
@@ -150,9 +164,12 @@
 				var item = new PME.Item('book');
 				item.title = PME.Util.xpathText(doc, '//span[@id="btAsinTitle"]')//.replace(/\[kindle edition\]/i, "");
 				item.creators = handleCreators(doc,
-					['//span[starts-with(@class, "contributorName") and following-sibling::span[contains(text(),"Author")]]'],
-					['a[starts-with(@id, "contributorName")]']
-					);
+					{
+						'//span[starts-with(@class, "contributorName") and following-sibling::span[contains(text(),"Author")]]':
+							['a[starts-with(@id, "contributorName")]'],
+						'//div[@class="buying" and h1[contains(@class, "Title")]]':
+							['./span/a[not(@href = "#")]']
+					});
 				fillDetails(doc, item);
 				item.url = url;
 				item.abstractNote = PME.Util.xpathText(doc, '//div[@id="ps-content" and h2[text()="Book Description"]]//div[@class="content"]//div[@id="postBodyPS"]');
