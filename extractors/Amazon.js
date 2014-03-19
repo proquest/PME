@@ -8,19 +8,12 @@
 
 	function handleCreators(doc, info)
 	{
-		//	var result = authors = [], n = 0;
 		var authors = [];
 		for (p in info)
 		{
 			var n = 0;
 			var result = PME.Util.xpath(doc, p);
 			var aPaths = info[p];
-			//}
-			////while (!result.length && n < aResults.length)
-			////{
-			////	result = PME.Util.xpath(doc, aResults[n++]);
-			////}
-			//n = 0;
 			while (result.length && n < aPaths.length)
 			{
 				var a = PME.Util.xpathText(result, aPaths[n++], undefined, '|');
@@ -145,11 +138,6 @@
 							['./span/a[not(@href = "#")]',
 							 '//span[contains(@class, "contributorNameTrigger")]/a']
 					});
-					//,
-					//['./span/a[contains(@class, "contributorNameID")]',
-					//	'./a',
-					//	'./span/a'
-					//]);
 				var ifr = PME.Util.xpath(doc, '//iframe[@id="bookDesc_iframe"]')
 				if (ifr[0])
 					item.abstractNote = ifr[0].contentWindow.document.getElementById("iframeContent").innerText;
