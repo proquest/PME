@@ -140,7 +140,10 @@
 					});
 				var ifr = PME.Util.xpath(doc, '//iframe[@id="bookDesc_iframe"]')
 				if (ifr[0])
-					item.abstractNote = ifr[0].contentWindow.document.getElementById("iframeContent").innerText;
+				{
+					var description = ifr[0].contentWindow.document.getElementById("iframeContent");
+					item.abstractNote = description.innerText || description.textContent;
+				}
 				else
 					item.abstractNote = PME.Util.xpathText(doc, '//div[@id="ps-content" and h2[text()="Book Description"]]//div[@class="content"]//div[@id="postBodyPS"]');
 				fillDetails(doc, item);
