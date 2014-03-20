@@ -133,11 +133,6 @@ var Registry = (function() {
 			m: "sks.sirs.com",
 			g: "74740e56-5325-493b-8e70-44c0f854fbe9"
 		},
-		"COinS": {
-			//Only using COinS for Summon now
-			m: "summon\\.serialssolutions\\.com",
-			g: "05d07af9-105a-4572-99f6-a8e231c0daef"
-		},
 		"DOAJ": {
 			m: "doaj\\.org",
 			g: "db935268-34d1-44f8-a6ee-52a178d598a2"
@@ -478,6 +473,10 @@ function completed(data) {
 		return;
 	if(! (data))
 		data = {};
+	if (!(data.items && data.items.length > 0)) {
+		log("attempting COinS scrape");
+		data.items = PME.COINSscrape(document);
+	}
 	if (!(data.items && data.items.length > 0)) {
 		log("attempting pdf scrape");
 		data.items = PME.pdfScrape();
@@ -1291,13 +1290,13 @@ PME.Util.xpath = function(nodes, selector, namespaces) {
 
 		function resolver(prefix) { return namespaces && namespaces[prefix]; }
 
-		if ("evaluate" in doc) {
+		if (typeof doc.evaluate === 'function') {
 			var xp = doc.evaluate(selector, node, resolver, XPathResult.ANY_TYPE, null),
 				el;
 			while (el = xp.iterateNext())
 				out.push(el);
 		}
-		else if ("selectNodes" in node) {
+		else if (typeof node.selectNodes === 'function') {
 			if (namespaces) {
 				var selNS = map(namespaces, function(url, prefix) {
 					return 'xmlns:' + prefix + '="' + url + '"';
@@ -1332,253 +1331,156 @@ PME.Util.fieldIsValidForType = function(field, itemType) {
 	return true; // TBI
 };
 
-/*
- * Generates an item in the format returned by item.fromArray() given an
- * OpenURL version 1.0 contextObject
- *
- * accepts an item array to fill, or creates and returns a new item array
- * POSSIBLE TODO: rewrite in PME style (picture Psy on his horse)
- */
-PME.Util.parseContextObject = function(co, item) {
-	if(!item) {
-		var item = [];
-		item.creators = [];
+
+PME.Util.parseContextObject = function (COstring, item) {
+	if (!item)
+		var item = new PME.Item;
+
+	var contextObject = {};
+	var contextParams = COstring.split('&');
+	var authors = [];
+
+	for (var i = 0; i < contextParams.length; i++) {
+		var property = contextParams[i].split('=');
+
+		if (property[0] == "rft.au")
+			authors.push(decodeURIComponent(property[1].replace(/\+|%2[bB]/g, " ")));
+		else
+			contextObject[property[0]] = decodeURIComponent(property[1].replace(/\+|%2[bB]/g, " "));
 	}
 
-	var coParts = co.split("&");
-
-	// get type
-	for(var i=0; i<coParts.length; i++) {
-		if(coParts[i].substr(0, 12) == "rft_val_fmt=") {
-			var format = decodeURIComponent(coParts[i].substr(12));
-			if(format == "info:ofi/fmt:kev:mtx:journal") {
-				item.itemType = "journalArticle";
-				break;
-			} else if(format == "info:ofi/fmt:kev:mtx:book") {
-				if(coParts.indexOf("rft.genre=bookitem") !== -1) {
-					item.itemType = "bookSection";
-				} else if(coParts.indexOf("rft.genre=conference") !== -1 || coParts.indexOf("rft.genre=proceeding") !== -1) {
-					item.itemType = "conferencePaper";
-				} else if(coParts.indexOf("rft.genre=report") !== -1) {
-					item.itemType = "report";
-				} else if(coParts.indexOf("rft.genre=document") !== -1) {
-					item.itemType = "document";
-				} else {
-					item.itemType = "book";
-				}
-				break;
-			} else if(format == "info:ofi/fmt:kev:mtx:dissertation") {
-				item.itemType = "thesis";
-				break;
-			} else if(format == "info:ofi/fmt:kev:mtx:patent") {
-				item.itemType = "patent";
-				break;
-			} else if(format == "info:ofi/fmt:kev:mtx:dc") {
-				item.itemType = "webpage";
-				break;
-			}
-		}
-	}
-	if(!item.itemType) {
+	if (contextObject["rft.genre"] == 'bookitem')
+		item.itemType = "bookSection";
+	else if (contextObject["rft.genre"] == 'report')
+		item.itemType = "report";
+	else if (contextObject["rft.genre"] == 'proceeding' || contextObject["rft.genre"] == 'conference')
+		item.itemType = "conferencePaper";
+	else if (contextObject["rft_val_fmt"].indexOf("journal") > -1)
+		item.itemType = "journalArticle";
+	else if (contextObject["rft_val_fmt"].indexOf("book") > -1)
+		item.itemType = "book";
+	else if (contextObject["rft_val_fmt"].indexOf("dissertation") > -1)
+		item.itemType = "thesis";
+	else if (contextObject["rft_val_fmt"].indexOf("patent") > -1)
+		item.itemType = "patent";
+	else
 		return false;
+	
+	if (contextObject["rft.atitle"])
+		item.title = contextObject["rft.atitle"];
+	else if (contextObject["rft.btitle"])
+		item.title = contextObject["rft.btitle"];
+	else if (contextObject["rft.title"])
+		item.title = contextObject["rft.title"];
+	else
+		return false;
+
+	if (contextObject["rft.isbn"])
+		item.ISBN = contextObject["rft.isbn"];
+
+	if (contextObject["rft.eissn"])
+		item.ISSN = contextObject["rft.eissn"];
+	else if (contextObject["rft.issn"])
+		item.ISSN = contextObject["rft.issn"];
+
+	if (contextObject["rft.pub"])
+		item.publisher = contextObject["rft.pub"];
+	else if (contextObject["rft.inst"])
+		item.publisher = contextObject["rft.inst"];
+
+	if (contextObject["rft.place"])
+		item.place = contextObject["rft.place"];
+
+	if (contextObject["rft.jtitle"])
+		item.publicationTitle = contextObject["rft.jtitle"];
+
+	if (contextObject["rft.stitle"])
+		item.journalAbbreviation = contextObject["rft.stitle"];
+
+	if (contextObject["rft.edition"])
+		item.edition = contextObject["rft.edition"];
+
+	if (contextObject["rft.series"])
+		item.series = contextObject["rft.series"];
+
+	if (contextObject["rft.tpages"])
+		item.numPages = contextObject["rft.tpages"];
+	else if (contextObject["rft.pages"])
+		item.numPages = contextObject["rft.pages"];
+
+	if (contextObject["rft.spage"])
+		item.pages = contextObject["rft.spage"] + (contextObject["rft.epage"] ? "-" + contextObject["rft.epage"] : "");
+
+	if (contextObject["rft.issue"])
+		item.issue = contextObject["rft.issue"];
+
+	if (contextObject["rft.volume"])
+		item.volume = contextObject["rft.volume"] + (contextObject["rft.part"] ? contextObject["rft.part"] : '');
+
+	if (contextObject["rft.date"]) {
+		item.date = contextObject["rft.date"];
+
+		if (contextObject["rft.chron"])
+			item.date = contextObject["rft.chron"] + item.date;
+		else if (contextObject["rft.ssn"])
+			item.date = contextObject["rft.ssn"] + " " + item.date;
+		else if (contextObject["rft.quarter"])
+			item.date = "Quarter " + contextObject["rft.quarter"] + ", " + item.date;
 	}
 
-	var pagesKey = "";
-
-	// keep track of "aucorp," "aufirst," "aulast"
-	var complexAu = [];
-
-	for(var i=0; i<coParts.length; i++) {
-		var keyVal = coParts[i].split("=");
-		var key = keyVal[0];
-		var value = decodeURIComponent(keyVal[1].replace(/\+|%2[bB]/g, " "));
-		if(!value) {
-			continue;
+	if (contextObject["rft.aulast"]) {
+		var authFirstName = '';
+		var authLastName = contextObject["rft.aulast"] + (contextObject["rft.ausuffix"] ? contextObject["rft.ausuffix"] : "");
+		
+		if (contextObject["rft.aufirst"] || contextObject["rft.auinit1"]) {
+			authFirstName = (contextObject["rft.aufirst"] ? contextObject["rft.aufirst"] : contextObject["rft.auinit1"]) + (contextObject["rft.auinitm"] ? contextObject["rft.auinitm"] : '');
+		}
+		else if (contextObject["rft.auinit"]) {
+			authFirstName = contextObject["rft.auinit"];
+		}
+		else if (contextObject["rft.aulast"].indexOf(',') > -1) {
+			authLastName = contextObject["rft.aulast"].slice(0, contextObject["rft.aulast"].indexOf(','));
+			authFirstName = contextObject["rft.aulast"].slice(contextObject["rft.aulast"].indexOf(',') + 1);
+		}
+		else {
+			authFirstName = contextObject["rft.aulast"].slice(0, contextObject["rft.aulast"].lastIndexOf(' '));
+			authLastName = contextObject["rft.aulast"].slice(contextObject["rft.aulast"].lastIndexOf(' ') + 1);
 		}
 
-		if(key == "rft_id") {
-			var firstEight = value.substr(0, 8).toLowerCase();
-			if(firstEight == "info:doi") {
-				item.DOI = value.substr(9);
-			} else if(firstEight == "urn:isbn") {
-				item.ISBN = value.substr(9);
-			} else if(value.match(/^https?:\/\//)) {
-				item.url = value;
-				item.accessDate = "";
+		if (authors.length > 0)
+			authors = filter(authors, function (item) { return (item.indexOf(authLastName) == -1 && item.indexOf(authFirstName) == -1); });
+
+		item.creators.push({ lastName: authLastName, firstName: authFirstName, creatorType: 'author' });
+	}
+
+	if (authors.length > 0 || !contextObject["rft.aulast"]) {
+		for (var i = 0; i < authors.length; i++) {
+			var authFirstName = '', authLastName = '';
+
+			if (authors[i].indexOf(',') > -1) {
+				authLastName = authors[i].slice(0, authors[i].indexOf(','));
+				authFirstName = authors[i].slice(authors[i].indexOf(',') + 1);
 			}
-		} else if(key == "rft.btitle") {
-			if(item.itemType == "book" || item.itemType == "report") {
-				item.title = value;
-			} else if(item.itemType == "bookSection" || item.itemType == "conferencePaper") {
-				item.publicationTitle = value;
-			}
-		} else if(key == "rft.atitle"
-				&& ["journalArticle", "bookSection", "conferencePaper"].indexOf(item.itemType) !== -1) {
-			item.title = value;
-		} else if(key == "rft.jtitle" && item.itemType == "journalArticle") {
-			item.publicationTitle = value;
-		} else if(key == "rft.stitle" && item.itemType == "journalArticle") {
-			item.journalAbbreviation = value;
-		} else if(key == "rft.title") {
-			if(["journalArticle", "bookSection", "conferencePaper"].indexOf(item.itemType) !== -1) {
-				item.publicationTitle = value;
-			} else {
-				item.title = value;
-			}
-		} else if(key == "rft.date") {
-			if(item.itemType == "patent") {
-				item.issueDate = value;
-			} else {
-				item.date = value;
-			}
-		} else if(key == "rft.volume") {
-			item.volume = value;
-		} else if(key == "rft.issue") {
-			item.issue = value;
-		} else if(key == "rft.pages") {
-			pagesKey = key;
-			item.pages = value;
-		} else if(key == "rft.spage") {
-			if(pagesKey != "rft.pages") {
-				// make pages look like start-end
-				if(pagesKey == "rft.epage") {
-					if(value != item.pages) {
-						item.pages = value+"-"+item.pages;
-					}
-				} else {
-					item.pages = value;
-				}
-				pagesKey = key;
-			}
-		} else if(key == "rft.epage") {
-			if(pagesKey != "rft.pages") {
-				// make pages look like start-end
-				if(pagesKey == "rft.spage") {
-					if(value != item.pages) {
-						item.pages = item.pages+"-"+value;
-					}
-				} else {
-					item.pages = value;
-				}
-				pagesKey = key;
-			}
-		} else if(key == "rft.issn" || (key == "rft.eissn" && !item.ISSN)) {
-			item.ISSN = value;
-		} else if(key == "rft.aulast" || key == "rft.invlast") {
-			var lastCreator = complexAu[complexAu.length-1];
-			if(complexAu.length && !lastCreator.lastName && !lastCreator.institutional) {
-				lastCreator.lastName = value;
-			} else {
-				complexAu.push({lastName:value, creatorType:(key == "rft.aulast" ? "author" : "inventor"), offset:item.creators.length});
-			}
-		} else if(key == "rft.aufirst" || key == "rft.invfirst") {
-			var lastCreator = complexAu[complexAu.length-1];
-			if(complexAu.length && !lastCreator.firstName && !lastCreator.institutional) {
-				lastCreator.firstName = value;
-			} else {
-				complexAu.push({firstName:value, creatorType:(key == "rft.aufirst" ? "author" : "inventor"), offset:item.creators.length});
-			}
-		} else if(key == "rft.au" || key == "rft.creator" || key == "rft.contributor" || key == "rft.inventor") {
-			if(key == "rft.contributor") {
-				var type = "contributor";
-			} else if(key == "rft.inventor") {
-				var type = "inventor";
-			} else {
-				var type = "author";
+			else {
+				authFirstName = authors[i].slice(0, authors[i].lastIndexOf(' '));
+				authLastName = authors[i].slice(authors[i].lastIndexOf(' ') + 1);
 			}
 
-			if(value.indexOf(",") !== -1) {
-				item.creators.push(PME.Util.cleanAuthor(value, type, true));
-			} else {
-				item.creators.push(PME.Util.cleanAuthor(value, type, false));
-			}
-		} else if(key == "rft.aucorp") {
-			complexAu.push({lastName:value, isInstitution:true});
-		} else if(key == "rft.isbn" && !item.ISBN) {
-			item.ISBN = value;
-		} else if(key == "rft.pub" || key == "rft.publisher") {
-			item.publisher = value;
-		} else if(key == "rft.place") {
-			item.place = value;
-		} else if(key == "rft.tpages") {
-			item.numPages = value;
-		} else if(key == "rft.edition") {
-			item.edition = value;
-		} else if(key == "rft.series") {
-			item.series = value;
-		} else if(item.itemType == "thesis") {
-			if(key == "rft.inst") {
-				item.publisher = value;
-			} else if(key == "rft.degree") {
-				item.type = value;
-			}
-		} else if(item.itemType == "patent") {
-			if(key == "rft.assignee") {
-				item.assignee = value;
-			} else if(key == "rft.number") {
-				item.patentNumber = value;
-			} else if(key == "rft.appldate") {
-				item.date = value;
-			}
-		} else if(format == "info:ofi/fmt:kev:mtx:dc") {
-			if(key == "rft.identifier") {
-				if(value.length > 8) {	// we could check length separately for
-										// each type, but all of these identifiers
-										// must be > 8 characters
-					if(value.substr(0, 5) == "ISBN ") {
-						item.ISBN = value.substr(5);
-					} else if(value.substr(0, 5) == "ISSN ") {
-						item.ISSN = value.substr(5);
-					} else if(value.substr(0, 8) == "urn:doi:") {
-						item.DOI = value.substr(4);
-					} else if(value.substr(0, 7) == "http://" || value.substr(0, 8) == "https://") {
-						item.url = value;
-					}
-				}
-			} else if(key == "rft.description") {
-				item.abstractNote = value;
-			} else if(key == "rft.rights") {
-				item.rights = value;
-			} else if(key == "rft.language") {
-			  	item.language = value;
-			}  else if(key == "rft.subject") {
-				item.tags.push(value);
-			} else if(key == "rft.type") {
-				if(PME.Util.itemTypeExists(value)) item.itemType = value;
-			} else if(key == "rft.source") {
-				item.publicationTitle = value;
-			}
+			item.creators.push({ lastName: authLastName, firstName: authFirstName, creatorType: 'author' });
 		}
 	}
 
-	// To maintain author ordering when complex and simple authors are combined,
-	// we remember where they were and the correct offsets
-	var inserted = 0;
+	if (contextObject["rft.aucorp"])
+		item.creators.push({ lastName: contextObject["rft.aucorp"], creatorType: 'author' });
 
-	// combine two lists of authors, eliminating duplicates
-	for(var i=0; i<complexAu.length; i++) {
-		var pushMe = true;
-		var offset = complexAu[i].offset;
-		delete complexAu[i].offset;
-		for(var j=0; j<item.creators.length; j++) {
-			// if there's a plain author that is close to this author (the
-			// same last name, and the same first name up to a point), keep
-			// the plain author, since it might have a middle initial
-			if(item.creators[j].lastName == complexAu[i].lastName &&
-			   (item.creators[j].firstName == complexAu[i].firstName == "" ||
-			   (item.creators[j].firstName.length >= complexAu[i].firstName.length &&
-			   item.creators[j].firstName.substr(0, complexAu[i].firstName.length) == complexAu[i].firstName))) {
-				pushMe = false;
-				break;
-			}
-		}
-		// Splice in the complex creator at the correct location,
-		// accounting for previous insertions
-		if(pushMe) {
-			item.creators.splice(offset + inserted, 0, complexAu[i]);
-			inserted++;
-		}
-	}
+	if (contextObject["rft_id"] && contextObject["rft_id"].indexOf("info:doi") > -1)
+		item.DOI = contextObject["rft_id"].slice(contextObject["rft_id"].indexOf("/") + 1);
+
+	if (contextObject["paramdict"])
+		item.language = contextObject["paramdict"];
+
+	if (contextObject["rft_id"] && contextObject["rft_id"].indexOf("http") > -1)
+		item.url = contextObject["rft_id"];
 
 	return item;
 };
@@ -2143,6 +2045,20 @@ PME.pdfScrape = function(doc)
 	}
 }
 
+PME.COINSscrape = function(doc) {
+	var matches = PME.Util.xpath(doc, '//span[contains(@class, "Z3988")]/@title');
+	var results = [];
+
+	for (var i = 0; i < matches.length; i++) {
+		var item = PME.Util.parseContextObject(matches[i].value, new PME.Item);
+
+		if (item)
+			results.push(item);
+	}
+
+	return results;
+}
+
 PME.genericScrape = function (doc)
 {
 	var regex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016
@@ -2284,9 +2200,10 @@ PME.getPageMetaData = function (callback)
 			t.translate();
 		}
 
-
-		if(! trans) {
-			completed({noTranslator: true});
+		if (!trans) {
+			PME.Util.xpathHelper(window, pageDoc, function () {
+				completed({ noTranslator: true })
+			});
 		}
 		else {
 			// add XPath helper javascript if document.evaluate is not defined
