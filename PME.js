@@ -1282,13 +1282,13 @@ PME.Util.xpath = function(nodes, selector, namespaces) {
 
 		function resolver(prefix) { return namespaces && namespaces[prefix]; }
 
-		if ("evaluate" in doc) {
+		if (typeof doc.evaluate === 'function') {
 			var xp = doc.evaluate(selector, node, resolver, XPathResult.ANY_TYPE, null),
 				el;
 			while (el = xp.iterateNext())
 				out.push(el);
 		}
-		else if ("selectNodes" in node) {
+		else if (typeof node.selectNodes === 'function') {
 			if (namespaces) {
 				var selNS = map(namespaces, function(url, prefix) {
 					return 'xmlns:' + prefix + '="' + url + '"';
@@ -2116,9 +2116,10 @@ PME.getPageMetaData = function (callback)
 			t.translate();
 		}
 
-
-		if(! trans) {
-			completed({noTranslator: true});
+		if (!trans) {
+			PME.Util.xpathHelper(window, pageDoc, function () {
+				completed({ noTranslator: true })
+			});
 		}
 		else {
 			// add XPath helper javascript if document.evaluate is not defined
