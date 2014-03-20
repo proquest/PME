@@ -2185,14 +2185,14 @@ PME.genericScrape = function (doc)
 
 PME.isbnScrape = function (doc) {
 	function pushMatches(matchSet) {
-		if (matchSet != null) {
+		if (matchSet) {
 			for (var i = 0; i < matchSet.length; i++)
 				matches.push(PME.Util.trim(matchSet[0]).replace(/[^X\d]/g, ''));
 		}
 	}
 
 	function killStringDuplicates(stringSet) {
-		if (stringSet != null) {
+		if (stringSet) {
 			var clean = [];
 			for (var i = 0; i < stringSet.length - 1; i++) {
 				if (stringSet[i] !== stringSet[i + 1])
