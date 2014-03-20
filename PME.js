@@ -486,6 +486,10 @@ function completed(data) {
 		log("attempting generic scrape");
 		data.items = PME.genericScrape(document);
 	}
+	if (!(data.items && data.items.length > 0)) {
+		log("attempting ISBN scrape");
+		data.items = PME.isbnScrape(document);
+	}
 	if (data.noTranslator && data.items.length > 0)
 		delete data.noTranslator;
 	pmeCompleted = true;
@@ -2183,6 +2187,82 @@ PME.genericScrape = function (doc)
 	return map(matches,function(doi){return {"DOI":doi}});
 }
 
+PME.isbnScrape = function (doc) {
+	function pushMatches(matchSet) {
+		if (matchSet) {
+			for (var i = 0; i < matchSet.length; i++)
+				matches.push(PME.Util.trim(matchSet[0]).replace(/[^X\d]/g, ''));
+		}
+	}
+
+	function killStringDuplicates(stringSet) {
+		if (stringSet) {
+			var clean = [];
+			for (var i = 0; i < stringSet.length - 1; i++) {
+				if (stringSet[i] !== stringSet[i + 1])
+					clean.push(stringSet[i]);
+			}
+			clean.push(stringSet[stringSet.length - 1]);
+
+			return clean;
+		}
+	}
+
+	function calculateCheckDigit(isbn) {
+		var sum = 0;
+		var modulus = (isbn.length == 10 ? 11 : 10);
+		var digit;
+
+		if (isbn.length == 10) {
+			for (var i = 0, weight = isbn.length; i < isbn.length - 1; i++, weight--)
+				sum += weight * parseInt(isbn.charAt(i), 10);
+		}
+		else {
+			for (var i = 0, weight = 1; i < isbn.length - 1; i++) {
+				sum += weight * parseInt(isbn.charAt(i), 10);
+				weight = (weight == 1 ? 3 : 1);
+			}
+		}
+
+		digit = (modulus * Math.ceil(sum / modulus)) - sum;
+
+		return (digit == 10 ? "X" : digit);
+	}
+
+	var regex = /(?:^|\D)(?:\d{3}[\- ]?)?\d{1,5}[\- ]?\d{1,7}[\- ]?\d{1,6}[\- ]?[\dX](?:$|\D)/gi;
+	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
+	var matches = [];
+
+	while (walker.nextNode())
+		pushMatches(regex.exec(walker.currentNode.nodeValue));
+
+	var attributeMatch = PME.Util.xpath(doc, '//a[@href]/@href');
+	for (var i = 0; i < attributeMatch.length; i++)
+		pushMatches(regex.exec(attributeMatch[i].value));
+
+	matches.sort(function (a, b) { return parseInt(a) - parseInt(b); });
+	
+	matches = filter(matches, function(item) { return item.length == 10 || (item.length == 13 && item.substr(0, 3) == "978"); });
+	matches = killStringDuplicates(matches);
+	
+	matches = filter(matches, function(item) {		// verify the check digit so we can keep only valid ISBNs
+		return item.charAt(item.length - 1) == calculateCheckDigit(item);
+	});
+	
+	matches = filter(matches, function (item, i, items) {		// remove duplicate references, so we have only 1 ISBN per book
+		if (item.length == 13) {
+			return true;
+		}
+		else {
+			var testVal = "978" + item;
+			testVal = testVal.substr(0, testVal.length - 1) + calculateCheckDigit(testVal);
+
+			return items.indexOf(testVal, i + 1) == -1;
+		}
+	});
+	
+	return map(matches, function (isbn) { return { "ISBN": isbn } });
+}
 
 PME.getPageMetaData = function (callback)
 {

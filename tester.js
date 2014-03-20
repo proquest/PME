@@ -90,7 +90,6 @@
 			{
 				$("#divWait").html("");
 				$("#divResult").html("<font style='color:red'>This page is not supported yet</font>");
-				return;
 			}
 			PME.getPageMetaData(function (pmeResult)
 			{
