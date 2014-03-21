@@ -474,16 +474,16 @@ function completed(data) {
 	if(! (data))
 		data = {};
 	if (!(data.items && data.items.length > 0)) {
-		log("attempting COinS scrape");
-		data.items = PME.COINSscrape(document);
+		log("attempting generic scrape");
+		data.items = PME.genericScrape(document);
 	}
 	if (!(data.items && data.items.length > 0)) {
 		log("attempting pdf scrape");
 		data.items = PME.pdfScrape();
 	}
 	if (!(data.items && data.items.length > 0)) {
-		log("attempting generic scrape");
-		data.items = PME.genericScrape(document);
+		log("attempting COinS scrape");
+		data.items = PME.COINSscrape(document);
 	}
 	if (!(data.items && data.items.length > 0)) {
 		log("attempting ISBN scrape");
