@@ -1247,6 +1247,15 @@ PME.Util.htmlSpecialChars = function(str) {
 		.replace(/>/g, '&gt;')
 };
 
+PME.Util.removeHtmlEntities = function (str) {
+	return str.replace(/&amp;/g, 'and')
+		.replace(/&quot;/g, '\"')
+		.replace(/&apos;/g, '\'')
+		.replace(/&lt;/g, '<')
+		.replace(/&gt;/g, '>')
+		.replace(/&ndash;/g, '-')
+};
+
 // this seems to only be used in export for BibTeX
 PME.Util.removeDiacritics = function(str, lowerCaseOnly) {
 	return str;
@@ -1337,7 +1346,8 @@ PME.Util.parseContextObject = function (COstring, item) {
 		var item = new PME.Item;
 
 	var contextObject = {};
-	var contextParams = COstring.split('&');
+
+	var contextParams = PME.Util.removeHtmlEntities(COstring).split('&');
 	var authors = [];
 
 	for (var i = 0; i < contextParams.length; i++) {
@@ -1345,6 +1355,8 @@ PME.Util.parseContextObject = function (COstring, item) {
 
 		if (property[0] == "rft.au")
 			authors.push(decodeURIComponent(property[1].replace(/\+|%2[bB]/g, " ")));
+		else if (!property[1])
+			console.log("** Skipping missing parameter " + property[0]);
 		else
 			contextObject[property[0]] = decodeURIComponent(property[1].replace(/\+|%2[bB]/g, " "));
 	}
