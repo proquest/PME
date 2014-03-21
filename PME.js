@@ -2071,27 +2071,51 @@ PME.COINSscrape = function(doc) {
 	return results;
 }
 
-PME.genericScrape = function (doc)
-{
+PME.genericScrape = function (doc) {
 	var regex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016
-	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
+	var regexPDF = /.+\.pdf.*/i;
+	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, {
+		acceptNode: function (node) {
+			if (node.nodeType == 1 || node.nodeType == 3)
+				return NodeFilter.FILTER_ACCEPT;
+		}
+	}, false);
 	var matches = [];
+	var PDFmatches = [];
 	//running is used to handle dois that have elements embedded in them (usually hit highlighting)
 	//it captures the last few text nodes and joins them together
 	var running = [];
 	while (walker.nextNode()) {
-		running.push(walker.currentNode.nodeValue);
-		if(running.length > 10)
-			running.shift();
-		var match = regex.exec(running.join(''));
-		if (match != null){
-			matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
-			running = [];
-		}
-		else{
-			match = regex.exec(walker.currentNode.nodeValue);
-			if (match != null)
-				matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+		switch (walker.currentNode.nodeType) {
+			case 3://NodeFilter.SHOW_TEXT
+				running.push(walker.currentNode.nodeValue);
+				if (running.length > 10)
+					running.shift();
+				var match = regex.exec(running.join(''));
+				if (match != null) {
+					matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+					running = [];
+				}
+				else {
+					match = regex.exec(walker.currentNode.nodeValue);
+					if (match != null)
+						matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+				}
+				break;
+			case 1://NodeFilter.SHOW_ELEMENT
+				/*if (walker.currentNode.nodeName.toLowerCase() == 'a') {
+					var href = walker.currentNode.attributes['href'];
+					if (href) {
+						var sHref = href.value;
+						var match = regexPDF.exec(sHref);
+						if (match != null) {
+							if (sHref.indexOf("http") == -1)
+								sHref = window.location.href.substr(0, window.location.href.lastIndexOf('/')) + (sHref.indexOf('/') == 0 ? sHref : ('/' + sHref));
+							PDFmatches.push({ title: 'Full Text PDF', url: sHref, mimeType: 'application/pdf' });
+						}
+					}
+				}*/
+				break;
 		}
 	}
 
@@ -2111,8 +2135,13 @@ PME.genericScrape = function (doc)
 		}
 	}
 	//remove duplicates
-	matches = filter(matches, function (item, i, items) {return items.indexOf(item, i + 1) == -1;});
-	return map(matches,function(doi){return {"DOI":doi}});
+	matches = filter(matches, function (item, i, items) { return items.indexOf(item, i + 1) == -1; });
+	return map(matches, function (doi) {
+		return {
+			"DOI": doi
+			//,"attachments": [{ title: 'Full Text PDF', url: protocol + window.location.host + pdf, mimeType: 'application/pdf' }]
+		}
+	});
 }
 
 PME.isbnScrape = function (doc) {
