@@ -2124,7 +2124,7 @@ PME.isbnScrape = function (doc) {
 	}
 
 	function killStringDuplicates(stringSet) {
-		if (stringSet) {
+		if (stringSet && stringSet.length > 0) {
 			var clean = [];
 			for (var i = 0; i < stringSet.length - 1; i++) {
 				if (stringSet[i] !== stringSet[i + 1])
@@ -2134,6 +2134,7 @@ PME.isbnScrape = function (doc) {
 
 			return clean;
 		}
+		return stringSet;
 	}
 
 	function calculateCheckDigit(isbn) {
@@ -2169,10 +2170,8 @@ PME.isbnScrape = function (doc) {
 		pushMatches(regex.exec(attributeMatch[i].value));
 
 	matches.sort(function (a, b) { return parseInt(a) - parseInt(b); });
-	
 	matches = filter(matches, function(item) { return item.length == 10 || (item.length == 13 && item.substr(0, 3) == "978"); });
 	matches = killStringDuplicates(matches);
-	
 	matches = filter(matches, function(item) {		// verify the check digit so we can keep only valid ISBNs
 		return item.charAt(item.length - 1) == calculateCheckDigit(item);
 	});
