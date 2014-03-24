@@ -2124,11 +2124,13 @@ PME.genericScrape = function (doc) {
 
 				var doiString = /doi/i;
 
-				console.log(walker.currentNode.getAttribute("doi"));
+				
 
 				var doiVal = walker.currentNode.getAttribute("doi");
-				//if (!doiVal && doiString.test(walker.currentNode.attributes['name']))
-					//doiVal = walker.currentNode.attributes['value'];
+				if (!doiVal)
+					doiVal = walker.currentNode.getAttribute("DOI");
+				if (!doiVal && doiString.test(walker.currentNode.getAttribute('name')))
+					doiVal = walker.currentNode.getAttribute("value");
 					
 				if (doiVal && DOIregex.test(doiVal))
 					matches.push({ "DOI": doiVal });
