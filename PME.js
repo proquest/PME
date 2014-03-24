@@ -2081,6 +2081,7 @@ PME.genericScrape = function (doc) {
 		}
 	}, false);
 	var matches = [];
+	var PDFmatches = [];
 
 	//running is used to handle dois that have elements embedded in them (usually hit highlighting)
 	//it captures the last few text nodes and joins them together
@@ -2109,7 +2110,6 @@ PME.genericScrape = function (doc) {
 				break;
 			case 1://NodeFilter.SHOW_ELEMENT
 
-				// when inspecting an element node, check first for DOI
 				// if element is an anchor node, check the href for PDF
 				// if PDF is found, check if DOI is also found
 				// -- if DOI is also found in the same href, associate it with that PDF
@@ -2144,19 +2144,14 @@ PME.genericScrape = function (doc) {
 							var sub = (match[0].lastIndexOf('/') > 7 ? match[0].slice(0, match[0].lastIndexOf('/')) : match[0]);
 							matches.push(PME.Util.trim(sub).replace(/\.$/, ''));
 						}
-					}
 
-					/*
-					var href = walker.currentNode.attributes['href'];
-					if (href) {
-						var sHref = href.value;
-						var match = regexPDF.exec(sHref);
-						if (match != null) {
-							if (sHref.indexOf("http") == -1)
-								sHref = window.location.href.substr(0, window.location.href.lastIndexOf('/')) + (sHref.indexOf('/') == 0 ? sHref : ('/' + sHref));
-							PDFmatches.push({ title: 'Full Text PDF', url: sHref, mimeType: 'application/pdf' });
+						var PDFmatch = PDFregex.exec(href);
+						if (PDFmatch) {
+							if (href.indexOf("http") == -1)
+								href = window.location.href.substr(0, window.location.href.lastIndexOf('/')) + (href.indexOf('/') == 0 ? href : ('/' + href));
+							PDFmatches.push(href);
 						}
-					}*/
+					}
 				}
 				break;
 		}
@@ -2175,11 +2170,14 @@ PME.genericScrape = function (doc) {
 	matches = filter(matches, function (item, i, items) { return items.indexOf(item, i + 1) == -1; });
 	matches.sort();
 
+	for (var i = 0; i < PDFmatches.length; i++) {
+		matches.push(PDFmatches[0]);
+	}
+
 	return map(matches, function (item) {
-		if (item.PDF) {
+		if (item.indexOf('pdf') > -1) {
 			return {
-				"DOI" : item,
-				"attachments": {title: "Full Text PDF", url: protocol + window.location.host + item.PDF, mimeType: "application/pdf"}
+				"attachments": {title: "Full Text PDF", url: item, mimeType: "application/pdf"}
 			};
 		}
 		else {
