@@ -2109,7 +2109,8 @@ PME.genericScrape = function (doc) {
 				break;
 			case 1://NodeFilter.SHOW_ELEMENT
 
-				// when inspecting an element node, check first for DOI and second for PDF
+				// when inspecting an element node, check first for DOI
+				// if element is an anchor node, check the href for PDF
 				// if PDF is found, check if DOI is also found
 				// -- if DOI is also found in the same href, associate it with that PDF
 				// -- if no DOI is found in the same node, copy the TreeWalker and start checking other nodes radiating outward
@@ -2121,14 +2122,16 @@ PME.genericScrape = function (doc) {
 				// deduplicate matches[], and then associate PDFs to DOIs for final mapping
 				// throw away any PDFs that could not be associated with DOIs, unless there are no DOIs on the page at all
 
-				//var doiString = /doi/i;
+				var doiString = /doi/i;
 
-				var doiVal = walker.currentNode.attributes['doi'];
+				console.log(walker.currentNode.getAttribute("doi"));
+
+				var doiVal = walker.currentNode.getAttribute("doi");
 				//if (!doiVal && doiString.test(walker.currentNode.attributes['name']))
 					//doiVal = walker.currentNode.attributes['value'];
 					
-				if (doiVal)
-				{ }
+				if (doiVal && DOIregex.test(doiVal))
+					matches.push({ "DOI": doiVal });
 
 				/*if (walker.currentNode.nodeName.toLowerCase() == 'a') {
 					// check a href for both DOI and PDF
