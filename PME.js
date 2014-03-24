@@ -2072,8 +2072,8 @@ PME.COINSscrape = function(doc) {
 }
 
 PME.genericScrape = function (doc) {
-	var regex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016
-	var regexPDF = /.+\.pdf.*/i;
+	var DOIregex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016
+	var PDFregex = /.+\.pdf.*/i;
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, {
 		acceptNode: function (node) {
 			if (node.nodeType == 1 || node.nodeType == 3)
@@ -2081,28 +2081,55 @@ PME.genericScrape = function (doc) {
 		}
 	}, false);
 	var matches = [];
-	var PDFmatches = [];
+
 	//running is used to handle dois that have elements embedded in them (usually hit highlighting)
 	//it captures the last few text nodes and joins them together
 	var running = [];
+
+
+
+
+
 	while (walker.nextNode()) {
+
+
+		// traverse DOM tree like normal
+		// collect DOIs, push to matches as {"doi" : value}
+		// move xpath logic into TreeWalker logic (but without xpaths)
+
+		// if a PDF is found, copy the TreeWalker and use the copy to navigate the DOM from the node with the PDF URL
+		// track distance from the origin node, starting at 0
+		// search for a DOI until one is found or we run out of nodes that are 5 hops or less from origin
+		// if DOI is found, push to matches as {"doi": value, "pdf": value}
+		// if no DOI is found, throw away unless there are no DOIs on the webpage at all
+
+		// deduplicate matches, but only remove values w/o PDFs
+
+
+
 		switch (walker.currentNode.nodeType) {
 			case 3://NodeFilter.SHOW_TEXT
 				running.push(walker.currentNode.nodeValue);
 				if (running.length > 10)
 					running.shift();
-				var match = regex.exec(running.join(''));
+				var match = DOIregex.exec(running.join(''));
 				if (match != null) {
-					matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+					matches.push( {"DOI" : PME.Util.trim(match[0]).replace(/\.$/, '')} );
 					running = [];
 				}
 				else {
-					match = regex.exec(walker.currentNode.nodeValue);
+					match = DOIregex.exec(walker.currentNode.nodeValue);
 					if (match != null)
-						matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+						matches.push( {"DOI" : PME.Util.trim(match[0]).replace(/\.$/, '')} );
 				}
 				break;
 			case 1://NodeFilter.SHOW_ELEMENT
+
+				var testVal = walker.currentNode.attributes['doi'];
+				if (!testVal && walker.currentNode.attributes['name']);
+
+
+
 				/*if (walker.currentNode.nodeName.toLowerCase() == 'a') {
 					var href = walker.currentNode.attributes['href'];
 					if (href) {
@@ -2121,14 +2148,14 @@ PME.genericScrape = function (doc) {
 
 	var attributeMatch = PME.Util.xpath(doc, '//*[@doi]/@doi');
 	if (attributeMatch.length == 0)
-		attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content');
+		attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // won't be grabbed by TreeWalker
 	if (attributeMatch.length == 0)
 		attributeMatch = PME.Util.xpath(doc, '//*[contains(@name, "doi")]/@value');
 	if (attributeMatch.length == 0)
 		attributeMatch = PME.Util.xpath(doc, '//a[@href]/@href');
 
 	for (var i = 0; i < attributeMatch.length; i++) {
-		var match = regex.exec(attributeMatch[i].value);
+		var match = DOIregex.exec(attributeMatch[i].value);
 
 		if (match != null) {
 			matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
@@ -2136,9 +2163,9 @@ PME.genericScrape = function (doc) {
 	}
 	//remove duplicates
 	matches = filter(matches, function (item, i, items) { return items.indexOf(item, i + 1) == -1; });
-	return map(matches, function (doi) {
+	return map(matches, function (item) {
 		return {
-			"DOI": doi
+			"DOI": item.DOI
 			//,"attachments": [{ title: 'Full Text PDF', url: protocol + window.location.host + pdf, mimeType: 'application/pdf' }]
 		}
 	});
