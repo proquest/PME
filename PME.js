@@ -49,10 +49,10 @@ var Registry = (function() {
 			m: "jstor\\.org",
 			g: "d921155f-0186-1684-615c-ca57682ced9b"
 		},
-		"JAMA": {
+/*		"JAMA": {
 			m: "jamanetwork\\.com",
 			g: "0bd7e161-b266-42d0-9c19-f82b80463a0e"
-		},
+		},*/
 		"Financial Times": {
 			m: "ft\\.com",
 			g: "fc9b7700-b3cc-4150-ba89-c7e4443bd96d"
@@ -97,10 +97,10 @@ var Registry = (function() {
 			m: "^[^\\?]+(content/([0-9]+[A-Z\\-]*/[0-9]+|current|firstcite|early)|search\\?submit=|search\\?fulltext=|cgi/collection/.+)",
 			g: "8c1f42d5-02fa-437b-b2b2-73afc768eb07"
 		},
-		"Wiley Online Library": {
+/*		"Wiley Online Library": {
 			m: "onlinelibrary\\.wiley\\.com",
 			g: "fe728bc9-595a-4f03-98fc-766f1d8d0936"
-		},
+		},*/
 		"OCLC WorldCat FirstSearch": {
 			m: "firstsearch\\.oclc\\.org",
 			g: "838d8849-4ffb-9f44-3d0d-aa8a0a079afe"
@@ -133,14 +133,14 @@ var Registry = (function() {
 			m: "sks.sirs.com",
 			g: "74740e56-5325-493b-8e70-44c0f854fbe9"
 		},
-		"DOAJ": {
+/*		"DOAJ": {
 			m: "doaj\\.org",
 			g: "db935268-34d1-44f8-a6ee-52a178d598a2"
 		},
 		"Springer Link": {
 			m: "link\\.springer\\.com",
 			g: "d6c6210a-297c-4b2c-8c43-48cb503cc49e"
-		},
+		},*/
 		"Amazon": {
 			m: /www\.amazon\.com/,
 			g: "4fcda099-ee8e-4631-a279-a4d3a8b75906"
@@ -2072,7 +2072,7 @@ PME.COINSscrape = function(doc) {
 }
 
 PME.genericScrape = function (doc) {
-	var DOIregex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016
+	var DOIregex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;		//10.1093/imamat/hxt016
 	var PDFregex = /.+\.pdf.*/i;
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, {
 		acceptNode: function (node) {
@@ -2086,26 +2086,10 @@ PME.genericScrape = function (doc) {
 	//it captures the last few text nodes and joins them together
 	var running = [];
 
-
-
-
-
 	while (walker.nextNode()) {
 
-
-		// traverse DOM tree like normal
-		// collect DOIs, push to matches as {"doi" : value}
-		// move xpath logic into TreeWalker logic (but without xpaths)
-
-		// if a PDF is found, copy the TreeWalker and use the copy to navigate the DOM from the node with the PDF URL
-		// track distance from the origin node, starting at 0
-		// search for a DOI until one is found or we run out of nodes that are 5 hops or less from origin
-		// if DOI is found, push to matches as {"doi": value, "pdf": value}
-		// if no DOI is found, throw away unless there are no DOIs on the webpage at all
-
-		// deduplicate matches, but only remove values w/o PDFs
-
-
+		// text nodes are checked for DOIs
+		// element nodes are checked for DOIs and PDF URLs
 
 		switch (walker.currentNode.nodeType) {
 			case 3://NodeFilter.SHOW_TEXT
@@ -2125,12 +2109,30 @@ PME.genericScrape = function (doc) {
 				break;
 			case 1://NodeFilter.SHOW_ELEMENT
 
-				var testVal = walker.currentNode.attributes['doi'];
-				if (!testVal && walker.currentNode.attributes['name']);
+				// when inspecting an element node, check first for DOI and second for PDF
+				// if PDF is found, check if DOI is also found
+				// -- if DOI is also found in the same href, associate it with that PDF
+				// -- if no DOI is found in the same node, copy the TreeWalker and start checking other nodes radiating outward
+				// ----- will be checking both element node attributes and text nodes
+				// ----- track distance from origin, starting at 0
+				// ----- search for a DOI until one is found or we run out of nodes that are 5 hops or less from origin
+				// ----- grab first DOI that's found and associate it with that PDF
+				// store PDFs and associated DOIs elsewhere, don't merge to matches[] yet
+				// deduplicate matches[], and then associate PDFs to DOIs for final mapping
+				// throw away any PDFs that could not be associated with DOIs, unless there are no DOIs on the page at all
 
+				//var doiString = /doi/i;
 
+				var doiVal = walker.currentNode.attributes['doi'];
+				//if (!doiVal && doiString.test(walker.currentNode.attributes['name']))
+					//doiVal = walker.currentNode.attributes['value'];
+					
+				if (doiVal)
+				{ }
 
 				/*if (walker.currentNode.nodeName.toLowerCase() == 'a') {
+					// check a href for both DOI and PDF
+
 					var href = walker.currentNode.attributes['href'];
 					if (href) {
 						var sHref = href.value;
@@ -2145,28 +2147,29 @@ PME.genericScrape = function (doc) {
 				break;
 		}
 	}
-
-	var attributeMatch = PME.Util.xpath(doc, '//*[@doi]/@doi');
-	if (attributeMatch.length == 0)
-		attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // won't be grabbed by TreeWalker
-	if (attributeMatch.length == 0)
-		attributeMatch = PME.Util.xpath(doc, '//*[contains(@name, "doi")]/@value');
-	if (attributeMatch.length == 0)
-		attributeMatch = PME.Util.xpath(doc, '//a[@href]/@href');
+	/*
+	var attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // won't be grabbed by TreeWalker
 
 	for (var i = 0; i < attributeMatch.length; i++) {
 		var match = DOIregex.exec(attributeMatch[i].value);
 
-		if (match != null) {
-			matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
-		}
+		if (match != null)
+			matches.push( {"DOI" : PME.Util.trim(match[0]).replace(/\.$/, '')} );
 	}
+	*/
 	//remove duplicates
-	matches = filter(matches, function (item, i, items) { return items.indexOf(item, i + 1) == -1; });
+	//matches = filter(matches, function (item, i, items) { return items.indexOf(item, i + 1) == -1; });
+	matches.sort();
+
 	return map(matches, function (item) {
-		return {
-			"DOI": item.DOI
-			//,"attachments": [{ title: 'Full Text PDF', url: protocol + window.location.host + pdf, mimeType: 'application/pdf' }]
+		if (item.PDF) {
+			return {
+				"DOI" : item.DOI,
+				"attachments": {title: "Full Text PDF", url: protocol + window.location.host + item.PDF, mimeType: "application/pdf"}
+			};
+		}
+		else {
+			return {"DOI" : item.DOI};
 		}
 	});
 }
