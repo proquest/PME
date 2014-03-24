@@ -2110,7 +2110,6 @@ PME.genericScrape = function (doc) {
 				break;
 			case 1://NodeFilter.SHOW_ELEMENT
 
-				// if element is an anchor node, check the href for PDF
 				// if PDF is found, check if DOI is also found
 				// -- if DOI is also found in the same href, associate it with that PDF
 				// -- if no DOI is found in the same node, copy the TreeWalker and start checking other nodes radiating outward
@@ -2135,7 +2134,6 @@ PME.genericScrape = function (doc) {
 					matches.push(doiVal);
 
 				if (walker.currentNode.nodeName.toLowerCase() == 'a') {
-					// check a href for both DOI and PDF
 
 					var href = walker.currentNode.getAttribute('href');
 					if(href) {
@@ -2171,7 +2169,7 @@ PME.genericScrape = function (doc) {
 	matches.sort();
 
 	for (var i = 0; i < PDFmatches.length; i++) {
-		matches.push(PDFmatches[0]);
+		matches.push(PDFmatches[i]);
 	}
 
 	return map(matches, function (item) {
