@@ -2098,13 +2098,13 @@ PME.genericScrape = function (doc) {
 					running.shift();
 				var match = DOIregex.exec(running.join(''));
 				if (match != null) {
-					matches.push( {"DOI" : PME.Util.trim(match[0]).replace(/\.$/, '')} );
+					matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
 					running = [];
 				}
 				else {
 					match = DOIregex.exec(walker.currentNode.nodeValue);
 					if (match != null)
-						matches.push( {"DOI" : PME.Util.trim(match[0]).replace(/\.$/, '')} );
+						matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
 				}
 				break;
 			case 1://NodeFilter.SHOW_ELEMENT
@@ -2133,7 +2133,7 @@ PME.genericScrape = function (doc) {
 					doiVal = walker.currentNode.getAttribute("value");
 					
 				if (doiVal && DOIregex.test(doiVal))
-					matches.push({ "DOI": doiVal });
+					matches.push(doiVal);
 
 				/*if (walker.currentNode.nodeName.toLowerCase() == 'a') {
 					// check a href for both DOI and PDF
@@ -2163,18 +2163,18 @@ PME.genericScrape = function (doc) {
 	}
 	*/
 	//remove duplicates
-	//matches = filter(matches, function (item, i, items) { return items.indexOf(item, i + 1) == -1; });
+	matches = filter(matches, function (item, i, items) { return items.indexOf(item, i + 1) == -1; });
 	matches.sort();
 
 	return map(matches, function (item) {
 		if (item.PDF) {
 			return {
-				"DOI" : item.DOI,
+				"DOI" : item,
 				"attachments": {title: "Full Text PDF", url: protocol + window.location.host + item.PDF, mimeType: "application/pdf"}
 			};
 		}
 		else {
-			return {"DOI" : item.DOI};
+			return {"DOI" : item};
 		}
 	});
 }
