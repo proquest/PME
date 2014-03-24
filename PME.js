@@ -2131,13 +2131,22 @@ PME.genericScrape = function (doc) {
 					doiVal = walker.currentNode.getAttribute("DOI");
 				if (!doiVal && doiString.test(walker.currentNode.getAttribute('name')))
 					doiVal = walker.currentNode.getAttribute("value");
-					
 				if (doiVal && DOIregex.test(doiVal))
 					matches.push(doiVal);
 
-				/*if (walker.currentNode.nodeName.toLowerCase() == 'a') {
+				if (walker.currentNode.nodeName.toLowerCase() == 'a') {
 					// check a href for both DOI and PDF
 
+					var href = walker.currentNode.getAttribute('href');
+					if(href) {
+						var match = DOIregex.exec(href);
+						if (match) {
+							var sub = (match[0].lastIndexOf('/') > 7 ? match[0].slice(0, match[0].lastIndexOf('/')) : match[0]);
+							matches.push(PME.Util.trim(sub).replace(/\.$/, ''));
+						}
+					}
+
+					/*
 					var href = walker.currentNode.attributes['href'];
 					if (href) {
 						var sHref = href.value;
@@ -2147,21 +2156,21 @@ PME.genericScrape = function (doc) {
 								sHref = window.location.href.substr(0, window.location.href.lastIndexOf('/')) + (sHref.indexOf('/') == 0 ? sHref : ('/' + sHref));
 							PDFmatches.push({ title: 'Full Text PDF', url: sHref, mimeType: 'application/pdf' });
 						}
-					}
-				}*/
+					}*/
+				}
 				break;
 		}
 	}
-	/*
-	var attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // won't be grabbed by TreeWalker
+	
+	var metaMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // metas aren't grabbed by the TreeWalker, need to do it here
 
-	for (var i = 0; i < attributeMatch.length; i++) {
-		var match = DOIregex.exec(attributeMatch[i].value);
+	for (var i = 0; i < metaMatch.length; i++) {
+		var match = DOIregex.exec(metaMatch[i].value);
 
 		if (match != null)
-			matches.push( {"DOI" : PME.Util.trim(match[0]).replace(/\.$/, '')} );
+			matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
 	}
-	*/
+	
 	//remove duplicates
 	matches = filter(matches, function (item, i, items) { return items.indexOf(item, i + 1) == -1; });
 	matches.sort();
