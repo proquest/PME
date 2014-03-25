@@ -2125,29 +2125,37 @@ PME.genericScrape = function (doc) {
 
 				
 
-				var doiVal = walker.currentNode.getAttribute("doi");
-				if (!doiVal)
-					doiVal = walker.currentNode.getAttribute("DOI");
-				if (!doiVal && doiString.test(walker.currentNode.getAttribute('name')))
-					doiVal = walker.currentNode.getAttribute("value");
-				if (doiVal && DOIregex.test(doiVal))
-					matches.push(doiVal);
+				var doiFromAttribute = walker.currentNode.getAttribute("doi");
+				if (!doiFromAttribute)
+					doiFromAttribute = walker.currentNode.getAttribute("DOI");
+				if (!doiFromAttribute && doiString.test(walker.currentNode.getAttribute('name')))
+					doiFromAttribute = walker.currentNode.getAttribute("value");
+
+				if (doiFromAttribute && DOIregex.test(doiFromAttribute))
+					matches.push(doiFromAttribute);
 
 				if (walker.currentNode.nodeName.toLowerCase() == 'a') {
 
 					var href = walker.currentNode.getAttribute('href');
+					var doiFromHref;
 					if(href) {
 						var match = DOIregex.exec(href);
 						if (match) {
-							var sub = (match[0].lastIndexOf('/') > 7 ? match[0].slice(0, match[0].lastIndexOf('/')) : match[0]);
-							matches.push(PME.Util.trim(sub).replace(/\.$/, ''));
+							doiFromHref = (match[0].lastIndexOf('/') > 7 ? match[0].slice(0, match[0].lastIndexOf('/')) : match[0]);
+							matches.push(PME.Util.trim(doiFromHref).replace(/\.$/, ''));
 						}
 
 						var PDFmatch = PDFregex.exec(href);
 						if (PDFmatch) {
 							if (href.indexOf("http") == -1)
 								href = window.location.href.substr(0, window.location.href.lastIndexOf('/')) + (href.indexOf('/') == 0 ? href : ('/' + href));
-							PDFmatches.push(href);
+
+							if(doiFromHref)
+								PDFmatches.push({ "URL": href, "DOI": doiFromHref });
+							else if (doiFromAttribute)
+								PDFmatches.push({ "URL": href, "DOI": doiFromAttribute });
+							else 
+								PDFmatches.push({ "URL" : href, "DOI": "[none detected]" });
 						}
 					}
 				}
@@ -2173,9 +2181,10 @@ PME.genericScrape = function (doc) {
 	}
 
 	return map(matches, function (item) {
-		if (item.indexOf('pdf') > -1) {
+		if (item.URL) {
 			return {
-				"attachments": {title: "Full Text PDF", url: item, mimeType: "application/pdf"}
+				"DOI": item.DOI,
+				"attachments": {title: "Full Text PDF", url: item.URL, mimeType: "application/pdf"}
 			};
 		}
 		else {
