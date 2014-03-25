@@ -146,7 +146,7 @@ var Registry = (function() {
 			g: "4fcda099-ee8e-4631-a279-a4d3a8b75906"
 		},
 		"Google Books": {
-			m: "(?:play)|(?:books)\\.google\\.com/(?:store)|(?:books)",
+			m: "(?:(?:play)|(?:books)\\.google\\.com/(?:store)|(?:books))|(?:www\\.google\\.com/search)",
 			g: "127ff21d-c614-41f6-b4e8-007ea42dd6e0"
 		}
 	},
