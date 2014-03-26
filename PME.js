@@ -2107,16 +2107,7 @@ PME.genericScrape = function (doc) {
 				}
 				break;
 			case 1://NodeFilter.SHOW_ELEMENT
-
-				// if PDF is found, check if DOI is also found
-				// ----- will be checking both element node attributes and text nodes
-				// ----- search for a DOI until one is found or we run out of nodes that are 5 hops or less from origin
-				// ----- grab first DOI that's found and associate it with that PDF
-				// deduplicate matches[], and then associate PDFs to DOIs for final mapping
-				// throw away any PDFs that could not be associated with DOIs, unless there are no DOIs on the page at all
-
 				var doiString = /doi/i;
-
 
 				var doiFromAttribute = walker.currentNode.getAttribute("doi");
 				if (!doiFromAttribute)
@@ -2128,7 +2119,6 @@ PME.genericScrape = function (doc) {
 					matches.push( {"DOI" : doiFromAttribute} );
 
 				if (walker.currentNode.nodeName.toLowerCase() == 'a') {
-
 					var href = walker.currentNode.getAttribute('href');
 					var doiFromHref = "";
 
@@ -2159,9 +2149,9 @@ PME.genericScrape = function (doc) {
 									href = window.location.href.substr(0, window.location.href.indexOf('/', 9)) + (href.indexOf('/') == 0 ? href : ('/' + href));
 
 								if (doiFromHref)
-									PDFmatches.push({ "DOI": doiFromHref, "URL": href });
+									PDFmatches.push({ "DOI": PME.Util.trim(doiFromHref), "URL": href });
 								else if (doiFromAttribute)
-									PDFmatches.push({ "DOI": doiFromAttribute, "URL": href });
+									PDFmatches.push({ "DOI": PME.Util.trim(doiFromAttribute), "URL": href });
 								else {
 									var distanceFromOrigin = 0;
 									var isDoiFound = false;
@@ -2173,7 +2163,6 @@ PME.genericScrape = function (doc) {
 									var parentsChecked = 0;
 
 									while (!isDoiFound && distanceFromOrigin < 5) {
-
 										for (var i = checkingForChildren.length; i > 0; i--) {
 											var n = checkingForChildren.shift();
 											var DOImatch = [];
@@ -2195,11 +2184,10 @@ PME.genericScrape = function (doc) {
 											}
 
 											if (DOImatch) {
-												PDFmatches.push({ "DOI": (Array.isArray(DOImatch) ? DOImatch[0] : DOImatch), "URL": href });
+												PDFmatches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
 												isDoiFound = true;
 												break;
 											}
-
 
 											if (n.hasChildNodes) {
 												for (var c = 0; c < n.childNodes.length; c++)
@@ -2221,7 +2209,7 @@ PME.genericScrape = function (doc) {
 												DOImatch = DOIregex.exec(n.getAttribute('href'));
 
 											if (DOImatch) {
-												PDFmatches.push({ "DOI": (Array.isArray(DOImatch) ? DOImatch[0] : DOImatch), "URL": href });
+												PDFmatches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
 												isDoiFound = true;
 												break;
 											}
@@ -2255,9 +2243,6 @@ PME.genericScrape = function (doc) {
 
 										distanceFromOrigin++;
 									}
-
-									if(!isDoiFound)
-										PDFmatches.push({ "DOI": "[none detected]", "URL": href });
 								}
 							}
 						}
@@ -2281,22 +2266,29 @@ PME.genericScrape = function (doc) {
 		matches.push(PDFmatches[i]);
 	}
 
-	matches.sort(function (a, b) {
+	matches.sort(function (a, b) {	// sort returns by DOI, grouping elements with URLs last
 		if (a.DOI > b.DOI)
 			return 1;
 		if (a.DOI < b.DOI)
 			return -1;
 
 		if (!a.URL)
-			return 1;
-		if (!b.URL)
 			return -1;
+		if (!b.URL)
+			return 1;
 
 		return 0;
 	});
-	//remove duplicates
 
-	//matches = filter(matches, function (item, i, items) { return items.indexOf(item.DOI, i + 1) == -1; });
+	//remove duplicate DOIs
+	matches = filter(matches, function (item, i, items) {
+		for (var c = i + 1; c < items.length; c++) {
+			if (item.DOI == items[c].DOI)
+				return false;
+		}
+
+		return true;
+	});
 
 	return map(matches, function (item) {
 		if (item.URL) {
