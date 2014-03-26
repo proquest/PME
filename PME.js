@@ -2109,9 +2109,8 @@ PME.genericScrape = function (doc) {
 			case 1://NodeFilter.SHOW_ELEMENT
 
 				// if PDF is found, check if DOI is also found
-				// -- if no DOI is found in the same node, copy the TreeWalker and start checking other nodes radiating outward
+				// -- if no DOI is found in the same node, start checking other nodes radiating outward
 				// ----- will be checking both element node attributes and text nodes
-				// ----- track distance from origin, starting at 0
 				// ----- search for a DOI until one is found or we run out of nodes that are 5 hops or less from origin
 				// ----- grab first DOI that's found and associate it with that PDF
 				// deduplicate matches[], and then associate PDFs to DOIs for final mapping
@@ -2158,21 +2157,64 @@ PME.genericScrape = function (doc) {
 
 							if (!irrelevantPDF) {
 								if (href.indexOf("http") == -1)
-									href = window.location.href.substr(0, window.location.href.lastIndexOf('/')) + (href.indexOf('/') == 0 ? href : ('/' + href));
+									href = window.location.href.substr(0, window.location.href.indexOf('/')) + (href.indexOf('/') == 0 ? href : ('/' + href));
 
 								if (doiFromHref)
 									PDFmatches.push({ "DOI": doiFromHref, "URL": href });
 								else if (doiFromAttribute)
 									PDFmatches.push({ "DOI": doiFromAttribute, "URL": href });
 								else {
-									var walkerCopy = walker;
+									var distanceFromOrigin = 0;
+									var checkingForChildren = [walker.currentNode];
+									var checkingForParents = [walker.currentNode];
+									var checkingForSiblings = [];
 
-									console.log(walkerCopy.currentNode);
-									walkerCopy.currentNode.setAttribute("originHops", 2);
-									console.log("copy node hops : " + walkerCopy.currentNode.getAttribute("originHops"));
+									var childrenChecked = 0;
+									var parentsChecked = 0;
 
-									if (walker.currentNode.getAttribute("originHops"))
-										console.log("real node has hops : " + walker.currentNode.getAttribute("originHops"));
+									while (distanceFromOrigin <= 5) {
+										console.log("Distance from origin : " + distanceFromOrigin);
+										console.log("Child nodes checked : " + childrenChecked);
+										console.log("Parent nodes checked : " + parentsChecked);
+
+										for (var i = checkingForChildren.length; i > 0; i--) {
+											var n = checkingForChildren.shift();
+											childrenChecked++;
+
+											if (n.hasChildNodes) {
+												for (var c = 0; c < n.childNodes.length; c++) {
+													checkingForChildren.push(n.childNodes[c]);
+												}
+											}
+										}
+
+										for (var i = checkingForParents.length; i > 0; i--) {
+											var n = checkingForParents.shift();
+											parentsChecked++;
+
+											if (n.parentNode) {
+												checkingForParents.push(n.parentNode);
+												checkingForSiblings.push(n);
+											}
+										}
+
+										for (var i = checkingForSiblings.length; i > 0; i--) {
+											var p = checkingForSiblings.shift();
+											var n = p;
+
+											while (p.previousSibling) {
+												p = p.previousSibling;
+												checkingForChildren.push(p);
+											}
+
+											while (n.nextSibling) {
+												n = n.nextSibling;
+												checkingForChildren.push(n);
+											}
+										}
+
+										distanceFromOrigin++;
+									}
 
 
 									PDFmatches.push({ "DOI": "[none detected]", "URL": href });
