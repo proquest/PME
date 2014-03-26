@@ -2073,7 +2073,7 @@ PME.COINSscrape = function(doc) {
 
 PME.genericScrape = function (doc) {
 	var DOIregex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;		//10.1093/imamat/hxt016
-	var PDFregex = /.+\.pdf.*/i;
+	var PDFregex = /.+\.pdf$/i;
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, {
 		acceptNode: function (node) {
 			if (node.nodeType == 1 || node.nodeType == 3)
@@ -2086,7 +2086,6 @@ PME.genericScrape = function (doc) {
 	//running is used to handle dois that have elements embedded in them (usually hit highlighting)
 	//it captures the last few text nodes and joins them together
 	var running = [];
-	var counter = 0;
 
 	while (walker.nextNode()) {
 
@@ -2166,8 +2165,6 @@ PME.genericScrape = function (doc) {
 										for (var i = checkingForChildren.length; i > 0; i--) {
 											var n = checkingForChildren.shift();
 											var DOImatch = [];
-
-											childrenChecked++;
 											
 											if (n.nodeType == 3 || n.nodeType == 8) {
 												DOImatch = DOIregex.exec(n.textContent);
@@ -2197,7 +2194,6 @@ PME.genericScrape = function (doc) {
 
 										for (var i = checkingForParents.length; !isDoiFound && i > 0; i--) {
 											var n = checkingForParents.shift();
-											parentsChecked++;
 
 											DOImatch = n.getAttribute("doi");
 
@@ -2237,10 +2233,6 @@ PME.genericScrape = function (doc) {
 											}
 										}
 
-										console.log("Distance from origin : " + (distanceFromOrigin+1));
-										console.log("Child nodes checked : " + childrenChecked);
-										console.log("Parent nodes checked : " + parentsChecked);
-
 										distanceFromOrigin++;
 									}
 								}
@@ -2250,7 +2242,6 @@ PME.genericScrape = function (doc) {
 				}
 				break;
 		}
-		counter++;
 	}
 	
 	var metaMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // metas aren't grabbed by the TreeWalker, need to do it here
@@ -2262,9 +2253,8 @@ PME.genericScrape = function (doc) {
 			matches.push( {"DOI" : PME.Util.trim(match[0]).replace(/\.$/, '')} );
 	}
 	
-	for (var i = 0; i < PDFmatches.length; i++) {
+	for (var i = 0; i < PDFmatches.length; i++)
 		matches.push(PDFmatches[i]);
-	}
 
 	matches.sort(function (a, b) {	// sort returns by DOI, grouping elements with URLs last
 		if (a.DOI > b.DOI)
