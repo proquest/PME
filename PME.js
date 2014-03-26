@@ -2109,7 +2109,6 @@ PME.genericScrape = function (doc) {
 			case 1://NodeFilter.SHOW_ELEMENT
 
 				// if PDF is found, check if DOI is also found
-				// -- if no DOI is found in the same node, start checking other nodes radiating outward
 				// ----- will be checking both element node attributes and text nodes
 				// ----- search for a DOI until one is found or we run out of nodes that are 5 hops or less from origin
 				// ----- grab first DOI that's found and associate it with that PDF
@@ -2165,32 +2164,67 @@ PME.genericScrape = function (doc) {
 									PDFmatches.push({ "DOI": doiFromAttribute, "URL": href });
 								else {
 									var distanceFromOrigin = 0;
-									var checkingForChildren = [walker.currentNode];
-									var checkingForParents = [walker.currentNode];
-									var checkingForSiblings = [];
+									var isDoiFound = false;
+									var checkingForChildren = Array.prototype.slice.call(walker.currentNode.childNodes);
+									var checkingForParents = [walker.currentNode.parentNode];
+									var checkingForSiblings = [walker.currentNode];
 
 									var childrenChecked = 0;
 									var parentsChecked = 0;
 
-									while (distanceFromOrigin <= 5) {
-										console.log("Distance from origin : " + distanceFromOrigin);
-										console.log("Child nodes checked : " + childrenChecked);
-										console.log("Parent nodes checked : " + parentsChecked);
+									while (!isDoiFound && distanceFromOrigin < 5) {
 
 										for (var i = checkingForChildren.length; i > 0; i--) {
 											var n = checkingForChildren.shift();
+											var DOImatch = [];
+
 											childrenChecked++;
+											
+											if (n.nodeType == 3 || n.nodeType == 8) {
+												DOImatch = DOIregex.exec(n.textContent);
+											}
+											else {
+												DOImatch = n.getAttribute("doi");
+
+												if (!DOImatch)
+													DOImatch = n.getAttribute("DOI");
+												if (!DOImatch && doiString.test(n.getAttribute('name')))
+													DOImatch = n.getAttribute("value");
+												if (!DOImatch && n.getAttribute('href'))
+													DOImatch = DOIregex.exec(n.getAttribute('href'));
+											}
+
+											if (DOImatch) {
+												PDFmatches.push({ "DOI": (Array.isArray(DOImatch) ? DOImatch[0] : DOImatch), "URL": href });
+												isDoiFound = true;
+												break;
+											}
+
 
 											if (n.hasChildNodes) {
-												for (var c = 0; c < n.childNodes.length; c++) {
+												for (var c = 0; c < n.childNodes.length; c++)
 													checkingForChildren.push(n.childNodes[c]);
-												}
 											}
 										}
 
-										for (var i = checkingForParents.length; i > 0; i--) {
+										for (var i = checkingForParents.length; !isDoiFound && i > 0; i--) {
 											var n = checkingForParents.shift();
 											parentsChecked++;
+
+											DOImatch = n.getAttribute("doi");
+
+											if (!DOImatch)
+												DOImatch = n.getAttribute("DOI");
+											if (!DOImatch && doiString.test(n.getAttribute('name')))
+												DOImatch = n.getAttribute("value");
+											if (!DOImatch && n.getAttribute('href'))
+												DOImatch = DOIregex.exec(n.getAttribute('href'));
+
+											if (DOImatch) {
+												PDFmatches.push({ "DOI": (Array.isArray(DOImatch) ? DOImatch[0] : DOImatch), "URL": href });
+												isDoiFound = true;
+												break;
+											}
 
 											if (n.parentNode) {
 												checkingForParents.push(n.parentNode);
@@ -2198,26 +2232,32 @@ PME.genericScrape = function (doc) {
 											}
 										}
 
-										for (var i = checkingForSiblings.length; i > 0; i--) {
-											var p = checkingForSiblings.shift();
-											var n = p;
+										if (!isDoiFound) {
+											for (var i = checkingForSiblings.length; i > 0; i--) {
+												var p = checkingForSiblings.shift();
+												var n = p;
 
-											while (p.previousSibling) {
-												p = p.previousSibling;
-												checkingForChildren.push(p);
-											}
+												while (p.previousSibling) {
+													p = p.previousSibling;
+													checkingForChildren.push(p);
+												}
 
-											while (n.nextSibling) {
-												n = n.nextSibling;
-												checkingForChildren.push(n);
+												while (n.nextSibling) {
+													n = n.nextSibling;
+													checkingForChildren.push(n);
+												}
 											}
 										}
+
+										console.log("Distance from origin : " + (distanceFromOrigin+1));
+										console.log("Child nodes checked : " + childrenChecked);
+										console.log("Parent nodes checked : " + parentsChecked);
 
 										distanceFromOrigin++;
 									}
 
-
-									PDFmatches.push({ "DOI": "[none detected]", "URL": href });
+									if(!isDoiFound)
+										PDFmatches.push({ "DOI": "[none detected]", "URL": href });
 								}
 							}
 						}
