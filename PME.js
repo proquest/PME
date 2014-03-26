@@ -2073,6 +2073,22 @@ PME.COINSscrape = function(doc) {
 
 PME.genericScrape = function (doc) {
 	var DOIregex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;		//10.1093/imamat/hxt016
+
+	function getDoiFromElement(node) {
+		var doiVal = node.getAttribute("doi");
+		if (!doiVal)
+			doiVal = node.getAttribute("DOI");
+		if (!doiVal && /doi/i.test(node.getAttribute('name')))
+			doiVal = node.getAttribute("value");
+		if (!doiVal && node.getAttribute('href'))
+			doiVal = DOIregex.exec(node.getAttribute('href'));
+
+		if (doiVal)
+			return (Array.isArray(doiVal) ? doiVal[0] : doiVal);
+		else
+			return false;
+	}
+
 	var PDFregex = /.+\.pdf$/i;
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, {
 		acceptNode: function (node) {
@@ -2082,13 +2098,9 @@ PME.genericScrape = function (doc) {
 	}, false);
 	var matches = [];
 	var PDFmatches = [];
-
-	//running is used to handle dois that have elements embedded in them (usually hit highlighting)
-	//it captures the last few text nodes and joins them together
-	var running = [];
+	var running = [];			//running is used to handle dois that have elements embedded in them (usually hit highlighting)
 
 	while (walker.nextNode()) {
-
 		switch (walker.currentNode.nodeType) {
 			case 3://NodeFilter.SHOW_TEXT
 				running.push(walker.currentNode.nodeValue);
@@ -2106,13 +2118,7 @@ PME.genericScrape = function (doc) {
 				}
 				break;
 			case 1://NodeFilter.SHOW_ELEMENT
-				var doiString = /doi/i;
-
-				var doiFromAttribute = walker.currentNode.getAttribute("doi");
-				if (!doiFromAttribute)
-					doiFromAttribute = walker.currentNode.getAttribute("DOI");
-				if (!doiFromAttribute && doiString.test(walker.currentNode.getAttribute('name')))
-					doiFromAttribute = walker.currentNode.getAttribute("value");
+				var doiFromAttribute = getDoiFromElement(walker.currentNode);
 
 				if (doiFromAttribute && DOIregex.test(doiFromAttribute))
 					matches.push( {"DOI" : doiFromAttribute} );
@@ -2148,9 +2154,9 @@ PME.genericScrape = function (doc) {
 									href = window.location.href.substr(0, window.location.href.indexOf('/', 9)) + (href.indexOf('/') == 0 ? href : ('/' + href));
 
 								if (doiFromHref)
-									PDFmatches.push({ "DOI": PME.Util.trim(doiFromHref), "URL": href });
+									matches.push({ "DOI": PME.Util.trim(doiFromHref), "URL": href });
 								else if (doiFromAttribute)
-									PDFmatches.push({ "DOI": PME.Util.trim(doiFromAttribute), "URL": href });
+									matches.push({ "DOI": PME.Util.trim(doiFromAttribute), "URL": href });
 								else {
 									var distanceFromOrigin = 0;
 									var isDoiFound = false;
@@ -2158,30 +2164,18 @@ PME.genericScrape = function (doc) {
 									var checkingForParents = [walker.currentNode.parentNode];
 									var checkingForSiblings = [walker.currentNode];
 
-									var childrenChecked = 0;
-									var parentsChecked = 0;
-
 									while (!isDoiFound && distanceFromOrigin < 5) {
 										for (var i = checkingForChildren.length; i > 0; i--) {
 											var n = checkingForChildren.shift();
 											var DOImatch = [];
 											
-											if (n.nodeType == 3 || n.nodeType == 8) {
+											if (n.nodeType == 3 || n.nodeType == 8)
 												DOImatch = DOIregex.exec(n.textContent);
-											}
-											else {
-												DOImatch = n.getAttribute("doi");
-
-												if (!DOImatch)
-													DOImatch = n.getAttribute("DOI");
-												if (!DOImatch && doiString.test(n.getAttribute('name')))
-													DOImatch = n.getAttribute("value");
-												if (!DOImatch && n.getAttribute('href'))
-													DOImatch = DOIregex.exec(n.getAttribute('href'));
-											}
+											else
+												DOImatch = getDoiFromElement(n);
 
 											if (DOImatch) {
-												PDFmatches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
+												matches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
 												isDoiFound = true;
 												break;
 											}
@@ -2195,17 +2189,10 @@ PME.genericScrape = function (doc) {
 										for (var i = checkingForParents.length; !isDoiFound && i > 0; i--) {
 											var n = checkingForParents.shift();
 
-											DOImatch = n.getAttribute("doi");
-
-											if (!DOImatch)
-												DOImatch = n.getAttribute("DOI");
-											if (!DOImatch && doiString.test(n.getAttribute('name')))
-												DOImatch = n.getAttribute("value");
-											if (!DOImatch && n.getAttribute('href'))
-												DOImatch = DOIregex.exec(n.getAttribute('href'));
+											DOImatch = getDoiFromElement(n);
 
 											if (DOImatch) {
-												PDFmatches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
+												matches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
 												isDoiFound = true;
 												break;
 											}
@@ -2216,20 +2203,18 @@ PME.genericScrape = function (doc) {
 											}
 										}
 
-										if (!isDoiFound) {
-											for (var i = checkingForSiblings.length; i > 0; i--) {
-												var p = checkingForSiblings.shift();
-												var n = p;
+										for (var i = checkingForSiblings.length; !isDoiFound && i > 0; i--) {
+											var p = checkingForSiblings.shift();
+											var n = p;
 
-												while (p.previousSibling) {
-													p = p.previousSibling;
-													checkingForChildren.push(p);
-												}
+											while (p.previousSibling) {
+												p = p.previousSibling;
+												checkingForChildren.push(p);
+											}
 
-												while (n.nextSibling) {
-													n = n.nextSibling;
-													checkingForChildren.push(n);
-												}
+											while (n.nextSibling) {
+												n = n.nextSibling;
+												checkingForChildren.push(n);
 											}
 										}
 
