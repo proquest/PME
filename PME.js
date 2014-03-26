@@ -2220,6 +2220,8 @@ PME.genericScrape = function (doc) {
 
 										distanceFromOrigin++;
 									}
+
+									PDFmatches.push(href);	// PDFs that couldn't find DOIs
 								}
 							}
 						}
@@ -2231,15 +2233,21 @@ PME.genericScrape = function (doc) {
 	
 	var metaMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // metas aren't grabbed by the TreeWalker, need to do it here
 
-	for (var i = 0; i < metaMatch.length; i++) {
-		var match = DOIregex.exec(metaMatch[i].value);
-
-		if (match != null)
-			matches.push( {"DOI" : PME.Util.trim(match[0]).replace(/\.$/, '')} );
+	if (metaMatch.length == 1 && PDFmatches.length == 1) {
+		matches.push({ "DOI": PME.Util.trim(metaMatch[0].value).replace(/^doi:/, ''), "URL" : PDFmatches[0] });
+	}
+	else {
+		for (var i = 0; i < metaMatch.length; i++)
+			matches.push({ "DOI": PME.Util.trim(metaMatch[i].value).replace(/^doi:/, '') });
 	}
 	
-	for (var i = 0; i < PDFmatches.length; i++)
-		matches.push(PDFmatches[i]);
+	if (matches.length == 0) {
+		for (var i = 0; i < PDFmatches.length; i++)
+			matches.push( {"URL" : PDFmatches[i]} );
+	}
+	else if(matches.length == 1 && PDFmatches.length == 1 && !matches[0].URL) {
+		matches[0].URL = PDFmatches[0];
+	}
 
 	matches.sort(function (a, b) {	// sort returns by DOI, grouping elements with URLs last
 		if (a.DOI > b.DOI)
@@ -2266,15 +2274,12 @@ PME.genericScrape = function (doc) {
 	});
 
 	return map(matches, function (item) {
-		if (item.URL) {
-			return {
-				"DOI": item.DOI,
-				"attachments": {title: "Full Text PDF", url: item.URL, mimeType: "application/pdf"}
-			};
-		}
-		else {
-			return {"DOI" : item.DOI};
-		}
+		if (item.URL && item.DOI)
+			return { "DOI": item.DOI, "attachments": { title: "Full Text PDF", url: item.URL, mimeType: "application/pdf" } };
+		else if (!item.URL)
+			return { "DOI": item.DOI };
+		else
+			return { "attachments": { title: "Full Text PDF", url: item.URL, mimeType: "application/pdf" } };
 	});
 }
 
