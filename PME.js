@@ -2157,7 +2157,7 @@ PME.genericScrape = function (doc) {
 
 							if (!irrelevantPDF) {
 								if (href.indexOf("http") == -1)
-									href = window.location.href.substr(0, window.location.href.indexOf('/')) + (href.indexOf('/') == 0 ? href : ('/' + href));
+									href = window.location.href.substr(0, window.location.href.indexOf('/', 9)) + (href.indexOf('/') == 0 ? href : ('/' + href));
 
 								if (doiFromHref)
 									PDFmatches.push({ "DOI": doiFromHref, "URL": href });
