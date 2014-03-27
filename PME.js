@@ -2083,6 +2083,7 @@ PME.genericScrape = function (doc) {
 		if (!doiVal && node.getAttribute('href') && DOIregex.test(node.getAttribute('href'))) {
 			var hrefDOI = DOIregex.exec(node.getAttribute('href'));
 			doiVal = (hrefDOI[0].lastIndexOf('/') > 7 ? hrefDOI[0].slice(0, hrefDOI[0].lastIndexOf('/')) : hrefDOI[0]);
+			doiVal = PME.Util.trim(doiVal).replace(/\.$/, '');
 		}
 
 		return (doiVal ? doiVal : false);
@@ -2145,7 +2146,7 @@ PME.genericScrape = function (doc) {
 								href = window.location.href.substr(0, window.location.href.indexOf('/', 9)) + (href.indexOf('/') == 0 ? href : ('/' + href));
 
 							if (doiFromAttribute)
-								matches.push({ "DOI": PME.Util.trim(doiFromAttribute), "URL": href });
+								matches.push({ "DOI": doiFromAttribute, "URL": href });
 							else {
 								var distanceFromOrigin = 0;
 								var isDoiFound = false;
@@ -2164,7 +2165,7 @@ PME.genericScrape = function (doc) {
 											DOImatch = getDoiFromElement(n);
 
 										if (DOImatch) {
-											matches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
+											matches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : DOImatch), "URL": href });
 											isDoiFound = true;
 											break;
 										}
@@ -2180,7 +2181,7 @@ PME.genericScrape = function (doc) {
 										DOImatch = getDoiFromElement(n);
 
 										if (DOImatch) {
-											matches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
+											matches.push({ "DOI": DOImatch, "URL": href });
 											isDoiFound = true;
 											break;
 										}
