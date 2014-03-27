@@ -2080,13 +2080,12 @@ PME.genericScrape = function (doc) {
 			doiVal = node.getAttribute("DOI");
 		if (!doiVal && /doi/i.test(node.getAttribute('name')))
 			doiVal = node.getAttribute("value");
-		if (!doiVal && node.getAttribute('href'))
-			doiVal = DOIregex.exec(node.getAttribute('href'));
+		if (!doiVal && node.getAttribute('href') && DOIregex.test(node.getAttribute('href'))) {
+			var hrefDOI = DOIregex.exec(node.getAttribute('href'));
+			doiVal = (hrefDOI[0].lastIndexOf('/') > 7 ? hrefDOI[0].slice(0, hrefDOI[0].lastIndexOf('/')) : hrefDOI[0]);
+		}
 
-		if (doiVal)
-			return (Array.isArray(doiVal) ? doiVal[0] : doiVal);
-		else
-			return false;
+		return (doiVal ? doiVal : false);
 	}
 
 	var PDFregex = /.+\.pdf$/i;
@@ -2096,9 +2095,9 @@ PME.genericScrape = function (doc) {
 				return NodeFilter.FILTER_ACCEPT;
 		}
 	}, false);
-	var matches = [];
-	var PDFmatches = [];
-	var running = [];			//running is used to handle dois that have elements embedded in them (usually hit highlighting)
+	var matches = [];			// handles DOI hits
+	var PDFmatches = [];	// handles PDFs w/o associated DOIs
+	var running = [];			// used to handle dois that have elements embedded in them (usually hit highlighting)
 
 	while (walker.nextNode()) {
 		switch (walker.currentNode.nodeType) {
@@ -2120,109 +2119,96 @@ PME.genericScrape = function (doc) {
 			case 1://NodeFilter.SHOW_ELEMENT
 				var doiFromAttribute = getDoiFromElement(walker.currentNode);
 
-				if (doiFromAttribute && DOIregex.test(doiFromAttribute))
+				if (doiFromAttribute)
 					matches.push( {"DOI" : doiFromAttribute} );
 
 				if (walker.currentNode.nodeName.toLowerCase() == 'a') {
 					var href = walker.currentNode.getAttribute('href');
-					var doiFromHref = "";
 
-					if(href) {
-						var match = DOIregex.exec(href);
-						if (match) {
-							doiFromHref = (match[0].lastIndexOf('/') > 7 ? match[0].slice(0, match[0].lastIndexOf('/')) : match[0]);
-							matches.push( {"DOI" : PME.Util.trim(doiFromHref).replace(/\.$/, '')} );
-						}
-						
-						if (PDFregex.test(href)) {
-							var filterRegex = [/advert(?:ising)?/i, /policy|(?:cies)/i];
-							var irrelevantPDF = false;
+					if (href && PDFregex.test(href)) {
+						var filterRegex = [/advert(?:ising)?/i, /policy|(?:cies)/i];
+						var irrelevantPDF = false;
 							
-							for (var i = 0; !irrelevantPDF, i < filterRegex.length; i++) {
-								if (walker.currentNode.getAttribute('id'))
-									irrelevantPDF = filterRegex[i].test(walker.currentNode.getAttribute('id'));
-								if (!irrelevantPDF && walker.currentNode.getAttribute('class'))
-									irrelevantPDF = filterRegex[i].test(walker.currentNode.getAttribute('class'));
-								if (!irrelevantPDF && walker.currentNode.textContent)
-									irrelevantPDF = filterRegex[i].test(walker.currentNode.textContent);
-								if (!irrelevantPDF && walker.currentNode.getAttribute('href'))
-									irrelevantPDF = filterRegex[i].test(walker.currentNode.getAttribute('href'));
-							}
+						for (var i = 0; !irrelevantPDF, i < filterRegex.length; i++) {
+							if (walker.currentNode.getAttribute('id'))
+								irrelevantPDF = filterRegex[i].test(walker.currentNode.getAttribute('id'));
+							if (!irrelevantPDF && walker.currentNode.getAttribute('class'))
+								irrelevantPDF = filterRegex[i].test(walker.currentNode.getAttribute('class'));
+							if (!irrelevantPDF && walker.currentNode.textContent)
+								irrelevantPDF = filterRegex[i].test(walker.currentNode.textContent);
+							if (!irrelevantPDF && walker.currentNode.getAttribute('href'))
+								irrelevantPDF = filterRegex[i].test(walker.currentNode.getAttribute('href'));
+						}
 
-							if (!irrelevantPDF) {
-								if (href.indexOf("http") == -1)
-									href = window.location.href.substr(0, window.location.href.indexOf('/', 9)) + (href.indexOf('/') == 0 ? href : ('/' + href));
+						if (!irrelevantPDF) {
+							if (href.indexOf("http") == -1)
+								href = window.location.href.substr(0, window.location.href.indexOf('/', 9)) + (href.indexOf('/') == 0 ? href : ('/' + href));
 
-								if (doiFromHref)
-									matches.push({ "DOI": PME.Util.trim(doiFromHref), "URL": href });
-								else if (doiFromAttribute)
-									matches.push({ "DOI": PME.Util.trim(doiFromAttribute), "URL": href });
-								else {
-									var distanceFromOrigin = 0;
-									var isDoiFound = false;
-									var checkingForChildren = Array.prototype.slice.call(walker.currentNode.childNodes);
-									var checkingForParents = [walker.currentNode.parentNode];
-									var checkingForSiblings = [walker.currentNode];
+							if (doiFromAttribute)
+								matches.push({ "DOI": PME.Util.trim(doiFromAttribute), "URL": href });
+							else {
+								var distanceFromOrigin = 0;
+								var isDoiFound = false;
+								var checkingForChildren = Array.prototype.slice.call(walker.currentNode.childNodes);
+								var checkingForParents = [walker.currentNode.parentNode];
+								var checkingForSiblings = [walker.currentNode];
 
-									while (!isDoiFound && distanceFromOrigin < 5) {
-										for (var i = checkingForChildren.length; i > 0; i--) {
-											var n = checkingForChildren.shift();
-											var DOImatch = [];
+								while (!isDoiFound && distanceFromOrigin < 5) {
+									for (var i = checkingForChildren.length; i > 0; i--) {
+										var n = checkingForChildren.shift();
+										var DOImatch = [];
 											
-											if (n.nodeType == 3 || n.nodeType == 8)
-												DOImatch = DOIregex.exec(n.textContent);
-											else
-												DOImatch = getDoiFromElement(n);
-
-											if (DOImatch) {
-												matches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
-												isDoiFound = true;
-												break;
-											}
-
-											if (n.hasChildNodes) {
-												for (var c = 0; c < n.childNodes.length; c++)
-													checkingForChildren.push(n.childNodes[c]);
-											}
-										}
-
-										for (var i = checkingForParents.length; !isDoiFound && i > 0; i--) {
-											var n = checkingForParents.shift();
-
+										if (n.nodeType == 3 || n.nodeType == 8)
+											DOImatch = DOIregex.exec(n.textContent);
+										else
 											DOImatch = getDoiFromElement(n);
 
-											if (DOImatch) {
-												matches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
-												isDoiFound = true;
-												break;
-											}
-
-											if (n.parentNode) {
-												checkingForParents.push(n.parentNode);
-												checkingForSiblings.push(n);
-											}
+										if (DOImatch) {
+											matches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
+											isDoiFound = true;
+											break;
 										}
 
-										for (var i = checkingForSiblings.length; !isDoiFound && i > 0; i--) {
-											var p = checkingForSiblings.shift();
-											var n = p;
-
-											while (p.previousSibling) {
-												p = p.previousSibling;
-												checkingForChildren.push(p);
-											}
-
-											while (n.nextSibling) {
-												n = n.nextSibling;
-												checkingForChildren.push(n);
-											}
+										if (n.hasChildNodes) {
+											for (var c = 0; c < n.childNodes.length; c++)
+												checkingForChildren.push(n.childNodes[c]);
 										}
-
-										distanceFromOrigin++;
 									}
 
-									PDFmatches.push(href);	// PDFs that couldn't find DOIs
+									for (var i = checkingForParents.length; !isDoiFound && i > 0; i--) {
+										var n = checkingForParents.shift();
+										DOImatch = getDoiFromElement(n);
+
+										if (DOImatch) {
+											matches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : PME.Util.trim(DOImatch).replace(/\.$/, '')), "URL": href });
+											isDoiFound = true;
+											break;
+										}
+
+										if (n.parentNode) {
+											checkingForParents.push(n.parentNode);
+											checkingForSiblings.push(n);
+										}
+									}
+
+									for (var i = checkingForSiblings.length; !isDoiFound && i > 0; i--) {
+										var p = checkingForSiblings.shift(), n = p;
+
+										while (p.previousSibling) {
+											p = p.previousSibling;
+											checkingForChildren.push(p);
+										}
+
+										while (n.nextSibling) {
+											n = n.nextSibling;
+											checkingForChildren.push(n);
+										}
+									}
+
+									distanceFromOrigin++;
 								}
+
+								PDFmatches.push(href);	// PDFs that couldn't find DOIs
 							}
 						}
 					}
