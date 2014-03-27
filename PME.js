@@ -49,10 +49,10 @@ var Registry = (function() {
 			m: "jstor\\.org",
 			g: "d921155f-0186-1684-615c-ca57682ced9b"
 		},
-/*		"JAMA": {
+		"JAMA": {
 			m: "jamanetwork\\.com",
 			g: "0bd7e161-b266-42d0-9c19-f82b80463a0e"
-		},*/
+		},
 		"Financial Times": {
 			m: "ft\\.com",
 			g: "fc9b7700-b3cc-4150-ba89-c7e4443bd96d"
@@ -97,10 +97,10 @@ var Registry = (function() {
 			m: "^[^\\?]+(content/([0-9]+[A-Z\\-]*/[0-9]+|current|firstcite|early)|search\\?submit=|search\\?fulltext=|cgi/collection/.+)",
 			g: "8c1f42d5-02fa-437b-b2b2-73afc768eb07"
 		},
-/*		"Wiley Online Library": {
+		"Wiley Online Library": {
 			m: "onlinelibrary\\.wiley\\.com",
 			g: "fe728bc9-595a-4f03-98fc-766f1d8d0936"
-		},*/
+		},
 		"OCLC WorldCat FirstSearch": {
 			m: "firstsearch\\.oclc\\.org",
 			g: "838d8849-4ffb-9f44-3d0d-aa8a0a079afe"
@@ -133,14 +133,14 @@ var Registry = (function() {
 			m: "sks.sirs.com",
 			g: "74740e56-5325-493b-8e70-44c0f854fbe9"
 		},
-/*		"DOAJ": {
+		"DOAJ": {
 			m: "doaj\\.org",
 			g: "db935268-34d1-44f8-a6ee-52a178d598a2"
 		},
 		"Springer Link": {
 			m: "link\\.springer\\.com",
 			g: "d6c6210a-297c-4b2c-8c43-48cb503cc49e"
-		},*/
+		},
 		"Amazon": {
 			m: /www\.amazon\.com/,
 			g: "4fcda099-ee8e-4631-a279-a4d3a8b75906"
