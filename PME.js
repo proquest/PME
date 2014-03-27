@@ -2107,7 +2107,6 @@ PME.genericScrape = function (doc) {
 		return !irrelevantPDF;
 	}
 
-	var PDFregex = /.+\.pdf$/i;
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, {
 		acceptNode: function (node) {
 			if (node.nodeType == 1 || node.nodeType == 3)
@@ -2139,7 +2138,7 @@ PME.genericScrape = function (doc) {
 				var doiFromAttribute = getDoiFromElement(walker.currentNode);
 				var href = walker.currentNode.getAttribute('href');
 
-				if (walker.currentNode.nodeName.toLowerCase() == 'a' && href && PDFregex.test(href) && isRelevantPDF(walker.currentNode)) {
+				if (walker.currentNode.nodeName.toLowerCase() == 'a' && href && href.indexOf(".pdf") > -1 && isRelevantPDF(walker.currentNode)) {
 					if (href.indexOf("http") == -1)
 						href = window.location.href.substr(0, window.location.href.indexOf('/', 9)) + (href.indexOf('/') == 0 ? href : ('/' + href));
 
