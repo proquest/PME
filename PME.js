@@ -74,7 +74,7 @@ var Registry = (function() {
 			g: "b6d0a7a-d076-48ae-b2f0-b6de28b194e"
 		},
 		"ProQuest": {
-			m: "(proquest\\.com.*)|(*\.proque\.st:8080)",
+			m: "(proquest\\.com.*)|(.*\.proque\.st:8080)",
 			g: "fce388a6-a847-4777-87fb-6595e710b7e7"
 		},
 		"Google Scholar": {
