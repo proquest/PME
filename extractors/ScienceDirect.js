@@ -43,14 +43,8 @@ function detectWeb(doc, url) {
 	} 
 }
 
-function getExportFormAction(doc) {
-	var form = PME.Util.xpath(doc, '//div[@id="export_popup"]/form')[0];
-	return form ? form.action : false;
-}
-
-function scrapeByDirectExport(doc) {
+function scrapeByDirectExport(doc, url) {
 	PME.debug("ScienceDirect: Scrapping by RIS directly through export form");
-	var url = getExportFormAction(doc);
 	var postParams = 'citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
 	PME.Util.doPost(url, postParams, function (text) { processRIS(doc, text) });
 }
@@ -162,10 +156,10 @@ function doWeb(doc, url) {
 }
 
 function scrape(doc) {
-	if (getExportFormAction(doc))
-		scrapeByDirectExport(doc);
-	else if (getExportLink(doc))
-		scrapeByExport(doc);
+	var form = PME.Util.xpath(doc, '//div[@id="export_popup"]/form')[0];
+
+	if (form)
+		scrapeByDirectExport(doc, form.action);
 	else if (getISBN(doc))
 		scrapeByISBN(doc);
 }
