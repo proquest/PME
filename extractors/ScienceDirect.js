@@ -14,34 +14,7 @@ var translatorSpec =
 	"lastUpdated": "2013-01-29 15:30:07"
 }
 
-function detectWeb(doc, url) {
-  if (url.indexOf("_ob=DownloadURL") !== -1 || doc.title == "ScienceDirect Login" || doc.title == "ScienceDirect - Dummy"	|| url.indexOf("/science/advertisement/") !== -1)
-		return false;
-
-	if((url.indexOf("pdf") !== -1 && url.indexOf("_ob=ArticleURL") === -1 && url.indexOf("/article/") === -1)
-		|| url.indexOf("/journal/") !== -1
-		|| url.indexOf("_ob=ArticleListURL") !== -1
-		|| url.indexOf("/book/") !== -1) {
-		if (getArticleList(doc).length > 0)
-			return "multiple";
-		else
-			return false;
-	}
-	else if (url.indexOf("pdf") === -1) {		// Book sections have the ISBN in the URL
-		if (url.indexOf("/B978") !== -1) {
-			return "bookSection";
-		}
-		else if (getISBN(doc)) {
-			if(getArticleList(doc).length)
-				return "multiple";
-			else
-				return "book";
-		}
-		else {
-			return "journalArticle";
-		}
-	} 
-}
+function detectWeb(doc, url) { }
 
 function scrapeByDirectExport(doc, url) {
 	PME.debug("ScienceDirect: Scrapping by RIS directly through export form");
@@ -127,6 +100,14 @@ function getISBN(doc) {
 	return isbn[1].replace(/[-\s]/g, '');
 }
 
+function scrapeByISBN(doc) {
+	var isbn = getISBN(doc);
+	var translator = PME.loadTranslator("search");
+	translator.setTranslator("c73a4a8c-3ef1-4ec8-8229-7531ee384cc4");
+	translator.setSearch({ ISBN: isbn });
+	translator.translate();
+}
+
 function getArticleList(doc) {
 	return PME.Util.xpath(doc,
 		'(//table[@class="resultRow"]/tbody/tr/td[2]/a\
@@ -135,9 +116,10 @@ function getArticleList(doc) {
 }
 
 function doWeb(doc, url) {
-	if(detectWeb(doc, url) == "multiple") {
+	var itemList = getArticleList(doc);
+
+	if(itemList && itemList.length > 0) {
 		//search page
-		var itemList = getArticleList(doc);
 		var items = {};
 		for(var i=0, n=itemList.length; i<n; i++)
 			items[itemList[i].href] = PME.Util.getNodeText(itemList[i]);
