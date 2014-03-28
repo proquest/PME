@@ -2073,6 +2073,9 @@ PME.COINSscrape = function(doc) {
 
 PME.genericScrape = function (doc) {
 	var DOIregex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;		//10.1093/imamat/hxt016
+	var running = [];			// used to handle dois that have elements embedded in them (usually hit highlighting)
+	var PDFmatches = [];	// handles PDFs w/o associated DOIs
+	var matches = [];			// handles DOI hits
 
 	function getDoiFromElement(node) {
 		var doiVal = node.getAttribute("doi");
@@ -2107,6 +2110,93 @@ PME.genericScrape = function (doc) {
 		return !irrelevantPDF;
 	}
 
+	function getDoiFromText(node) {
+		running.push(node.nodeValue);
+		if (running.length > 10)
+			running.shift();
+		var match = DOIregex.exec(running.join(''));
+		if (match)
+			running = [];
+		else
+			match = DOIregex.exec(node.nodeValue);
+
+		return (match ? PME.Util.trim(match[0]).replace(/\.$/, '') : false);
+	}
+
+	function getPdfFromElement(node) {
+		if (node.hasAttribute("href")) {
+			var href = node.getAttribute('href');
+			var extensionIndex = href.indexOf(".pdf");
+
+			if (extensionIndex > -1 && isRelevantPDF(node)) {
+				if ((extensionIndex + 4) != href.length)
+					href = href.slice(0, extensionIndex + 4);
+
+				if (href.indexOf("http") == -1)
+					href = window.location.href.substr(0, window.location.href.indexOf('/', 9)) + (href.indexOf('/') == 0 ? '' : '/') + href;
+
+				return href;
+			}
+		}
+
+		return false;
+	}
+
+	function crawlDomTree(node) {
+		var distanceFromOrigin = 0;
+		var checkingForChildren = Array.prototype.slice.call(node.childNodes);
+		var checkingForParents = [node.parentNode];
+		var checkingForSiblings = [node];
+		var DOImatch = [];
+
+		do {
+			for (var i = checkingForChildren.length; i > 0; i--) {
+				var n = checkingForChildren.shift();
+
+				if (n.nodeType == 3 || n.nodeType == 8)
+					DOImatch = DOIregex.exec(n.textContent);
+				else
+					DOImatch = getDoiFromElement(n);
+
+				if (DOImatch)
+					break;
+
+				if (n.hasChildNodes) {
+					for (var c = 0; c < n.childNodes.length; c++)
+						checkingForChildren.push(n.childNodes[c]);
+				}
+			}
+
+			for (var i = checkingForParents.length; !DOImatch && i > 0; i--) {
+				var n = checkingForParents.shift();
+				DOImatch = getDoiFromElement(n);
+
+				if (DOImatch)
+					break;
+
+				if (n.parentNode) {
+					checkingForParents.push(n.parentNode);
+					checkingForSiblings.push(n);
+				}
+			}
+
+			for (var i = checkingForSiblings.length; !DOImatch && i > 0; i--) {
+				var p = checkingForSiblings.shift(), n = p;
+
+				while (p.previousSibling) {
+					p = p.previousSibling;
+					checkingForChildren.push(p);
+				}
+
+				while (n.nextSibling) {
+					n = n.nextSibling;
+					checkingForChildren.push(n);
+				}
+			}
+		} while (!DOImatch && ++distanceFromOrigin < 5)
+		return (DOImatch ? ( Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : DOImatch ) : false);
+	}
+
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, {
 		acceptNode: function (node) {
 			if (node.nodeType == 1 || node.nodeType == 3)
@@ -2114,104 +2204,33 @@ PME.genericScrape = function (doc) {
 		}
 	}, false);
 	var matches = [];			// handles DOI hits
-	var PDFmatches = [];	// handles PDFs w/o associated DOIs
-	var running = [];			// used to handle dois that have elements embedded in them (usually hit highlighting)
 
 	while (walker.nextNode()) {
 		switch (walker.currentNode.nodeType) {
 			case 3://NodeFilter.SHOW_TEXT
-				running.push(walker.currentNode.nodeValue);
-				if (running.length > 10)
-					running.shift();
-				var match = DOIregex.exec(running.join(''));
-				if (match != null) {
-					matches.push( {"DOI": PME.Util.trim(match[0]).replace(/\.$/, '')} );
-					running = [];
-				}
-				else {
-					match = DOIregex.exec(walker.currentNode.nodeValue);
-					if (match != null)
-						matches.push( {"DOI" : PME.Util.trim(match[0]).replace(/\.$/, '')} );
-				}
+				var doiFromText = getDoiFromText(walker.currentNode);
+				if (doiFromText)
+					matches.push({ "DOI": doiFromText });
 				break;
 			case 1://NodeFilter.SHOW_ELEMENT
 				var doiFromAttribute = getDoiFromElement(walker.currentNode);
-				var href = walker.currentNode.getAttribute('href');
+				var pdf = getPdfFromElement(walker.currentNode);
 
-				if (walker.currentNode.nodeName.toLowerCase() == 'a' && href && href.indexOf(".pdf") > -1 && isRelevantPDF(walker.currentNode)) {
-					if (href.indexOf("http") == -1)
-						href = window.location.href.substr(0, window.location.href.indexOf('/', 9)) + (href.indexOf('/') == 0 ? href : ('/' + href));
+				if (doiFromAttribute && pdf) {
+					matches.push({ "DOI": doiFromAttribute, "URL": pdf });
+				}
+				else if (pdf) {
+					var doiFromTree = crawlDomTree(walker.currentNode);
 
-					if (doiFromAttribute)
-						matches.push({ "DOI": doiFromAttribute, "URL": href });
-					else {
-						var distanceFromOrigin = 0;
-						var isDoiFound = false;
-						var checkingForChildren = Array.prototype.slice.call(walker.currentNode.childNodes);
-						var checkingForParents = [walker.currentNode.parentNode];
-						var checkingForSiblings = [walker.currentNode];
-
-						while (!isDoiFound && distanceFromOrigin < 5) {
-							for (var i = checkingForChildren.length; i > 0; i--) {
-								var n = checkingForChildren.shift();
-								var DOImatch = [];
-
-								if (n.nodeType == 3 || n.nodeType == 8)
-									DOImatch = DOIregex.exec(n.textContent);
-								else
-									DOImatch = getDoiFromElement(n);
-
-								if (DOImatch) {
-									matches.push({ "DOI": (Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : DOImatch), "URL": href });
-									isDoiFound = true;
-									break;
-								}
-
-								if (n.hasChildNodes) {
-									for (var c = 0; c < n.childNodes.length; c++)
-										checkingForChildren.push(n.childNodes[c]);
-								}
-							}
-
-							for (var i = checkingForParents.length; !isDoiFound && i > 0; i--) {
-								var n = checkingForParents.shift();
-								DOImatch = getDoiFromElement(n);
-
-								if (DOImatch) {
-									matches.push({ "DOI": DOImatch, "URL": href });
-									isDoiFound = true;
-									break;
-								}
-
-								if (n.parentNode) {
-									checkingForParents.push(n.parentNode);
-									checkingForSiblings.push(n);
-								}
-							}
-
-							for (var i = checkingForSiblings.length; !isDoiFound && i > 0; i--) {
-								var p = checkingForSiblings.shift(), n = p;
-
-								while (p.previousSibling) {
-									p = p.previousSibling;
-									checkingForChildren.push(p);
-								}
-
-								while (n.nextSibling) {
-									n = n.nextSibling;
-									checkingForChildren.push(n);
-								}
-							}
-
-							distanceFromOrigin++;
-						}
-
-						PDFmatches.push(href);	// PDFs that couldn't find DOIs
-					}
+					if (doiFromTree)
+						matches.push({ "DOI": doiFromTree, "URL": pdf });
+					else
+						PDFmatches.push(pdf);
 				}
 				else if (doiFromAttribute) {
-					matches.push({ "DOI": doiFromAttribute });
+					matches.push({"DOI" : doiFromAttribute});
 				}
+				
 				break;
 		}
 	}
