@@ -3,7 +3,7 @@ var translatorSpec =
 {
 	"translatorID": "b6d0a7a-d076-48ae-b2f0-b6de28b194e",
 	"label": "ScienceDirect",
-	"creator": "Michael Berkowitz and Aurimas Vinckevicius",
+	"creator": "PME",
 	"target": "^https?://[^/]*science-?direct\\.com[^/]*/science(\\/article)?(\\?(?:.+\\&|)ob=(?:ArticleURL|ArticleListURL|PublicationURL))?",
 	"minVersion": "3.0",
 	"maxVersion": "",
@@ -90,24 +90,6 @@ function getPDFLink(doc) {
 	return PME.Util.xpathText(doc, '//div[@id="articleNav"]//div[@class="icon_pdf"]/a[not(@title="Purchase PDF")]/@href[1]');
 }
 
-function getISBN(doc) {
-	var isbn = PME.Util.xpathText(doc, '//td[@class="tablePubHead-Info"]//span[@class="txtSmall"]');
-	if(!isbn) return;
-
-	isbn = isbn.match(/ISBN:\s*([-\d]+)/);
-	if(!isbn) return;
-
-	return isbn[1].replace(/[-\s]/g, '');
-}
-
-function scrapeByISBN(doc) {
-	var isbn = getISBN(doc);
-	var translator = PME.loadTranslator("search");
-	translator.setTranslator("c73a4a8c-3ef1-4ec8-8229-7531ee384cc4");
-	translator.setSearch({ ISBN: isbn });
-	translator.translate();
-}
-
 function getArticleList(doc) {
 	return PME.Util.xpath(doc,
 		'(//table[@class="resultRow"]/tbody/tr/td[2]/a\
@@ -118,10 +100,12 @@ function getArticleList(doc) {
 function doWeb(doc, url) {
 	var itemList = getArticleList(doc);
 
-	if(itemList && itemList.length > 0) {
-		//search page
+	if (itemList && itemList.length > 0) {		//search page
+		// **** NOTE : This method may be way too memory intensive and not necessary
+		//							Figure out if this can be done without calling processDocuments
+
 		var items = {};
-		for(var i=0, n=itemList.length; i<n; i++)
+		for (var i = 0; i < itemList.length; i++)
 			items[itemList[i].href] = PME.Util.getNodeText(itemList[i]);
 
 		PME.selectItems(items, function(selectedItems) {
@@ -142,8 +126,6 @@ function scrape(doc) {
 
 	if (form)
 		scrapeByDirectExport(doc, form.action);
-	else if (getISBN(doc))
-		scrapeByISBN(doc);
 }
 /** BEGIN TEST CASES **/
 var testCases = [
