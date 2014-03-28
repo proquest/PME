@@ -15,35 +15,29 @@ var translatorSpec =
 }
 
 function detectWeb(doc, url) {
-  	if ((url.indexOf("_ob=DownloadURL") !== -1) 
-		|| doc.title == "ScienceDirect Login" 
-		|| doc.title == "ScienceDirect - Dummy"
-		|| (url.indexOf("/science/advertisement/") !== -1)) { 
+  if (url.indexOf("_ob=DownloadURL") !== -1 || doc.title == "ScienceDirect Login" || doc.title == "ScienceDirect - Dummy"	|| url.indexOf("/science/advertisement/") !== -1)
 		return false;
-	}
 
-	if((url.indexOf("pdf") !== -1
-			&& url.indexOf("_ob=ArticleURL") === -1
-			&& url.indexOf("/article/") === -1)
+	if((url.indexOf("pdf") !== -1 && url.indexOf("_ob=ArticleURL") === -1 && url.indexOf("/article/") === -1)
 		|| url.indexOf("/journal/") !== -1
 		|| url.indexOf("_ob=ArticleListURL") !== -1
 		|| url.indexOf("/book/") !== -1) {
-		if (getArticleList(doc).length > 0) {
+		if (getArticleList(doc).length > 0)
 			return "multiple";
-		} else {
+		else
 			return false;
-		}
-	} else if(url.indexOf("pdf") === -1) {
-		// Book sections have the ISBN in the URL
+	}
+	else if (url.indexOf("pdf") === -1) {		// Book sections have the ISBN in the URL
 		if (url.indexOf("/B978") !== -1) {
 			return "bookSection";
-		} else if(getISBN(doc)) {
-			if(getArticleList(doc).length) {
+		}
+		else if (getISBN(doc)) {
+			if(getArticleList(doc).length)
 				return "multiple";
-			} else {
+			else
 				return "book";
-			}
-		} else {
+		}
+		else {
 			return "journalArticle";
 		}
 	} 
@@ -64,35 +58,29 @@ function scrapeByDirectExport(doc) {
 function getAbstract(doc) {
 	var p = PME.Util.xpath(doc, '//div[contains(@class, "abstract") and not(contains(@class, "abstractHighlights"))]/p');
 	var paragraphs = [];
-	for (var i = 0; i < p.length; i++) {
+	for (var i = 0; i < p.length; i++)
 		paragraphs.push(PME.Util.trimInternal(p[i].textContent));
-	}
+
 	return paragraphs.join('\n');
 }
 
 function processRIS(doc, text) {
 	//T2 doesn't appear to hold the short title anymore.
-	//Sometimes has series title, so I'm mapping this to T3,
-	// although we currently don't recognize that in RIS
+	//Sometimes has series title, so I'm mapping this to T3, although we currently don't recognize that in RIS
 	text = text.replace(/^T2\s/mg, 'T3 ');
 
-	//Sometimes PY has some nonsensical value. Y2 contains the correct
-	// date in that case.
+	//Sometimes PY has some nonsensical value. Y2 contains the correct date in that case.
 	if (text.search(/^Y2\s+-\s+\d{4}\b/m) !== -1) {
 		text = text.replace(/TY\s+-[\S\s]+?ER/g, function (m) {
-			if (m.search(/^PY\s+-\s+\d{4}\b/m) === -1
-				&& m.search(/^Y2\s+-\s+\d{4}\b/m) !== -1
-			) {
-				return m.replace(/^PY\s+-.*\r?\n/mg, '')
-					.replace(/^Y2\s+-/mg, 'PY  -');
-			}
+			if (m.search(/^PY\s+-\s+\d{4}\b/m) === -1	&& m.search(/^Y2\s+-\s+\d{4}\b/m) !== -1)
+				return m.replace(/^PY\s+-.*\r?\n/mg, '').replace(/^Y2\s+-/mg, 'PY  -');
+
 			return m;
 		});
 	}
 
 	//Certain authors sometimes have "role" prefixes
-	text = text.replace(
-		/^((?:A[U\d]|ED)\s+-\s+)Editor-in-Chief:\s+/mg, '$1');
+	text = text.replace(/^((?:A[U\d]|ED)\s+-\s+)Editor-in-Chief:\s+/mg, '$1');
 
 	var translator = PME.loadTranslator("import");
 	translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
@@ -103,15 +91,13 @@ function processRIS(doc, text) {
 
 		//add spaces after initials
 		for (var i = 0, n = item.creators.length; i < n; i++) {
-			if (item.creators[i].firstName) {
+			if (item.creators[i].firstName)
 				item.creators[i].firstName = item.creators[i].firstName.replace(/\.\s*(?=\S)/g, '. ');
-			}
 		}
 
 		//abstract is not included with the new export form. Scrape from page
-		if (!item.abstractNote) {
+		if (!item.abstractNote)
 			item.abstractNote = getAbstract(doc);
-		}
 
 		var pdfLink = getPDFLink(doc);
 		if (pdfLink) item.attachments.push({
@@ -124,9 +110,8 @@ function processRIS(doc, text) {
 			item.abstractNote = item.notes[0].note;
 			item.notes = new Array();
 		}
-		if (item.abstractNote) {
+		if (item.abstractNote)
 			item.abstractNote = item.abstractNote.replace(/^\s*(?:abstract|publisher\s+summary)\s+/i, '');
-		}
 
 		item.DOI = item.DOI.replace(/^doi:\s+/i, '');
 		item.complete();
@@ -135,14 +120,11 @@ function processRIS(doc, text) {
 }
 
 function getPDFLink(doc) {
-	return PME.Util.xpathText(doc,
-		'//div[@id="articleNav"]//div[@class="icon_pdf"]\
-			/a[not(@title="Purchase PDF")]/@href[1]');
+	return PME.Util.xpathText(doc, '//div[@id="articleNav"]//div[@class="icon_pdf"]/a[not(@title="Purchase PDF")]/@href[1]');
 }
 
 function getISBN(doc) {
-	var isbn = PME.Util.xpathText(doc, '//td[@class="tablePubHead-Info"]\
-		//span[@class="txtSmall"]');
+	var isbn = PME.Util.xpathText(doc, '//td[@class="tablePubHead-Info"]//span[@class="txtSmall"]');
 	if(!isbn) return;
 
 	isbn = isbn.match(/ISBN:\s*([-\d]+)/);
@@ -155,8 +137,7 @@ function getArticleList(doc) {
 	return PME.Util.xpath(doc,
 		'(//table[@class="resultRow"]/tbody/tr/td[2]/a\
 		|//table[@class="resultRow"]/tbody/tr/td[2]/h3/a\
-		|//td[@class="nonSerialResultsList"]/h3/a)\
-		[not(contains(text(),"PDF (") or contains(text(), "Related Articles"))]');
+		|//td[@class="nonSerialResultsList"]/h3/a)[not(contains(text(),"PDF (") or contains(text(), "Related Articles"))]');
 }
 
 function doWeb(doc, url) {
@@ -164,20 +145,18 @@ function doWeb(doc, url) {
 		//search page
 		var itemList = getArticleList(doc);
 		var items = {};
-		for(var i=0, n=itemList.length; i<n; i++) {
+		for(var i=0, n=itemList.length; i<n; i++)
 			items[itemList[i].href] = PME.Util.getNodeText(itemList[i]);
-		}
 
 		PME.selectItems(items, function(selectedItems) {
 			if(!selectedItems) return true;
 
 			var articles = [];
-			for (var i in selectedItems) {
-				//articles.push(i);
+			for (var i in selectedItems)
 				PME.Util.processDocuments(i, scrape);	//move this out of the loop when PME.Util.processDocuments is fixed
-			}
 		});
-	} else {
+	}
+	else {
 		scrape(doc);
 	}
 }
