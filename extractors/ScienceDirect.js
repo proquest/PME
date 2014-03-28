@@ -54,6 +54,96 @@ function getExportLink(doc) {
 	return link.length ? PME.Util.getNodeText(link[0]) : false;
 }
 
+function getExportFormAction(doc) {
+	var form = PME.Util.xpath(doc, '//div[@id="export_popup"]/form')[0];
+	return form ? form.action : false;
+}
+
+function scrapeByDirectExport(doc) {
+	PME.debug("ScienceDirect: Scrapping by RIS directly through export form");
+	var url = getExportFormAction(doc);
+	var postParams = 'citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
+	PME.Util.doPost(url, postParams, function (text) { processRIS(doc, text) });
+}
+
+function getAbstract(doc) {
+	var p = PME.Util.xpath(doc, '//div[contains(@class, "abstract") and not(contains(@class, "abstractHighlights"))]/p');
+	var paragraphs = [];
+	for (var i = 0; i < p.length; i++) {
+		paragraphs.push(PME.Util.trimInternal(p[i].textContent));
+	}
+	return paragraphs.join('\n');
+}
+
+function processRIS(doc, text) {
+	//T2 doesn't appear to hold the short title anymore.
+	//Sometimes has series title, so I'm mapping this to T3,
+	// although we currently don't recognize that in RIS
+	text = text.replace(/^T2\s/mg, 'T3 ');
+
+	//Sometimes PY has some nonsensical value. Y2 contains the correct
+	// date in that case.
+	if (text.search(/^Y2\s+-\s+\d{4}\b/m) !== -1) {
+		text = text.replace(/TY\s+-[\S\s]+?ER/g, function (m) {
+			if (m.search(/^PY\s+-\s+\d{4}\b/m) === -1
+				&& m.search(/^Y2\s+-\s+\d{4}\b/m) !== -1
+			) {
+				return m.replace(/^PY\s+-.*\r?\n/mg, '')
+					.replace(/^Y2\s+-/mg, 'PY  -');
+			}
+			return m;
+		});
+	}
+
+	//Certain authors sometimes have "role" prefixes
+	text = text.replace(
+		/^((?:A[U\d]|ED)\s+-\s+)Editor-in-Chief:\s+/mg, '$1');
+
+	var translator = PME.loadTranslator("import");
+	translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
+	translator.setString(text);
+	translator.setHandler("itemDone", function (obj, item) {
+		//issue sometimes is set to 0 for single issue volumes (?)
+		if (item.issue == 0) delete item.issue;
+
+		//add spaces after initials
+		for (var i = 0, n = item.creators.length; i < n; i++) {
+			if (item.creators[i].firstName) {
+				item.creators[i].firstName = item.creators[i].firstName.replace(/\.\s*(?=\S)/g, '. ');
+			}
+		}
+
+		//abstract is not included with the new export form. Scrape from page
+		if (!item.abstractNote) {
+			item.abstractNote = getAbstract(doc);
+		}
+
+		item.attachments.push({
+			title: "ScienceDirect Snapshot",
+			document: doc
+		});
+
+		var pdfLink = getPDFLink(doc);
+		if (pdfLink) item.attachments.push({
+			title: 'ScienceDirect Full Text PDF',
+			url: pdfLink,
+			mimeType: 'application/pdf'
+		});
+
+		if (item.notes[0]) {
+			item.abstractNote = item.notes[0].note;
+			item.notes = new Array();
+		}
+		if (item.abstractNote) {
+			item.abstractNote = item.abstractNote.replace(/^\s*(?:abstract|publisher\s+summary)\s+/i, '');
+		}
+
+		item.DOI = item.DOI.replace(/^doi:\s+/i, '');
+		item.complete();
+	});
+	translator.translate();
+}
+
 function getPDFLink(doc) {
 	return PME.Util.xpathText(doc,
 		'//div[@id="articleNav"]//div[@class="icon_pdf"]\
@@ -186,11 +276,12 @@ function doWeb(doc, url) {
 }
 
 function scrape(doc) {
-	if(getExportLink(doc)) {
+	if (getExportFormAction(doc))
+		scrapeByDirectExport(doc);
+	else if (getExportLink(doc))
 		scrapeByExport(doc);
-	} else if(getISBN(doc)) {
+	else if (getISBN(doc))
 		scrapeByISBN(doc);
-	}
 }
 /** BEGIN TEST CASES **/
 var testCases = [
