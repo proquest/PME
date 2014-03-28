@@ -16,12 +16,6 @@ var translatorSpec =
 
 function detectWeb(doc, url) { }
 
-function scrapeByDirectExport(doc, url) {
-	PME.debug("ScienceDirect: Scrapping by RIS directly through export form");
-	var postParams = 'citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
-	PME.Util.doPost(url, postParams, function (text) { processRIS(doc, text) });
-}
-
 function getAbstract(doc) {
 	var p = PME.Util.xpath(doc, '//div[contains(@class, "abstract") and not(contains(@class, "abstractHighlights"))]/p');
 	var paragraphs = [];
@@ -66,12 +60,9 @@ function processRIS(doc, text) {
 		if (!item.abstractNote)
 			item.abstractNote = getAbstract(doc);
 
-		var pdfLink = getPDFLink(doc);
-		if (pdfLink) item.attachments.push({
-			title: 'ScienceDirect Full Text PDF',
-			url: pdfLink,
-			mimeType: 'application/pdf'
-		});
+		var pdfLink = PME.Util.xpathText(doc, '//div[@id="articleNav"]//div[contains(@class, "icon_pdf")]/a[not(@title="Purchase PDF")]/@href[1]');
+		if (pdfLink)
+			item.attachments.push({title: 'Full Text PDF', url: pdfLink, mimeType: 'application/pdf'});
 
 		if (item.notes[0]) {
 			item.abstractNote = item.notes[0].note;
@@ -86,19 +77,8 @@ function processRIS(doc, text) {
 	translator.translate();
 }
 
-function getPDFLink(doc) {
-	return PME.Util.xpathText(doc, '//div[@id="articleNav"]//div[@class="icon_pdf"]/a[not(@title="Purchase PDF")]/@href[1]');
-}
-
-function getArticleList(doc) {
-	return PME.Util.xpath(doc,
-		'(//table[@class="resultRow"]/tbody/tr/td[2]/a\
-		|//table[@class="resultRow"]/tbody/tr/td[2]/h3/a\
-		|//td[@class="nonSerialResultsList"]/h3/a)[not(contains(text(),"PDF (") or contains(text(), "Related Articles"))]');
-}
-
 function doWeb(doc, url) {
-	var itemList = getArticleList(doc);
+	var itemList = PME.Util.xpath(doc, '(//table[@class="resultRow"]/tbody/tr/td[2]/a|//table[@class="resultRow"]/tbody/tr/td[2]/h3/a|//td[@class="nonSerialResultsList"]/h3/a)[not(contains(text(),"PDF (") or contains(text(), "Related Articles"))]');
 
 	if (itemList && itemList.length > 0) {		//search page
 		// **** NOTE : This method may be way too memory intensive and not necessary
@@ -124,8 +104,10 @@ function doWeb(doc, url) {
 function scrape(doc) {
 	var form = PME.Util.xpath(doc, '//div[@id="export_popup"]/form')[0];
 
-	if (form)
-		scrapeByDirectExport(doc, form.action);
+	if (form) {
+		var postParams = 'citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
+		PME.Util.doPost(form.action, postParams, function (text) { processRIS(doc, text) });
+	}
 }
 /** BEGIN TEST CASES **/
 var testCases = [
