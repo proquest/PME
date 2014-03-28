@@ -49,11 +49,6 @@ function detectWeb(doc, url) {
 	} 
 }
 
-function getExportLink(doc) {
-	var link = PME.Util.xpath(doc, '//div[@class="icon_exportarticlesci_dir"]/a/@href');
-	return link.length ? PME.Util.getNodeText(link[0]) : false;
-}
-
 function getExportFormAction(doc) {
 	var form = PME.Util.xpath(doc, '//div[@id="export_popup"]/form')[0];
 	return form ? form.action : false;
@@ -118,11 +113,6 @@ function processRIS(doc, text) {
 			item.abstractNote = getAbstract(doc);
 		}
 
-		item.attachments.push({
-			title: "ScienceDirect Snapshot",
-			document: doc
-		});
-
 		var pdfLink = getPDFLink(doc);
 		if (pdfLink) item.attachments.push({
 			title: 'ScienceDirect Full Text PDF',
@@ -159,89 +149,6 @@ function getISBN(doc) {
 	if(!isbn) return;
 
 	return isbn[1].replace(/[-\s]/g, '');
-}
-
-function getFormValues(text, inputs) {
-	var re = new RegExp("<input[^>]+name=(['\"]?)("
-			+ inputs.join('|')
-			+ ")\\1[^>]*>", 'g');
-
-	var input, val, params = {};
-	while(input = re.exec(text)) {
-		val = input[0].match(/value=(['"]?)(.*?)\1[\s>]/);
-		if(!val) continue;
-
-		params[encodeURIComponent(input[2])] = encodeURIComponent(val[2]);
-	}
-
-	return params;
-}
-
-function scrapeByExport(doc) {
-	var url = getExportLink(doc);
-	var pdfLink = getPDFLink(doc);
-	PME.Util.doGet(url, function(text) {
-		//select the correct form
-		text = text.match(/<form[^>]+name=(['"])exportCite\1[\s\S]+?<\/form>/)[0];
-
-		var postParams = getFormValues(text, [
-						//'_ArticleListID',	//do we still need this?
-						'_acct', '_docType', '_eidkey',
-						'_method', '_ob', '_uoikey', '_userid', 'count',
-						'Export', 'JAVASCRIPT_ON', 'md5'
-						]);
-		postParams["format"] = "cite-abs";
-		postParams["citation-type"] = "RIS";
-
-		var post = '';
-		for(var key in postParams) {
-			post += key + '=' + postParams[key] + "&";
-		}
-
-		PME.Util.doPost('/science', post, function(text) {
-				//short title is stored in T2. Fix it to ST.
-				text = text.replace(/^T2\s/mg, 'ST ');
-
-				//Certain authors sometimes have "role" prefixes
-				text = text.replace(
-					/^((?:A[U\d]|ED)\s+-\s+)Editor-in-Chief:\s+/mg, '$1');
-
-				var translator = PME.loadTranslator("import");
-				translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-				translator.setString(text);
-				translator.setHandler("itemDone", function(obj, item) {
-					//issue sometimes is set to 0 for single issue volumes (?)
-					if(item.issue == 0) delete item.issue;
-					
-					item.attachments.push({
-						title: "ScienceDirect Snapshot",
-						document: doc
-					});
-
-					if(pdfLink) item.attachments.push({
-						title: 'ScienceDirect Full Text PDF',
-						url: pdfLink,
-						mimeType: 'application/pdf'
-					});
-
-					if(item.notes[0]) {
-						item.abstractNote = item.notes[0].note;
-						item.notes = [];
-					}
-					item.DOI = item.DOI.replace(/^doi:\s+/i, '');
-					item.complete();
-				});
-				translator.translate();
-			});
-	});
-}
-
-function scrapeByISBN(doc) {
-	var isbn = getISBN(doc);
-	var translator = PME.loadTranslator("search");
-	translator.setTranslator("c73a4a8c-3ef1-4ec8-8229-7531ee384cc4");
-	translator.setSearch({ISBN: isbn});
-	translator.translate();
 }
 
 function getArticleList(doc) {
