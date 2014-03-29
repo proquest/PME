@@ -81,20 +81,11 @@ function doWeb(doc, url) {
 	var itemList = PME.Util.xpath(doc, '(//table[@class="resultRow"]/tbody/tr/td[2]/a|//table[@class="resultRow"]/tbody/tr/td[2]/h3/a|//td[@class="nonSerialResultsList"]/h3/a)[not(contains(text(),"PDF (") or contains(text(), "Related Articles"))]');
 
 	if (itemList && itemList.length > 0) {		//search page
-		// **** NOTE : This method may be way too memory intensive and not necessary
-		//							Figure out if this can be done without calling processDocuments
 
-		var items = {};
-		for (var i = 0; i < itemList.length; i++)
-			items[itemList[i].href] = PME.Util.getNodeText(itemList[i]);
+		var action = "/science?_ob=DownloadURL&_method=finish&searchtype=a&refSource=search&_st=13&count=25&_chunk=0&hitCount=236327&view=c&_ArticleListID=-549092130&pageNumberTop=1&zone=exportDropDown&citation-type=RIS&export=Export&pageNumberBottom=1&displayPerPageFlag=f&_acct=C000228598&_version=1&_userid=12975512&md5=d4276e74e2c81bf5a37f3c99e29a24c4"
+		var postParams = 'citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
 
-		PME.selectItems(items, function(selectedItems) {
-			if(!selectedItems) return true;
-
-			var articles = [];
-			for (var i in selectedItems)
-				PME.Util.processDocuments(i, scrape);	//move this out of the loop when PME.Util.processDocuments is fixed
-		});
+		PME.Util.doPost(action, postParams, function (text) { processRIS(doc, text) });
 	}
 	else {
 		scrape(doc);
