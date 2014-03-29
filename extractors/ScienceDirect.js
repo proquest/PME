@@ -82,7 +82,9 @@ function doWeb(doc, url) {
 
 	if (itemList && itemList.length > 0) {		//search page
 
-		var action = "/science?_ob=DownloadURL&_method=finish&searchtype=a&refSource=search&_st=13&count=25&_chunk=0&hitCount=236327&view=c&_ArticleListID=-549092130&pageNumberTop=1&zone=exportDropDown&citation-type=RIS&export=Export&pageNumberBottom=1&displayPerPageFlag=f&_acct=C000228598&_version=1&_userid=12975512&md5=d4276e74e2c81bf5a37f3c99e29a24c4"
+		// NOTE : replace URL params in var action with params dynamically scraped from the search page
+
+		var action = "/science?_ob=DownloadURL&_method=finish&_st=13&count=25&_chunk=0&_ArticleListID=-549092130&_acct=C000228598&_version=1&_userid=12975512&md5=d4276e74e2c81bf5a37f3c99e29a24c4"
 		var postParams = 'citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
 
 		PME.Util.doPost(action, postParams, function (text) { processRIS(doc, text) });
