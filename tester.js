@@ -74,7 +74,7 @@
 					sReturn += '<div style="padding-left:10px;">' + getProps(obj[p]) + '</div>';
 				else
 				{
-					sReturn += obj[p];
+					sReturn += '"' + obj[p] + '"';
 					sReturn += "<br/>";
 				}
 			}
