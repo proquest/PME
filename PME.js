@@ -2197,15 +2197,15 @@ PME.genericScrape = function (doc) {
 		return (DOImatch ? ( Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : DOImatch ) : false);
 	}
 
-	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, {
-		acceptNode: function (node) {
-			if (node.nodeType == 1 || node.nodeType == 3)
-				return NodeFilter.FILTER_ACCEPT;
-		}
-	}, false);
-	var matches = [];			// handles DOI hits
+	function treeWalkerFilter(node) {
+		return (node.nodeType == 1 || node.nodeType == 3 ? true : false);
+	}
+
+	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, treeWalkerFilter, false);
 
 	while (walker.nextNode()) {
+		console.log("nodeType : " + walker.currentNode.nodeType);
+
 		switch (walker.currentNode.nodeType) {
 			case 3://NodeFilter.SHOW_TEXT
 				var doiFromText = getDoiFromText(walker.currentNode);
