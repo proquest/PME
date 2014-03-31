@@ -2204,8 +2204,6 @@ PME.genericScrape = function (doc) {
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, treeWalkerFilter, false);
 
 	while (walker.nextNode()) {
-		console.log("nodeType : " + walker.currentNode.nodeType);
-
 		switch (walker.currentNode.nodeType) {
 			case 3://NodeFilter.SHOW_TEXT
 				var doiFromText = getDoiFromText(walker.currentNode);
