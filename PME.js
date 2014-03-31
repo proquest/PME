@@ -2274,15 +2274,31 @@ PME.genericScrape = function (doc) {
 
 		return true;
 	});
+	
+	var output = [];
 
+	for (var i = 0; i < matches.length; i++) {
+		var temp = new PME.Item("journalArticle");
+		
+		if (matches[i].DOI)
+			temp.DOI = matches[i].DOI;
+		if (matches[i].URL)
+			temp.attachments = [{ title: 'Full Text PDF', url: matches[i].URL, mimeType: 'application/pdf' }];
+
+		output.push(temp);
+	}
+	console.log("CHECKPOINT");
+
+	return output;
+	/*
 	return map(matches, function (item) {
 		if (item.URL && item.DOI)
-			return { "DOI": item.DOI, "attachments": { "title": "Full Text PDF", "url": item.URL, "mimeType": "application/pdf" } };
+			return { 'DOI': item.DOI, 'attachments': { title: 'Full Text PDF', url: item.URL, mimeType: 'application/pdf' } };
 		else if (!item.URL)
-			return { "DOI": item.DOI };
+			return { 'DOI': item.DOI };
 		else
-			return { "attachments": { "title": "Full Text PDF", "url": item.URL, "mimeType": "application/pdf" } };
-	});
+			return { 'attachments': [{ title: 'Full Text PDF', url: item.URL, mimeType: 'application/pdf' }] };
+	});*/
 }
 
 PME.isbnScrape = function (doc) {
@@ -2383,9 +2399,14 @@ PME.getPageMetaData = function (callback)
 		}
 
 		if (!trans) {
-			PME.Util.xpathHelper(window, pageDoc, function () {
+			if (!pageDoc.evaluate) {
+				PME.Util.xpathHelper(window, pageDoc, function () {
+					completed({ noTranslator: true })
+				});
+			}
+			else {
 				completed({ noTranslator: true })
-			});
+			}
 		}
 		else {
 			// add XPath helper javascript if document.evaluate is not defined
