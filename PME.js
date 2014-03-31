@@ -2277,11 +2277,11 @@ PME.genericScrape = function (doc) {
 
 	return map(matches, function (item) {
 		if (item.URL && item.DOI)
-			return { "DOI": item.DOI, "attachments": { title: "Full Text PDF", url: item.URL, mimeType: "application/pdf" } };
+			return { "DOI": item.DOI, "attachments": { "title": "Full Text PDF", "url": item.URL, "mimeType": "application/pdf" } };
 		else if (!item.URL)
 			return { "DOI": item.DOI };
 		else
-			return { "attachments": { title: "Full Text PDF", url: item.URL, mimeType: "application/pdf" } };
+			return { "attachments": { "title": "Full Text PDF", "url": item.URL, "mimeType": "application/pdf" } };
 	});
 }
 
