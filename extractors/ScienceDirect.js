@@ -87,21 +87,29 @@ function doWeb(doc, url) {
 		var path = "/science?";
 		var actionParams = [
 			"_ob=DownloadURL",
-			"_method=finish",
-			"_st=13",
-			"count=25",
-			"_chunk=0",
-			"_ArticleListID=-549092130",
-			"_acct=C000228598",
-			"_version=1",
-			"_userid=12975512",
-			"md5=d4276e74e2c81bf5a37f3c99e29a24c4"
+			"&_method=finish",
+			"&searchtype=a",
+			"&refSource=search",
+			"&_st=13",
+			"&count=25",
+			"&sort=r",
+			"&_chunk=0",
+			"&_ArticleListID=-552927080",
+			"&chunkSize=25",
+			"&zone=exportDropDown",
+			"&citation-type=RIS",
+			"&export=Export",
+			"&_acct=C000228598",
+			"&_version=1",
+			"&_userid=12975512",
+			"&md5=f558f07acf7fdffc9d9d2368d2661c75"
 		];
 
 		var action = path + actionParams.join('&');
-		var postParams = 'citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
+		//var postParams = 'citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
 
-		PME.Util.doPost(action, postParams, function (text) { processRIS(doc, text) });
+		//PME.Util.doPost(action, postParams, function (text) { processRIS(doc, text) });
+		PME.Util.doGet(action, function (text) { processRIS(doc, text) });
 	}
 	else {
 		scrape(doc);
