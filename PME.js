@@ -2265,42 +2265,23 @@ PME.genericScrape = function (doc) {
 		return 0;
 	});
 
-	//remove duplicate DOIs
+	//remove duplicate refs
 	matches = filter(matches, function (item, i, items) {
 		for (var c = i + 1; c < items.length; c++) {
-			if (item.DOI == items[c].DOI && item.URL == items[c].URL)
+			if ((item.DOI && item.DOI == items[c].DOI) || (!item.DOI && item.URL == items[c].URL))
 				return false;
 		}
 
 		return true;
 	});
 
-	/*
-	var output = [];
-
-	for (var i = 0; i < matches.length; i++) {
-		var temp = new PME.Item("journalArticle");
-		
-		if (matches[i].DOI)
-			temp.DOI = matches[i].DOI;
-		if (matches[i].URL)
-			temp.attachments = [{ title: 'Full Text PDF', url: matches[i].URL, mimeType: 'application/pdf' }];
-
-		output.push(temp);
-	}
-	console.log("CHECKPOINT");
-
-	return output;
-	*/
 	return map(matches, function (item) {
-		console.log(item);
-
 		if (item.URL && item.DOI)
 			return { 'DOI': item.DOI, 'attachments': [{ title: 'Full Text PDF', url: item.URL, mimeType: 'application/pdf' }] };
 		else if (!item.URL)
 			return { 'DOI': item.DOI };
 		else
-			return { 'attachments': [{ title: 'Full Text PDF', url: item.URL, mimeType: 'application/pdf' }] };
+			return { 'title' : item.URL, 'attachments': [{ title: 'Full Text PDF', url: item.URL, mimeType: 'application/pdf' }] };
 	});
 }
 
