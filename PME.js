@@ -2401,14 +2401,9 @@ PME.getPageMetaData = function (callback)
 		}
 
 		if (!trans) {
-			if (!pageDoc.evaluate) {
 				PME.Util.xpathHelper(window, pageDoc, function () {
 					completed({ noTranslator: true })
 				});
-			}
-			else {
-				completed({ noTranslator: true })
-			}
 		}
 		else {
 			// add XPath helper javascript if document.evaluate is not defined
