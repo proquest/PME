@@ -2245,7 +2245,7 @@ PME.genericScrape = function (doc) {
 	
 	if (matches.length == 0) {
 		for (var i = 0; i < PDFmatches.length; i++)
-			matches.push( {"URL" : PDFmatches[i]} );
+			matches.push({ "URL": PDFmatches[i] });
 	}
 	else if(matches.length == 1 && PDFmatches.length == 1 && !matches[0].URL) {
 		matches[0].URL = PDFmatches[0];
@@ -2268,12 +2268,13 @@ PME.genericScrape = function (doc) {
 	//remove duplicate DOIs
 	matches = filter(matches, function (item, i, items) {
 		for (var c = i + 1; c < items.length; c++) {
-			if (item.DOI == items[c].DOI)
+			if (item.DOI == items[c].DOI && item.URL == items[c].URL)
 				return false;
 		}
 
 		return true;
 	});
+
 	/*
 	var output = [];
 
