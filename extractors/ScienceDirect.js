@@ -81,34 +81,32 @@ function doWeb(doc, url) {
 	var itemList = PME.Util.xpath(doc, '(//table[@class="resultRow"]/tbody/tr/td[2]/a|//table[@class="resultRow"]/tbody/tr/td[2]/h3/a|//td[@class="nonSerialResultsList"]/h3/a)[not(contains(text(),"PDF (") or contains(text(), "Related Articles"))]');
 
 	if (itemList && itemList.length > 0) {		//search page
-
-		// NOTE : replace URL params in var action with params dynamically scraped from the search page
-
 		var path = "/science?";
 		var actionParams = [
-			"_ob=DownloadURL",
-			"_method=finish",
-			"_st=" + PME.Util.xpathText(doc, '//div[@id="sdBody"]/form/input[@name="_st"]/@value'),
-			"count=" + PME.Util.xpathText(doc, '//div[@id="sdBody"]/form/input[@name="chunkSize"]/@value'),
-			"_chunk=" + PME.Util.xpathText(doc, '//div[@id="sdBody"]/form/input[@name="_chunk"]/@value'),
-			//"_ArticleListID=-552927080",
-			"zone=exportDropDown",
+			"_ob=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='_ob']/@value"),
+			"_method=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='_method']/@value"),
+			"searchtype=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='searchtype']/@value"),
+			"refSource=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='refSource']/@value"),
+			"_st=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='_st']/@value"),
+			"count=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='chunkSize']/@value"),
+			"sort=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='sort']/@value"),
+			"_chunk=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='_chunk']/@value"),
+			"hitCount=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='hitCount']/@value"),
+			"NEXT_LIST=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='NEXT_LIST']/@value"),
+			"view=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='view']/@value"),
+			"md5=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='md5']/@value"),
+			"_ArticleListID=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='_ArticleListID']/@value"),
+			"chunkSize=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='chunkSize']/@value"),
+			"TOTAL_PAGES=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/div/input[@name='TOTAL_PAGES']/@value"),
+			"pageNumberTop=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/div/div/div/div/input[@name='pageNumberTop']/@value"),
+			"zone=toolbar",
 			"citation-type=RIS",
 			"export=Export",
-			"_acct=C000228598",
-			"_version=1",
-			"_userid=12975512",
-			"md5=f558f07acf7fdffc9d9d2368d2661c75"
+			"pageNumberBottom=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/div/div/input[@name='pageNumberBottom']/@value"),
+			"resultsPerPage=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='chunkSize']/@value")
 		];
+		var action = path + actionParams.join('&');
 
-		// ?_ob=ArticleListURL&_method=finish&_ArticleListID=-552927080&_st=13&_acct=C000228598&_version=1&_userid=12975512&md5=70f3c98a6f1ec14449c091830be9a203citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
-
-		//var action = path + actionParams.join('&');
-		//var postParams = 'citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
-
-		var action = path + '_ob=DownloadURL&_method=finish&_ArticleListID=-552927080&_st=13&count=25&_chunk=0&_acct=C000228598&_version=1&_userid=12975512&md5=70f3c98a6f1ec14449c091830be9a203citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
-
-		//PME.Util.doPost(action, postParams, function (text) { processRIS(doc, text) });
 		PME.Util.doGet(action, function (text) { processRIS(doc, text) });
 	}
 	else {
