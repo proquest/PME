@@ -87,26 +87,26 @@ function doWeb(doc, url) {
 		var path = "/science?";
 		var actionParams = [
 			"_ob=DownloadURL",
-			"&_method=finish",
-			"&searchtype=a",
-			"&refSource=search",
-			"&_st=13",
-			"&count=25",
-			"&sort=r",
-			"&_chunk=0",
-			"&_ArticleListID=-552927080",
-			"&chunkSize=25",
-			"&zone=exportDropDown",
-			"&citation-type=RIS",
-			"&export=Export",
-			"&_acct=C000228598",
-			"&_version=1",
-			"&_userid=12975512",
-			"&md5=f558f07acf7fdffc9d9d2368d2661c75"
+			"_method=finish",
+			"_st=" + PME.Util.xpathText(doc, '//div[@id="sdBody"]/form/input[@name="_st"]/@value'),
+			"count=" + PME.Util.xpathText(doc, '//div[@id="sdBody"]/form/input[@name="chunkSize"]/@value'),
+			"_chunk=" + PME.Util.xpathText(doc, '//div[@id="sdBody"]/form/input[@name="_chunk"]/@value'),
+			//"_ArticleListID=-552927080",
+			"zone=exportDropDown",
+			"citation-type=RIS",
+			"export=Export",
+			"_acct=C000228598",
+			"_version=1",
+			"_userid=12975512",
+			"md5=f558f07acf7fdffc9d9d2368d2661c75"
 		];
 
-		var action = path + actionParams.join('&');
+		// ?_ob=ArticleListURL&_method=finish&_ArticleListID=-552927080&_st=13&_acct=C000228598&_version=1&_userid=12975512&md5=70f3c98a6f1ec14449c091830be9a203citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
+
+		//var action = path + actionParams.join('&');
 		//var postParams = 'citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
+
+		var action = path + '_ob=DownloadURL&_method=finish&_ArticleListID=-552927080&_st=13&count=25&_chunk=0&_acct=C000228598&_version=1&_userid=12975512&md5=70f3c98a6f1ec14449c091830be9a203citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
 
 		//PME.Util.doPost(action, postParams, function (text) { processRIS(doc, text) });
 		PME.Util.doGet(action, function (text) { processRIS(doc, text) });
