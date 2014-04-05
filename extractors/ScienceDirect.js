@@ -56,18 +56,28 @@ function processRIS(doc, text) {
 				item.creators[i].firstName = item.creators[i].firstName.replace(/\.\s*(?=\S)/g, '. ');
 		}
 
+		if (item.date)
+			item.date = PME.Util.trim(item.date);
+
 		//abstract is not included with the new export form. Scrape from page
 		if (!item.abstractNote)
 			item.abstractNote = getAbstract(doc);
 
 		var pdfLink = PME.Util.xpathText(doc, '//div[@id="articleNav"]//div[contains(@class, "icon_pdf")]/a[not(@title="Purchase PDF")]/@href[1]');
+
+		if (!pdfLink)
+			pdfLink = PME.Util.xpathText(doc, '//table[@class="resultRow"]//a[contains(@href, "' + item.url + '") and contains(@href, ".pdf")]/@href');
 		if (pdfLink)
 			item.attachments.push({title: 'Full Text PDF', url: pdfLink, mimeType: 'application/pdf'});
 
 		if (item.notes[0]) {
-			item.abstractNote = item.notes[0].note;
+
+			var seriesTitle = /T3\s+-\s+.*<br ?\/>/.exec(item.notes[0].note);
+			item.seriesTitle = PME.Util.trim(seriesTitle[0].replace(/T3\s+-/, "").replace(/<br ?\/>/, ""));
+			console.log("seriesTitle : " + item.seriesTitle);
 			item.notes = new Array();
 		}
+
 		if (item.abstractNote)
 			item.abstractNote = item.abstractNote.replace(/^\s*(?:abstract|publisher\s+summary)\s+/i, '');
 
