@@ -19,8 +19,10 @@ function detectWeb(doc, url) { }
 function getAbstract(doc) {
 	var p = PME.Util.xpath(doc, '//div[contains(@class, "abstract") and not(contains(@class, "abstractHighlights"))]/p');
 	var paragraphs = [];
-	for (var i = 0; i < p.length; i++)
-		paragraphs.push(PME.Util.trimInternal(p[i].textContent));
+	for (var i = 0; i < p.length; i++) {
+		if (p[i].textContent)
+			paragraphs.push(PME.Util.trimInternal(p[i].textContent));
+	}
 
 	return paragraphs.join('\n');
 }
@@ -47,6 +49,7 @@ function processRIS(doc, text) {
 	translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
 	translator.setString(text);
 	translator.setHandler("itemDone", function (obj, item) {
+
 		//issue sometimes is set to 0 for single issue volumes (?)
 		if (item.issue == 0) delete item.issue;
 
@@ -56,12 +59,20 @@ function processRIS(doc, text) {
 				item.creators[i].firstName = item.creators[i].firstName.replace(/\.\s*(?=\S)/g, '. ');
 		}
 
-		if (item.date)
+		console.log("checkpoint 1");
+
+		if (item.date) {
+			console.log("checkpoint 2");
 			item.date = PME.Util.trim(item.date);
+		}
 
 		//abstract is not included with the new export form. Scrape from page
-		if (!item.abstractNote)
+		if (!item.abstractNote) {
+			console.log("checkpoint 3");
 			item.abstractNote = getAbstract(doc);
+		}
+
+		console.log("checkpoint 4");
 
 		var pdfLink = PME.Util.xpathText(doc, '//div[@id="articleNav"]//div[contains(@class, "icon_pdf")]/a[not(@title="Purchase PDF")]/@href[1]');
 
@@ -70,18 +81,33 @@ function processRIS(doc, text) {
 		if (pdfLink)
 			item.attachments.push({title: 'Full Text PDF', url: pdfLink, mimeType: 'application/pdf'});
 
-		if (item.notes[0]) {
+		console.log("checkpoint 5");
+
+		if (item.notes[0] && item.notes[0].note) {
+			console.log("checkpoint 6");
 
 			var seriesTitle = /T3\s+-\s+.*<br ?\/>/.exec(item.notes[0].note);
-			item.seriesTitle = PME.Util.trim(seriesTitle[0].replace(/T3\s+-/, "").replace(/<br ?\/>/, ""));
+
+			if (seriesTitle.length > 0) {
+				console.log("checkpoint 7");
+				item.seriesTitle = PME.Util.trim(seriesTitle[0].replace(/T3\s+-/, "").replace(/<br ?\/>/, ""));
+				console.log("checkpoint 8");
+			}
+
 			console.log("seriesTitle : " + item.seriesTitle);
 			item.notes = new Array();
 		}
 
-		if (item.abstractNote)
+		if (item.abstractNote) {
+			console.log("checkpoint 9");
 			item.abstractNote = item.abstractNote.replace(/^\s*(?:abstract|publisher\s+summary)\s+/i, '');
+		}
 
-		item.DOI = item.DOI.replace(/^doi:\s+/i, '');
+		console.log("checkpoint 10");
+
+		if(item.DOI)
+			item.DOI = item.DOI.replace(/^doi:\s+/i, '');
+
 		item.complete();
 	});
 	translator.translate();
