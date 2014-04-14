@@ -148,6 +148,14 @@ var Registry = (function() {
 		"Google Books": {
 			m: "(?:(?:play)|(?:books)\\.google\\.com/(?:store)|(?:books))|(?:www\\.google\\.com/search)",
 			g: "127ff21d-c614-41f6-b4e8-007ea42dd6e0"
+		},
+		"Wikipedia": {
+			m: /.*wikipedia\.org/,
+			g: "lb72u4uo-s4in-8rj8-wlyb-i8zcjef7hlvs"
+		},
+		"Summon": {
+			m: /.*summon\.serialssolutions\.com/,
+			g: "lb72u4uo-s4in-8rj8-wlyb-i8zcjef7hlvs"			// Summon and Wikipedia both call COinS within PME.js
 		}
 	},
 	g2t, m2t;
@@ -1346,11 +1354,8 @@ PME.Util.fieldIsValidForType = function(field, itemType) {
 
 
 PME.Util.parseContextObject = function (COstring, item) {
-	if (!item)
-		var item = new PME.Item;
-
-	var contextObject = {};
-
+	var newItem = {}, contextObject = {};
+	var type = "";
 	var contextParams = PME.Util.removeHtmlEntities(COstring).split('&');
 	var authors = [];
 
@@ -1366,22 +1371,27 @@ PME.Util.parseContextObject = function (COstring, item) {
 	}
 
 	if (contextObject["rft.genre"] == 'bookitem')
-		item.itemType = "bookSection";
+		type = "bookSection";
 	else if (contextObject["rft.genre"] == 'report')
-		item.itemType = "report";
+		type = "report";
 	else if (contextObject["rft.genre"] == 'proceeding' || contextObject["rft.genre"] == 'conference')
-		item.itemType = "conferencePaper";
+		type = "conferencePaper";
 	else if (contextObject["rft_val_fmt"].indexOf("journal") > -1)
-		item.itemType = "journalArticle";
+		type = "journalArticle";
 	else if (contextObject["rft_val_fmt"].indexOf("book") > -1)
-		item.itemType = "book";
+		type = "book";
 	else if (contextObject["rft_val_fmt"].indexOf("dissertation") > -1)
-		item.itemType = "thesis";
+		type = "thesis";
 	else if (contextObject["rft_val_fmt"].indexOf("patent") > -1)
-		item.itemType = "patent";
+		type = "patent";
 	else
 		return false;
 	
+	if (!item)
+		newItem = new PME.Item(type);
+	else
+		item.itemType = type;
+
 	if (contextObject["rft.atitle"])
 		item.title = contextObject["rft.atitle"];
 	else if (contextObject["rft.btitle"])
@@ -2139,7 +2149,8 @@ PME.genericScrape = function (doc) {
 				if (href.indexOf("http") == -1)
 					href = window.location.href.substr(0, window.location.href.indexOf('/', 9)) + (href.indexOf('/') == 0 ? '' : '/') + href;
 
-				return href;
+				if(href.indexOf(window.location.hostname) > -1)
+					return href;
 			}
 		}
 
@@ -2343,26 +2354,30 @@ PME.isbnScrape = function (doc) {
 	for (var i = 0; i < attributeMatch.length; i++)
 		pushMatches(regex.exec(attributeMatch[i].value));
 
-	matches.sort(function (a, b) { return parseInt(a) - parseInt(b); });
-	matches = filter(matches, function(item) { return item.length == 10 || (item.length == 13 && item.substr(0, 3) == "978"); });
-	matches = killStringDuplicates(matches);
-	matches = filter(matches, function(item) {		// verify the check digit so we can keep only valid ISBNs
-		return item.charAt(item.length - 1) == calculateCheckDigit(item);
-	});
-	
-	matches = filter(matches, function (item, i, items) {		// remove duplicate references, so we have only 1 ISBN per book
-		if (item.length == 13) {
-			return true;
-		}
-		else {
-			var testVal = "978" + item;
-			testVal = testVal.substr(0, testVal.length - 1) + calculateCheckDigit(testVal);
+	if (matches.length > 0) {
+		matches.sort(function (a, b) { return parseInt(a) - parseInt(b); });
 
-			return items.indexOf(testVal, i + 1) == -1;
-		}
-	});
-	
-	return map(matches, function (isbn) { return { "ISBN": isbn } });
+		matches = filter(matches, function (item) { return item.length == 10 || (item.length == 13 && item.substr(0, 3) == "978"); });
+		matches = killStringDuplicates(matches);
+
+		matches = filter(matches, function (item) {		// verify the check digit so we can keep only valid ISBNs
+			return (item.charAt(item.length - 1) == calculateCheckDigit(item));
+		});
+
+		matches = filter(matches, function (item, i, items) {		// remove duplicate references, so we have only 1 ISBN per book
+			if (item.length == 13) {
+				return true;
+			}
+			else {
+				var testVal = "978" + item;
+				testVal = testVal.substr(0, testVal.length - 1) + calculateCheckDigit(testVal);
+
+				return items.indexOf(testVal, i + 1) == -1;
+			}
+		});
+
+		return map(matches, function (isbn) { return { "ISBN": isbn } });
+	}
 }
 
 PME.getPageMetaData = function (callback)
@@ -2379,10 +2394,23 @@ PME.getPageMetaData = function (callback)
 
 		var trans = Registry.matchURL(pageURL);
 
+		console.log("trans : " + trans);
+
 		var doTranslation = function() {
-			var t = PME.loadTranslator("web");
-			t.setTranslator(trans);
-			t.translate();
+			if (trans == "lb72u4uo-s4in-8rj8-wlyb-i8zcjef7hlvs") {
+				console.log("Detecting Summon / Wikipedia, pull COinS data");
+				var coinsData = PME.COINSscrape(pageDoc);
+
+				for (var i = 0; i < coinsData.length; i++)
+					coinsData[i].complete();
+
+				success();
+			}
+			else {
+				var t = PME.loadTranslator("web");
+				t.setTranslator(trans);
+				t.translate();
+			}
 		}
 
 		if (!trans) {
