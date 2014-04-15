@@ -22,7 +22,7 @@
 
 			if (authors[i].indexOf(' ') >= 0)
 			{
-				authors[i] = authors[i].replace(/ (s|j)r\.?$/i, '').split(' ')
+				authors[i] = $.trim(authors[i]).replace(/ (s|j)r\.?$/i, '').split(' ')
 				creators.push({ lastName: authors[i][authors[i].length - 1], firstName: authors[i][0] });
 			}
 			else
