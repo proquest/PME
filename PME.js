@@ -146,7 +146,7 @@ var Registry = (function() {
 			g: "4fcda099-ee8e-4631-a279-a4d3a8b75906"
 		},
 		"Google Books": {
-			m: "(?:(?:play)|(?:books)\\.google\\.com/(?:store)|(?:books))|(?:www\\.google\\.com/search)",
+			m: "(?:(?:(?:play)|(?:books))\\.google\\.com/(?:(?:store)|(?:books)))|(?:www\\.google\\.com/search)",
 			g: "127ff21d-c614-41f6-b4e8-007ea42dd6e0"
 		},
 		"Wikipedia": {
@@ -156,6 +156,10 @@ var Registry = (function() {
 		"Summon": {
 			m: /.*summon\.serialssolutions\.com/,
 			g: "lb72u4uo-s4in-8rj8-wlyb-i8zcjef7hlvs"			// Summon and Wikipedia both call COinS within PME.js
+		},
+		"SAGE": {
+			m: "sagepub\\.com",
+			g: "6258ad6a-a789-409e-b01a-c41776db8650"
 		}
 	},
 	g2t, m2t;
