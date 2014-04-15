@@ -125,13 +125,13 @@
 			case "singleprint":
 				var item = new PME.Item('book');
 				item.title =
-					PME.Util.xpathText(doc, '//div[@id="title"]//span[@id="productTitle"]') ||
+					PME.Util.xpathText(doc, '//div[@id="booksTitle"]//span[@id="productTitle"]') ||
 					PME.Util.xpathText(doc, '//span[@id="btAsinTitle"]');
 
-				var xpath = PME.Util.xpath(doc, '//div[@id="title"]//span[contains(@class, "author") and span[@class="contribution"]/span[contains(text(), "Author")]]') || PME.Util.xpath(doc, '//div[@class="buying"]');
+				var xpath = PME.Util.xpath(doc, '//div[@id="title"]//span[contains(@class, "contributorNameID") and span[@class="contribution"]/span[contains(text(), "Author")]]') || PME.Util.xpath(doc, '//div[@class="buying"]');
 				item.creators = handleCreators(doc,
 					{
-						'//div[@id="title"]//span[contains(@class, "author") and span[@class="contribution"]/span[contains(text(), "Author")]]':
+					    '//div[@id="title" or @id="booksTitle"]//span[contains(@class, "author") and span[@class="contribution"]/span[contains(text(), "Author")]]':
 							['./span/a[contains(@class, "contributorNameID")]',
 							 './a'],
 						'//div[@class="buying" and h1[contains(@class, "Title")]]':
