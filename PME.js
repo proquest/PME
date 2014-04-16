@@ -2398,11 +2398,11 @@ PME.getPageMetaData = function (callback)
 
 		var trans = Registry.matchURL(pageURL);
 
-		console.log("trans : " + trans);
+		log("trans : " + trans);
 
 		var doTranslation = function() {
 			if (trans == "lb72u4uo-s4in-8rj8-wlyb-i8zcjef7hlvs") {
-				console.log("Detecting Summon / Wikipedia, pull COinS data");
+				log("Detecting Summon / Wikipedia, pull COinS data");
 				var coinsData = PME.COINSscrape(pageDoc);
 
 				for (var i = 0; i < coinsData.length; i++)
