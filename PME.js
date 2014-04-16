@@ -146,8 +146,20 @@ var Registry = (function() {
 			g: "4fcda099-ee8e-4631-a279-a4d3a8b75906"
 		},
 		"Google Books": {
-			m: "(?:(?:play)|(?:books)\\.google\\.com/(?:store)|(?:books))|(?:www\\.google\\.com/search)",
+			m: "(?:(?:(?:play)|(?:books))\\.google\\.com/(?:(?:store)|(?:books)))|(?:www\\.google\\.com/search)",
 			g: "127ff21d-c614-41f6-b4e8-007ea42dd6e0"
+		},
+		"Wikipedia": {
+			m: /.*wikipedia\.org/,
+			g: "lb72u4uo-s4in-8rj8-wlyb-i8zcjef7hlvs"
+		},
+		"Summon": {
+			m: /.*summon\.serialssolutions\.com/,
+			g: "lb72u4uo-s4in-8rj8-wlyb-i8zcjef7hlvs"			// Summon and Wikipedia both call COinS within PME.js
+		},
+		"SAGE": {
+			m: "sagepub\\.com",
+			g: "6258ad6a-a789-409e-b01a-c41776db8650"
 		}
 	},
 	g2t, m2t;
@@ -1346,11 +1358,8 @@ PME.Util.fieldIsValidForType = function(field, itemType) {
 
 
 PME.Util.parseContextObject = function (COstring, item) {
-	if (!item)
-		var item = new PME.Item;
-
-	var contextObject = {};
-
+	var newItem = {}, contextObject = {};
+	var type = "";
 	var contextParams = PME.Util.removeHtmlEntities(COstring).split('&');
 	var authors = [];
 
@@ -1366,22 +1375,27 @@ PME.Util.parseContextObject = function (COstring, item) {
 	}
 
 	if (contextObject["rft.genre"] == 'bookitem')
-		item.itemType = "bookSection";
+		type = "bookSection";
 	else if (contextObject["rft.genre"] == 'report')
-		item.itemType = "report";
+		type = "report";
 	else if (contextObject["rft.genre"] == 'proceeding' || contextObject["rft.genre"] == 'conference')
-		item.itemType = "conferencePaper";
+		type = "conferencePaper";
 	else if (contextObject["rft_val_fmt"].indexOf("journal") > -1)
-		item.itemType = "journalArticle";
+		type = "journalArticle";
 	else if (contextObject["rft_val_fmt"].indexOf("book") > -1)
-		item.itemType = "book";
+		type = "book";
 	else if (contextObject["rft_val_fmt"].indexOf("dissertation") > -1)
-		item.itemType = "thesis";
+		type = "thesis";
 	else if (contextObject["rft_val_fmt"].indexOf("patent") > -1)
-		item.itemType = "patent";
+		type = "patent";
 	else
 		return false;
 	
+	if (!item)
+		newItem = new PME.Item(type);
+	else
+		item.itemType = type;
+
 	if (contextObject["rft.atitle"])
 		item.title = contextObject["rft.atitle"];
 	else if (contextObject["rft.btitle"])
@@ -2075,48 +2089,219 @@ PME.COINSscrape = function(doc) {
 	return results;
 }
 
-PME.genericScrape = function (doc)
-{
-	var regex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;//10.1093/imamat/hxt016
-	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null, false);
-	var matches = [];
-	//running is used to handle dois that have elements embedded in them (usually hit highlighting)
-	//it captures the last few text nodes and joins them together
-	var running = [];
-	while (walker.nextNode()) {
-		running.push(walker.currentNode.nodeValue);
-		if(running.length > 10)
+PME.genericScrape = function (doc) {
+	var DOIregex = /10\.\d+\/[a-z0-9\/\.\-_]+[\s|$]?/i;		//10.1093/imamat/hxt016
+	var running = [];			// used to handle dois that have elements embedded in them (usually hit highlighting)
+	var PDFmatches = [];	// handles PDFs w/o associated DOIs
+	var matches = [];			// handles DOI hits
+
+	function getDoiFromElement(node) {
+		var doiVal = node.getAttribute("doi");
+		if (!doiVal)
+			doiVal = node.getAttribute("DOI");
+		if (!doiVal && /doi/i.test(node.getAttribute('name')))
+			doiVal = node.getAttribute("value");
+		if (!doiVal && node.getAttribute('href') && DOIregex.test(node.getAttribute('href'))) {
+			var hrefDOI = DOIregex.exec(node.getAttribute('href'));
+			doiVal = (hrefDOI[0].lastIndexOf('/') > 7 ? hrefDOI[0].slice(0, hrefDOI[0].lastIndexOf('/')) : hrefDOI[0]);
+			doiVal = PME.Util.trim(doiVal).replace(/\.$/, '');
+		}
+
+		return (doiVal ? doiVal : false);
+	}
+
+	function isRelevantPDF(node) {
+		var filterRegex = [/advert(?:ising)?/i, /policy|(?:cies)/i];
+		var irrelevantPDF = false;
+
+		for (var i = 0; !irrelevantPDF, i < filterRegex.length; i++) {
+			if (node.getAttribute('id'))
+				irrelevantPDF = filterRegex[i].test(node.getAttribute('id'));
+			if (!irrelevantPDF && node.getAttribute('class'))
+				irrelevantPDF = filterRegex[i].test(node.getAttribute('class'));
+			if (!irrelevantPDF && node.textContent)
+				irrelevantPDF = filterRegex[i].test(node.textContent);
+			if (!irrelevantPDF && node.getAttribute('href'))
+				irrelevantPDF = filterRegex[i].test(node.getAttribute('href'));
+		}
+
+		return !irrelevantPDF;
+	}
+
+	function getDoiFromText(node) {
+		running.push(node.nodeValue);
+		if (running.length > 10)
 			running.shift();
-		var match = regex.exec(running.join(''));
-		if (match != null){
-			matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+		var match = DOIregex.exec(running.join(''));
+		if (match)
 			running = [];
-		}
-		else{
-			match = regex.exec(walker.currentNode.nodeValue);
-			if (match != null)
-				matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
-		}
+		else
+			match = DOIregex.exec(node.nodeValue);
+
+		return (match ? PME.Util.trim(match[0]).replace(/\.$/, '') : false);
 	}
 
-	var attributeMatch = PME.Util.xpath(doc, '//*[@doi]/@doi');
-	if (attributeMatch.length == 0)
-		attributeMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content');
-	if (attributeMatch.length == 0)
-		attributeMatch = PME.Util.xpath(doc, '//*[contains(@name, "doi")]/@value');
-	if (attributeMatch.length == 0)
-		attributeMatch = PME.Util.xpath(doc, '//a[@href]/@href');
+	function getPdfFromElement(node) {
+		if (node.hasAttribute("href")) {
+			var href = node.getAttribute('href');
+			var extensionIndex = href.indexOf(".pdf");
 
-	for (var i = 0; i < attributeMatch.length; i++) {
-		var match = regex.exec(attributeMatch[i].value);
+			if (extensionIndex > -1 && isRelevantPDF(node)) {
+				if ((extensionIndex + 4) != href.length)
+					href = href.slice(0, extensionIndex + 4);
 
-		if (match != null) {
-			matches.push(PME.Util.trim(match[0]).replace(/\.$/, ''));
+				if (href.indexOf("http") == -1)
+					href = window.location.href.substr(0, window.location.href.indexOf('/', 9)) + (href.indexOf('/') == 0 ? '' : '/') + href;
+
+				if(href.indexOf(window.location.hostname) > -1)
+					return href;
+			}
+		}
+
+		return false;
+	}
+
+	function crawlDomTree(node) {
+		var distanceFromOrigin = 0;
+		var checkingForChildren = Array.prototype.slice.call(node.childNodes);
+		var checkingForParents = [node.parentNode];
+		var checkingForSiblings = [node];
+		var DOImatch = [];
+
+		do {
+			for (var i = checkingForChildren.length; i > 0; i--) {
+				var n = checkingForChildren.shift();
+
+				if (n.nodeType == 3 || n.nodeType == 8)
+					DOImatch = DOIregex.exec(n.textContent);
+				else
+					DOImatch = getDoiFromElement(n);
+
+				if (DOImatch)
+					break;
+
+				if (n.hasChildNodes) {
+					for (var c = 0; c < n.childNodes.length; c++)
+						checkingForChildren.push(n.childNodes[c]);
+				}
+			}
+
+			for (var i = checkingForParents.length; !DOImatch && i > 0; i--) {
+				var n = checkingForParents.shift();
+				DOImatch = getDoiFromElement(n);
+
+				if (DOImatch)
+					break;
+
+				if (n.parentNode) {
+					checkingForParents.push(n.parentNode);
+					checkingForSiblings.push(n);
+				}
+			}
+
+			for (var i = checkingForSiblings.length; !DOImatch && i > 0; i--) {
+				var p = checkingForSiblings.shift(), n = p;
+
+				while (p.previousSibling) {
+					p = p.previousSibling;
+					checkingForChildren.push(p);
+				}
+
+				while (n.nextSibling) {
+					n = n.nextSibling;
+					checkingForChildren.push(n);
+				}
+			}
+		} while (!DOImatch && ++distanceFromOrigin < 5)
+		return (DOImatch ? ( Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : DOImatch ) : false);
+	}
+
+	function treeWalkerFilter(node) {
+		return (node.nodeType == 1 || node.nodeType == 3 ? true : false);
+	}
+
+	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, treeWalkerFilter, false);
+
+	while (walker.nextNode()) {
+		switch (walker.currentNode.nodeType) {
+			case 3://NodeFilter.SHOW_TEXT
+				var doiFromText = getDoiFromText(walker.currentNode);
+				if (doiFromText)
+					matches.push({ "DOI": doiFromText });
+				break;
+			case 1://NodeFilter.SHOW_ELEMENT
+				var doiFromAttribute = getDoiFromElement(walker.currentNode);
+				var pdf = getPdfFromElement(walker.currentNode);
+
+				if (doiFromAttribute && pdf) {
+					matches.push({ "DOI": doiFromAttribute, "URL": pdf });
+				}
+				else if (pdf) {
+					var doiFromTree = crawlDomTree(walker.currentNode);
+
+					if (doiFromTree)
+						matches.push({ "DOI": doiFromTree, "URL": pdf });
+					else
+						PDFmatches.push(pdf);
+				}
+				else if (doiFromAttribute) {
+					matches.push({"DOI" : doiFromAttribute});
+				}
+				
+				break;
 		}
 	}
-	//remove duplicates
-	matches = filter(matches, function (item, i, items) {return items.indexOf(item, i + 1) == -1;});
-	return map(matches,function(doi){return {"DOI":doi}});
+	
+	var metaMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // metas aren't grabbed by the TreeWalker, need to do it here
+
+	if (metaMatch.length == 1 && PDFmatches.length == 1) {
+		matches.push({ "DOI": PME.Util.trim(metaMatch[0].value).replace(/^doi:/, ''), "URL" : PDFmatches[0] });
+	}
+	else {
+		for (var i = 0; i < metaMatch.length; i++)
+			matches.push({ "DOI": PME.Util.trim(metaMatch[i].value).replace(/^doi:/, '') });
+	}
+	
+	if (matches.length == 0) {
+		for (var i = 0; i < PDFmatches.length; i++)
+			matches.push({ "URL": PDFmatches[i] });
+	}
+	else if(matches.length == 1 && PDFmatches.length == 1 && !matches[0].URL) {
+		matches[0].URL = PDFmatches[0];
+	}
+
+	matches.sort(function (a, b) {	// sort returns by DOI, grouping elements with URLs last
+		if (a.DOI > b.DOI)
+			return 1;
+		if (a.DOI < b.DOI)
+			return -1;
+
+		if (!a.URL)
+			return -1;
+		if (!b.URL)
+			return 1;
+
+		return 0;
+	});
+
+	//remove duplicate refs
+	matches = filter(matches, function (item, i, items) {
+		for (var c = i + 1; c < items.length; c++) {
+			if ((item.DOI && item.DOI == items[c].DOI) || (!item.DOI && item.URL == items[c].URL))
+				return false;
+		}
+
+		return true;
+	});
+
+	return map(matches, function (item) {
+		if (item.URL && item.DOI)
+			return { 'DOI': item.DOI, 'attachments': [{ title: 'Full Text PDF', url: item.URL, mimeType: 'application/pdf' }] };
+		else if (!item.URL)
+			return { 'DOI': item.DOI };
+		else
+			return { 'title' : item.URL, 'attachments': [{ title: 'Full Text PDF', url: item.URL, mimeType: 'application/pdf' }] };
+	});
 }
 
 PME.isbnScrape = function (doc) {
@@ -2173,26 +2358,30 @@ PME.isbnScrape = function (doc) {
 	for (var i = 0; i < attributeMatch.length; i++)
 		pushMatches(regex.exec(attributeMatch[i].value));
 
-	matches.sort(function (a, b) { return parseInt(a) - parseInt(b); });
-	matches = filter(matches, function(item) { return item.length == 10 || (item.length == 13 && item.substr(0, 3) == "978"); });
-	matches = killStringDuplicates(matches);
-	matches = filter(matches, function(item) {		// verify the check digit so we can keep only valid ISBNs
-		return item.charAt(item.length - 1) == calculateCheckDigit(item);
-	});
-	
-	matches = filter(matches, function (item, i, items) {		// remove duplicate references, so we have only 1 ISBN per book
-		if (item.length == 13) {
-			return true;
-		}
-		else {
-			var testVal = "978" + item;
-			testVal = testVal.substr(0, testVal.length - 1) + calculateCheckDigit(testVal);
+	if (matches.length > 0) {
+		matches.sort(function (a, b) { return parseInt(a) - parseInt(b); });
 
-			return items.indexOf(testVal, i + 1) == -1;
-		}
-	});
-	
-	return map(matches, function (isbn) { return { "ISBN": isbn } });
+		matches = filter(matches, function (item) { return item.length == 10 || (item.length == 13 && item.substr(0, 3) == "978"); });
+		matches = killStringDuplicates(matches);
+
+		matches = filter(matches, function (item) {		// verify the check digit so we can keep only valid ISBNs
+			return (item.charAt(item.length - 1) == calculateCheckDigit(item));
+		});
+
+		matches = filter(matches, function (item, i, items) {		// remove duplicate references, so we have only 1 ISBN per book
+			if (item.length == 13) {
+				return true;
+			}
+			else {
+				var testVal = "978" + item;
+				testVal = testVal.substr(0, testVal.length - 1) + calculateCheckDigit(testVal);
+
+				return items.indexOf(testVal, i + 1) == -1;
+			}
+		});
+
+		return map(matches, function (isbn) { return { "ISBN": isbn } });
+	}
 }
 
 PME.getPageMetaData = function (callback)
@@ -2209,16 +2398,29 @@ PME.getPageMetaData = function (callback)
 
 		var trans = Registry.matchURL(pageURL);
 
+		console.log("trans : " + trans);
+
 		var doTranslation = function() {
-			var t = PME.loadTranslator("web");
-			t.setTranslator(trans);
-			t.translate();
+			if (trans == "lb72u4uo-s4in-8rj8-wlyb-i8zcjef7hlvs") {
+				console.log("Detecting Summon / Wikipedia, pull COinS data");
+				var coinsData = PME.COINSscrape(pageDoc);
+
+				for (var i = 0; i < coinsData.length; i++)
+					coinsData[i].complete();
+
+				success();
+			}
+			else {
+				var t = PME.loadTranslator("web");
+				t.setTranslator(trans);
+				t.translate();
+			}
 		}
 
 		if (!trans) {
-			PME.Util.xpathHelper(window, pageDoc, function () {
-				completed({ noTranslator: true })
-			});
+				PME.Util.xpathHelper(window, pageDoc, function () {
+					completed({ noTranslator: true })
+				});
 		}
 		else {
 			// add XPath helper javascript if document.evaluate is not defined
