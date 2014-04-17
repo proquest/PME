@@ -55,5 +55,16 @@
 		});
 	}
 
-PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+var testCases = [
+	{
+		"type": "web",
+		"url": "http://site.ebrary.com/lib/myproquest/search.action?p00=cancer&fromSearch=fromSearch&search=Search",
+		"items": [
+
+		]
+	}
+]	
+/** END TEST CASES **/	
+
+PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });
 }());

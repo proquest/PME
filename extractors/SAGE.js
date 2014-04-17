@@ -128,5 +128,14 @@
 		}
 	}
 
-	PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+var testCases = [
+	{
+		"type": "web",
+		"url": "http://www.amazon.com/My-Big-Fat-Supernatural-Wedding/dp/B0018SYXN8/ref=sr_1_cc_1?s=aps&ie=UTF8&qid=1394830198&sr=1-1-catcorr&keywords=My+Big+Fat+Supernatural+Wedding",
+		"items": [
+]
+/** END TEST CASES **/
+
+
+	PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });
 }());
