@@ -207,7 +207,7 @@ function doWeb(doc, url) {
 }
 /** BEGIN TEST CASES **/
 var testCases = [
-	{
+	/*{
 		"type": "web",
 		"url": "http://rer.sagepub.com/content/52/2/201.abstract",
 		"items": [
@@ -260,8 +260,8 @@ var testCases = [
 				"abstractNote": "The laboratory has been given a central and distinctive role in science education, and science educators have suggested that there are rich benefits in learning from using laboratory activities. At this time, however, some educators have begun to question seriously the effectiveness and the role of laboratory work, and the case for laboratory teaching is not as self-evident as it once seemed. This paper provides perspectives on these issues through a review of the history, goals, and research findings regarding the laboratory as a medium of instruction in introductory science teaching. The analysis of research culminates with suggestions for researchers who are working to clarify the role of the laboratory in science education."
 			}
 		]
-	},
-	{
+	}*/
+	/*{
 		"type": "web",
 		"url": "http://sag.sagepub.com/content/early/2010/04/23/1046878110366277.abstract",
 		"items": [
@@ -831,7 +831,7 @@ var testCases = [
 		"type": "web",
 		"url": "http://www.bjj.boneandjoint.org.uk/content/94-B/1.toc",
 		"items": "multiple"
-	}
+	}*/
 ]
 /** END TEST CASES **/
 PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });

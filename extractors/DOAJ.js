@@ -67,5 +67,217 @@ function parseSource(values,item) {
 		}
 	}
 }
-PME.TranslatorClass.loaded(translatorSpec, { doWeb: doWeb });
+
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "http://doaj.org/search?source={%22query%22:{%22query_string%22:{%22query%22:%22cancer%22,%22default_operator%22:%22AND%22}}}#.UznaJq1dUUU",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"title": "Middle East Journal of Cancer",
+				"publisher": "Shiraz University of Medical Sciences",
+				"ISSN": "2008-6709, 2008-6687",
+				"place": "Iran, Islamic Republic of",
+			},
+			{
+				"itemType": "journalArticle",
+				"title": "Cancer Control : Journal of the Moffitt Cancer Center",
+				"publisher": "Moffitt Cancer Center",
+				"ISSN": "1073-2748, 1526-2359",
+				"place": "United States",
+			},
+			{
+				"itemType": "journalArticle",
+				"title": "Journal of Tumor",
+				"publisher": "ACT Publishing Group Liminted",
+				"ISSN": "1819-6187",
+				"place": "Hong Kong"
+			},
+			{	
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"firstName": "Wanqing",
+						"lastName": "Chen"
+					},
+					{	
+						"1": "",
+						"firstName": "Rongshou",
+						"lastName": "Zheng"
+					},	
+					{
+						"2": "",
+						"firstName": "Siwei",
+						"lastName": "Zhang"
+					},
+					{	
+						"3": "",
+						"firstName": "Ping",
+						"lastName": "Zhao"
+					},
+					{	
+						"4": "",
+						"firstName": "Guanglin",
+						"lastName": "Li"
+					},
+					{	
+						"5": "",
+						"firstName": "Lingyou",
+						"lastName": "Wu"
+					},
+					{	
+						"6": "",
+						"firstName": "Jie",
+						"lastName": "He"
+					}	
+				],
+				"title": "The incidences and mortalities of major cancers in China, 2009",
+				"publisher": "Sun Yat-sen University Cancer Center",
+				"publicationDate": "2013  March",
+				"publicationTitle": "Chinese Journal of Cancer",
+				"volume": "32",
+				"issue": "3",
+				"pages": "106-112",
+				"ISSN": "1000-467X, 1944-446X",
+				"DOI": "10.5732/cjc.013.10018",
+				"place": "China"
+			},	
+			{	
+				"itemType": "journalArticle",
+				"title": "Chinese Journal of Cancer",
+				"publisher": "Sun Yat-sen University Cancer Center",
+				"ISSN": "1000-467X, 1944-446X",
+				"place": "China"
+			},	
+			{	
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"firstName": "Ellberg",
+						"lastName": "Carolina"
+					},
+					{	
+						"1": "",
+						"firstName": "Olsson",
+						"lastName": "Håkan"
+					}	
+				],
+				"title": "Breast cancer patients with lobular cancer more commonly have a father than a mother diagnosed with cancer",
+				"publisher": "BioMed Central",
+				"publicationDate": "2011 November",
+				"publicationTitle": "BMC Cancer",
+				"volume": "11",
+				"issue": "1",
+				"pages": "497",
+				"ISSN": "1471-2407",
+				"DOI": "10.1186/1471-2407-11-497",
+				"place": "United Kingdom"
+			},	
+			{	
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"firstName": "Mahpara",
+						"lastName": "Safdar"
+					},
+					{	
+						"1": "",
+						"firstName": "Alam",
+						"lastName": "Khan"
+					}	
+				],
+				"title": "Incidence, Epidemiology and Prevention of Cancer and Management of Cancer Patients-an Overview",
+				"publisher": "Asian Network for Scientific Information",
+				"publicationDate": "2003 January",
+				"publicationTitle": "Journal of Medical Sciences",
+				"volume": "3",
+				"issue": "5",
+				"pages": "429-456",
+				"ISSN": "1682-4474, 1812-5727",
+				"place": "Pakistan"
+			},	
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{	
+						"0": "",
+						"firstName": "Wen-liang",
+						"lastName": "Zhang"
+					}	
+				],
+				"title": "The Role of Inflammation in Breast Cancer and Prostate Cancer",
+				"publisher": "Cancer Biology &amp; Medicine",
+				"publicationDate": "2011 June",
+				"publicationTitle": "Cancer Biology &amp; Medicine",
+				"volume": "8",
+				"issue": "2",
+				"pages": "77-84",
+				"ISSN": "2095-3941",
+				"DOI": "10.1007/s11805-011-0562-z",
+				"place": "China"
+			},	
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{	
+						"0": "",
+						"firstName": "Yi-Min",
+						"lastName": "Zhu"
+					},
+					{	
+						"1": "",
+						"firstName": "Li-Hua",
+						"lastName": "Yuan"
+					},
+					{	
+						"2": "",
+						"firstName": "Ke-Feng",
+						"lastName": "Pu"
+					},
+					{	
+						"3": "",
+						"firstName": "Bing",
+						"lastName": "Dong"
+					},
+					{	
+						"4": "",
+						"firstName": "An-Xin",
+						"lastName": "Wang"
+					},
+					{	
+						"5": "",
+						"firstName": "Li-Sha",
+						"lastName": "Chen"
+					}	
+				],
+				"title": "A new prospect in cancer therapy: targeting cancer stem cells to eradicate cancer",
+				"publisher": "Sun Yat-sen University Cancer Center",
+				"publicationDate": "2012 December",
+				"publicationTitle": "Chinese Journal of Cancer",
+				"volume": "31",
+				"issue": "12",
+				"pages": "564-572",
+				"ISSN": "1000-467X, 1944-446X",
+				"DOI": "10.5732/cjc.011.10444",
+				"place": "China"
+			},	
+			{
+
+				"itemType": "journalArticle",
+				"title": "Journal of Balkan Union of Oncology",
+				"publisher": "Imprimatur Publications",
+				"ISSN": "1107-0625, 2241-6293",
+				"place": "Greece"
+			}
+		]		
+	}
+]
+/** END TEST CASES **/
+
+PME.TranslatorClass.loaded(translatorSpec, { doWeb: doWeb, testCases: testCases });
 }());

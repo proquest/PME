@@ -223,83 +223,206 @@ function doExport() { // this function is not exposed as PME does not support Ex
 }
 /** BEGIN TEST CASES **/
 var testCases = [
-	{
-		"type": "web",
-		"url": "http://www.husdal.com/2011/06/19/disruptions-in-supply-networks/",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"creators": [
-					{
-						"firstName": "Phil",
-						"lastName": "Greening",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Christine",
-						"lastName": "Rutherford",
-						"creatorType": "author"
-					}
-				],
-				"notes": [],
-				"tags": [],
-				"seeAlso": [],
-				"attachments": [
-					{}
-				],
-				"publicationTitle": "International Journal of Logistics Management",
-				"title": "Disruptions and supply networks: a multi-level, multi-theoretical relational perspective",
-				"date": "2011",
-				"volume": "22",
-				"issue": "1",
-				"pages": "104-126",
-				"libraryCatalog": false,
-				"shortTitle": "Disruptions and supply networks"
-			}
-		]
-	},
-	{
-		"type": "web",
-		"url": "http://gamblershouse.wordpress.com/2011/06/19/the-view-from-dolores/",
-		"items": "multiple"
-	},
-	{
-		"type": "web",
-		"url": "http://www.hubmed.org/display.cgi?uids=21665052",
-		"items": [
-			{
-				"itemType": "journalArticle",
-				"creators": [
-					{
-						"creatorType": "author",
-						"firstName": "Hui-Wen Vivian",
-						"lastName": "Tang"
-					}
-				],
-				"notes": [],
-				"tags": [],
-				"seeAlso": [],
-				"attachments": [
-					{
-						"document": {
-							"location": {}
-						}
-					}
-				],
-				"publicationTitle": "Evaluation and Program Planning",
-				"volume": "34",
-				"issue": "4",
-				"ISSN": "01497189",
-				"date": "11/2011",
-				"pages": "343-352",
-				"DOI": "10.1016/j.evalprogplan.2011.04.002",
-				"url": "http://linkinghub.elsevier.com/retrieve/pii/S0149718911000449",
-				"title": "Optimizing an immersion ESL curriculum using analytic hierarchy process",
-				"libraryCatalog": "CrossRef",
-				"accessDate": "CURRENT_TIMESTAMP"
-			}
-		]
-	}
+	// {
+	// 	"type": "web",
+	// 	"url": "http://www.husdal.com/2011/06/19/disruptions-in-supply-networks/",
+	// 	"items": [
+	// 		{
+	// 			"itemType": "journalArticle",
+	// 			"creators": [
+	// 				{
+	// 					"firstName": "Phil",
+	// 					"lastName": "Greening",
+	// 					"creatorType": "author"
+	// 				},
+	// 				{
+	// 					"firstName": "Christine",
+	// 					"lastName": "Rutherford",
+	// 					"creatorType": "author"
+	// 				}
+	// 			],
+	// 			"notes": [],
+	// 			"tags": [],
+	// 			"seeAlso": [],
+	// 			"attachments": [
+	// 				{}
+	// 			],
+	// 			"publicationTitle": "International Journal of Logistics Management",
+	// 			"title": "Disruptions and supply networks: a multi-level, multi-theoretical relational perspective",
+	// 			"date": "2011",
+	// 			"volume": "22",
+	// 			"issue": "1",
+	// 			"pages": "104-126",
+	// 			"libraryCatalog": false,
+	// 			"shortTitle": "Disruptions and supply networks"
+	// 		}
+	// 	]
+	// },
+	// {
+	// 	"type": "web",
+	// 	"url": "http://gamblershouse.wordpress.com/2011/06/19/the-view-from-dolores/",
+	// 	"items": "multiple"
+	// },
+	// {
+	// 	"type": "web",
+	// 	"url": "http://www.hubmed.org/display.cgi?uids=21665052",
+	// 	"items": [
+	// 		{
+	// 			"itemType": "journalArticle",
+	// 			"creators": [
+	// 				{
+	// 					"creatorType": "author",
+	// 					"firstName": "Hui-Wen Vivian",
+	// 					"lastName": "Tang"
+	// 				}
+	// 			],
+	// 			"notes": [],
+	// 			"tags": [],
+	// 			"seeAlso": [],
+	// 			"attachments": [
+	// 				{
+	// 					"document": {
+	// 						"location": {}
+	// 					}
+	// 				}
+	// 			],
+	// 			"publicationTitle": "Evaluation and Program Planning",
+	// 			"volume": "34",
+	// 			"issue": "4",
+	// 			"ISSN": "01497189",
+	// 			"date": "11/2011",
+	// 			"pages": "343-352",
+	// 			"DOI": "10.1016/j.evalprogplan.2011.04.002",
+	// 			"url": "http://linkinghub.elsevier.com/retrieve/pii/S0149718911000449",
+	// 			"title": "Optimizing an immersion ESL curriculum using analytic hierarchy process",
+	// 			"libraryCatalog": "CrossRef",
+	// 			"accessDate": "CURRENT_TIMESTAMP"
+	// 		}
+	//	[
+			// {
+			// 	"type": "web",
+			// 	"url": "http://en.wikipedia.org/wiki/Baden-W%C3%BCrttemberg",
+			// 	"items": [
+			// 		{
+			// 			"itemType": "journalArticle",
+			// 			"creators": [],
+			// 			"attachments": [],
+			// 			"tags": [],
+			// 			"notes": [],
+			// 			"title": "Gemeinden in Deutschland mit Bevölkerung am 31.12.2012",
+			// 			"publicationTitle": "Statistisches Bundesamt",
+			// 			"date": "12 November 2013",
+			// 			"url": "[https://www.destatis.de/DE/ZahlenFakten/LaenderRegionen/Regionales/Gemeindeverzeichnis/Administrativ/Archiv/GVAuszugQ/AuszugGV3QAktuell.xls?__blob=publicationFile Statistisches Bundesamt – Gemeinden in Deutschland mit Bevölkerung am 31.12.2012] (XLS-Datei; 4,0 MB) (Einwohnerzahlen auf Grundlage des Zensus 2011)"
+			// 		},
+			// 		{
+			// 			"itemType": "journalArticle"
+			// 			"creators": [],
+			// 			"attachments": [],
+			// 			"tags": [],
+			// 			"notes": [],
+			// 			"title": "GDP of state",
+			// 			"publicationTitle": "Portal of the Baden-Württemberg Statistics Office",
+			// 			"url": "http://www.statistik-bw.de/VolkswPreise/Landesdaten/LRtBWSjewPreise.asp"
+			// 		}
+					// {
+					// 	"itemType": "book",
+					// 	"creators": [],
+					// 	"attachments": [],
+					// 	"tags": [],
+					// 	"notes": [],
+					// 	"title": "Our State",
+					// 	"publisher": "Baden-Württemberg",
+					// 	"url": "http://www.baden-wuerttemberg.de/en/Our_State/86236.html"
+					// }
+					// {
+					// 	"itemType": "book",
+					// 	"creators": [
+					// 		{
+					// 			"0": {},
+					// 			"lastName": "Schulte-Peevers",
+					// 			"firstName": "Andrea",
+					// 			"creatorType": "author"
+					// 		}
+					// 	],
+					// 	"attachments": [],
+					// 	"tags": [],
+					// 	"notes": [],
+					// 	"title": "Germany",
+					// 	"ISBN": "978-1-74059-988-7",
+					// 	"publisher": "Lonely Planet",
+					// 	"date": "2007",
+					// 	"url": "http://books.google.com/books?id=Z5t5mZE_s5YC&pg=PA392#PPA391,M1"
+					// },
+					// {
+					// 	"itemType": "book",
+					// 	"creators": [],
+					// 	"attachments": [],
+					// 	"tags": [],
+					// 	"notes": [],
+					// 	"title": "Baden-Württemberg. Results of the election from 1964–2011.",
+					// 	"publisher": "Statistisches Landesamt Baden-Württemberg",
+					// 	"url": "http://www.statistik.baden-wuerttemberg.de/Wahlen/Landesdaten/Landtagswahlen/LRLtWsitzvert.asp"
+					// },
+					// {
+					// 	"itemType": "book",
+					// 	"creators": [],
+					// 	"attachments": [],
+					// 	"tags": [],
+					// 	"notes": [],
+					// 	"title": "Government and organs of state",
+					// 	"publisher": "Baden-Württemberg",
+					// 	"url": "http://www.baden-wuerttemberg.de/en/Government_and_organs_of_state/86233.html"
+					// },
+					// {
+					// 	"itemType": "journalArticle",
+					// 	"creators": [],
+					// 	"attachments": [],
+					// 	"tags": [],
+					// 	"notes": [],
+					// 	"title": "BADEN – WÜRTTEMBERG – Economy",
+					// 	"publicationTitle": "Eurostat",
+					// 	"date": "June 2004",
+					// 	"url": "http://circa.europa.eu/irc/dsis/regportraits/info/data/en/de1_eco.htm"
+					// },
+					// {
+					// 	"itemType": "journalArticle",
+					// 	"creators": [
+					// 		{
+					// 			"0": {},
+					// 			"lastName": "Haase",
+					// 			"firstName": "Nina",
+					// 			"creatorType": "author"
+					// 		}
+					// 	],
+					// 	"attachments": [],
+					// 	"tags": [],
+					// 	"notes": [],
+					// 	"title": "Business leaders wary of Greens' state election victory",
+					// 	"publicationTitle": "Deutsche Welle",
+					// 	"date": "30 March 2011",
+					// 	"url": "http://www.dw-world.de/dw/article/0,,14951861,00.html"
+					// },
+					// {
+					// 	"itemType": "book",
+					// 	"creators": [
+					// 		{
+					// 			"0": {},
+					// 			"lastName": "Philip Cooke",
+					// 			"firstName": "Kevin Morgan",
+					// 			"creatorType": "author"
+					// 		}
+					// 	],
+					// 	"attachments": [],
+					// 	"tags": [],
+					// 	"notes": [],
+					// 	"title": "The Associational Economy: Firms, Regions, and Innovation",
+					// 	"ISBN": "978-0-19-829659-1",
+					// 	"publisher": "Oxford University Press",
+					// 	"numPages": "84",
+					// 	"date": "1998"
+					// }
+// 				]
+// 			}
 ]
 /** END TEST CASES **/
 

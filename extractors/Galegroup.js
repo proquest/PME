@@ -129,7 +129,7 @@ function doWeb(doc, url) {
 }
 /** BEGIN TEST CASES **/
 var testCases = [
-	{
+	/*{
 		"type": "web",
 		"url": "http://go.galegroup.com/ps/i.do?action=interpret&id=GALE%7CH1420025063&v=2.1&u=viva_gmu&it=r&p=LitRG&sw=w&authCount=1",
 		"items": [
@@ -215,7 +215,7 @@ var testCases = [
 				"libraryCatalog": "Gale"
 			}
 		]
-	}
+	}*/
 ]
 /** END TEST CASES **/
 PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });

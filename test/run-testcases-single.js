@@ -9,7 +9,7 @@ const PIPE_PME_OUTPUT = true; // if set, the script will pipe any output from th
 const TESTCASE_LIMIT = 0; // allow override of max # of testCases to run, set to 0 for no limit (i.e. normal operation)
 
 const PME_WAIT_SECONDS = 3; // number of seconds to wait for PME to show up in the client page
-const RESULTS_WAIT_SECONDS = 45; // number of seconds to wait for the translator to yield results. can take a long time for certain pages
+const RESULTS_WAIT_SECONDS = 60; // number of seconds to wait for the translator to yield results. can take a long time for certain pages default 45
 
 
 // imports
@@ -121,7 +121,7 @@ function compareTestCaseItemAgainstPMEItem(tcItem, pmeItem) {
 			if (["attachments", "accessDate", "url", "shortTitle", "libraryCatalog"].indexOf(key) > -1)
 				return;
 			// FIXME: date fields can differ significantly in formatting, ignored for now
-			if (key == "date")
+			if (key == "date" || key == "publicationDate")
 				return;
 
 			// creators need to be in simple string form

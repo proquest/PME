@@ -183,5 +183,184 @@
 		}
 	}
 
-	PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "http://www.amazon.com/My-Big-Fat-Supernatural-Wedding/dp/B0018SYXN8/ref=sr_1_cc_1?s=aps&ie=UTF8&qid=1394830198&sr=1-1-catcorr&keywords=My+Big+Fat+Supernatural+Wedding",
+		"items": [
+			{
+				"itemType": "book",
+				"creators": [
+					{
+						"0": "",
+						"lastName": "Kenyon",
+						"firstName": "Sherrilyn"
+					},
+					{
+						"1": "",
+						"lastName": "Harris",
+						"firstName": "Charlaine"
+					},
+					{
+						"2": "",
+						"lastName": "Banks",
+						"firstName": "L."
+					},
+					{
+						"3": "",
+						"lastName": "Butcher",
+						"firstName": "Jim"
+					},
+					{
+						"4": "",
+						"lastName": "Caine",
+						"firstName": "Rachel"
+					},
+					{
+						"5": "",
+						"lastName": "Friesner",
+						"firstName": "Esther"
+					},
+					{
+						"6": "",
+						"lastName": "Handeland",
+						"firstName": "Lori"
+					},
+					{
+						"7": "",
+						"lastName": "Krinard",
+						"firstName": "Susan"
+					}
+				],
+				"title": "My Big Fat Supernatural Wedding",
+				"abstractNote": "Werewolves, vampires, witches, voodoo, Elvis---and weddings\n \nAn “ordinary” wedding can get crazy enough, so can you imagine what happens when otherworldly creatures are involved? Nine of the hottest authors of paranormal fiction answer that question in this delightful collection of supernatural wedding stories. What’s the seating plan when rival clans of werewolves and vampires meet under the same roof? How can a couple in the throes of love overcome traps set by feuding relatives---who are experts at voodoo? Will you have a good marriage if your high-seas wedding is held on a cursed ship? How do you deal with a wedding singer who’s just a little too good at impersonating Elvis?\n \n·        L. A. Banks\n·        Jim Butcher\n·        Rachel Caine\n·        P. N. Elrod\n·        Esther M. Friesner\n·        Lori Handeland\n·        Charlaine Harris\n·        Sherrilyn Kenyon\n·        Susan Krinard\n \nShape-shifters, wizards, and magic, oh my!",
+				"pages": "310",
+				"publisher": "St. Martin's Griffin",
+				"edition": "1",
+				"date": "October 3, 2006",
+				"language": "English",
+				"ISBN": "0312343604",
+				"url": "http://www.amazon.com/My-Big-Fat-Supernatural-Wedding/dp/B0018SYXN8/ref=sr_1_cc_1?s=aps&ie=UTF8&qid=1394830198&sr=1-1-catcorr&keywords=My+Big+Fat+Supernatural+Wedding"
+			}
+		]
+	}
+	// {	
+	// 	"type": "web",
+	// 	"url": "http://www.amazon.com/s/ref=nb_sb_noss_2?url=search-alias%3Daps&field-keywords=success&rh=i%3Aaps%2Ck%3Asuccess",
+	// 	"items": [
+	// 		{
+	// 			"itemType": "book",
+	// 			"creators": [
+	// 				{
+	// 					"0": "",
+	// 					"lastName": "Rubin",
+	// 					"firstName": "Adam"
+	// 				}
+	// 			],
+	// 			"title": "Secret Pizza Party",
+	// 			"abstractNote": "Shhhh! Dont tell anyone about this mouth-watering book from the New York Times bestselling creators of Dragons Love Tacos! How does Racoon love pizza? Oh, let him count the ways. He loves the gooey cheesy-ness, salty pepperoni-ness, sweet sweet tomato-ness, and of course the crispity crunchity crust. But someone is always chasing poor Raccoon away from his favorite food with a broom! Whats a hungry raccoon to do? Plan an elaborate secret pizza party, of course!  But shhh! Its a secret! In fact, you should probably just forget I told you. Nope, no secret pizza party happening here.You didnt already tell all your friends, did you? Uh oh . . . Fans of Jon Klassen and Mo Willemss humor will gobble up this quirky ode to the lengths we will go to for our hearts desire. Praise for Dragons Love Tacos: New York Times bestseller A New York Times Notable Childrens Book of 2012 Rubin and Salmieri are two of the weirdest, funniest guys working in kids lit today. The team lets its geek flag fly in an obsessive how-to guide for would-be dragon taco party hosts. Why a taco party? As Rubin explains, The only things dragons love more than parties or tacos, is taco parties. If further proof is required, Salmieri—whose poker-faced watercolor, gouache, and color pencil drawings set a benchmark for oddball observational humor—shows one odd, scaly creature with a carryout bag from Taco Cave and another beaming with anticipation as it eagerly circles the date for a taco party on its taco-themed calendar. But beware: even if all the tips and rules are followed to the letter (on quantity:The best way to judge is to get a boat and fill the boat with tacos), all will be for naught if spicy salsa makes its way into the taco filling. In fact, the dragons will bring a whole new meaning to housewarming. Off-kilter fun for those who like their picture books (and salsa) zesty and fresh.–Publishers Weekly, starred review   Dragons Love Tacos is a heaping helping of silly.  Little kids will relate to the anti-spicy bias and chuckle over Salmieris watercolor and gouache cartoon illustrations showing literally boatloads of tacos and all sizes of dragons enjoying their favorite food at pool parties, costume parties and, well, taco parties. –San Francisco Chronicle   The perfect book for kids who love dragons and mild tacos. –Kirkus Reviews   The watercolor, gouache, and colored pencil cartoon illustrations are the real stars here. Regardless of, or perhaps because of, the absurdity of the story, this tale should be a big hit with anyone with an affinity for dragons. –School Library Journal",
+	// 			"pages": "40",
+	// 			"publisher": "Dial",
+	// 			"date": "September 3, 2013",
+	// 			"language": "English",
+	// 			"ISBN": "978-0803739475",
+	// 			"url": "http://www.amazon.com/Secret-Pizza-Party-Adam-Rubin/dp/0803739478/ref=sr_1_6?ie=UTF8&qid=1396289555&sr=8-6&keywords=Those+Darn+Squirrels+and+the+Cat+Next+Door"
+	// 		},
+	// 		{
+	// 			"itemType": "book",
+	// 			"creators": [
+	// 				{
+	// 					"0": "",
+	// 					"lastName": "Rubin",
+	// 					"firstName": "Adam"
+	// 				}
+	// 			],
+	// 			"title": "Dragons Love Tacos",
+	// 			"abstractNote": "This scrumptious New York Times bestseller has a whole lot of kick! Dragons love tacos. They love chicken tacos, beef tacos, great big tacos, and teeny tiny tacos. So if you want to lure a bunch of dragons to your party, you should definitely serve tacos. Buckets and buckets of tacos. Unfortunately, where there are tacos, there is also salsa. And if a dragon accidentally eats spicy salsa . . . oh, boy. Youre in red-hot trouble. The award-winning team behind Those Darn Squirrels! has created an unforgettable, laugh-until-salsa-comes-out-of-your-nose tale of new friends and the perfect snack.",
+	// 			"pages": "40",
+	// 			"publisher": "Dial",
+	// 			"date": "June 14, 2012",
+	// 			"language": "English",
+	// 			"ISBN": "978-0803736801",
+	// 			"url": "http://www.amazon.com/Dragons-Love-Tacos-Adam-Rubin/dp/0803736800/ref=sr_1_5?ie=UTF8&qid=1396289555&sr=8-5&keywords=Those+Darn+Squirrels+and+the+Cat+Next+Door"
+	// 		},
+	// 		{
+	// 			"itemType": "book",
+	// 			"creators": [
+	// 				{
+	// 					"0": "",
+	// 					"lastName": "Rubin",
+	// 					"firstName": "Adam"
+	// 				}
+	// 			],
+	// 			"title": "Those Darn Squirrels!",
+	// 			"abstractNote": "The story of what happens when a grumpy old man and some mischievous squirrels match wits—with hilarious results. Old Man Fookwire is a grump who only likes to paint pictures of birds that visit his backyard. The problem is, they fly south every winter, leaving him sad and lonely. So he decides to get them to stay by putting up beautiful birdfeeders filled with seeds and berries. Unfortunately, the squirrels like the treats, too, and make a daring raid on the feeders. The conflict escalates—until the birds depart (as usual), and the squirrels come up with a plan that charms the old grump.",
+	// 			"pages": "32",
+	// 			"publisher": "HMH Books for Young Readers; Reprint edition",
+	// 			"date": "September 6, 2011",
+	// 			"language": "English",
+	// 			"ISBN": "978-0547576817",
+	// 			"url": "http://www.amazon.com/Those-Darn-Squirrels-Adam-Rubin/dp/0547576811/ref=sr_1_3?ie=UTF8&qid=1396289555&sr=8-3&keywords=Those+Darn+Squirrels+and+the+Cat+Next+Door"
+	// 		},
+	// 		{
+	// 			"itemType": "book",
+	// 			"creators": [
+	// 				{
+	// 					"0": "",
+	// 					"lastName": "Rubin",
+	// 					"firstName": "Adam"
+	// 				}
+	// 			],
+	// 			"title": "Those Darn Squirrels and the Cat Next Door",
+	// 			"abstractNote": "All is calm in old man Fookwire's yard until new neighbors'Little Old Lady Hu and her cat, Muffins'move in next door. Muffins is one mean dude! He terrorizes the birds, interrupts Fookwire's painting, and ties the squirrels' tails together. Fookwire is upset, but not nearly as upset as the squirrels, who devise an ingenious plan to stop Muffins cold. In this hilarious follow-up to Those Darn Squirrels!, the tongue-in-cheek text is perfectly complemented by the quirky, inventive illustrations. Book Details: Format: Library Binding Publication date: 5/2/2011 pages: 32 Reading Level: Age 4 and Up",
+	// 			"pages": "32",
+	// 			"publisher": "Clarion Books; First Edition edition",
+	// 			"date": "May 2, 2011",
+	// 			"language": "English",
+	// 			"ISBN": "978-0547429229",
+	// 			"url": "http://www.amazon.com/Those-Darn-Squirrels-Next-Door/dp/0547429223/ref=sr_1_1?ie=UTF8&qid=1396289555&sr=8-1&keywords=Those+Darn+Squirrels+and+the+Cat+Next+Door"
+	// 		},
+	// 		{
+	// 			"itemType": "book",
+	// 			"creators": [
+	// 				{
+	// 					"0": "",
+	// 					"lastName": "Polette",
+	// 					"firstName": "Nancy",
+	// 				}
+	// 			],	
+	// 			"title": "The Brain Power Story Hour: Higher Order Thinking with Picture Books [Paperback]",
+	// 			"abstractNote": "While many texts explore ways to plan and implement story times in both school and public libraries, until now no work has brought together extensive book talks and follow-up activities specifically designed to develop thinking skills in young children. This innovative study offers age-appropriate book suggestions with related questions and activities tailored to a variety of thinking skills, including verbal or linguistic thinking, divergent and creative thinking, analytical and mathematical thinking, visual or spatial thinking, and many others. The program presented in this volume was successfully developed and implemented in the preschool/kindergarten laboratory school of Lindenwood University in St. Charles, Missouri, with 90 percent of the participating children selected for gifted programs in both public and private schools. Ideal for children's librarians, school librarians, teachers of early childhood gifted programs, parents, and homeschoolers, this study provides the tools for making any story hour a brain power story hour.",
+	// 			"pages": "184",
+	// 			"publisher": "Mcfarland",
+	// 			"date": "May 7, 2012",
+	// 			"language": "English",
+	// 			"ISBN": "978-0786468539",
+	// 			"url": "http://www.amazon.com/The-Brain-Power-Story-Hour/dp/078646853X/ref=sr_1_10?ie=UTF8&qid=1396289555&sr=8-10&keywords=Those+Darn+Squirrels+and+the+Cat+Next+Door"
+	// 		},
+	// 		{
+	// 			"itemType": "book",
+	// 			"creators": [
+	// 				{
+	// 					"0": "",
+	// 					"lastName": "Rubin",
+	// 					"firstName": "Adam"
+	// 				}
+	// 			],		
+	// 			"title": "Those Darn Squirrels Fly South",
+	// 			"abstractNote": "Old Man Fookwire's one pleasure in life is painting the birds in his backyard. When fall arrives and the birds fly south, Fookwire is desolate. The squirrels are curious: Where are the birds going, and what do they do once they get there? With their usual ingenuity and engineering skills, the squirrels devise a way to follow the birds to their destination, a tropical paradise.A wonderful time is had by all—all but grumpy Old Man Fookwire, alone at home. But the squirrels have a solution for that, too. Readers will revel in this third off-the-wall comedy featuring Old Man Fookwire, a lot of birds, and those darn squirrels.",  
+	// 			"pages": "32",
+	// 			"publisher": "Clarion Books",
+	// 			"date": "September 11, 2012",
+	// 			"language": "English",
+	// 			"ISBN": "978-0547678238",
+	// 			"url": "http://www.amazon.com/Those-Darn-Squirrels-Fly-South/dp/0547678231/ref=sr_1_2?ie=UTF8&qid=1396289555&sr=8-2&keywords=Those+Darn+Squirrels+and+the+Cat+Next+Door"
+	//  		}
+	//  	]		
+	// }
+]
+/** END TEST CASES **/
+
+	PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });
 }());
