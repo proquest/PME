@@ -355,7 +355,7 @@ function doDelivery(doc, itemInfo) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
-	{
+	/*{
 		"type": "web",
 		"url": "http://search.ebscohost.com/login.aspx?direct=true&db=aph&AN=9606204477&site=ehost-live",
 		"items": [
@@ -395,7 +395,7 @@ var testCases = [
 				"callNumber": "9606204477"
 			}
 		]
-	}
+	}*/
 ]
 /** END TEST CASES **/
 
