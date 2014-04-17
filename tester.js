@@ -69,7 +69,7 @@
 		{
 			if ((typeof (obj[p]) !== 'function') && (p !== 'document'))
 			{
-				sReturn += '<b>' + p + '</b>: ';
+				sReturn += '<b>"' + p + '"</b> : ';
 				if (typeof (obj[p]) == "object")
 					sReturn += '<div style="padding-left:10px;">' + getProps(obj[p]) + '</div>';
 				else
