@@ -35,7 +35,7 @@
 		var d = new Date().getTime();
 		PME_SRV = SRV;
 		PME_SCR = document.createElement('SCRIPT');
-		PME_SCR.src = 'http://' + PME_SRV + '/PME.js?version=' + d;
+		PME_SCR.src = PME_SRV + '/PME.js?version=' + d;
 		h.appendChild(PME_SCR);
 	}
 
@@ -74,7 +74,7 @@
 					sReturn += '<div style="padding-left:10px;">' + getProps(obj[p]) + '</div>';
 				else
 				{
-					sReturn += obj[p];
+					sReturn += '"' + obj[p] + '"';
 					sReturn += "<br/>";
 				}
 			}

@@ -3,7 +3,7 @@ var translatorSpec =
 {
 	"translatorID": "b6d0a7a-d076-48ae-b2f0-b6de28b194e",
 	"label": "ScienceDirect",
-	"creator": "Michael Berkowitz and Aurimas Vinckevicius",
+	"creator": "PME",
 	"target": "^https?://[^/]*science-?direct\\.com[^/]*/science(\\/article)?(\\?(?:.+\\&|)ob=(?:ArticleURL|ArticleListURL|PublicationURL))?",
 	"minVersion": "3.0",
 	"maxVersion": "",
@@ -14,182 +14,127 @@ var translatorSpec =
 	"lastUpdated": "2013-01-29 15:30:07"
 }
 
-function detectWeb(doc, url) {
-  	if ((url.indexOf("_ob=DownloadURL") !== -1) 
-		|| doc.title == "ScienceDirect Login" 
-		|| doc.title == "ScienceDirect - Dummy"
-		|| (url.indexOf("/science/advertisement/") !== -1)) { 
-		return false;
+function detectWeb(doc, url) { }
+
+function getAbstract(doc) {
+	var p = PME.Util.xpath(doc, '//div[contains(@class, "abstract") and not(contains(@class, "abstractHighlights"))]/p');
+	var paragraphs = [];
+	for (var i = 0; i < p.length; i++) {
+		if (p[i].textContent)
+			paragraphs.push(PME.Util.trimInternal(p[i].textContent));
 	}
 
-	if((url.indexOf("pdf") !== -1
-			&& url.indexOf("_ob=ArticleURL") === -1
-			&& url.indexOf("/article/") === -1)
-		|| url.indexOf("/journal/") !== -1
-		|| url.indexOf("_ob=ArticleListURL") !== -1
-		|| url.indexOf("/book/") !== -1) {
-		if (getArticleList(doc).length > 0) {
-			return "multiple";
-		} else {
-			return false;
-		}
-	} else if(url.indexOf("pdf") === -1) {
-		// Book sections have the ISBN in the URL
-		if (url.indexOf("/B978") !== -1) {
-			return "bookSection";
-		} else if(getISBN(doc)) {
-			if(getArticleList(doc).length) {
-				return "multiple";
-			} else {
-				return "book";
-			}
-		} else {
-			return "journalArticle";
-		}
-	} 
+	return paragraphs.join('\n');
 }
 
-function getExportLink(doc) {
-	var link = PME.Util.xpath(doc, '//div[@class="icon_exportarticlesci_dir"]/a/@href');
-	return link.length ? PME.Util.getNodeText(link[0]) : false;
-}
+function processRIS(doc, text) {
+	//T2 doesn't appear to hold the short title anymore.
+	//Sometimes has series title, so I'm mapping this to T3, although we currently don't recognize that in RIS
+	text = text.replace(/^T2\s/mg, 'T3 ');
 
-function getPDFLink(doc) {
-	return PME.Util.xpathText(doc,
-		'//div[@id="articleNav"]//div[@class="icon_pdf"]\
-			/a[not(@title="Purchase PDF")]/@href[1]');
-}
+	//Sometimes PY has some nonsensical value. Y2 contains the correct date in that case.
+	if (text.search(/^Y2\s+-\s+\d{4}\b/m) !== -1) {
+		text = text.replace(/TY\s+-[\S\s]+?ER/g, function (m) {
+			if (m.search(/^PY\s+-\s+\d{4}\b/m) === -1	&& m.search(/^Y2\s+-\s+\d{4}\b/m) !== -1)
+				return m.replace(/^PY\s+-.*\r?\n/mg, '').replace(/^Y2\s+-/mg, 'PY  -');
 
-function getISBN(doc) {
-	var isbn = PME.Util.xpathText(doc, '//td[@class="tablePubHead-Info"]\
-		//span[@class="txtSmall"]');
-	if(!isbn) return;
-
-	isbn = isbn.match(/ISBN:\s*([-\d]+)/);
-	if(!isbn) return;
-
-	return isbn[1].replace(/[-\s]/g, '');
-}
-
-function getFormValues(text, inputs) {
-	var re = new RegExp("<input[^>]+name=(['\"]?)("
-			+ inputs.join('|')
-			+ ")\\1[^>]*>", 'g');
-
-	var input, val, params = {};
-	while(input = re.exec(text)) {
-		val = input[0].match(/value=(['"]?)(.*?)\1[\s>]/);
-		if(!val) continue;
-
-		params[encodeURIComponent(input[2])] = encodeURIComponent(val[2]);
+			return m;
+		});
 	}
 
-	return params;
-}
+	//Certain authors sometimes have "role" prefixes
+	text = text.replace(/^((?:A[U\d]|ED)\s+-\s+)Editor-in-Chief:\s+/mg, '$1');
 
-function scrapeByExport(doc) {
-	var url = getExportLink(doc);
-	var pdfLink = getPDFLink(doc);
-	PME.Util.doGet(url, function(text) {
-		//select the correct form
-		text = text.match(/<form[^>]+name=(['"])exportCite\1[\s\S]+?<\/form>/)[0];
+	var translator = PME.loadTranslator("import");
+	translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
+	translator.setString(text);
+	translator.setHandler("itemDone", function (obj, item) {
+		//issue sometimes is set to 0 for single issue volumes (?)
+		if (item.issue == 0) delete item.issue;
 
-		var postParams = getFormValues(text, [
-						//'_ArticleListID',	//do we still need this?
-						'_acct', '_docType', '_eidkey',
-						'_method', '_ob', '_uoikey', '_userid', 'count',
-						'Export', 'JAVASCRIPT_ON', 'md5'
-						]);
-		postParams["format"] = "cite-abs";
-		postParams["citation-type"] = "RIS";
-
-		var post = '';
-		for(var key in postParams) {
-			post += key + '=' + postParams[key] + "&";
+		//add spaces after initials
+		for (var i = 0, n = item.creators.length; i < n; i++) {
+			if (item.creators[i].firstName)
+				item.creators[i].firstName = item.creators[i].firstName.replace(/\.\s*(?=\S)/g, '. ');
 		}
 
-		PME.Util.doPost('/science', post, function(text) {
-				//short title is stored in T2. Fix it to ST.
-				text = text.replace(/^T2\s/mg, 'ST ');
+		if (item.date)
+			item.date = PME.Util.trim(item.date);
 
-				//Certain authors sometimes have "role" prefixes
-				text = text.replace(
-					/^((?:A[U\d]|ED)\s+-\s+)Editor-in-Chief:\s+/mg, '$1');
+		//abstract is not included with the new export form. Scrape from page
+		if (!item.abstractNote)
+			item.abstractNote = getAbstract(doc);
 
-				var translator = PME.loadTranslator("import");
-				translator.setTranslator("32d59d2d-b65a-4da4-b0a3-bdd3cfb979e7");
-				translator.setString(text);
-				translator.setHandler("itemDone", function(obj, item) {
-					//issue sometimes is set to 0 for single issue volumes (?)
-					if(item.issue == 0) delete item.issue;
-					
-					item.attachments.push({
-						title: "ScienceDirect Snapshot",
-						document: doc
-					});
+		var pdfLink = PME.Util.xpathText(doc, '//div[@id="articleNav"]//div[contains(@class, "icon_pdf")]/a[not(@title="Purchase PDF")]/@href[1]');
 
-					if(pdfLink) item.attachments.push({
-						title: 'ScienceDirect Full Text PDF',
-						url: pdfLink,
-						mimeType: 'application/pdf'
-					});
+		if (!pdfLink)
+			pdfLink = PME.Util.xpathText(doc, '//table[@class="resultRow"]//a[contains(@href, "' + item.url + '") and contains(@href, ".pdf")]/@href');
+		if (pdfLink)
+			item.attachments.push({title: 'Full Text PDF', url: pdfLink, mimeType: 'application/pdf'});
 
-					if(item.notes[0]) {
-						item.abstractNote = item.notes[0].note;
-						item.notes = [];
-					}
-					item.DOI = item.DOI.replace(/^doi:\s+/i, '');
-					item.complete();
-				});
-				translator.translate();
-			});
+		if (item.notes[0] && item.notes[0].note) {
+			var seriesTitle = /T3\s+-\s+.*<br ?\/>/.exec(item.notes[0].note);
+
+			if (seriesTitle.length > 0)
+				item.seriesTitle = PME.Util.trim(seriesTitle[0].replace(/T3\s+-/, "").replace(/<br ?\/>/, ""));
+
+			item.notes = new Array();
+		}
+
+		if (item.abstractNote)
+			item.abstractNote = item.abstractNote.replace(/^\s*(?:abstract|publisher\s+summary)\s+/i, '');
+
+		if(item.DOI)
+			item.DOI = item.DOI.replace(/^doi:\s+/i, '');
+
+		item.complete();
 	});
-}
-
-function scrapeByISBN(doc) {
-	var isbn = getISBN(doc);
-	var translator = PME.loadTranslator("search");
-	translator.setTranslator("c73a4a8c-3ef1-4ec8-8229-7531ee384cc4");
-	translator.setSearch({ISBN: isbn});
 	translator.translate();
 }
 
-function getArticleList(doc) {
-	return PME.Util.xpath(doc,
-		'(//table[@class="resultRow"]/tbody/tr/td[2]/a\
-		|//table[@class="resultRow"]/tbody/tr/td[2]/h3/a\
-		|//td[@class="nonSerialResultsList"]/h3/a)\
-		[not(contains(text(),"PDF (") or contains(text(), "Related Articles"))]');
-}
-
 function doWeb(doc, url) {
-	if(detectWeb(doc, url) == "multiple") {
-		//search page
-		var itemList = getArticleList(doc);
-		var items = {};
-		for(var i=0, n=itemList.length; i<n; i++) {
-			items[itemList[i].href] = PME.Util.getNodeText(itemList[i]);
-		}
+	var itemList = PME.Util.xpath(doc, '(//table[@class="resultRow"]/tbody/tr/td[2]/a|//table[@class="resultRow"]/tbody/tr/td[2]/h3/a|//td[@class="nonSerialResultsList"]/h3/a)[not(contains(text(),"PDF (") or contains(text(), "Related Articles"))]');
 
-		PME.selectItems(items, function(selectedItems) {
-			if(!selectedItems) return true;
+	if (itemList && itemList.length > 0) {		//search page
+		var path = "/science?";
+		var actionParams = [
+			"_ob=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='_ob']/@value"),
+			"_method=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='_method']/@value"),
+			"searchtype=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='searchtype']/@value"),
+			"refSource=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='refSource']/@value"),
+			"_st=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='_st']/@value"),
+			"count=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='chunkSize']/@value"),
+			"sort=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='sort']/@value"),
+			"_chunk=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='_chunk']/@value"),
+			"hitCount=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='hitCount']/@value"),
+			"NEXT_LIST=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='NEXT_LIST']/@value"),
+			"view=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='view']/@value"),
+			"md5=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='md5']/@value"),
+			"_ArticleListID=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='_ArticleListID']/@value"),
+			"chunkSize=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='chunkSize']/@value"),
+			"TOTAL_PAGES=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/div/input[@name='TOTAL_PAGES']/@value"),
+			"pageNumberTop=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/div/div/div/div/input[@name='pageNumberTop']/@value"),
+			"zone=toolbar",
+			"citation-type=RIS",
+			"export=Export",
+			"pageNumberBottom=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/div/div/input[@name='pageNumberBottom']/@value"),
+			"resultsPerPage=" + PME.Util.xpathText(doc, "//div[@id='sdBody']/form[@name='Tag']/input[@name='chunkSize']/@value")
+		];
+		var action = path + actionParams.join('&');
 
-			var articles = [];
-			for (var i in selectedItems) {
-				//articles.push(i);
-				PME.Util.processDocuments(i, scrape);	//move this out of the loop when PME.Util.processDocuments is fixed
-			}
-		});
-	} else {
+		PME.Util.doGet(action, function (text) { processRIS(doc, text) });
+	}
+	else {
 		scrape(doc);
 	}
 }
 
 function scrape(doc) {
-	if(getExportLink(doc)) {
-		scrapeByExport(doc);
-	} else if(getISBN(doc)) {
-		scrapeByISBN(doc);
+	var form = PME.Util.xpath(doc, '//div[@id="export_popup"]/form')[0];
+
+	if (form) {
+		var postParams = 'citation-type=RIS&zone=exportDropDown&export=Export&format=cite-abs';
+		PME.Util.doPost(form.action, postParams, function (text) { processRIS(doc, text) });
 	}
 }
 /** BEGIN TEST CASES **/
