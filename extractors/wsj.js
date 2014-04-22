@@ -89,36 +89,21 @@ choices          : {
 var testCases = [
 	{
 		"type": "web",
-		"url": "http://online.wsj.com/article/SB10001424052970204517204577046222233016362.html?mod=WSJ_hp_LEFTWhatsNewsCollection",
+		"url": "http://online.wsj.com/article/SB10001424127887323735604578438550122331138.html?mod=WSJ_hpp_LEFTTopStories",
 		"items": [
 			{
-				"itemType": "newspaperArticle",
-				"creators": [
-					{
-						"firstName": "John W.",
-						"lastName": "Miller",
-						"creatorType": "author"
-					}
-				],
-				"notes": [],
-				"tags": [],
-				"seeAlso": [],
-				"attachments": [
-					{
-						"url": "http://online.wsj.com/article/SB10001424052970204517204577046222233016362.html?mod=WSJ_hp_LEFTWhatsNewsCollection",
-						"title": "Wall Street Journal Snapshot",
-						"type": "text/html"
-					}
-				],
-				"url": "http://online.wsj.com/article/SB10001424052970204517204577046222233016362.html?mod=WSJ_hp_LEFTWhatsNewsCollection",
-				"abstractNote": "A profile of an Australian miner making $200,000 a year, published in The Wall Street Journal, led hundreds of people to ask how they could apply for such a job.",
-				"date": "November 19, 2011",
-				"ISSN": "0099-9660",
-				"publicationTitle": "Wall Street Journal",
-				"section": "Careers",
-				"title": "America's Jobless, Yearning for Oz",
-				"libraryCatalog": "Wall Street Journal",
-				"accessDate": "CURRENT_TIMESTAMP"
+				"title" : "Dzhokhar Tsarnaev Charged in Boston Marathon Attack",
+				"creators" : [
+						"Devlin Barrett",
+						"Pervaiz Shallwani",
+						"Evan Perez"
+				],	
+				"date" : "2013-04-23T01:31:00.000Z",
+				"abstractNote" : "A criminal complaint unsealed in Boston federal court offered new details on Dzhokhar Tsarnaev's alleged actions during the Boston Marathon bombings.",
+				"section" : "US",
+				"ISSN" : "0099-9660",
+				"publicationTitle" : "Wall Street Journal",
+				"itemType" : "newspaperArticle"
 			}
 		]
 	},
@@ -161,8 +146,8 @@ var testCases = [
 				"accessDate": "CURRENT_TIMESTAMP"
 			}
 		]
-	},
-	{
+	}
+	/*{
 		"type": "web",
 		"url": "http://blogs.wsj.com/overheard/2012/01/06/the-ego-has-landed/",
 		"items": [
@@ -227,7 +212,7 @@ var testCases = [
 				"shortTitle": "Number of the Week"
 			}
 		]
-	}
+	}*/
 ]
 /** END TEST CASES **/
 // Generated code, or at least, this will be generated:

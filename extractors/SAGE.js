@@ -55,7 +55,7 @@
 		item.creators = handleCreators(set, "#authorTbl td.col1");
 		item.edition = $.trim($('>em', set).text().replace(/edition/i, ''));
 		var infoset = $("#infoTbl", set);
-		item.date = $.trim($("td.col1", infoset).text().replace(String.fromCharCode(169), ''));//'�'
+		item.date = $.trim($("td.col1", infoset).text().replace(String.fromCharCode(169), ''));//'©'
 		item.pages = $.trim($("td.col2", infoset).text().replace(/pages/i, ''));
 		item.publisher = $.trim($("td.col3", infoset).text());
 		item.ISBN = $("#detailsTbl td:contains('ISBN')~td:first").text();
@@ -128,12 +128,248 @@
 		}
 	}
 
+/** BEGIN TEST CASES **/
 var testCases = [
 	{
 		"type": "web",
-		"url": "http://www.amazon.com/My-Big-Fat-Supernatural-Wedding/dp/B0018SYXN8/ref=sr_1_cc_1?s=aps&ie=UTF8&qid=1394830198&sr=1-1-catcorr&keywords=My+Big+Fat+Supernatural+Wedding",
+		"url": "http://www.sagepub.com/books/Book235128",
 		"items": [
-]
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Rowe",
+						"firstName" : "W."
+					},
+					{
+						"1" : "",
+						"lastName" : "Guerrero",
+						"firstName" : "Laura"
+					}
+				],		
+				"title" : "Cases in Leadership",
+				"edition" : "Third",
+				"date" : "2013",
+				"pages" : "528",
+				"publisher" : "SAGE Publications, Inc",
+				"ISBN" : "9781452234977",
+				"abstractNote" : "The Richard Ivey School of Business and SAGE have come together again to provide a distinctive collection of real-world leadership casesCases in Leadership, Third Edition, is a unique collection combining 32 real-world leadership cases from Ivey Publishing with 16 practitioner readings (primarily from the Ivey Business Journal). This updated casebook helps you gain a better understanding of leadership, which will be invaluable to you throughout your career. Each of the selected cases is about complex leadership issues that require the attention of the decision maker."
+			}
+
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://knowledge.sagepub.com/view/100-methods-for-total-quality-management/SAGE.xml?rskey=TkH2uR&row=1",
+		"items": [
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Kanji",
+						"firstName" : "Gopal"
+					},
+					{
+						"1" : "",
+						"lastName" : "Asher",
+						"firstName" : "Mike"
+					}
+				],	
+				"title" : "100 Methods for Total Quality Management",
+				"date" : "December 20, 2013",
+				"DOI" : "10.4135/9781446280164",
+				"publisher" : "SAGE Publications Ltd",
+				"ISBN" : "9781446280164"
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://www.sagepub.com/productSearch.nav?course=Course12&sortBy=defaultPubDate%20desc",
+		"items": [
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Garrett",
+						"firstName" : "Bob"
+					}
+				],	
+				"title" : "Brain & Behavior\n\t\t\n\t\t\t\tAn Introduction to Biological Psychology\n\t\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\tFourth Edition",
+				"date" : "July 2014",
+				"pages" : "656",
+				"publisher" : "SAGE Publications, Inc"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Wong",
+						"firstName" : "Daniel"
+					},
+					{
+						"1" : "",
+						"lastName" : "Hall",
+						"firstName" : "Kimberly"
+					},
+					{
+						"2" : "",
+						"lastName" : "Justice",
+						"firstName" : "Cheryl"
+					},
+					{
+						"3" : "",
+						"lastName" : "Hernandez",
+						"firstName" : "Lucy"
+					}
+				],	
+				"title" : "Counseling Individuals Through the Lifespan",
+				"date" : "January 2015",
+				"pages" : "448",
+				"publisher" : "SAGE Publications, Inc"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Schirmer",
+						"firstName" : "Annett"
+					}
+				],	
+				"title" : "Emotion",
+				"date" : "July 2014",
+				"pages" : "512",
+				"publisher" : "SAGE Publications, Inc"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Privitera",
+						"firstName" : "Gregory"
+					}
+				],	
+				"title" : "Getting Into Graduate School\n\t\t\n\t\t\t\tA Comprehensive Guide for Psychology and the Behavioral Sciences",
+				"date" : "July 2014",
+				"pages" : "232",
+				"publisher" : "SAGE Publications, Inc"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Lynn",
+						"firstName" : "Steven"
+					},
+					{
+						"1" : "",
+						"lastName" : "O'Donohue",
+						"firstName" : "William"
+					},
+					{
+						"2" : "",
+						"lastName" : "Lilienfeld",
+						"firstName" : "Scott"
+					}
+				],	
+				"title" : "Health, Happiness, and Well-Being\n\t\t\n\t\t\t\tBetter Living Through Psychological Science",
+				"date" : "September 2014",
+				"pages" : "424",
+				"publisher" : "SAGE Publications, Inc"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Schug",
+						"firstName" : "Robert"
+					},
+					{
+						"1" : "",
+						"lastName" : "Fradella",
+						"firstName" : "Henry"
+					}
+				],	
+				"title" : "Mental Illness and Crime",
+				"date" : "August 2014",
+				"pages" : "600",
+				"publisher" : "SAGE Publications, Inc"
+			},
+			{	
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Hastie",
+						"firstName" : "Reid"
+					},
+					{
+						"1" : "",
+						"lastName" : "Dawes",
+						"firstName" : "Robyn"
+					}
+				],	
+				"title" : "Rational Choice in an Uncertain World\n\t\t\n\t\t\t\tThe Psychology of Judgment and Decision Making\n\t\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\tThird Edition",
+				"date" : "July 2015",
+				"pages" : "408",
+				"publisher" : "SAGE Publications, Inc"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Privitera",
+						"firstName" : "Gregory"
+					}
+				],	
+				"title" : "Statistics for the Behavioral Sciences",
+				"edition" : "Second",
+				"date" : "August 2014",
+				"pages" : "776",
+				"publisher" : "SAGE Publications, Inc"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Privitera",
+						"firstName" : "Gregory"
+					}
+				],	
+				"title" : "Student Study Guide With SPSS Workbook for Statistics for the Behavioral Sciences",
+				"edition" : "Second",
+				"date" : "August 2014",
+				"pages" : "488",
+				"publisher" : "SAGE Publications, Inc"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Garrett",
+						"firstName" : "Bob"
+					}
+				],	
+				"title" : "Study Guide to Accompany Bob Garrett’s Brain & Behavior: An Introduction to Biological Psychology",
+				"edition" : "Fourth",
+				"date" : "July 2014",
+				"pages" : "400",
+				"publisher" : "SAGE Publications, Inc"
+			}
+		]
+	}
+]	
 /** END TEST CASES **/
 
 
