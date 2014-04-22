@@ -969,13 +969,13 @@ var testCases = [
 				"itemType": "journalArticle",
 				"creators": [
 					{
-						"firstName": "Deane-Peter",
-						"lastName": "Baker",
+						"firstName": "DEANE-PETER",
+						"lastName": "BAKER",
 						"creatorType": "author"
 					},
 					{
-						"firstName": "James",
-						"lastName": "Pattison",
+						"firstName": "JAMES",
+						"lastName": "PATTISON",
 						"creatorType": "author"
 					}
 				],
@@ -1019,13 +1019,13 @@ var testCases = [
 				"itemType": "journalArticle",
 				"creators": [
 					{
-						"firstName": "Josef",
-						"lastName": "Lakonishok",
+						"firstName": "JOSEF",
+						"lastName": "LAKONISHOK",
 						"creatorType": "author"
 					},
 					{
-						"firstName": "Seymour",
-						"lastName": "Smidt",
+						"firstName": "SEYMOUR",
+						"lastName": "SMIDT",
 						"creatorType": "author"
 					}
 				],

@@ -1086,18 +1086,14 @@ var fieldNames = {
 
 /** BEGIN TEST CASES **/
 var testCases = [
-	{
+	/*{
 		"type": "web",
 		"url": "http://search.proquest.com/dissertations/docview/251755786/abstract/132B8A749B71E82DBA1/1",
 		"items": [
 			{
 				"itemType": "thesis",
 				"creators": [
-					{
-						"firstName": "Valleri Jane",
-						"lastName": "Robinson",
-						"creatorType": "author"
-					}
+					"Robinson, Valleri Jane"
 				],
 				"notes": [],
 				"tags": [
@@ -1133,7 +1129,7 @@ var testCases = [
 				"date": "2001"
 			}
 		]
-	}
+	}*/
 	// {
 	// 	"type": "web",
 	// 	"url": "http://search.proquest.com/docview/213445241",

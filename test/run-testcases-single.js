@@ -8,7 +8,7 @@ const DEBUG = true; // debug logging to stdout or mute local logging
 const PIPE_PME_OUTPUT = true; // if set, the script will pipe any output from the main PME script in the client page to the local stdout
 const TESTCASE_LIMIT = 0; // allow override of max # of testCases to run, set to 0 for no limit (i.e. normal operation)
 
-const PME_WAIT_SECONDS = 3; // number of seconds to wait for PME to show up in the client page
+const PME_WAIT_SECONDS = 10; // number of seconds to wait for PME to show up in the client page
 const RESULTS_WAIT_SECONDS = 60; // number of seconds to wait for the translator to yield results. can take a long time for certain pages default 45
 
 
@@ -155,6 +155,16 @@ function compareTestCaseItemAgainstPMEItem(tcItem, pmeItem) {
 function compareTestCaseItems(testCase, actualItems) {
 	debugLog("compareTestCaseItems");
 
+	//sort all items in actualItems to line up with items in test cases
+	actualItems.sort(function (a, b) {	// sort returns by title
+		if (a.title > b.title)
+			return 1;
+		if (a.title < b.title)
+			return -1;
+
+		return 0;
+	});
+
 	// compare all items against their expected versions
 	var result = testCase.items.map(function(tcItem, index) {
 		return compareTestCaseItemAgainstPMEItem(tcItem, actualItems[index]);
@@ -199,6 +209,8 @@ function runTestCase(tc) {
 	debugLog("runTestCase", tc.url);
 
 	var page = webpage.create();
+
+	page.settings.userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1944.0 Safari/537.36";
 
 	page.open(tc.url, function(pageStatus) {
 		if (pageStatus != "success")

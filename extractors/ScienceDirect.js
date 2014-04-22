@@ -147,25 +147,23 @@ var testCases = [
 				"itemType": "journalArticle",
 				"creators": [
 					{
+						"0": "",
 						"lastName": "Schaaf",
 						"firstName": "Christian P.",
 						"creatorType": "author"
 					},
 					{
+						"1": "",
 						"lastName": "Zoghbi",
 						"firstName": "Huda Y.",
 						"creatorType": "author"
 					}
 				],
-				"notes": [],
-				"tags": [],
-				"seeAlso": [],
 				"attachments": [
 					{
-						"title": "ScienceDirect Snapshot"
-					},
-					{
-						"title": "ScienceDirect Full Text PDF",
+						"0": "",
+						"title": "Full Text PDF",
+						"url": "http://www.sciencedirect.com/science/article/pii/S0896627311004430/pdfft?md5=63b15b51bd870d9dd2d428e49dfa41cb&pid=1-s2.0-S0896627311004430-main.pdf",
 						"mimeType": "application/pdf"
 					}
 				],
@@ -177,7 +175,7 @@ var testCases = [
 				"ISSN": "0896-6273",
 				"DOI": "10.1016/j.neuron.2011.05.025",
 				"url": "http://www.sciencedirect.com/science/article/pii/S0896627311004430",
-				"abstractNote": "In this issue, a pair of studies (Levy et al. and Sanders et al.) identify several de novo copy-number variants that together account for 5%–8% of cases of simplex autism spectrum disorders. These studies suggest that several hundreds of loci are likely to contribute to the complex genetic heterogeneity of this group of disorders. An accompanying study in this issue (Gilman et al.), presents network analysis implicating these CNVs in neural processes related to synapse development, axon targeting, and neuron motility.",
+				"abstractNote": "In this issue, a pair of studies (Levy et al. and Sanders et al.) identify several de novo copy-number variants that together account for 5%–8% of cases of simplex autism spectrum disorders. These studies suggest that several hundreds of loci are likely to contribute to the complex genetic heterogeneity of this group of disorders. An accompanying study in this issue (Gilman et al.), presents network analysis implicating these CNVs in neural processes related to synapse development, axon targeting, and neuron motility.",
 				"date": "June 9, 2011",
 				"publicationTitle": "Neuron",
 				"libraryCatalog": "ScienceDirect",
@@ -199,7 +197,7 @@ var testCases = [
 					},
 					{
 						"lastName": "Silva",
-						"firstName": "R.D.",
+						"firstName": "R. D.",
 						"creatorType": "author"
 					},
 					{
@@ -214,7 +212,7 @@ var testCases = [
 					},
 					{
 						"lastName": "Sousa",
-						"firstName": "M.J.",
+						"firstName": "M. J.",
 						"creatorType": "author"
 					},
 					{
@@ -272,9 +270,40 @@ var testCases = [
 				"itemType": "bookSection",
 				"creators": [
 					{
+						"0": "",
 						"lastName": "Raabe",
 						"firstName": "Dierk",
 						"creatorType": "author"
+					},
+					{
+						"1" : "",
+						"lastName" : "Janssens",
+						"firstName" : "Koenraad G. F.",
+						"creatorType" : "editor"
+					},
+					{
+						"2" : "",
+						"lastName" : "Raabe",
+						"firstName" : "Dierk",
+						"creatorType" : "editor"
+					},
+					{
+						"3" : "",
+						"lastName" : "Kozeschnik",
+						"firstName" : "Ernst",
+						"creatorType" : "editor"
+					},
+					{
+						"4" : "",
+						"lastName" : "Miodownik",
+						"firstName" : "Mark A.",
+						"creatorType" : "editor"
+					},
+					{
+						"5" : "",
+						"lastName" : "Nestler",
+						"firstName" : "Britta",
+						"creatorType" : "editor"
 					}
 				],
 				"notes": [],
@@ -297,7 +326,7 @@ var testCases = [
 				"ISBN": "978-0-12-369468-3",
 				"DOI": "10.1016/B978-012369468-3/50008-3",
 				"url": "http://www.sciencedirect.com/science/article/pii/B9780123694683500083",
-				"abstractNote": "Publisher Summary \r\nThis chapter provides an introduction to discrete dislocation statics and dynamics. The chapter deals with the simulation of plasticity of metals at the microscopic and mesoscopic scale using space- and time-discretized dislocation statics and dynamics. The complexity of discrete dislocation models is due to the fact that the mechanical interaction of ensembles of such defects is of an elastic nature and, therefore, involves long-range interactions. Space-discretized dislocation simulations idealize dislocations outside the dislocation cores as linear defects that are embedded within an otherwise homogeneous, isotropic or anisotropic, linear elastic medium. The aim of the chapter is to concentrate on those simulations that are discrete in both space and time. It explicitly incorporates the properties of individual lattice defects in a continuum formulation. The theoretical framework of linear continuum elasticity theory is overviewed as required for the formulation of basic dislocation mechanics. The chapter also discusses the dislocation statics, where the fundamentals of linear isotropic and anisotropic elasticity theory that are required in dislocation theory are reviewed. The chapter describes the dislocation dynamics, where it is concerned with the introduction of continuum dislocation dynamics. The last two sections deal with kinematics of discrete dislocation dynamics and dislocation reactions and annihilation.",
+				"abstractNote": "This chapter provides an introduction to discrete dislocation statics and dynamics. The chapter deals with the simulation of plasticity of metals at the microscopic and mesoscopic scale using space- and time-discretized dislocation statics and dynamics. The complexity of discrete dislocation models is due to the fact that the mechanical interaction of ensembles of such defects is of an elastic nature and, therefore, involves long-range interactions. Space-discretized dislocation simulations idealize dislocations outside the dislocation cores as linear defects that are embedded within an otherwise homogeneous, isotropic or anisotropic, linear elastic medium. The aim of the chapter is to concentrate on those simulations that are discrete in both space and time. It explicitly incorporates the properties of individual lattice defects in a continuum formulation. The theoretical framework of linear continuum elasticity theory is overviewed as required for the formulation of basic dislocation mechanics. The chapter also discusses the dislocation statics, where the fundamentals of linear isotropic and anisotropic elasticity theory that are required in dislocation theory are reviewed. The chapter describes the dislocation dynamics, where it is concerned with the introduction of continuum dislocation dynamics. The last two sections deal with kinematics of discrete dislocation dynamics and dislocation reactions and annihilation.",
 				"date": "2007",
 				"libraryCatalog": "ScienceDirect",
 				"accessDate": "CURRENT_TIMESTAMP"

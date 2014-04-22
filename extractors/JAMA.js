@@ -109,22 +109,65 @@ var testCases = [
 				"creators": [
 					{
 						"0": "",
-						"lastName": "E. Truesdale",
-						"firstName": "P."
+						"firstName": ""
 					}
 				],		
 				"attachments": [
 					{
 						"0": "",
 						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/929845/jjy140010.pdf?resultClick=3",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/23360/jjy120115_1782_1782.pdf?resultClick=3",
 						"mimeType": "application/pdf"
 					}
 				],		
-				"title": "The Hospital versus the Home in the Care of the Sick; An Evolution",
-				"DOI": "10.1001/jama.2013.279383",
+				"title": "ABOUT OURSELVES",
+				"DOI": "10.1001/jama.2012.503",
 				"journalAbbreviation": "JAMA",
-				"date": "2014;"
+				"date": "2012;"
+			},	
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"lastName": "Stephenson",
+						"firstName": "Joan"
+					}
+				],		
+				"attachments": [
+					{
+						"0": "",
+						"title": "Full Text PDF",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/4468/jwm90004_2432b_2432.pdf?resultClick=3",
+						"mimeType": "application/pdf"
+					}
+				],		
+				"title": "Bullying’s Legacy?",
+				"DOI": "10.1001/jama.2009.819",
+				"journalAbbreviation": "JAMA",
+				"date": "2009;"
+			},
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"lastName": "Stephenson",
+						"firstName": "Joan"
+					}
+				],		
+				"attachments": [
+					{
+						"0": "",
+						"title": "Full Text PDF",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5236/jwm70008_1752_1752.pdf?resultClick=3",
+						"mimeType": "application/pdf"
+					}
+				],		
+				"title": "Chikungunya Fever",
+				"DOI": "10.1001/jama.298.15.1752-a",
+				"journalAbbreviation": "JAMA",
+				"date": "2007;"
 			},
 			{
 				"itemType": "journalArticle",
@@ -168,44 +211,123 @@ var testCases = [
 				"creators": [
 					{
 						"0": "",
-						"firstName": ""
+						"lastName": "Shaikh",
+						"firstName": "Nader"
+					},
+					{	
+						"1": "",
+						"lastName": "Morone",
+						"firstName": "Natalia"
+					},
+					{	
+						"2": "",
+						"lastName": "Lopez",
+						"firstName": "John"
+					},
+					{	
+						"3": "",
+						"lastName": "Chianese",
+						"firstName": "Jennifer"
+					},
+					{	
+						"4": "",
+						"lastName": "Sangvai",
+						"firstName": "Shilpa"
+					},
+					{	
+						"5": "",
+						"lastName": "D’Amico",
+						"firstName": "Frank"
+					},
+					{	
+						"6": "",
+						"lastName": "Hoberman",
+						"firstName": "Alejandro"
+					},
+					{	
+						"7": "",
+						"lastName": "Wald",
+						"firstName": "Ellen"
 					}
 				],		
 				"attachments": [
 					{
 						"0": "",
 						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/23360/jjy120115_1782_1782.pdf?resultClick=3",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5259/jrc70007_2895_2904.pdf?resultClick=3",
 						"mimeType": "application/pdf"
 					}
 				],		
-				"title": "ABOUT OURSELVES",
-				"DOI": "10.1001/jama.2012.503",
+				"title": "Does This Child Have a Urinary Tract Infection?",
+				"DOI": "10.1001/jama.298.24.2895",
 				"journalAbbreviation": "JAMA",
-				"date": "2012;"
+				"date": "2007;"
+			},
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"lastName": "Klompas",
+						"firstName": "Michael"
+					}
+				],		
+				"attachments": [
+					{
+						"0": "",
+						"title": "Full Text PDF",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5140/jrc70002_1583_1593.pdf?resultClick=3",
+						"mimeType": "application/pdf"
+					}
+				],		
+				"title": "Does This Patient Have Ventilator-Associated Pneumonia?",
+				"DOI": "10.1001/jama.297.14.1583",
+				"journalAbbreviation": "JAMA",
+				"date": "2007;"
+			},
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"lastName": "Markel",
+						"firstName": "Howard"
+					}
+				],		
+				"attachments": [
+					{
+						"0": "",
+						"title": "Full Text PDF",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5029/JCO60015.pdf?resultClick=3",
+						"mimeType": "application/pdf"
+					}
+				],		
+				"title": "Dr Osler's Relapsing Fever",
+				"DOI": "10.1001/jama.295.24.2886",
+				"journalAbbreviation": "JAMA",
+				"date": "2006;"
 			},	
 			{
 				"itemType": "journalArticle",
 				"creators": [
 					{
 						"0": "",
-						"lastName": "Hampton",
-						"firstName": "Tracy"
+						"firstName": ""
 					}
-				],		
+				],		 
 				"attachments": [
 					{
 						"0": "",
 						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/22456/jla15005_30b_30.pdf?resultClick=3",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/4934/jwr0707-1-1.pdf?resultClick=3",
 						"mimeType": "application/pdf"
 					}
-				],		
-				"title": "Hyperthermia to Fight Cancer",
-				"DOI": "10.1001/jama.2011.912",
+				],	
+				"title": "Fatal Cases of Rocky Mountain Spotted Fever in Family Clusters—Three\nStates, 2003",
+				"DOI": "10.1001/jama.292.1.31",
 				"journalAbbreviation": "JAMA",
-				"date": "2011;"
-			},	
+				"date": "2004;",
+			},
 			{
 				"itemType": "journalArticle",
 				"creators": [
@@ -233,45 +355,82 @@ var testCases = [
 				"creators": [
 					{
 						"0": "",
-						"lastName": "Stephenson",
-						"firstName": "Joan"
+						"lastName": "Hampton",
+						"firstName": "Tracy"
 					}
 				],		
 				"attachments": [
 					{
 						"0": "",
 						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/4468/jwm90004_2432b_2432.pdf?resultClick=3",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/22456/jla15005_30b_30.pdf?resultClick=3",
 						"mimeType": "application/pdf"
 					}
 				],		
-				"title": "Bullying’s Legacy?",
-				"DOI": "10.1001/jama.2009.819",
+				"title": "Hyperthermia to Fight Cancer",
+				"DOI": "10.1001/jama.2011.912",
 				"journalAbbreviation": "JAMA",
-				"date": "2009;"
+				"date": "2011;"
 			},
 			{
 				"itemType": "journalArticle",
 				"creators": [
 					{
 						"0": "",
-						"lastName": "Kuehn",
-						"firstName": "Bridget"
+						"lastName": "Coffey",
+						"firstName": "Donald"
+					},
+					{	
+						"1": "",
+						"lastName": "Getzenberg",
+						"firstName": "Robert"
+					},
+					{	
+						"2": "",
+						"lastName": "DeWeese",
+						"firstName": "Theodore"
 					}
 				],		
 				"attachments": [
 					{
 						"0": "",
 						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/4467/jmn0610_2315_2316.pdf?resultClick=3",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5312/JCO60020.pdf?resultClick=3",
 						"mimeType": "application/pdf"
 					}
 				],		
-				"title": "Patients Warned About Risks of Drugs Used for Analgesia, Fevers, Addiction",
-				"DOI": "10.1001/jama.2009.779",
+				"title": "Hyperthermic Biology and Cancer Therapies A Hypothesis for the “Lance Armstrong Effect”",
+				"DOI": "10.1001/jama.296.4.445",
 				"journalAbbreviation": "JAMA",
-				"date": "2009;"
+				"date": "2006;"
 			},
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"lastName": "DeAngelis",
+						"firstName": "Catherine"
+					},
+					{	
+						"1": "",
+						"lastName": "Fontanarosa",
+						"firstName": "Phil"
+					}
+				],		
+				"attachments": [
+					{
+						"0": "",
+						"title": "Full Text PDF",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5161/jed70027_2139_2140.pdf?resultClick=3",
+						"mimeType": "application/pdf"
+					}
+				],		
+				"title": "JAMA 's Contributing Writers",
+				"DOI": "10.1001/jama.297.19.2139",
+				"journalAbbreviation": "JAMA",
+				"date": "2007;"
+			},	
 			{	
 				"itemType": "journalArticle",
 				"creators": [
@@ -393,6 +552,124 @@ var testCases = [
 				"DOI": "10.1001/jama.2008.626",
 				"journalAbbreviation": "JAMA",
 				"date": "2008;"
+			},
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"lastName": "Kuehn",
+						"firstName": "Bridget"
+					}
+				],		
+				"attachments": [
+					{
+						"0": "",
+						"title": "Full Text PDF",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/4467/jmn0610_2315_2316.pdf?resultClick=3",
+						"mimeType": "application/pdf"
+					}
+				],		
+				"title": "Patients Warned About Risks of Drugs Used for Analgesia, Fevers, Addiction",
+				"DOI": "10.1001/jama.2009.779",
+				"journalAbbreviation": "JAMA",
+				"date": "2009;"
+			},	
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"lastName": "Wise",
+						"firstName": "Robert"
+					},
+					{	
+						"1": "",
+						"lastName": "Iskander",
+						"firstName": "John"
+					},
+					{	
+						"2": "",
+						"lastName": "Pratt",
+						"firstName": "R."
+					},
+					{	
+						"3": "",
+						"lastName": "Campbell",
+							"firstName": "Scott"
+					},
+					{	
+						"4": "",
+						"lastName": "Ball",
+						"firstName": "Robert"
+					},
+					{	
+						"5": "",
+						"lastName": "Pless",
+						"firstName": "Robert"
+					},
+					{	
+						"6": "",
+						"lastName": "Braun",
+						"firstName": "M."
+					}
+				],		
+				"attachments": [
+					{
+						"0": "",
+						"title": "Full Text PDF",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/4947/JOC40127.pdf?resultClick=3",
+						"mimeType": "application/pdf"
+					}
+				],		
+				"title": "Postlicensure Safety Surveillance for 7-Valent Pneumococcal Conjugate Vaccine",
+				"DOI": "10.1001/jama.292.14.1702",
+				"journalAbbreviation": "JAMA",
+				"date": "2004;"
+			},
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"lastName": "McHugh",
+						"firstName": "Paul"
+					}
+				],		
+				"attachments": [
+					{
+						"0": "",
+						"title": "Full Text PDF",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/4977/JCO50008.pdf?resultClick=3",
+						"mimeType": "application/pdf"
+					}
+				],		
+				"title": "Striving for Coherence Psychiatry’s Efforts Over Classification",
+				"DOI": "10.1001/jama.293.20.2526",
+				"journalAbbreviation": "JAMA",
+				"date": "2005;"
+			},
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"0": "",
+						"lastName": "E. Truesdale",
+						"firstName": "P."
+					}
+				],		
+				"attachments": [
+					{
+						"0": "",
+						"title": "Full Text PDF",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/929845/jjy140010.pdf?resultClick=3",
+						"mimeType": "application/pdf"
+					}
+				],		
+				"title": "The Hospital versus the Home in the Care of the Sick; An Evolution",
+				"DOI": "10.1001/jama.2013.279383",
+				"journalAbbreviation": "JAMA",
+				"date": "2014;"
 			},	
 			{
 				"itemType": "journalArticle",
@@ -420,156 +697,6 @@ var testCases = [
 				"DOI": "10.1001/jama.2008.655",
 				"journalAbbreviation": "JAMA",
 				"date": "2008;"
-			},
-			{
-				"itemType": "journalArticle",
-				"creators": [
-					{
-						"0": "",
-						"lastName": "Shaikh",
-						"firstName": "Nader"
-					},
-					{	
-						"1": "",
-						"lastName": "Morone",
-						"firstName": "Natalia"
-					},
-					{	
-						"2": "",
-						"lastName": "Lopez",
-						"firstName": "John"
-					},
-					{	
-						"3": "",
-						"lastName": "Chianese",
-						"firstName": "Jennifer"
-					},
-					{	
-						"4": "",
-						"lastName": "Sangvai",
-						"firstName": "Shilpa"
-					},
-					{	
-						"5": "",
-						"lastName": "D’Amico",
-						"firstName": "Frank"
-					},
-					{	
-						"6": "",
-						"lastName": "Hoberman",
-						"firstName": "Alejandro"
-					},
-					{	
-						"7": "",
-						"lastName": "Wald",
-						"firstName": "Ellen"
-					}
-				],		
-				"attachments": [
-					{
-						"0": "",
-						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5259/jrc70007_2895_2904.pdf?resultClick=3",
-						"mimeType": "application/pdf"
-					}
-				],		
-				"title": "Does This Child Have a Urinary Tract Infection?",
-				"DOI": "10.1001/jama.298.24.2895",
-				"journalAbbreviation": "JAMA",
-				"date": "2007;"
-			},	
-			{
-				"itemType": "journalArticle",
-				"creators": [
-					{
-						"0": "",
-						"lastName": "Stephenson",
-						"firstName": "Joan"
-					}
-				],		
-				"attachments": [
-					{
-						"0": "",
-						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5236/jwm70008_1752_1752.pdf?resultClick=3",
-						"mimeType": "application/pdf"
-					}
-				],		
-				"title": "Chikungunya Fever",
-				"DOI": "10.1001/jama.298.15.1752-a",
-				"journalAbbreviation": "JAMA",
-				"date": "2007;"
-			},	
-			{
-				"itemType": "journalArticle",
-				"creators": [
-					{
-						"0": "",
-						"lastName": "Stephenson",
-						"firstName": "Joan"
-					}
-				],		
-				"attachments": [
-					{
-						"0": "",
-						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5177/jwm70004_2578_2578.pdf?resultClick=3",
-						"mimeType": "application/pdf"
-					}
-				],		
-				"title": "Yellow Fever Initiative",
-				"DOI": "10.1001/jama.297.23.2578-a",
-				"journalAbbreviation": "JAMA",
-				"date": "2007;"
-			},	
-			{
-				"itemType": "journalArticle",
-				"creators": [
-					{
-						"0": "",
-						"lastName": "DeAngelis",
-						"firstName": "Catherine"
-					},
-					{	
-						"1": "",
-						"lastName": "Fontanarosa",
-						"firstName": "Phil"
-					}
-				],		
-				"attachments": [
-					{
-						"0": "",
-						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5161/jed70027_2139_2140.pdf?resultClick=3",
-						"mimeType": "application/pdf"
-					}
-				],		
-				"title": "JAMA 's Contributing Writers",
-				"DOI": "10.1001/jama.297.19.2139",
-				"journalAbbreviation": "JAMA",
-				"date": "2007;"
-			},	
-			{
-				"itemType": "journalArticle",
-				"creators": [
-					{
-						"0": "",
-						"lastName": "Klompas",
-						"firstName": "Michael"
-					}
-				],		
-				"attachments": [
-					{
-						"0": "",
-						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5140/jrc70002_1583_1593.pdf?resultClick=3",
-						"mimeType": "application/pdf"
-					}
-				],		
-				"title": "Does This Patient Have Ventilator-Associated Pneumonia?",
-				"DOI": "10.1001/jama.297.14.1583",
-				"journalAbbreviation": "JAMA",
-				"date": "2007;"
 			},	
 			{
 				"itemType": "journalArticle",
@@ -623,150 +750,23 @@ var testCases = [
 				"creators": [
 					{
 						"0": "",
-						"lastName": "Coffey",
-						"firstName": "Donald"
-					},
-					{	
-						"1": "",
-						"lastName": "Getzenberg",
-						"firstName": "Robert"
-					},
-					{	
-						"2": "",
-						"lastName": "DeWeese",
-						"firstName": "Theodore"
+						"lastName": "Stephenson",
+						"firstName": "Joan"
 					}
 				],		
 				"attachments": [
 					{
 						"0": "",
 						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5312/JCO60020.pdf?resultClick=3",
+						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5177/jwm70004_2578_2578.pdf?resultClick=3",
 						"mimeType": "application/pdf"
 					}
 				],		
-				"title": "Hyperthermic Biology and Cancer Therapies A Hypothesis for the “Lance Armstrong Effect”",
-				"DOI": "10.1001/jama.296.4.445",
+				"title": "Yellow Fever Initiative",
+				"DOI": "10.1001/jama.297.23.2578-a",
 				"journalAbbreviation": "JAMA",
-				"date": "2006;"
-			},	
-			{
-				"itemType": "journalArticle",
-				"creators": [
-					{
-						"0": "",
-						"lastName": "Markel",
-						"firstName": "Howard"
-					}
-				],		
-				"attachments": [
-					{
-						"0": "",
-						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/5029/JCO60015.pdf?resultClick=3",
-						"mimeType": "application/pdf"
-					}
-				],		
-				"title": "Dr Osler's Relapsing Fever",
-				"DOI": "10.1001/jama.295.24.2886",
-				"journalAbbreviation": "JAMA",
-				"date": "2006;"
-			},	
-			{
-				"itemType": "journalArticle",
-				"creators": [
-					{
-						"0": "",
-						"lastName": "McHugh",
-						"firstName": "Paul"
-					}
-				],		
-				"attachments": [
-					{
-						"0": "",
-						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/4977/JCO50008.pdf?resultClick=3",
-						"mimeType": "application/pdf"
-					}
-				],		
-				"title": "Striving for Coherence Psychiatry’s Efforts Over Classification",
-				"DOI": "10.1001/jama.293.20.2526",
-				"journalAbbreviation": "JAMA",
-				"date": "2005;"
-			},	
-			{
-				"itemType": "journalArticle",
-				"creators": [
-					{
-						"0": "",
-						"lastName": "Wise",
-						"firstName": "Robert"
-					},
-					{	
-						"1": "",
-						"lastName": "Iskander",
-						"firstName": "John"
-					},
-					{	
-						"2": "",
-						"lastName": "Pratt",
-						"firstName": "R."
-					},
-					{	
-						"3": "",
-						"lastName": "Campbell",
-						"firstName": "Scott"
-					},
-					{	
-						"4": "",
-						"lastName": "Ball",
-						"firstName": "Robert"
-					},
-					{	
-						"5": "",
-						"lastName": "Pless",
-						"firstName": "Robert"
-					},
-					{	
-						"6": "",
-						"lastName": "Braun",
-						"firstName": "M."
-					}
-				],		
-				"attachments": [
-					{
-						"0": "",
-						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/4947/JOC40127.pdf?resultClick=3",
-						"mimeType": "application/pdf"
-					}
-				],		
-				"title": "Postlicensure Safety Surveillance for 7-Valent Pneumococcal Conjugate Vaccine",
-				"DOI": "10.1001/jama.292.14.1702",
-				"journalAbbreviation": "JAMA",
-				"date": "2004;"
-			},	
-			{
-				"itemType": "journalArticle",
-				"creators": [
-					{
-						"0": "",
-						"firstName": ""
-					}
-				],		 
-				"attachments": [
-					{
-						"0": "",
-						"title": "Full Text PDF",
-						"url": "http://jama.jamanetwork.com/data/Journals/JAMA/4934/jwr0707-1-1.pdf?resultClick=3",
-						"mimeType": "application/pdf"
-					}
-				],	
-				"title": "Fatal Cases of Rocky Mountain Spotted Fever in Family Clusters—Three\nStates, 2003",
-				"DOI": "10.1001/jama.292.1.31",
-				"journalAbbreviation": "JAMA",
-				"date": "2004;",
-			}	
+				"date": "2007;"
+			}						
 		]
 	},
 	{

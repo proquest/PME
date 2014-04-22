@@ -203,5 +203,58 @@
 			doSearch();
 	}
 
-	PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "http://books.google.com/books?id=afqfFW8WV9cC&as_brr=3&ei=rQ0zU5emNISwlQSKjICADg&source=gbs_slider_subject_list_homepage",
+		"items": [
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Nielsen",
+						"firstName" : "Michael"
+					}
+				],		
+				"title" : "Reinventing Discovery: The New Era of Networked Science",
+				"publisher" : "Princeton University Press",
+				"date" : "2012",
+				"pages" : "264",
+				"ISBN" : "0691148902",
+				"edition" : "illustrated",
+				"abstractNote" : "In Reinventing Discovery, Michael Nielsen argues that we are living at the dawn of the most dramatic change in science in more than 300 years. This change is being driven by powerful new cognitive tools, enabled by the internet, which are greatly accelerating scientific discovery. There are many books about how the internet is changing business or the workplace or government. But this is the first book about something much more fundamental: how the internet is transforming the nature of our collective intelligence and how we understand the world. Reinventing Discovery tells the exciting story of an unprecedented new era of networked science. We learn, for example, how mathematicians in the Polymath Project are spontaneously coming together to collaborate online, tackling and rapidly demolishing previously unsolved problems. We learn how 250,000 amateur astronomers are working together in a project called Galaxy Zoo to understand the large-scale structure of the Universe, and how they are making astonishing discoveries, including an entirely new kind of galaxy. These efforts are just a small part of the larger story told in this book--the story of how scientists are using the internet to dramatically expand our problem-solving ability and increase our combined brainpower. This is a book for anyone who wants to understand how the online world is revolutionizing scientific discovery today--and why the revolution is just beginning.",
+				"url" : "http://books.google.com/books?id=afqfFW8WV9cC&as_brr=3&ei=rQ0zU5emNISwlQSKjICADg&source=gbs_slider_subject_list_homepage",
+				"googlebooksid" : "afqfFW8WV9cC"
+			}
+		]	
+	},
+	{
+		"type": "web",
+		"url": "https://play.google.com/store/books/details/L_Frank_Baum_The_Wonderful_Wizard_of_Oz?id=qbV65PabTEYC",
+		"items": [
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Baum",
+						"firstName" : "L."
+					}
+				],	
+				"title" : " The Wonderful Wizard of Oz ",
+				"publisher" : "Random House Books for Young Readers",
+				"abstractNote" : "In the first of L. Frank Baum's time-honored Oz novels, country girl Dorothy Gale gets whisked away by a cyclone to the fantastical Land of Oz. Dropped into the midst of trouble when her farmhouse crushes a tyrannical sorceress, Dorothy incurs the wrath of the Wicked Witch of the West. Dorothy is desperate to return to her native Kansas, and, aided by the Good Witch of the North, she sets out for the Emerald City to get help from the legendary Wizard. On her way, she meets three unlikely allies who embody key human virtues—the Scarecrow, the Tin Woodman, and the Cowardly Lion.",
+				"pages" : "191",
+				"url" : "https://play.google.com/store/books/details/L_Frank_Baum_The_Wonderful_Wizard_of_Oz?id=qbV65PabTEYC",
+				"googlebooksid" : "qbV65PabTEYC"
+			}
+		]	
+	}
+]
+/** END TEST CASES **/
+
+
+	PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });
 }());
