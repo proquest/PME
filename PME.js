@@ -2220,6 +2220,7 @@ PME.genericScrape = function (doc) {
 		return (node.nodeType == 1 || node.nodeType == 3 ? true : false);
 	}
 
+	var metaMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // metas aren't grabbed by the TreeWalker, need to do it here
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, treeWalkerFilter, false);
 
 	while (walker.nextNode()) {
@@ -2252,14 +2253,19 @@ PME.genericScrape = function (doc) {
 		}
 	}
 	
-	var metaMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // metas aren't grabbed by the TreeWalker, need to do it here
+	if (metaMatch.length > 0) {
+		var metaDOI = PME.Util.trim(metaMatch[0].value).replace(/^doi:/, '');
 
-	if (metaMatch.length == 1 && PDFmatches.length == 1) {
-		matches.push({ "DOI": PME.Util.trim(metaMatch[0].value).replace(/^doi:/, ''), "URL" : PDFmatches[0] });
-	}
-	else {
-		for (var i = 0; i < metaMatch.length; i++)
-			matches.push({ "DOI": PME.Util.trim(metaMatch[i].value).replace(/^doi:/, '') });
+		var temp = filter(matches, function (item) {
+			return (metaDOI == item.DOI && item.URL);
+		});
+
+		if (temp.length > 0)
+			matches = temp;
+		else if (PDFmatches.length == 1)
+			matches = [{ "DOI": metaDOI, "URL": PDFmatches[0] }];
+		else
+			matches = [{ "DOI": metaDOI }];
 	}
 	
 	if (matches.length == 0) {
