@@ -2212,7 +2212,7 @@ PME.genericScrape = function (doc) {
 					checkingForChildren.push(n);
 				}
 			}
-		} while (!DOImatch && ++distanceFromOrigin < 5)
+		} while (!DOImatch && ++distanceFromOrigin < 8)
 		return (DOImatch ? ( Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : DOImatch ) : false);
 	}
 
