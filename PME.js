@@ -67,7 +67,7 @@ var Registry = (function() {
 		},
 		"PubMed Central": {
 			m: "\\.nih\\.gov/",
-			g: "27ee5b2c-2a5a-4afc-a0aa-d386642d4eed"
+			g: "lb72u4uo-s4in-8rj8-wlyb-i8zcjef7hlvs"
 		},
 		"ScienceDirect": {
 			m: "science-?direct\\.com",
