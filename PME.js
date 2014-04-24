@@ -65,10 +65,6 @@ var Registry = (function() {
 			m: "(www|preview)[\\.\\-]ncbi[\\.\\-]nlm[\\.\\-]nih[\\.\\-]gov[^/]*/(books|pubmed|sites/pubmed|sites/entrez|entrez/query\\.fcgi\\?.*db=PubMed|myncbi/browse/collection/|myncbi/collections/)",
 			g: "fcf41bed-0cbc-3704-85c7-8062a0068a7a"
 		},
-		"PubMed Central": {
-			m: "\\.nih\\.gov/",
-			g: "lb72u4uo-s4in-8rj8-wlyb-i8zcjef7hlvs"
-		},
 		"ScienceDirect": {
 			m: "science-?direct\\.com",
 			g: "b6d0a7a-d076-48ae-b2f0-b6de28b194e"
@@ -2257,7 +2253,7 @@ PME.genericScrape = function (doc) {
 		var metaDOI = PME.Util.trim(metaMatch[0].value).replace(/^doi:/, '');
 
 		var temp = filter(matches, function (item) {
-			return (metaDOI == item.DOI && item.URL);
+			return (metaDOI == item.DOI && !!item.URL);
 		});
 
 		if (temp.length > 0)
