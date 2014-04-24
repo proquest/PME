@@ -2248,20 +2248,30 @@ PME.genericScrape = function (doc) {
 				break;
 		}
 	}
-	
+
 	if (metaMatch.length > 0) {
 		var metaDOI = PME.Util.trim(metaMatch[0].value).replace(/^doi:/, '');
 
-		var temp = filter(matches, function (item) {
+		var metaCheck = filter(matches, function (item) {
 			return (metaDOI == item.DOI && !!item.URL);
 		});
 
-		if (temp.length > 0)
-			matches = temp;
-		else if (PDFmatches.length == 1)
+		if (metaCheck.length > 0) {
+			matches = metaCheck;
+		}
+		else if (PDFmatches.length > 1) {
+			var bestGuess = filter(PDFmatches, function (item) {
+				return (item.indexOf("supplement") == -1);
+			});
+
+			matches = [{ "DOI": metaDOI, "URL": (bestGuess.length > 0 ? bestGuess[0] : PDFmatches[0]) }];
+		}
+		else if (PDFmatches.length == 1) {
 			matches = [{ "DOI": metaDOI, "URL": PDFmatches[0] }];
-		else
+		}
+		else {
 			matches = [{ "DOI": metaDOI }];
+		}
 	}
 	
 	if (matches.length == 0) {
