@@ -129,10 +129,10 @@ var testCases = [
 			},	
 			{
 				"itemType": "journalArticle",
-				"title": "Journal of Tumor",
-				"publisher": "ACT Publishing Group Liminted",
-				"ISSN": "1819-6187",
-				"place": "Hong Kong"
+				"title": "Journal of Balkan Union of Oncology",
+				"publisher": "Imprimatur Publications",
+				"ISSN": "1107-0625, 2241-6293",
+				"place": "Greece"
 			},
 			{
 				"itemType": "journalArticle",
