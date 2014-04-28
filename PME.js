@@ -65,10 +65,6 @@ var Registry = (function() {
 			m: "(www|preview)[\\.\\-]ncbi[\\.\\-]nlm[\\.\\-]nih[\\.\\-]gov[^/]*/(books|pubmed|sites/pubmed|sites/entrez|entrez/query\\.fcgi\\?.*db=PubMed|myncbi/browse/collection/|myncbi/collections/)",
 			g: "fcf41bed-0cbc-3704-85c7-8062a0068a7a"
 		},
-		"PubMed Central": {
-			m: "\\.nih\\.gov/",
-			g: "27ee5b2c-2a5a-4afc-a0aa-d386642d4eed"
-		},
 		"ScienceDirect": {
 			m: "science-?direct\\.com",
 			g: "b6d0a7a-d076-48ae-b2f0-b6de28b194e"
@@ -2212,7 +2208,7 @@ PME.genericScrape = function (doc) {
 					checkingForChildren.push(n);
 				}
 			}
-		} while (!DOImatch && ++distanceFromOrigin < 5)
+		} while (!DOImatch && ++distanceFromOrigin < 8)
 		return (DOImatch ? ( Array.isArray(DOImatch) ? PME.Util.trim(DOImatch[0]) : DOImatch ) : false);
 	}
 
@@ -2220,6 +2216,7 @@ PME.genericScrape = function (doc) {
 		return (node.nodeType == 1 || node.nodeType == 3 ? true : false);
 	}
 
+	var metaMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // metas aren't grabbed by the TreeWalker, need to do it here
 	var walker = doc.createTreeWalker(doc.body, NodeFilter.SHOW_ALL, treeWalkerFilter, false);
 
 	while (walker.nextNode()) {
@@ -2251,15 +2248,30 @@ PME.genericScrape = function (doc) {
 				break;
 		}
 	}
-	
-	var metaMatch = PME.Util.xpath(doc, '//meta[contains(@name, "doi")]/@content'); // metas aren't grabbed by the TreeWalker, need to do it here
 
-	if (metaMatch.length == 1 && PDFmatches.length == 1) {
-		matches.push({ "DOI": PME.Util.trim(metaMatch[0].value).replace(/^doi:/, ''), "URL" : PDFmatches[0] });
-	}
-	else {
-		for (var i = 0; i < metaMatch.length; i++)
-			matches.push({ "DOI": PME.Util.trim(metaMatch[i].value).replace(/^doi:/, '') });
+	if (metaMatch.length > 0) {
+		var metaDOI = PME.Util.trim(metaMatch[0].value).replace(/^doi:/, '');
+
+		var metaCheck = filter(matches, function (item) {
+			return (metaDOI == item.DOI && !!item.URL);
+		});
+
+		if (metaCheck.length > 0) {
+			matches = metaCheck;
+		}
+		else if (PDFmatches.length > 1) {
+			var bestGuess = filter(PDFmatches, function (item) {
+				return (item.indexOf("supplement") == -1);
+			});
+
+			matches = [{ "DOI": metaDOI, "URL": (bestGuess.length > 0 ? bestGuess[0] : PDFmatches[0]) }];
+		}
+		else if (PDFmatches.length == 1) {
+			matches = [{ "DOI": metaDOI, "URL": PDFmatches[0] }];
+		}
+		else {
+			matches = [{ "DOI": metaDOI }];
+		}
 	}
 	
 	if (matches.length == 0) {

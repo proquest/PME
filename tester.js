@@ -101,6 +101,16 @@
 				else
 				{
 					sHTML = '<br/>Items found: ' + pmeResult.items.length;
+
+					pmeResult.items.sort(function (a, b) {
+						if (a.title > b.title)
+							return 1;
+						if (b.title > a.title)
+							return -1;
+
+						return 0;
+					});
+
 					if (bReloadAll)
 					{
 						$.each(pmeResult.items, function (n)
