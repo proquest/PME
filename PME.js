@@ -61,10 +61,10 @@ var Registry = (function() {
 			m: "wsj\\.com/",
 			g: "53f8d182-4edc-4eab-b5a1-141698a1303b"
 		},
-		"NCBI PubMed": {
-			m: "(www|preview)[\\.\\-]ncbi[\\.\\-]nlm[\\.\\-]nih[\\.\\-]gov[^/]*/(books|pubmed|sites/pubmed|sites/entrez|entrez/query\\.fcgi\\?.*db=PubMed|myncbi/browse/collection/|myncbi/collections/)",
-			g: "fcf41bed-0cbc-3704-85c7-8062a0068a7a"
-		},
+		//"NCBI PubMed": {
+		//	m: "(www|preview)[\\.\\-]ncbi[\\.\\-]nlm[\\.\\-]nih[\\.\\-]gov[^/]*/(books|pubmed|sites/pubmed|sites/entrez|entrez/query\\.fcgi\\?.*db=PubMed|myncbi/browse/collection/|myncbi/collections/)",
+		//	g: "fcf41bed-0cbc-3704-85c7-8062a0068a7a"
+		//},
 		"ScienceDirect": {
 			m: "science-?direct\\.com",
 			g: "b6d0a7a-d076-48ae-b2f0-b6de28b194e"
