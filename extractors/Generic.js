@@ -22,19 +22,6 @@ var testCases = [
 		"url": "http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2377243/?tool=pmcentrez",
 		"items": [
 			{
-				"DOI" : "10.1006/mgme.2000.3063",
-				"DOI" : "10.1016/0009-8981",
-				"DOI" : "10.1016/0092-8674",
-				"DOI" : "10.1016/0272-0590",
-				"DOI" : "10.1016/0300-483X",
-				"DOI" : "10.1111/j.1432-1033.1979.tb12976.x",
-				"DOI" : "10.1126/science.274.5288.740",
-				"DOI" : "10.1164/rccm.200402-215OC",
-				"DOI" : "10.1164/rccm.200504-663OE",
-				"DOI" : "10.1164/rccm.2206017",
-				"DOI" : "10.1172/JCI109709",
-				"DOI" : "10.1172/JCI110957",
-				"DOI" : "10.1186/1465-9921-7-45",
 				"DOI" : "10.1186/1465-9921-9-37",
 				"attachments" : [
 					{
@@ -43,16 +30,13 @@ var testCases = [
 						"url" : "http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2377243/pdf/1465-9921-9-37.pdf",
 						"mimeType" : "application/pdf"
 					}
-				],	
-				"DOI" : "10.1196/annals.1299.074",
-				"DOI" : "10.1378/chest.102.4.1085",
-				"DOI" : "10.1006/mgme.2000.3063"
+				]	
 			}
 		]
 	},
-	{
+	/*{
 		"type": "web",
-		"url": "http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2377243/?tool=pmcentrez",
+		"url": "http://www.ncbi.nlm.nih.gov/pmc/?term=blood",
 		"items": [
 			{
 				"DOI" : "10.1016/j.apnu.2011.09.003",
@@ -73,10 +57,10 @@ var testCases = [
 				"DOI" : "10.1097/PSY.0b013e318227cb88",
 				"DOI" : "10.1111/j.1467-7687.2010.00969.x",
 				"DOI" : "10.1111/j.1469-7610.2010.02301.x",
-				"DOI" : "10.1006/mgme.2000.3063"
+				"DOI" : "10.1186/1465-9921-9-37"
 			}
 		]	
-	},
+	},*/
 	{
 		"type": "web",
 		"url": "http://en.wikipedia.org/wiki/Keith_Sweat",
@@ -125,19 +109,16 @@ var testCases = [
 				"creators" : [
 					{
 						"0" : "",
-						"lastName" : "Giles",
-						"firstName" : "Paul",
+						"lastName" : "Goodman",
+						"firstName" : "Wendy",
 						"creatorType" : "author"
 					}
 				],	
-				"title" : "A Good Gatsby",
-				"ISSN" : "2163-3797",
-				"publisher" : "Commonweal Foundation",
-				"publicationTitle" : "Commonweal",
-				"pages" : "12",
-				"issue" : "12",
-				"volume" : "140",
-				"date" : "2013-07-12",
+				"title" : "A Barn in Gatsby Country",
+				"ISSN" : "0028-7369",
+				"publisher" : "New York Media",
+				"publicationTitle" : "New York",
+				"date" : "2014-04-21",
 				"language" : "en-US"
 			},
 			{
