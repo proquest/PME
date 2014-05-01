@@ -109,16 +109,19 @@ var testCases = [
 				"creators" : [
 					{
 						"0" : "",
-						"lastName" : "Goodman",
-						"firstName" : "Wendy",
+						"lastName" : "Giles",
+						"firstName" : "Paul",
 						"creatorType" : "author"
 					}
-				],	
-				"title" : "A Barn in Gatsby Country",
-				"ISSN" : "0028-7369",
-				"publisher" : "New York Media",
-				"publicationTitle" : "New York",
-				"date" : "2014-04-21",
+				],		
+				"title" : "A Good Gatsby",
+				"ISSN" : "2163-3797",
+				"publisher" : "Commonweal Foundation",
+				"publicationTitle" : "Commonweal",
+				"pages" : "12",
+				"issue" : "12",
+				"volume" : "140",
+				"date" : "2013-07-12",
 				"language" : "en-US"
 			},
 			{

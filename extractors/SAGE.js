@@ -194,20 +194,6 @@ var testCases = [
 				"creators" : [
 					{
 						"0" : "",
-						"lastName" : "Garrett",
-						"firstName" : "Bob"
-					}
-				],	
-				"title" : "Brain & Behavior\n\t\t\n\t\t\t\tAn Introduction to Biological Psychology\n\t\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\tFourth Edition",
-				"date" : "July 2014",
-				"pages" : "656",
-				"publisher" : "SAGE Publications, Inc"
-			},
-			{
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
 						"lastName" : "Wong",
 						"firstName" : "Daniel"
 					},
@@ -229,6 +215,25 @@ var testCases = [
 				],	
 				"title" : "Counseling Individuals Through the Lifespan",
 				"date" : "January 2015",
+				"pages" : "",
+				"publisher" : "SAGE Publications, Inc"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Braithwaite",
+						"firstName" : "Dawn"
+					},
+					{	
+						"1" : "",
+						"lastName" : "Schrodt",
+						"firstName" : "Paul"
+					}
+				],		
+				"title" : "Engaging Theories in Interpersonal Communication\n\t\t\n\t\t\t\tMultiple Perspectives\n\t\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\tSecond Edition",
+				"date" : "November 2014",
 				"pages" : "448",
 				"publisher" : "SAGE Publications, Inc"
 			},
@@ -237,13 +242,18 @@ var testCases = [
 				"creators" : [
 					{
 						"0" : "",
-						"lastName" : "Schirmer",
-						"firstName" : "Annett"
+						"lastName" : "Bartol",
+						"firstName" : "Curt"
+					},
+					{	
+						"1" : "",
+						"lastName" : "Bartol",
+						"firstName" : "Anne"
 					}
-				],	
-				"title" : "Emotion",
-				"date" : "July 2014",
-				"pages" : "512",
+				],		
+				"title" : "Forensic Psychology\n\t\t\n\t\t\t\tResearch and Applications\n\t\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\tFourth Edition",
+				"date" : "October 2014",
+				"pages" : "592",
 				"publisher" : "SAGE Publications, Inc"
 			},
 			{
@@ -303,6 +313,20 @@ var testCases = [
 				"pages" : "600",
 				"publisher" : "SAGE Publications, Inc"
 			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Holden",
+						"firstName" : "George"
+					}
+				],		
+				"title" : "Parenting\n\t\t\n\t\t\t\tA Dynamic Perspective\n\t\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\tSecond Edition",
+				"date" : "October 2014",
+				"pages" : "440",
+				"publisher" : "SAGE Publications, Inc"
+			},
 			{	
 				"itemType" : "book",
 				"creators" : [
@@ -350,21 +374,6 @@ var testCases = [
 				"edition" : "Second",
 				"date" : "August 2014",
 				"pages" : "488",
-				"publisher" : "SAGE Publications, Inc"
-			},
-			{
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
-						"lastName" : "Garrett",
-						"firstName" : "Bob"
-					}
-				],	
-				"title" : "Study Guide to Accompany Bob Garrett’s Brain & Behavior: An Introduction to Biological Psychology",
-				"edition" : "Fourth",
-				"date" : "July 2014",
-				"pages" : "400",
 				"publisher" : "SAGE Publications, Inc"
 			}
 		]
