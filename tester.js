@@ -107,6 +107,21 @@
 							return 1;
 						if (b.title > a.title)
 							return -1;
+						
+						if (a.publisher > b.publisher)
+							return 1;
+						if (b.publisher > a.publisher)
+							return -1;
+
+						if (a.date > b.date)
+							return 1;
+						if (b.date > a.date)
+							return -1;
+
+						if (a.itemType > b.itemType)
+							return 1;
+						if (b.itemType > a.itemType)
+							return -1;
 
 						return 0;
 					});

@@ -420,7 +420,163 @@ var testCases = [
 				"accessDate": "CURRENT_TIMESTAMP"
 			}
 		]
-	}
+	},
+	{
+		"type": "web",
+		"url": "http://www.sciencedirect.com/science?_ob=ArticleListURL&_method=list&_ArticleListID=-569611939&_sort=r&_st=13&view=c&_acct=C000228598&_version=1&_urlVersion=0&_userid=12975512&md5=59672b1044ef3cd3ef3fcbcaa97cf0ca&searchtype=a",
+		"items": [
+			{	
+				"itemType" : "bookSection",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Miodownik",
+						"firstName" : "Mark",
+						"creatorType" : "author"
+					},
+					{	
+						"1" : "",
+						"lastName" : "Janssens",
+						"firstName" : "Koenraad G. F.",
+						"creatorType" : "editor"
+					},
+					{	
+						"2" : "",
+						"lastName" : "Raabe",
+						"firstName" : "Dierk",
+						"creatorType" : "editor"
+					},
+					{	
+						"3" : "",
+						"lastName" : "Kozeschnik",
+						"firstName" : "Ernst",
+						"creatorType" : "editor"
+					},
+					{	
+						"4" : "",
+						"lastName" : "Miodownik",
+						"firstName" : "Mark A.",
+						"creatorType" : "editor"
+					},
+					{	
+						"5" : "",
+						"lastName" : "Nestler",
+						"firstName" : "Britta",
+						"creatorType" : "editor"
+					}
+				],		
+				"title" : "3 - Monte carlo potts model",
+				"bookTitle" : "Computational Materials Engineering",
+				"publisher" : "Academic Press",
+				"place" : "Burlington",
+				"pages" : "47-108",
+				"ISBN" : "978-0-12-369468-3",
+				"DOI" : "10.1016/B978-012369468-3/50003-4",
+				"url" : "http://www.sciencedirect.com/science/article/pii/B9780123694683500034",
+				"date" : "2007"
+			},
+			{	
+				"itemType" : "bookSection",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Janssens",
+						"firstName" : "Koen",
+						"creatorType" : "author"
+					},
+					{	
+						"1" : "",
+						"lastName" : "Janssens",
+						"firstName" : "Koenraad G. F.",
+						"creatorType" : "editor"
+					},
+					{	
+						"2" : "",
+						"lastName" : "Raabe",
+						"firstName" : "Dierk",
+						"creatorType" : "editor"
+					},
+					{	
+						"3" : "",
+						"lastName" : "Kozeschnik",
+						"firstName" : "Ernst",
+						"creatorType" : "editor"
+					},
+					{	
+						"4" : "",
+						"lastName" : "Miodownik",
+						"firstName" : "Mark A.",
+						"creatorType" : "editor"
+					},
+					{	
+						"5" : "",
+						"lastName" : "Nestler",
+						"firstName" : "Britta",
+						"creatorType" : "editor"
+					}
+				],		
+				"title" : "4 - Cellular automata",
+				"bookTitle" : "Computational Materials Engineering",
+				"publisher" : "Academic Press",
+				"place" : "Burlington",
+				"pages" : "109-150",
+				"ISBN" : "978-0-12-369468-3",
+				"DOI" : "10.1016/B978-012369468-3/50004-6",
+				"url" : "http://www.sciencedirect.com/science/article/pii/B9780123694683500046",
+				"date" : "2007"
+			},
+			{
+				"itemType" : "bookSection",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Kozeschnik",
+						"firstName" : "Ernst",
+						"creatorType" : "author"
+					},
+					{	
+						"1" : "",
+						"lastName" : "Janssens",
+						"firstName" : "Koenraad G. F.",
+						"creatorType" : "editor"
+					},
+					{	
+						"2" : "",
+						"lastName" : "Raabe",
+						"firstName" : "Dierk",
+						"creatorType" : "editor"
+					},
+					{	
+						"3" : "",
+						"lastName" : "Kozeschnik",
+						"firstName" : "Ernst",
+						"creatorType" : "editor"
+					},
+					{	
+						"4" : "",
+						"lastName" : "Miodownik",
+						"firstName" : "Mark A.",
+						"creatorType" : "editor"
+					},
+					{	
+						"5" : "",
+						"lastName" : "Nestler",
+						"firstName" : "Britta",
+						"creatorType" : "editor"
+					}
+				],		
+				"title" : "6 - Modeling precipitation as a sharp-interface phase transformation",
+				"bookTitle" : "Computational Materials Engineering",
+				"publisher" : "Academic Press",
+				"place" : "Burlington",
+				"pages" : "179-217",
+				"ISBN" : "978-0-12-369468-3",
+				"DOI" : "10.1016/B978-012369468-3/50006-X",
+				"url" : "http://www.sciencedirect.com/science/article/pii/B978012369468350006X",
+				"date" : "2007"
+			}	
+		]
+	}	
 ]
 /** END TEST CASES **/
 PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });

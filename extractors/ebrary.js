@@ -292,7 +292,7 @@ var testCases = [
 				"title": "Health Psychology Research Focus : Pain Control Support for People with Cancer",
 				"language": "English",
 				"place": "New York, NY, USA",
-				"publisher": "Nova Science Publishers, Incorporated",
+				"publisher": "Nova",
 				"ISBN": "9781617285578",
 				"callNumber": "RC262 -- .P345 2009eb",
 				"url": "http://site.ebrary.com/lib/myproquest/docDetail.action?docID=10680898&ppg=1"
