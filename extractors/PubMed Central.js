@@ -232,7 +232,7 @@ function doWeb(doc, url) {
 
 /** BEGIN TEST CASES **/
 var testCases = [
-	{
+	/*{
 		"type": "web",
 		"url": "http://www.ncbi.nlm.nih.gov/pmc/articles/PMC2377243/?tool=pmcentrez",
 		"items": [
@@ -308,7 +308,7 @@ var testCases = [
 		"type": "web",
 		"url": "http://www.ncbi.nlm.nih.gov/pmc/issues/184700/",
 		"items": "multiple"
-	}
+	}*/
 ]
 /** END TEST CASES **/
 

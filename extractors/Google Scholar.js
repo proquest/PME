@@ -871,6 +871,242 @@ var testCases = [
 				"libraryCatalog": "Google Scholar"
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "http://scholar.google.com/scholar?hl=en&q=for+life&btnG=&as_sdt=1%2C3&as_sdtp=",
+		"items": [
+			{
+				"itemType" : "book",
+				"creators" : [
+					"Langton, Christopher G"
+				],	
+				"attachments" : [
+					{
+						"0" : "",
+						"title" : "[PDF] from iscpif.fr",
+						"url" : "http://library.iscpif.fr/files/CSSS2010-20100805-Beslon-lecture4.pdf",
+						"mimeType" : "application/pdf"
+					},
+					{
+						"1" : "",
+						"title" : "Snapshot",
+						"url" : "http://books.google.com/books?hl=en&lr=&id=qErpoKjc1h4C&oi=fnd&pg=PR7&dq=for+life&ots=NVqHXq-Brh&sig=DVOiiAwp5-zI_gIsE___pCEVlPs",
+						"mimeType" : "text/html"
+					}
+				],	
+				"title" : "Artificial life: An overview",
+				"date" : "1997",
+				"publisher" : "Mit Press",
+				"url" : "http://books.google.com/books?hl=en&lr=&id=qErpoKjc1h4C&oi=fnd&pg=PR7&dq=for+life&ots=NVqHXq-Brh&sig=DVOiiAwp5-zI_gIsE___pCEVlPs"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					"Aries, Philippe",
+					"Baldick, Robert"	
+				],	
+				"attachments" : [
+					{
+						"0" : "",
+						"title" : "Snapshot",
+						"url" : "http://www.getcited.org/pub/103150494",
+						"mimeType" : "text/html"
+					}
+				],	
+				"title" : "Centuries of childhood: A social history of family life",
+				"date" : "1962",
+				"publisher" : "Vintage Books New York",
+				"url" : "http://www.getcited.org/pub/103150494"
+			},
+			{
+				"itemType" : "journalArticle",
+				"creators" : [
+					"Gauchat, Jean-Fran\\ccois",
+					"Henchoz, Sybille",
+					"Mazzei, Gonzalo",
+					"Aubry, Jean-Pierre",
+					"Brunner, Thomas",
+					"Blasey, Horst",
+					"Life, Paul",
+					"Talabot, Dominique",
+					"Flores-Romo, Leopoldo",
+					"Thompson, Jeff",
+					"others"
+				],	
+				"attachments" : [
+					{
+						"0" : "",
+						"title" : "Snapshot",
+						"url" : "http://oai.dtic.mil/oai/oai?verb=getRecord&metadataPrefix=html&identifier=ADA006399",
+						"mimeType" : "text/html"
+					}
+				],	
+				"title" : "Induction of human IgE synthesis in B cells by mast cells and basophils",
+				"publicationTitle" : "Nature",
+				"volume" : "365",
+				"issue" : "6444",
+				"pages" : "340–343",
+				"date" : "1993",
+				"publisher" : "Nature Publishing Group",
+				"url" : "http://oai.dtic.mil/oai/oai?verb=getRecord&metadataPrefix=html&identifier=ADA006399"
+			},
+			{
+				"itemType" : "journalArticle",
+				"creators" : [
+					"Andersen, HR",
+					"Thuesen, Life",
+					"Bagger, Jens Peder",
+					"Vesterlund, T",
+					"Thomsen, PE Bloch"
+				],	
+				"attachments" : [
+					{
+						"0" : "",
+						"title" : "Snapshot",
+						"url" : "http://www.sciencedirect.com/science/article/pii/S0140673694903476",
+						"mimeType" : "text/html"
+					}
+				],
+				"title" : "Prospective randomised trial of atrial versus ventricular pacing in sick-sinus syndrome",
+				"publicationTitle" : "The lancet",
+				"volume" : "344",
+				"issue" : "8936",
+				"pages" : "1523–1528",
+				"date" : "1994",
+				"publisher" : "Elsevier",
+				"url" : "http://www.sciencedirect.com/science/article/pii/S0140673694903476"
+			},
+			{
+				"itemType" : "journalArticle",
+				"creators" : [
+					"Coale, Ansley J",
+					"Demeny, Paul",
+					"Vaughan, Barbara"
+				],	
+				"attachments" : [
+					{
+						"0" : "",
+						"title" : "Snapshot",
+						"url" : "http://www.popline.org/node/398474",
+						"mimeType" : "text/html"
+					}
+				],	
+				"title" : "Regional model life tables and stable populations",
+				"date" : "1983",
+				"publisher" : "New York NY/London England Academic Press 1983.",
+				"url" : "http://www.popline.org/node/398474"
+			},
+			{
+				"itemType" : "report",
+				"creators" : [
+					"Barlow, Richard E",
+					"Proschan, Frank"
+				],	
+				"attachments" : [
+					{
+						"0" : "",
+						"title" : "Snapshot",
+						"url" : "http://oai.dtic.mil/oai/oai?verb=getRecord&metadataPrefix=html&identifier=ADA006399",
+						"mimeType" : "text/html"
+					}
+				],	
+				"title" : "Statistical theory of reliability and life testing: probability models",
+				"date" : "1975",
+				"publisher" : "DTIC Document",
+				"url" : "http://oai.dtic.mil/oai/oai?verb=getRecord&metadataPrefix=html&identifier=ADA006399"
+			},	
+			{
+				"itemType" : "book",
+				"creators" : [
+					"Dohrenwend, Barbara S",
+					"Dohrenwend, Bruce P"
+				],	
+				"attachments" : [
+					{
+						"0" : "",
+						"title" : "Snapshot",
+						"url" : "http://oai.dtic.mil/oai/oai?verb=getRecord&metadataPrefix=html&identifier=ADA006399",
+						"mimeType" : "text/html"
+					}
+				],	
+				"title" : "Stressful life events: Their nature and effects.",
+				"date" : "1974",
+				"publisher" : "John Wiley & Sons",
+				"url" : "http://oai.dtic.mil/oai/oai?verb=getRecord&metadataPrefix=html&identifier=ADA006399"
+			},
+			{
+				"itemType" : "journalArticle",
+				"creators" : [
+					"Steels, Luc"
+				],	
+				"attachments" : [
+					{
+						"0" : "",
+						"title" : "[PDF] from 212.50.14.233",
+						"url" : "https://212.50.14.233/Knowledge/Computing%20%26%20Games/0_Computer%20Science/3_Theory/Neural%20Networks/Artificial%20Life,%20An%20Overview.pdf#page=104",
+						"mimeType" : "application/pdf"
+					},
+					{
+						"1" : "",
+						"title" : "Snapshot",
+						"url" : "http://www.mitpressjournals.org/doi/pdf/10.1162/artl.1993.1.1_2.75",
+						"mimeType" : "text/html"
+					}
+				],	
+				"title" : "The artificial life roots of artificial intelligence",
+				"publicationTitle" : "Artificial Life",
+				"volume" : "1",
+				"issue" : "1_2",
+				"pages" : "75–110",
+				"date" : "1993",
+				"publisher" : "MIT Press",
+				"url" : "http://www.mitpressjournals.org/doi/pdf/10.1162/artl.1993.1.1_2.75"
+			},
+			{
+				"itemType" : "journalArticle",
+				"creators" : [
+					"Diener, ED",
+					"Emmons, Robert A",
+					"Larsen, Randy J",
+					"Griffin, Sharon"
+				],	
+				"attachments" : [
+					{
+						"0" : "",
+						"title" : "Snapshot",
+						"url" : "http://oai.dtic.mil/oai/oai?verb=getRecord&metadataPrefix=html&identifier=ADA006399",
+						"mimeType" : "text/html"
+					}
+				],	
+				"title" : "The satisfaction with life scale",
+				"publicationTitle" : "Journal of personality assessment",
+				"volume" : "49",
+				"issue" : "1",
+				"pages" : "71–75",
+				"date" : "1985",
+				"publisher" : "Taylor & Francis",
+				"url" : "http://oai.dtic.mil/oai/oai?verb=getRecord&metadataPrefix=html&identifier=ADA006399"
+			},
+			{
+				"itemType" : "journalArticle",
+				"creators" : [
+					"Selye, Hans"
+				],	
+				"attachments" : [
+					{
+						"0" : "",
+						"title" : "Snapshot",
+						"url" : "http://psycnet.apa.org/psycinfo/1957-08247-000",
+						"mimeType" : "text/html"
+					}
+				],	
+				"title" : "The stress of life.",
+				"date" : "1956",
+				"publisher" : "McGraw-Hill",
+				"url" : "http://psycnet.apa.org/psycinfo/1957-08247-000"
+			}
+		]
 	}
 ]
 /** END TEST CASES **/

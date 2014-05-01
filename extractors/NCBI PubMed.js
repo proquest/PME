@@ -548,7 +548,7 @@ function doImportFromText(text, next) {
 	}
 }/** BEGIN TEST CASES **/
 var testCases = [
-	{
+	/*{
 		"type": "web",
 		"url": "http://www.ncbi.nlm.nih.gov/pubmed/20729678",
 		"items": [
@@ -1167,7 +1167,7 @@ var testCases = [
 				"date": "Oct 28, 2010"
 			}
 		]
-	}
+	}*/
 ]
 /** END TEST CASES **/
 PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });

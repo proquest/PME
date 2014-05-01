@@ -129,11 +129,18 @@ var testCases = [
 			},	
 			{
 				"itemType": "journalArticle",
-				"title": "Journal of Tumor",
-				"publisher": "ACT Publishing Group Liminted",
-				"ISSN": "1819-6187",
-				"place": "Hong Kong"
+				"title": "Journal of Balkan Union of Oncology",
+				"publisher": "Imprimatur Publications",
+				"ISSN": "1107-0625, 2241-6293",
+				"place": "Greece"
 			},
+			{
+				"itemType" : "journalArticle",
+				"title" : " Journal of Tumor",
+				"publisher" : "ACT Publishing Group Liminted",
+				"ISSN" : "1819-6187",
+				"place" : "Hong Kong"
+			},		
 			{
 				"itemType": "journalArticle",
 				"title": "Middle East Journal of Cancer",
@@ -149,74 +156,34 @@ var testCases = [
 				"place" : "United States"
 			},	
 			{
-				"itemType": "journalArticle",
-				"creators": [
-					{	
-						"0": "",
-						"firstName": "Wen-liang",
-						"lastName": "Zhang"
-					}	
-				],
-				"title": "The Role of Inflammation in Breast Cancer and Prostate Cancer",
-				"publisher": "Cancer Biology &amp; Medicine",
-				"publicationDate": "2011 June",
-				"publicationTitle": "Cancer Biology &amp; Medicine",
-				"volume": "8",
-				"issue": "2",
-				"pages": "77-84",
-				"ISSN": "2095-3941",
-				"DOI": "10.1007/s11805-011-0562-z",
-				"place": "China"
-			},
-			{	
-				"itemType": "journalArticle",
-				"creators": [
+				"itemType" : "journalArticle",
+				"creators" : [
 					{
-						"0": "",
-						"firstName": "Wanqing",
-						"lastName": "Chen"
+						"0" : "",
+						"firstName" : "Huilai",
+						"lastName" : "ZHANG"
 					},
-					{	
-						"1": "",
-						"firstName": "Rongshou",
-						"lastName": "Zheng"
-					},	
 					{
-						"2": "",
-						"firstName": "Siwei",
-						"lastName": "Zhang"
+						"1" : "",
+						"firstName" : "Huaqing",
+						"lastName" : "WANG"
 					},
-					{	
-						"3": "",
-						"firstName": "Ping",
-						"lastName": "Zhao"
-					},
-					{	
-						"4": "",
-						"firstName": "Guanglin",
-						"lastName": "Li"
-					},
-					{	
-						"5": "",
-						"firstName": "Lingyou",
-						"lastName": "Wu"
-					},
-					{	
-						"6": "",
-						"firstName": "Jie",
-						"lastName": "He"
-					}	
-				],
-				"title": "The incidences and mortalities of major cancers in China, 2009",
-				"publisher": "Sun Yat-sen University Cancer Center",
-				"publicationDate": "2013  March",
-				"publicationTitle": "Chinese Journal of Cancer",
-				"volume": "32",
-				"issue": "3",
-				"pages": "106-112",
-				"ISSN": "1000-467X, 1944-446X",
-				"DOI": "10.5732/cjc.013.10018",
-				"place": "China"
+					{
+						"2" : "",
+						"firstName" : "Pengfei",
+						"lastName" : "LIU"
+					}
+				],	
+				"title" : " Stomach One-Point Cancer: One Case Report and Literature Review",
+				"publisher" : "Cancer Biology &amp; Medicine",
+				"publicationDate" : "2009 June",
+				"publicationTitle" : "Cancer Biology &amp; Medicine",
+				"volume" : "6",
+				"issue" : "3",
+				"pages" : "233-234",
+				"ISSN" : "2095-3941",
+				"DOI" : "10.1007/s11805-009-0233-5",
+				"place" : "China"
 			}
 		]		
 	}

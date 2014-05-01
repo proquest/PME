@@ -257,6 +257,191 @@ var testCases = [
 				"abstractNote": "\"Adam Smith is best known as the founder of scientific economics and as an early proponent of the modern market economy. Political economy, however, was only one part of Smith's comprehensive intellectual system. Consisting of a theory of mind and its functions in language, arts, science, and social intercourse, Smith's system was a towering contribution to the Scottish Enlightenment. His ideas on social intercourse, in fact, also served as the basis for a moral theory that provided both historical and theoretical accounts of law, politics, and economics. This companion volume provides an up-to-date examination of all aspects of Smith's thought. Collectively, the essays take into account Smith's multiple contexts - Scottish, British, European, Atlantic, biographical, institutional, political, philosophical - and they draw on all his works, including student notes from his lectures. Pluralistic in approach, the volume provides a contextualist history of Smith, as well as direct philosophical engagement with his ideas.\"--Jacket."
 			}
 		]
+	},
+	{
+		"type": "web",
+		"url": "http://www.worldcat.org/search?q=applications&qt=owc_search",
+		"items": [
+			{	
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Feller",
+						"firstName" : "William",
+						"creatorType" : "author"
+					}
+				],		
+				"libraryCatalog" : "Open WorldCat",
+				"language" : "English",
+				"title" : "An introduction to probability theory and its applications.",
+				"publisher" : "Wiley",
+				"place" : "New York",
+				"date" : " 1957",
+				"ISBN" : "0471257095  9780471257097"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Osada",
+						"firstName" : "Yoshihito",
+						"creatorType" : "author"
+					}
+				],		
+				"libraryCatalog" : "Open WorldCat",
+				"language" : "English",
+				"title" : "Applications",
+				"publisher" : "Academic Press",
+				"place" : "San Diego, Calif. [u.a.",
+				"date" : " 2001",
+				"ISBN" : "0123949637 9780123949639"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Ahson",
+						"firstName" : "Syed",
+						"creatorType" : "author"
+					}
+				],		
+				"libraryCatalog" : "Open WorldCat",
+				"language" : "English",
+				"title" : "Applications",
+				"publisher" : "CRC Press",
+				"place" : "Boca Raton, Fla. [u.a.",
+				"date" : " 2008",
+				"ISBN" : "1420045474 9781420045475"
+			},
+			{
+				"itemType" : "webpage",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Baukal",
+						"firstName" : "Charles E",
+						"creatorType" : "author"
+					}
+				],		
+				"libraryCatalog" : "Open WorldCat",
+				"language" : "English",
+				"url" : "http://librarytitles.ebrary.com/Doc?id=10722384",
+				"title" : "Applications",
+				"publisher" : "CRC Press",
+				"place" : "Boca Raton",
+				"date" : " 2014"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Goffin",
+						"firstName" : "J.-L",
+						"creatorType" : "author"
+					}
+				],		
+				"libraryCatalog" : "Open WorldCat",
+				"language" : "English",
+				"title" : "Applications",
+				"publisher" : "North Holland Pub. Co. ; Sole distributors for the U.S.A. and Canada, Elsevier Science Pub. Co.",
+				"place" : "Amsterdam; New York; New York",
+				"date" : " 1982",
+				"ISBN" : "0444864784 9780444864789"
+			},
+			{
+				"itemType" : "conferencePaper",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Reisig",
+						"firstName" : "Wolfgang",
+						"creatorType" : "author"
+					}
+				],		
+				"libraryCatalog" : "Open WorldCat",
+				"language" : "English",
+				"title" : "Applications",
+				"publisher" : "Springer",
+				"date" : " 1998",
+				"ISBN" : "3540653074 9783540653073"
+			},
+			{
+				"itemType" : "webpage",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Rachev",
+						"firstName" : "S. T",
+						"creatorType" : "author"
+					}
+				],		
+				"libraryCatalog" : "Open WorldCat",
+				"language" : "English",
+				"url" : "http://site.ebrary.com/id/10015662",
+				"title" : "Applications",
+				"publisher" : "Springer",
+				"place" : "New York",
+				"date" : " 1998"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Lengauer",
+						"firstName" : "Thomas",
+						"creatorType" : "author"
+					}
+				],		
+				"libraryCatalog" : "Open WorldCat",
+				"language" : "English",
+				"title" : "Applications",
+				"publisher" : "Wiley-VCH",
+				"place" : "Weinheim",
+				"date" : " 2002",
+				"ISBN" : "3527299882 9783527299881"
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Heftmann",
+						"firstName" : "Erich",
+						"creatorType" : "author"
+					}
+				],		
+				"libraryCatalog" : "Open WorldCat",
+				"language" : "English",
+				"title" : "Applications.",
+				"publisher" : "Elsevier",
+				"place" : "Amsterdam [u.a.]",
+				"date" : " 1983",
+				"ISBN" : "0444420444 9780444420442",
+				"abstractNote" : "Teil B."
+			},
+			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Mill",
+						"firstName" : "John Stuart",
+						"creatorType" : "author"
+					}
+				],		
+				"libraryCatalog" : "Open WorldCat",
+				"language" : "English",
+				"title" : "Principles of political economy, with some of their applications to social philosophy.",
+				"publisher" : "A. M. Kelley, bookseller",
+				"place" : "New York",
+				"date" : " 1965"
+			}	
+		]
 	}
 ]
 /** END TEST CASES **/
