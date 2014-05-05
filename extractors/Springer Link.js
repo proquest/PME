@@ -375,7 +375,1024 @@
 		{
 			"type": "web",
 			"url": "http://link.springer.com/book/10.1007/978-3-540-88682-2/page/1",
-			"items": "multiple"
+			"items": [
+				{	
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Gijsenij",
+							"firstName" : "Arjan",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Gevers",
+							"firstName" : "Theo",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Lucassen",
+							"firstName" : "MarcelP.",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "17",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_17",
+					"title" : "A Perceptual Comparison of Distance Measures for Color Constancy Algorithms",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_17",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "208-221"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Chli",
+							"firstName" : "Margarita",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Davison",
+							"firstName" : "AndrewJ.",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "7",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_7",
+					"title" : "Active Matching",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_7",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "72-85"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Gupta",
+							"firstName" : "Abhinav",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Davis",
+							"firstName" : "LarryS.",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "3",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_3",
+					"title" : "Beyond Nouns: Exploiting Prepositions and Comparative Adjectives for Learning Visual Classifiers",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_3",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "16-29"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Criminisi",
+							"firstName" : "Antonio",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Sharp",
+							"firstName" : "Toby",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Blake",
+							"firstName" : "Andrew",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "9",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_9",
+					"title" : "GeoS: Geodesic Image Segmentation",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_9",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "99-112"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Farzinfar",
+							"firstName" : "Mahshid",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Xue",
+							"firstName" : "Zhong",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Teoh",
+							"firstName" : "EamKhwang",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "14",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_14",
+					"title" : "Joint Parametric and Non-parametric Curve Evolution for Medical Image Segmentation",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_14",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "167-178"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Calonder",
+							"firstName" : "Michael",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Lepetit",
+							"firstName" : "Vincent",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Fua",
+							"firstName" : "Pascal",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "6",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_6",
+					"title" : "Keypoint Signatures for Fast Learning and Recognition",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_6",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "58-71"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{		
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{			
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Heitz",
+							"firstName" : "Geremy",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Koller",
+							"firstName" : "Daphne",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "4",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_4",
+					"title" : "Learning Spatial Context: Using Stuff to Find Things",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_4",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "30-43"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Blaschko",
+							"firstName" : "MatthewB.",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Lampert",
+							"firstName" : "ChristophH.",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "2",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_2",
+					"title" : "Learning to Localize Objects with Structured Output Regression",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_2",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "2-15"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Farhadi",
+							"firstName" : "Ali",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Tabrizi",
+							"firstName" : "MostafaKamali",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "13",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_13",
+					"title" : "Learning to Recognize Activities from the Wrong View Point",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_13",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "154-166"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Fulkerson",
+							"firstName" : "Brian",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Vedaldi",
+							"firstName" : "Andrea",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Soatto",
+							"firstName" : "Stefano",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "15",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_15",
+					"title" : "Localizing Objects with Smart Dictionaries",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_15",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "179-192"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Grady",
+							"firstName" : "Leo",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Alvino",
+							"firstName" : "Christopher",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "20",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_20",
+					"title" : "Reformulating and Optimizing the Mumford-Shah Functional on a Graph — A Faster, Lower Energy Solution",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_20",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "248-261"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Enqvist",
+							"firstName" : "Olof",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Kahl",
+							"firstName" : "Fredrik",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "12",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_12",
+					"title" : "Robust Optimal Pose Estimation",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_12",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "141-153"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{		
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Gilbert",
+							"firstName" : "Andrew",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Illingworth",
+							"firstName" : "John",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Bowden",
+							"firstName" : "Richard",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "18",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_18",
+					"title" : "Scale Invariant Action Recognition Using Compound Features Mined from Dense Spatio-temporal Corners",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_18",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "222-233"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Brostow",
+							"firstName" : "GabrielJ.",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Shotton",
+							"firstName" : "Jamie",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Fauqueur",
+							"firstName" : "Julien",
+							"creatorType" : "author"
+						},
+						{	
+							"6" : "",
+							"lastName" : "Cipolla",
+							"firstName" : "Roberto",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "5",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_5",
+					"title" : "Segmentation and Recognition Using Structure from Motion Point Clouds",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_5",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "44-57"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Grabner",
+							"firstName" : "Helmut",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Leistner",
+							"firstName" : "Christian",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Bischof",
+							"firstName" : "Horst",
+							"creatorType" : "author"
+						}
+					],			
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "19",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_19",
+					"title" : "Semi-supervised On-Line Boosting for Robust Tracking",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_19",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "234-247"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Ecker",
+							"firstName" : "Ady",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Jepson",
+							"firstName" : "AllanD.",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Kutulakos",
+							"firstName" : "KiriakosN.",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "11",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_11",
+					"title" : "Semidefinite Programming Heuristics for Surface Reconstruction Ambiguities",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_11",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "127-140"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Crivelli",
+							"firstName" : "Tomás",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Piriou",
+							"firstName" : "Gwenaelle",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Bouthemy",
+							"firstName" : "Patrick",
+							"creatorType" : "author"
+						},
+						{	
+							"6" : "",
+							"lastName" : "Cernuschi-Frías",
+							"firstName" : "Bruno",
+							"creatorType" : "author"
+						},
+						{	
+							"7" : "",
+							"lastName" : "Yao",
+							"firstName" : "Jian-feng",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "10",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_10",
+					"title" : "Simultaneous Motion Detection and Background Reconstruction with a Mixed-State Conditional Markov Random Field",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_10",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "113-126"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{			
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Koenderink",
+							"firstName" : "JanJ.",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "1",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_1",
+					"title" : "Something Old, Something New, Something Borrowed, Something Blue",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_1",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "1-1"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Collins",
+							"firstName" : "Brendan",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Deng",
+							"firstName" : "Jia",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Li",
+							"firstName" : "Kai",
+							"creatorType" : "author"
+						},
+						{	
+							"6" : "",
+							"lastName" : "Fei-Fei",
+							"firstName" : "Li",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "8",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_8",
+					"title" : "Towards Scalable Dataset Construction: An Active Learning Approach",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_8",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "86-98"
+				},
+				{
+					"itemType" : "bookSection",
+					"creators" : [
+						{
+							"0" : "",
+							"lastName" : "Forsyth",
+							"firstName" : "David",
+							"creatorType" : "editor"
+						},
+						{	
+							"1" : "",
+							"lastName" : "Torr",
+							"firstName" : "Philip",
+							"creatorType" : "editor"
+						},
+						{	
+							"2" : "",
+							"lastName" : "Zisserman",
+							"firstName" : "Andrew",
+							"creatorType" : "editor"
+						},
+						{	
+							"3" : "",
+							"lastName" : "Galleguillos",
+							"firstName" : "Carolina",
+							"creatorType" : "author"
+						},
+						{	
+							"4" : "",
+							"lastName" : "Babenko",
+							"firstName" : "Boris",
+							"creatorType" : "author"
+						},
+						{	
+							"5" : "",
+							"lastName" : "Rabinovich",
+							"firstName" : "Andrew",
+							"creatorType" : "author"
+						},
+						{	
+							"6" : "",
+							"lastName" : "Belongie",
+							"firstName" : "Serge",
+							"creatorType" : "author"
+						}
+					],		
+					"ISBN" : "978-3-540-88681-5",
+					"bookTitle" : "Computer Vision – ECCV 2008",
+					"section" : "16",
+					"volume" : "5302",
+					"series" : "Lecture Notes in Computer Science",
+					"DOI" : "10.1007/978-3-540-88682-2_16",
+					"title" : "Weakly Supervised Object Localization with Stable Segmentations",
+					"url" : "http://dx.doi.org/10.1007/978-3-540-88682-2_16",
+					"publisher" : "Springer Berlin Heidelberg",
+					"date" : "1 January 2008",
+					"pages" : "193-207"
+				}	
+			]
 		},
 		{
 			"type": "web",
