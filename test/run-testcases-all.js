@@ -97,7 +97,7 @@ function instantiateReport(fields, then) {
 
 			var dateTimeFileName = fields["DATETIME"].replace(/:/g, "_"),
 				branchFileName = fields["GIT_BRANCH"].replace(/\//g, "_"),
-				fileName = "pme test report " + branchFileName + " " + dateTimeFileName + ".html";
+				fileName = "results.html";
 
 			fs.writeFile("reports/" + fileName, template, then);
 		}
