@@ -211,7 +211,7 @@ function nextTranslator() {
 	else {
 		debugLog("----------------------------------------------------------");
 		debugLog("next translator: ", fileNames[0]);
-		frunTranslatorTestCases(fileNames.shift(), nextTranslator);
+		runTranslatorTestCases(fileNames.shift(), nextTranslator);
 	}
 }
 
