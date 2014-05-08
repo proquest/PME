@@ -95,9 +95,7 @@ function instantiateReport(fields, then) {
 				return value.replace(/<\//g, "<_");
 			});
 
-			var dateTimeFileName = fields["DATETIME"].replace(/:/g, "_"),
-				branchFileName = fields["GIT_BRANCH"].replace(/\//g, "_"),
-				fileName = "pme test report " + branchFileName + " " + dateTimeFileName + ".html";
+			var fileName = "results-"+ jenkinsBuildNumber+".html";
 
 			fs.writeFile("reports/" + fileName, template, then);
 		}
@@ -213,13 +211,16 @@ function nextTranslator() {
 	else {
 		debugLog("----------------------------------------------------------");
 		debugLog("next translator: ", fileNames[0]);
-		runTranslatorTestCases(fileNames.shift(), nextTranslator);
+		frunTranslatorTestCases(fileNames.shift(), nextTranslator);
 	}
 }
 
 
 // --------------------------
 // main
+
+var args = process.argv.slice(2),
+	jenkinsBuildNumber = args.length > 0 ? args[0] : 1;
 fs.readdir("../extractors/", function(err, files) {
 	fileNames = files.filter(function(f) {
 		return f.toLowerCase().substr(-3) == ".js";
