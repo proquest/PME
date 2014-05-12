@@ -445,6 +445,10 @@ function waitFor(pred, maxTime, callback) {
 	}
 }
 
+function documentScriptRootNode(doc) {
+	return doc.getElementsByTagName("head")[0] || doc.getElementsByTagName("body")[0];
+}
+
 
 // ------------------------------------------------------------------------
 //  _ _  __      _   _                
@@ -693,7 +697,7 @@ PME.TranslatorClass = function(classID) {
 		intf.script.onerror = function() {
 			fatal("translator class failed to load: ", intf.name);
 		}
-		document.getElementsByTagName("head")[0].appendChild(intf.script);
+		documentScriptRootNode(document).appendChild(intf.script);
 	}
 	else {
 		fatal("no translator class in registry with ID", classID);
@@ -1276,7 +1280,7 @@ PME.Util.getNodeText = function(node) {
 // -- add xpath helper javascript if browser doesn't have native support for xpath (IE)
 PME.Util.xpathHelper = function(docWindow, doc, callback) {
 	log("adding XPath helper script");
-	var h = doc.getElementsByTagName('head')[0];
+	var h = documentScriptRootNode(doc);
 	var ie_xpath = doc.createElement('SCRIPT');
 	ie_xpath.src = (PME_SRV.indexOf('http') == 0 ? '' : 'http://') + PME_SRV + '/wgxpath.install.js';
 	h.appendChild(ie_xpath);
@@ -2425,10 +2429,14 @@ PME.getPageMetaData = function (callback)
 			}
 		}
 
-		if (!trans) {
+		if (! trans) {
+			if (! pageDoc.evaluate) {
 				PME.Util.xpathHelper(window, pageDoc, function () {
-					completed({ noTranslator: true })
+					completed({ noTranslator: true });
 				});
+			}
+			else
+				completed({ noTranslator: true })
 		}
 		else {
 			// add XPath helper javascript if document.evaluate is not defined
@@ -2437,10 +2445,9 @@ PME.getPageMetaData = function (callback)
 				PME.Util.xpathHelper(window, pageDoc, function() {
 					doTranslation();
 				});
-			} else {
-				doTranslation();
 			}
-
+			else
+				doTranslation();
 		}
 	}
 	catch(e) {
