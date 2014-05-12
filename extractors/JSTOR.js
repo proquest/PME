@@ -86,20 +86,21 @@ function doWeb(doc, url) {
 
 				item.doi = doi;
 
-				if (/stable\/(\d+)/.test(item.url)) {
-					var pdfurl = window.location.protocol + "//" + window.location.host + "/stable/pdfplus/" + doi + ".pdf?acceptTC=true";
+				if (/stable\/(\d+)/.test(item.url) && (PME.Util.xpathText(doc, '//a[@class="pdflink" or contains(@class,"pdfLink")]').length > 0)) {
+				    var pdfurl = window.location.protocol + "//" + window.location.host + "/stable/pdfplus/" + doi + ".pdf?acceptTC=true";
 					item.attachments.push({url: pdfurl, title: "JSTOR Full Text PDF", mimeType: "application/pdf"});
 				}
 				var matches;
 				if (item.ISSN && (matches = item.ISSN.match(/([0-9]{4})([0-9]{3}[0-9Xx])/))) {
-					item.ISSN = matches[1] + '-' + matches[2];
+				    item.ISSN = matches[1] + '-' + matches[2];
 				}
 				if (!item.title && item.url) {
-					PME.Util.processDocuments(item.url, function (doc) {
-						if (PME.Util.xpathText(doc, '//div[@class="bd"]/div[@class="rw"]')) {
-							item.title = "Review of: " + PME.Util.xpathText(doc, '//div[@class="bd"]/div[@class="rw"]')
+				    PME.Util.processDocuments(item.url, function (doc) {
+				        if (PME.Util.xpathText(doc, '//div[@class="bd"]/div[@class="rw"]')) {
+                            item.title = "Review of: " + PME.Util.xpathText(doc, '//div[@class="bd"]/div[@class="rw"]')
 						}
 						else item.title = PME.Util.xpathText(doc, '//div[@class="bd"]/h2');
+                        
 					})
 				}
 				item.complete();
