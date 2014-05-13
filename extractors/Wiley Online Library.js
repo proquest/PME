@@ -1113,7 +1113,14 @@ var testCases = [
 				"shortTitle": "Phosphane-Free Palladium-Catalyzed Coupling Reactions"
 			}
 		]
-	}
+	}/*,
+	{
+		"type": "web",
+		"url": "http://onlinelibrary.wiley.com/search",
+		"items": [
+			
+		]
+	}*/
 ]
 /** END TEST CASES **/
 PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });

@@ -215,7 +215,7 @@ var testCases = [
 				],	
 				"title" : "Counseling Individuals Through the Lifespan",
 				"date" : "January 2015",
-				"pages" : "",
+				"pages" : "368",
 				"publisher" : "SAGE Publications, Inc"
 			},
 			{
