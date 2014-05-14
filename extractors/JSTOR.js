@@ -84,8 +84,6 @@ function doWeb(doc, url) {
 				}
 				item.attachments = [];
 
-				item.doi = doi;
-
 				if (/stable\/(\d+)/.test(item.url) && (PME.Util.xpathText(doc, '//a[@class="pdflink" or contains(@class,"pdfLink")]'))) {
 				    var pdfurl = window.location.protocol + "//" + window.location.host + "/stable/pdfplus/" + doi + ".pdf?acceptTC=true";
 					item.attachments.push({url: pdfurl, title: "JSTOR Full Text PDF", mimeType: "application/pdf"});
@@ -95,25 +93,18 @@ function doWeb(doc, url) {
 				    item.ISSN = matches[1] + '-' + matches[2];
 				}
 				if (!item.title && item.url) {
-				    console.log('line98')
-                    PME.Util.processDocuments(item.url, function (doc) {
-                        console.log('line100')
-                        console.log(item)
-                        if (PME.Util.xpathText(doc, '//cite[@class="rw"]')) {
-                            console.log('line102')
-                            item.title = "Review of: " + PME.Util.xpathText(doc, '//cite[@class="rw"]')
-                            console.log(item.title)
-                            console.log('line105')
-                            console.log(item.title)
-                        }
-                        else {
-                            item.title = PME.Util.xpathText(doc, '//h2/cite[@class="rw"]');
-                            console.log('line107')
-                            console.log(item.title)
-                        }
-                    })
-                   }
-				item.complete();
+					PME.Util.processDocuments(item.url, function (doc) {
+						console.log(item);
+						if (PME.Util.xpathText(doc, '//cite[@class="rw"]'))
+							item.title = PME.Util.xpathText(doc, '//cite[@class="rw"]');
+						else
+							item.title = PME.Util.xpathText(doc, '//h2/cite[@class="rw"]');
+						item.complete();
+					});
+				}
+				else {
+					item.complete();
+				}
 			});
 			translator.translate();
 		});
