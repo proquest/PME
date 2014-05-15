@@ -95,7 +95,7 @@ function doWeb(doc, url) {
 				if (!item.title && item.url) {
 					PME.Util.processDocuments(item.url, function (doc) {
 						console.log(item);
-						item.title = PME.Util.xpathText(doc, '//div[@class="citationView"]/h2/cite[@class="rw"]');
+						item.title = PME.Util.xpathText(doc, '/div[@class="citationView"]/h2/cite[@class="rw"]');
 						item.complete();
 					});
 				}
