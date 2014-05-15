@@ -95,10 +95,7 @@ function doWeb(doc, url) {
 				if (!item.title && item.url) {
 					PME.Util.processDocuments(item.url, function (doc) {
 						console.log(item);
-						if (PME.Util.xpathText(doc, '//cite[@class="rw"]'))
-							item.title = PME.Util.xpathText(doc, '//cite[@class="rw"]');
-						else
-							item.title = PME.Util.xpathText(doc, '//h2/cite[@class="rw"]');
+						item.title = PME.Util.xpathText(doc, '//div[@class="citationView"]/h2/cite[@class="rw"]');
 						item.complete();
 					});
 				}
