@@ -287,7 +287,7 @@ function scrapeBibTeX(doc, url, pdfUrl) {
 			}];
 
 			//fetch pdf url. There seems to be some magic value that must be sent
-			// with the request
+		  // with the request
 			if(!pdfUrl &&
 				(pdfUrl = PME.Util.xpathText(doc,
 					'//meta[@name="citation_pdf_url"]/@content'))) {
@@ -399,7 +399,7 @@ function doWeb(doc, url) {
 			} else {
 				url = url.replace(/\/[^?#\/]+(?:[?#].*)?$/, '/abstract');
 			}
-			PME.Util.processDocuments(url, function(doc) { scrape(doc, doc.location.href) });
+			PME.Util.processDocuments(url, function() { scrape(doc, doc.location.href) });
 		} else {
 			scrape(doc, url);
 		}
