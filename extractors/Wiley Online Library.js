@@ -213,9 +213,7 @@ function createTempItem(doc) {
       PME.Util.xpathText(doc, '//meta[@name="citation_summary_html_url"][1]/@content') ||
       PME.Util.xpathText(doc, '//meta[@name="citation_abstract_html_url"][1]/@content') ||
       PME.Util.xpathText(doc, '//meta[@name="citation_fulltext_html_url"][1]/@content'),
-    bookTitle:
-      item.publicationTitle ||
-      PME.Util.xpathText(doc, '//meta[@name="citation_book_title"][1]/@content'),
+    bookTitle: PME.Util.xpathText(doc, '//meta[@name="citation_book_title"][1]/@content'),
     language: PME.Util.xpathText(doc, '//meta[@name="citation_language"][1]/@content'),
     rights: PME.Util.xpathText(doc, '//p[@class="copyright" or @id="copyright"]'),
     pdfUrl: PME.Util.xpathText(doc, '//meta[@name="citation_pdf_url"]/@content')
@@ -275,7 +273,7 @@ function scrapeBibTeX(doc, url, pdfUrl) {
 
 			//bookTitle
 			if(!item.bookTitle) {
-			  item.bookTitle = tempItem.bookTitle;
+			  item.bookTitle = item.publicationTitle || tempItem.bookTitle;
 			}
 
 			//language
@@ -394,7 +392,7 @@ function doWeb(doc, url) {
 			//PME.debug("Redirecting to abstract page: "+url);
 			//grab pdf url before leaving
 			var pdfUrl = PME.Util.xpathText(doc, '//div[@iframe="pdfDocument"]/@src');
-			PME.Util.processDocuments(url, function(d, u) { scrape(d, u, pdfUrl) });
+			PME.Util.processDocuments(url, function (d, u) { scrape(d, u, pdfUrl) });
 	  } else if (type != 'book' &&
 				url.indexOf('abstract') == -1 &&
 				!PME.Util.xpathText(doc, '//div[@id="abstract"]/div[@class="para"]')) {
