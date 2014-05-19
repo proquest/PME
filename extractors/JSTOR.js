@@ -282,7 +282,7 @@ var testCases = [
 				"rights": "Copyright &#169; 1998 The Editors and Board of Trustees of the Russian Review",
 				"extra": "ArticleType: book-review / Full publication date: Apr., 1998 / Copyright © 1998 The Editors and Board of Trustees of the Russian Review",
 				"publicationTitle": "Russian Review",
-				"title": "Review of: Soviet Criminal Justice under Stalin by Peter H. Solomon",
+				"title": "Soviet Criminal Justice under Stalin",
 				"libraryCatalog": "JSTOR",
 				"accessDate": "CURRENT_TIMESTAMP",
 				"shortTitle": "Review of"
