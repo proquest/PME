@@ -509,11 +509,33 @@ function completed(data) {
 	pmeCompleted = true;
 	log("completed, item count = ", (data && !data.noTranslator && data.items) ? data.items.length : 0, " data = ", data);
 
+	// if(!!pageList) {
+	// 	alert(data.items.length);
+	// 	var sortedData = [];
+	// 	var objs = [pageList, data];
+	// 	for (var i = 0; i < pageList.length; i++) {
+			
+	// 	}
+	// 	window.sorted = _.extend(pageList, data.items);
+	// }
+
+	Array.prototype.getIndexBy = function (name, value) {
+	    for (var i = 0; i < this.length; i++) {
+	        if (this[i][name] == value) {
+	            return i;
+	        }
+	    }
+	}
+
 	if(!!pageList) {
 		var sortedData = [];
+		alert("Data: "+data.items.length);
+		var _this = data.items;
 		for (var i = 0; i < pageList.length; i++) {
-			console.log(_.find(data, pageList[i].title));
+			sortedData.push( _this[ _this.getIndexBy("title", pageList[i].title) ] );
 		}
+		console.log("SORTED:", sortedData);
+		window.sorted = sortedData;
 	}
 
 	pmeCallback && pmeCallback(data);
