@@ -968,6 +968,38 @@ PME.Util.capitalizeTitle = function(str) {
 	return str; // TBI
 };
 
+
+
+PME.Util.parseName = function(name) {
+	var nameArray = name.split(" ");
+	var firstName = [], lastName = [];
+	//var fullName = { firstName: "", lastName: "" };
+	var splitIndex = name.length - 1;
+
+	//if(splitIndex > 0 && (/^PhD$/))
+
+	if (splitIndex > 0 && (/^(?:s|j)r\.?$/i.test(name[splitIndex]) || /^I?V?I*X?$/.test(name[splitIndex]))) // catch occurrances of name suffixes
+		splitIndex--;
+
+	if (splitIndex > 1 && /^(?:de)|(?:der)|(?:bin)|(?:ibn)|(?:la)|(?:le)$/i.test(name[splitIndex - 1])) // catch multi-part last names
+		splitIndex--;
+
+	if (splitIndex > 1 && /^(?:van)|(?:von)|(?:de)$/i.test(name[splitIndex - 1])) // catch multi-part last names
+		splitIndex--;
+
+	for (var i = 0; i < splitIndex; i++) {
+		fullName.push(nameArray[i]);
+	}
+
+	for (var i = splitIndex; i < nameArray.length; i++) {
+		lastName.push(nameArray[i]);
+	}
+
+	return { "firstname" : firstName.join(" "), "lastname" : lastName.join(" ")};
+}
+
+
+
 PME.Util.parseAuthors = function(str, options) {
 	options = options || {authorDelimit: ';', authorFormat: 'last, first middle'};
 	var authors = str.split(options.authorDelimit), creators = [];

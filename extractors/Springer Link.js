@@ -135,23 +135,27 @@
 						bookItem.volume = PME.Util.xpathText(doc, "//div[@class='summary']/dl/dd[contains(@id, 'book-series-volume')]");
 
 						for (var i = 0; i < bookAuthors.length; i++) {
-							var authorName = isolateName(PME.Util.xpathText(bookAuthors[i], 'text()').split(" "));
-							var authorSplit = parseName(authorName);
+							var author = PME.Util.parseName(PME.Util.xpathText(bookAuthors[i], 'text()'));
+
+							//var authorName = isolateName(PME.Util.xpathText(bookAuthors[i], 'text()').split(" "));
+							//var authorSplit = parseName(authorName);
 
 							bookItem.creators.push({
-								lastName: authorName.slice(authorSplit, authorName.length).join(" "),
-								firstName: authorName.slice(0, authorSplit).join(" "),
+								lastName: author.lastname, //authorName.slice(authorSplit, authorName.length).join(" "),
+								firstName: author.firstname, //authorName.slice(0, authorSplit).join(" "),
 								creatorType: "author"
 							});
 						}
 
 						for (var i = 0; i < bookEditors.length; i++) {
-							var editorName = isolateName(PME.Util.xpathText(bookEditors[i], 'text()').split(" "));
-							var editorSplit = parseName(editorName);
+							var editor = PME.Util.parseName(PME.Util.xpathText(bookEditors[i], 'text()'));
+
+							//var editorName = isolateName(PME.Util.xpathText(bookEditors[i], 'text()').split(" "));
+							//var editorSplit = parseName(editorName);
 
 							bookItem.creators.push({
-								lastName: editorName.slice(editorSplit, editorName.length).join(" "),
-								firstName: editorName.slice(0, editorSplit).join(" "),
+								lastName: editor.lastname, //editorName.slice(editorSplit, editorName.length).join(" "),
+								firstName: editor.firstname, //editorName.slice(0, editorSplit).join(" "),
 								creatorType: "editor"
 							});
 						}
