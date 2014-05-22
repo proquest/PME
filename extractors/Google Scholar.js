@@ -475,6 +475,19 @@ function doWeb(doc, url) {
 		 */
 		var results = getViableResults(doc);
 
+		console.group("Viable Results:");
+			console.log(doc);
+			console.log(results);
+
+			var pageList = [];
+			for (var i = 0; i < results.length; i++) {
+
+				pageList.push( { index: i, title: results[i].innerText } );
+			}
+
+			console.log(pageList);
+
+
 		var items = {};
 		var resultDivs = {};
 		var bibtexUrl;
@@ -489,7 +502,8 @@ function doWeb(doc, url) {
 			//keep the result div for extra information
 			resultDivs[bibtexUrl] = results[i];
 		}
-
+			console.log(resultDivs);
+		console.groupEnd();
 		PME.selectItems(items, function(selectedItems) {
 			if(!selectedItems) return true;
 

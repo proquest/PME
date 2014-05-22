@@ -176,6 +176,14 @@ function doWeb(doc, url, pdfUrl) {
 			results = PME.Util.xpath(doc, '//a[contains(@href, "/docview/")]');
 		}
 
+		console.info("PQ Results:");
+		window.pageList = [];
+			for (var i = 0; i < results.length; i++) {
+
+				pageList.push( { index: i, title: results[i].innerText } );
+			}
+
+			console.log(pageList);
 		var items = [];
 		for(var i=0, n=results.length; i<n; i++) {
 			items[results[i].href] = PME.Util.getNodeText(results[i]);

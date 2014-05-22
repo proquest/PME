@@ -93,6 +93,8 @@
 			}
 			PME.getPageMetaData(function (pmeResult)
 			{
+				console.log("PME RESULT:", pmeResult);
+
 				var sHTML;
 				if (!pmeResult)
 				{
