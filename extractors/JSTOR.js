@@ -84,25 +84,23 @@ function doWeb(doc, url) {
 				}
 				item.attachments = [];
 
-				item.doi = doi;
-
-				if (/stable\/(\d+)/.test(item.url)) {
-					var pdfurl = window.location.protocol + "//" + window.location.host + "/stable/pdfplus/" + doi + ".pdf?acceptTC=true";
+				if (/stable\/(\d+)/.test(item.url) && (PME.Util.xpathText(doc, '//a[@class="pdflink" or contains(@class,"pdfLink")]'))) {
+				    var pdfurl = window.location.protocol + "//" + window.location.host + "/stable/pdfplus/" + doi + ".pdf?acceptTC=true";
 					item.attachments.push({url: pdfurl, title: "JSTOR Full Text PDF", mimeType: "application/pdf"});
 				}
 				var matches;
 				if (item.ISSN && (matches = item.ISSN.match(/([0-9]{4})([0-9]{3}[0-9Xx])/))) {
-					item.ISSN = matches[1] + '-' + matches[2];
+				    item.ISSN = matches[1] + '-' + matches[2];
 				}
 				if (!item.title && item.url) {
 					PME.Util.processDocuments(item.url, function (doc) {
-						if (PME.Util.xpathText(doc, '//div[@class="bd"]/div[@class="rw"]')) {
-							item.title = "Review of: " + PME.Util.xpathText(doc, '//div[@class="bd"]/div[@class="rw"]')
-						}
-						else item.title = PME.Util.xpathText(doc, '//div[@class="bd"]/h2');
-					})
+						item.title = PME.Util.xpathText(doc, '//div[@class="citationView"]/h2/cite[@class="rw"]');
+						item.complete();
+					});
 				}
-				item.complete();
+				else {
+					item.complete();
+				}
 			});
 			translator.translate();
 		});
@@ -284,7 +282,7 @@ var testCases = [
 				"rights": "Copyright &#169; 1998 The Editors and Board of Trustees of the Russian Review",
 				"extra": "ArticleType: book-review / Full publication date: Apr., 1998 / Copyright © 1998 The Editors and Board of Trustees of the Russian Review",
 				"publicationTitle": "Russian Review",
-				"title": "Review of: Soviet Criminal Justice under Stalin by Peter H. Solomon",
+				"title": "Soviet Criminal Justice under Stalin",
 				"libraryCatalog": "JSTOR",
 				"accessDate": "CURRENT_TIMESTAMP",
 				"shortTitle": "Review of"
