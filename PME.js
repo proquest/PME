@@ -522,11 +522,9 @@ function completed(data) {
 
 		for (var i = 0; i < pageList.length; i++) {
 			var titleIndex = _items.getIndexBy(matchKey, pageList[i][matchKey]);
-			console.log(i+': '+titleIndex);
 			if(titleIndex)
 				sortedData.items.push( _items[titleIndex] );
 		}
-		console.log("SORTED:", sortedData);
 		window.sorted = sortedData;
 		//data = sortedData;
 		pmeCallback && pmeCallback(sortedData);
@@ -626,7 +624,6 @@ PME.items = [];
 
 PME.selectItems = function(items, callback) {
 	var out = {}, itemCount = 0;
-	console.log("Items:", items);
 	for (var k in items) {
 		if (items.hasOwnProperty(k)) {
 			++itemCount;
@@ -647,8 +644,6 @@ PME.selectItems = function(items, callback) {
 	}
 	else
 		return out;
-
-	console.log("Out:", out);
 };
 
 
@@ -2314,7 +2309,7 @@ PME.genericScrape = function (doc) {
 	else if(matches.length == 1 && PDFmatches.length == 1 && !matches[0].URL) {
 		matches[0].URL = PDFmatches[0];
 	}
-    console.log("Matches before sort:", matches);
+
 	matches.sort(function (a, b) {	// sort returns by DOI, grouping elements with URLs last
 		if (a.DOI > b.DOI)
 			return 1;

@@ -495,8 +495,7 @@ function doWeb(doc, url) {
 			//keep the result div for extra information
 			resultDivs[bibtexUrl] = results[i];
 		}
-			console.log(resultDivs);
-		console.groupEnd();
+	
 		PME.selectItems(items, function(selectedItems) {
 			if(!selectedItems) return true;
 
