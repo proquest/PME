@@ -26,31 +26,6 @@
 		return results;
 	}
 
-	function isolateName(name) {	// strips titles from a name
-		if (/^prof\.?$/i.test(name[0]))
-			name.shift();
-
-		if (/^dr\.?$/i.test(name[0]))
-			name.shift();
-
-		return name;
-	}
-
-	function parseName(name) {	// accepts a name expressed as an array, outputs an integer index
-		var splitIndex = name.length - 1;
-
-		if (splitIndex > 0 && (/^(?:s|j)r\.?$/i.test(name[splitIndex]) || /^I?V?I*X?$/.test(name[splitIndex]))) // catch occurrances of name suffixes
-			splitIndex--;
-
-		if (splitIndex > 1 && /^(?:de)|(?:der)|(?:bin)|(?:ibn)$/i.test(name[splitIndex - 1])) // catch multi-part last names
-			splitIndex--;
-
-		if (splitIndex > 1 && /^van$/i.test(name[splitIndex - 1])) // catch multi-part last names
-			splitIndex--;
-
-		return splitIndex;
-	}
-
 	function getRISdata(urlPath, doc, type) {
 		PME.Util.HTTP.doGet(urlPath + ".ris", function (text) {
 			var translator = PME.loadTranslator("import");
@@ -137,12 +112,9 @@
 						for (var i = 0; i < bookAuthors.length; i++) {
 							var author = PME.Util.parseName(PME.Util.xpathText(bookAuthors[i], 'text()'));
 
-							//var authorName = isolateName(PME.Util.xpathText(bookAuthors[i], 'text()').split(" "));
-							//var authorSplit = parseName(authorName);
-
 							bookItem.creators.push({
-								lastName: author.lastname, //authorName.slice(authorSplit, authorName.length).join(" "),
-								firstName: author.firstname, //authorName.slice(0, authorSplit).join(" "),
+								lastName: author.lastname,
+								firstName: author.firstname,
 								creatorType: "author"
 							});
 						}
@@ -150,12 +122,9 @@
 						for (var i = 0; i < bookEditors.length; i++) {
 							var editor = PME.Util.parseName(PME.Util.xpathText(bookEditors[i], 'text()'));
 
-							//var editorName = isolateName(PME.Util.xpathText(bookEditors[i], 'text()').split(" "));
-							//var editorSplit = parseName(editorName);
-
 							bookItem.creators.push({
-								lastName: editor.lastname, //editorName.slice(editorSplit, editorName.length).join(" "),
-								firstName: editor.firstname, //editorName.slice(0, editorSplit).join(" "),
+								lastName: editor.lastname,
+								firstName: editor.firstname,
 								creatorType: "editor"
 							});
 						}

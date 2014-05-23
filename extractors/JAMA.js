@@ -16,20 +16,18 @@
 	function detectWeb(doc, url) {
 		//not used
 	}
-	function handleCreator(result,path) {
+	function handleCreator(doc, result, path) {
 		var authors = PME.Util.xpathText(result, path);
-		authors = authors.split('; ');
+		authors = PME.Util.removeHtmlEntities(authors).split(';');
 		var creators = [];
 		for (var i = 0; i < authors.length; i++) {
-			//first m. last, suffix - we just drop the suffix, we'll always have at least one element
-			authors[i] = authors[i].split(',')[0];//first m. last jr, suffix
+			var person = PME.Util.parseName(authors[i]);
 
-			if(authors[i].indexOf(' ') >= 0){
-				authors[i] = authors[i].replace(/ (s|j)r\.?$/i, '').split(' ')
-				creators.push({lastName: authors[i][authors[i].length - 1], firstName: authors[i][0]});
-			}
-			else
-				creators.push({firstName: authors[i]});
+			creators.push({
+				firstName: person.firstname,
+				lastName: person.lastname,
+				creatorType: "author"
+			});
 		}
 		return creators;
 	}
@@ -63,7 +61,7 @@
 			var result = PME.Util.xpath(doc, '//div[@class="contentHeaderContainer"]');
 			var item = new PME.Item('journalArticle');
 			item.title = PME.Util.xpathText(result, './/span[@id="scm6MainContent_lblArticleTitle"]');
-			item.creators = handleCreator(result, './/span[@id="scm6MainContent_lblAuthors"]');
+			item.creators = handleCreator(doc, result, './/span[@id="scm6MainContent_lblAuthors"]');
 			item.attachments = handleAttachment(doc, '//a[@id="hypPDFlink"]/@href');
 			handleSource(result, './/span[@id="scm6MainContent_lblClientName"]', item);
 			item.complete();

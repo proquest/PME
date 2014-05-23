@@ -968,37 +968,64 @@ PME.Util.capitalizeTitle = function(str) {
 	return str; // TBI
 };
 
-
-
-PME.Util.parseName = function(name) {
-	var nameArray = name.split(" ");
+PME.Util.parseName = function (name) {
+	var nameArray = PME.Util.trim(name).split(' ');
 	var firstName = [], lastName = [];
-	//var fullName = { firstName: "", lastName: "" };
-	var splitIndex = name.length - 1;
+	var splitIndex = nameArray.length - 1, titleIndex = -1;
+	var titles = [
+		/^AB,?$/, /^BA,?$/, /^BHSc,?$/, /^BMS,?$/, /^BS,?$/, /^BSEE,?$/, /^CBE,?$/, /^CCRP,?$/,
+		/^ChB,?$/, /^DDS,?$/, /^DMsc,?$/, /^DO,?$/, /^DPhil,?$/, /^DrPH,?$/, /^DSc,?$/, /^DVM,?$/,
+		/^EdD,?$/, /^FACS,?$/, /^FCCP,?$/, /^FRACGP,?$/, /^FRACP,?$/, /^FRACS,?$/, /^FRCOG,?$/,
+		/^FRCPC,?$/, /^FRS,?$/, /^\(?Hon\)?,?$/, /^JD,?$/, /^LCDR,?$/, /^MA,?$/, /^MAPP,?$/,
+		/^MB,?$/, /^MBA,?$/, /^MBBCh,?$/, /^MBBS,?$/, /^M\.?D\.?,?$/, /^MHS,?$/, /^MPA,?$/,
+		/^MPH,?$/, /^MPhil,?$/, /^MPP,?$/, /^MS,?$/, /^MSc,?$/i, /^MSHSR,?$/, /^MSJ,?$/, /^MSN,?$/,
+		/^MSPH,?$/, /^PE,?$/, /^PharmD,?$/, /^Ph\.?D\.?,?$/, /^PT,?$/, /^RN,?$/, /^ScD,?$/
+	];
 
-	//if(splitIndex > 0 && (/^PhD$/))
-
-	if (splitIndex > 0 && (/^(?:s|j)r\.?$/i.test(name[splitIndex]) || /^I?V?I*X?$/.test(name[splitIndex]))) // catch occurrances of name suffixes
-		splitIndex--;
-
-	if (splitIndex > 1 && /^(?:de)|(?:der)|(?:bin)|(?:ibn)|(?:la)|(?:le)$/i.test(name[splitIndex - 1])) // catch multi-part last names
-		splitIndex--;
-
-	if (splitIndex > 1 && /^(?:van)|(?:von)|(?:de)$/i.test(name[splitIndex - 1])) // catch multi-part last names
-		splitIndex--;
-
-	for (var i = 0; i < splitIndex; i++) {
-		fullName.push(nameArray[i]);
+	for (var found = true; splitIndex > 0 && found == true;) {
+		found = false;
+		for (var i = 0; i < titles.length && found == false; i++) {
+			if (splitIndex > 0 && titles[i].test(nameArray[splitIndex])) {
+				splitIndex--;
+				found = true;
+			}
+		}
 	}
 
-	for (var i = splitIndex; i < nameArray.length; i++) {
+	if (splitIndex > 0 && (/^(?:s|j)r\.?,?$/i.test(nameArray[splitIndex]) || /^I?V?I*X?,?$/.test(nameArray[splitIndex]))) // catch occurrances of name suffixes
+		splitIndex--;
+
+	titleIndex = splitIndex + 1;
+
+	if (splitIndex > 1 && /^(?:de)|(?:der)|(?:di)|(?:bin)|(?:ibn)|(?:la)|(?:le)$/i.test(nameArray[splitIndex - 1])) // catch multi-part last names
+		splitIndex--;
+
+	if (splitIndex > 1 && /^(?:van)|(?:von)|(?:de)$/i.test(nameArray[splitIndex - 1])) // catch multi-part last names
+		splitIndex--;
+
+	for (var i = 0; i < titleIndex; i++) {
+		if (nameArray[i].length > 1 && nameArray[i] == nameArray[i].toUpperCase()) {
+			nameArray[i] = nameArray[i][0].toUpperCase() + nameArray[i].substr(1, nameArray[i].length - 1).toLowerCase();
+
+			if (nameArray[i].indexOf('-') > -1) {
+				var temp = nameArray[i].split('-');
+
+				for (var c = 1; c < temp.length; c++)
+					temp[c] = temp[c][0].toUpperCase() + temp[c].substr(1, temp[c].length - 1).toLowerCase();
+
+				nameArray[i] = temp.join('-');
+			}
+		}
+	}
+
+	for (var i = 0; i < splitIndex; i++)
+		firstName.push(nameArray[i]);
+
+	for (var i = splitIndex; i < nameArray.length; i++)
 		lastName.push(nameArray[i]);
-	}
 
-	return { "firstname" : firstName.join(" "), "lastname" : lastName.join(" ")};
+	return { "firstname" : firstName.join(' '), "lastname" : lastName.join(' ')};
 }
-
-
 
 PME.Util.parseAuthors = function(str, options) {
 	options = options || {authorDelimit: ';', authorFormat: 'last, first middle'};
@@ -1294,6 +1321,7 @@ PME.Util.removeHtmlEntities = function (str) {
 		.replace(/&lt;/g, '<')
 		.replace(/&gt;/g, '>')
 		.replace(/&ndash;/g, '-')
+		.replace(/&nbsp;/g, ' ')
 };
 
 // this seems to only be used in export for BibTeX
