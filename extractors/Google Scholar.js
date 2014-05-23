@@ -475,18 +475,11 @@ function doWeb(doc, url) {
 		 */
 		var results = getViableResults(doc);
 
-		console.group("Viable Results:");
-			console.log(doc);
-			console.log(results);
+		// TODO: Save block below for generic sort order solution
+		// for (var i = 0; i < results.length; i++) {
 
-			var pageList = [];
-			for (var i = 0; i < results.length; i++) {
-
-				pageList.push( { index: i, title: results[i].innerText } );
-			}
-
-			console.log(pageList);
-
+		// 	pageList.push( { index: i, title: results[i].innerText } );
+		// }
 
 		var items = {};
 		var resultDivs = {};

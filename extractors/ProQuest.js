@@ -175,15 +175,13 @@ function doWeb(doc, url, pdfUrl) {
 		if (!results.length) {
 			results = PME.Util.xpath(doc, '//a[contains(@href, "/docview/")]');
 		}
-
-		console.info("PQ Results:");
-		window.pageList = [];
+		// Check if the global pageList is set and push the initial order to it
+		if (!!pageList) {
 			for (var i = 0; i < results.length; i++) {
-
-				pageList.push( { index: i, title: results[i].innerText } );
+				pageList.push( { index: i, title: results[i].innerText, url: results[i].href } );
 			}
-
-			console.log(pageList);
+		}
+			
 		var items = [];
 		for(var i=0, n=results.length; i<n; i++) {
 			items[results[i].href] = PME.Util.getNodeText(results[i]);
