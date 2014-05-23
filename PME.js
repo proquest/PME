@@ -504,16 +504,6 @@ function completed(data) {
 	pmeCompleted = true;
 	log("completed, item count = ", (data && !data.noTranslator && data.items) ? data.items.length : 0, " data = ", data);
 
-	function getIndexBy(arr, name, value) {
-		if(typeof arr !== 'object' || arr.length <= 0)
-			return;
-	    for (var i = 0; i < arr.length; i++) {
-	        if (arr[i][name] == value) {
-	            return i;
-	        }
-	    }
-	}
-
 	if(!!pageList) {
 		var sortedData = {},
 			_items = data.items,
@@ -522,7 +512,7 @@ function completed(data) {
 		sortedData.items = [];
 
 		for (var i = 0; i < pageList.length; i++) {
-			var titleIndex = getIndexBy(_items, matchKey, pageList[i][matchKey]);
+			var titleIndex = PME.Util.getIndexBy(_items, matchKey, pageList[i][matchKey]);
 			if(titleIndex)
 				sortedData.items.push( _items[titleIndex] );
 		}
@@ -988,6 +978,16 @@ PME.Util = {};
 PME.Util.each = each;
 PME.Util.map = map;
 PME.Util.filter = filter;
+
+PME.Util.getIndexBy = function(arr, name, value) {
+	if(typeof arr !== 'object' || arr.length <= 0)
+		return;
+    for (var i = 0; i < arr.length; i++) {
+        if (arr[i][name] == value) {
+            return i;
+        }
+    }
+}
 
 PME.Util.trim = function(str) {
 	return str.replace(/^\s+|\s+$/g, '');
