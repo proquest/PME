@@ -507,17 +507,8 @@ function completed(data) {
 	if(!!pageList) {
 		var sortedData = {},
 			_items = data.items,
-			matchKey = 'url';
-
-		sortedData.items = [];
-
-		for (var i = 0; i < pageList.length; i++) {
-			var titleIndex = PME.Util.getIndexBy(_items, matchKey, pageList[i][matchKey]);
-			if(titleIndex)
-				sortedData.items.push( _items[titleIndex] );
-		}
-		window.sorted = sortedData;
-		//data = sortedData;
+			matchKey = "index";
+		sortedData.items = PME.Util.sortByKey(_items, matchKey);
 		pmeCallback && pmeCallback(sortedData);
 	}
 
@@ -621,6 +612,8 @@ PME.selectItems = function(items, callback) {
 			out[k] = items[k];
 		}
 	}
+	
+
 	if (! itemCount)
 		return false;
 
@@ -987,6 +980,21 @@ PME.Util.getIndexBy = function(arr, name, value) {
             return i;
         }
     }
+}
+
+PME.Util.sortByKey = function (array, key) {
+    return array.sort(function(a, b) {
+        var x = a[key];
+        var y = b[key];
+
+        if (typeof x == "string")
+        {
+            x = x.toLowerCase(); 
+            y = y.toLowerCase();
+        }
+
+        return ((x < y) ? -1 : ((x > y) ? 1 : 0));
+    });
 }
 
 PME.Util.trim = function(str) {
