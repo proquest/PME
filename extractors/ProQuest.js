@@ -175,21 +175,30 @@ function doWeb(doc, url, pdfUrl) {
 		if (!results.length) {
 			results = PME.Util.xpath(doc, '//a[contains(@href, "/docview/")]');
 		}
-
+		// Check if the global pageList is set and push the initial order to it
+		if (!!pageList) {
+			for (var i = 0; i < results.length; i++) {
+				pageList.push( { index: i, title: results[i].title, url: results[i].href } );
+			}
+		}
+			
 		var items = [];
 		for(var i=0, n=results.length; i<n; i++) {
 			items[results[i].href] = PME.Util.getNodeText(results[i]);
 		}
 
+
 		PME.selectItems(items, function (items) {
 			if (!items) return true;
-
 			var articles = [];
+
 			for (var i in items) {
-				PME.Util.processDocuments(i,
-					//call doWeb so that we rerun detectWeb to get type and
-					//initialize translations
-					function(doc) { doWeb(doc, doc.location.href) });
+				if (items.hasOwnProperty(i)) {
+					PME.Util.processDocuments(i,
+						//call doWeb so that we rerun detectWeb to get type and
+						//initialize translations
+						function(doc) { doWeb(doc, doc.location.href) });
+				}
 			}
 		});
 	//pdfUrl should be undefined unless we are calling doWeb from the following
@@ -218,7 +227,6 @@ function doWeb(doc, url, pdfUrl) {
 
 function scrape(doc, url, type, pdfUrl) {
 	var item = new PME.Item(type);
-
 	//get all rows
 	var rows = PME.Util.xpath(doc, '//div[@class="display_record_indexing_row"]');
 
@@ -353,6 +361,12 @@ function scrape(doc, url, type, pdfUrl) {
 	}
 
 	item.url = url;
+
+	// add an index to the item that will allow for easy remapping with the initial search result order
+	item.index = PME.Util.getIndexBy(pageList, 'url', item.url);
+
+
+
 	if (item.itemType=="thesis" && place.schoolLocation) {
 		item.place = place.schoolLocation;
 	}

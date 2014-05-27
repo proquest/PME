@@ -475,6 +475,12 @@ function doWeb(doc, url) {
 		 */
 		var results = getViableResults(doc);
 
+		// TODO: Save block below for generic sort order solution
+		// for (var i = 0; i < results.length; i++) {
+
+		// 	pageList.push( { index: i, title: results[i].innerText } );
+		// }
+
 		var items = {};
 		var resultDivs = {};
 		var bibtexUrl;
@@ -489,7 +495,7 @@ function doWeb(doc, url) {
 			//keep the result div for extra information
 			resultDivs[bibtexUrl] = results[i];
 		}
-
+	
 		PME.selectItems(items, function(selectedItems) {
 			if(!selectedItems) return true;
 
