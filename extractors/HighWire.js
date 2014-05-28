@@ -217,39 +217,28 @@ var testCases = [
 				"creators" : [
 					{
 						"0" : "",
-						"lastName" : "Guinard",
-						"firstName" : "Solene",
+						"lastName" : "Gutierrez",
+						"firstName" : "Ester",
 						"creatorType" : "author"
 					},
-					{
+					{	
 						"1" : "",
-						"lastName" : "Chiche",
-						"firstName" : "Zoe",
-						"creatorType" : "author"
-					},
-					{
-						"2" : "",
-						"lastName" : "Martin",
-						"firstName" : "Jerome",
-						"creatorType" : "author"
-					},
-					{
-						"3" : "",
-						"lastName" : "L'Her",
-						"firstName" : "Erwan",
+						"lastName" : "Lozano",
+						"firstName" : "Sebastian",
 						"creatorType" : "author"
 					}
-				],	
-				"title" : "A prospective evaluation of different anthropometric height estimation formula",
-				"date" : "1 September 2011",
-				"publicationTitle" : "European Respiratory Journal",
-				"journalAbbreviation" : "Eur. Respir. J.",
-				"pages" : "p2045",
-				"volume" : "38",
-				"issue" : "Suppl_55",
-				"url" : "http://erj.ersjournals.com/cgi/content/abstract/38/Suppl_55/p2045",
-				"abstractNote" : "It is now accepted that protective ventilation with low (6ml/kg of predictive body weight) tidal volume beneficiates to ARDS patient.To determinate predictive body weight, the gender and height of patients have to be known. However, in the ED or in the ICU, patients are often unable to provide their height and tape measurement is usually not valid. The purpose of this study is to evaluate different easy and reproducible anthropometric indicators, which could be correlated to the exact patients' height. Several indicators have been prospectively evaluated on 60 healthy volunteers and correlated to their real height. Height evaluation formula are based on different simple measurements correlation coefficient (r) was calculated by linear regression as compared to exact measured height. Results: See table 1. Among 16 anthropometric different height estimation formula, ulna's length and tibia's length were best correlated with the real volunteers' height. View this table: TABLE1500400TABLE1  Table 1. Correlation between real height and anthropometric indicators (we have only colligated each limb's best formula in this table enhance readability) Discussion: Several simple limb measurements can accurately predict exact patients' height. These estimations have now to be tested on ICU patients, in order to evaluate their bedside feasibility and usefulness."
-			},
+				],		
+				"title" : "A DEA Approach to Performance-Based Budgeting of Formula One Constructors",
+				"date" : "1 April 2014",
+				"publicationTitle" : "Journal of Sports Economics",
+				"journalAbbreviation" : "Journal of Sports Economics",
+				"pages" : "180-200",
+				"volume" : "15",
+				"issue" : "2",
+				"url" : "http://jse.sagepub.com/cgi/content/abstract/15/2/180",
+				"abstractNote" : "This article assesses the relative efficiency of teams participating in Formula One (F1) World Constructors' Championship. A nonparametric method based on data envelopment analysis (DEA) has been used. The aim is to measure each constructor's performance, comparing its efficiency relative to all other competing constructors. The study uses financial and performance data to assess the proximity of the constructors to the best practices frontier. The analysis has been made considering the results of the 2003, 2006, 2008, 2010, and 2011 F1 seasons. In order to create a parsimonious DEA model, a variable screening method for dimensionality reduction is considered. The results indicate that, generally, a substantial reduction should be made to the constructors' budget over the seasons in order to be efficient as compared to the identified benchmarks. In addition, scale efficiency reveals that most constructors operate below their most productive scale size.",
+				"DOI" : "10.1177/1527002512447629"
+			}/*,
 			{
 				"itemType" : "journalArticle",
 				"creators" : [
@@ -712,7 +701,7 @@ var testCases = [
 				"url" : "http://ccm.geoscienceworld.org/cgi/content/abstract/59/2/200",
 				"abstractNote" : "The layer charge density (LCD) of montmorillonite represents the permanent negative charge, its most important property. The LCD can be determined by two different methods, the structural formula method (SFM) and the alkylammonium method (AAM). Other methods of determining the LCD are calibrated against one or the other of these. The results of the two methods differ systematically: SFM values are larger than AAM values and the difference increases with increasing layer charge density.  In the present study, the critical parameters of both methods were considered quantitatively in order to identify the most likely reason for the systematic difference. One particularly important argument against the validity of the SFM is that typical SFM values correspond to unrealistically large CEC values that have never been reported. In addition, SFM does not consider the variable charge which causes cations to be adsorbed to the outer surface (at pH >4). In contrast to minor constituents, which can of course also affect SFM values, the variable charge can explain only part of the systematic difference. The exchange of pure smectite samples with both Cu-trien and alkylammonium revealed the presence of non-exchangeable, non-structural cations (Na, K, Ca). These cations, together with 10% (or more) variable charge, may explain the differences in LCD values. The non-exchangeable, non-structural cations could stem from undetected traces of feldspar or volcanic glass. The present samples indicated that the systematic difference in LCD values between the two methods is related to the amount of non-exchangeable, non-structural cations only, indicating that the two LCD methods probe different features of smectites. Using the SFM on pure smectite provides a value for the total number of charges (permanent with and without fixed (= non-exchangeable, non-structural) cations plus variable charge). The AAM, on the other hand, provides the charge density of the exchangeable cations (without variable charge).",
 				"DOI" : "10.1346/CCMN.2011.0590208"
-			}
+			}*/
 		]
 	}
 ]
