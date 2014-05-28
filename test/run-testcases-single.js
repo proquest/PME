@@ -230,8 +230,20 @@ function runTestCase(tc) {
 	page.open(tc.url, function(pageStatus) {
 		if (pageStatus != "success")
 			return testCaseFailed(tc, "error loading testcase page");
-
 		debugLog("client page loaded");
+
+		page.evaluate(function () {
+		      var username_field = document.getElementById('username');
+		      username_field.value = 'allmeta1';
+		      var password_field = document.getElementById('password');
+		      password_field.value = 'welcome';
+		      
+		      var form = document.getElementById('LoginForm');
+		      form.submit();
+		    });
+		setTimeout( function() {
+				debugLog('title');
+		}, 3000 );
 
 		// the local PME server host and port constants are defined in test_util.js
 		// it is started by the run-testcases-all.js process in normal test runs

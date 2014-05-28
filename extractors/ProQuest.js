@@ -1144,58 +1144,58 @@ var testCases = [
 			}
 		]
 	}*/
-	// {
-	// 	"type": "web",
-	// 	"url": "http://search.proquest.com/docview/213445241",
-	// 	"items": [
-	// 		{
-	// 			"itemType": "journalArticle",
-	// 			"creators": [
-	// 				{
-	// 					"firstName": "Gerald F.",
-	// 					"lastName": "Powers",
-	// 					"creatorType": "author"
-	// 				},
-	// 				{
-	// 					"firstName": "Drew",
-	// 					"lastName": "Christiansen",
-	// 					"creatorType": "author"
-	// 				},
-	// 				{
-	// 					"firstName": "Robert T.",
-	// 					"lastName": "Hennemeyer",
-	// 					"creatorType": "author"
-	// 				}
-	// 			],
-	// 			"notes": [],
-	// 			"tags": [
-	// 				"Book reviews",
-	// 				"Peace",
-	// 				"Political Science--International Relations",
-	// 				"Sciences: Comprehensive Works",
-	// 				"Sociology"
-	// 			],
-	// 			"seeAlso": [],
-	// 			"attachments": [
-	// 				{
-	// 					"title": "Snapshot"
-	// 				}
-	// 			],
-	// 			"issue": "2",
-	// 			"ISSN": "00084697",
-	// 			"language": "English",
-	// 			"rights": "Copyright Peace Research May 1995",
-	// 			"url": "http://search.proquest.com/docview/213445241",
-	// 			"libraryCatalog": "ProQuest",
-	// 			"shortTitle": "Peacemaking",
-	// 			"title": "Peacemaking: moral & policy challenges for a new world // Review",
-	// 			"publicationTitle": "Peace Research",
-	// 			"volume": "27",
-	// 			"pages": "90-100",
-	// 			"date": "May 1995"
-	// 		}
-	// 	]
-	// },
+	{
+		"type": "web",
+		"url": "http://search.proquest.com/docview/213445241",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"firstName": "Gerald F.",
+						"lastName": "Powers",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Drew",
+						"lastName": "Christiansen",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Robert T.",
+						"lastName": "Hennemeyer",
+						"creatorType": "author"
+					}
+				],
+				"notes": [],
+				"tags": [
+					"Book reviews",
+					"Peace",
+					"Political Science--International Relations",
+					"Sciences: Comprehensive Works",
+					"Sociology"
+				],
+				"seeAlso": [],
+				"attachments": [
+					{
+						"title": "Snapshot"
+					}
+				],
+				"issue": "2",
+				"ISSN": "00084697",
+				"language": "English",
+				"rights": "Copyright Peace Research May 1995",
+				"url": "http://search.proquest.com/docview/213445241",
+				"libraryCatalog": "ProQuest",
+				"shortTitle": "Peacemaking",
+				"title": "Peacemaking: moral & policy challenges for a new world // Review",
+				"publicationTitle": "Peace Research",
+				"volume": "27",
+				"pages": "90-100",
+				"date": "May 1995"
+			}
+		]
+	}
 	// {
 	// 	"type": "web",
 	// 	"url": "http://search.proquest.com/hnpnewyorktimes/docview/122485317/abstract/1357D8A4FC136DF28E3/11?accountid=12861",
