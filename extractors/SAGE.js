@@ -194,187 +194,29 @@ var testCases = [
 				"creators" : [
 					{
 						"0" : "",
-						"lastName" : "Wong",
-						"firstName" : "Daniel"
+						"lastName" : "Higgs",
+						"firstName" : "Suzanne"
 					},
-					{
+					{	
 						"1" : "",
-						"lastName" : "Hall",
-						"firstName" : "Kimberly"
+						"lastName" : "Cooper",
+						"firstName" : "Alison"
 					},
-					{
+					{	
 						"2" : "",
-						"lastName" : "Justice",
-						"firstName" : "Cheryl"
+						"lastName" : "Lee",
+						"firstName" : "Jonathan"
 					},
-					{
+					{	
 						"3" : "",
-						"lastName" : "Hernandez",
-						"firstName" : "Lucy"
-					}
-				],	
-				"title" : "Counseling Individuals Through the Lifespan",
-				"date" : "January 2015",
-				"pages" : "368",
-				"publisher" : "SAGE Publications, Inc"
-			},
-			{
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
-						"lastName" : "Braithwaite",
-						"firstName" : "Dawn"
-					},
-					{	
-						"1" : "",
-						"lastName" : "Schrodt",
-						"firstName" : "Paul"
+						"lastName" : "Harris",
+						"firstName" : "Mike"
 					}
 				],		
-				"title" : "Engaging Theories in Interpersonal Communication\n\t\t\n\t\t\t\tMultiple Perspectives\n\t\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\tSecond Edition",
-				"date" : "November 2014",
-				"pages" : "448",
-				"publisher" : "SAGE Publications, Inc"
-			},
-			{
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
-						"lastName" : "Bartol",
-						"firstName" : "Curt"
-					},
-					{	
-						"1" : "",
-						"lastName" : "Bartol",
-						"firstName" : "Anne"
-					}
-				],		
-				"title" : "Forensic Psychology\n\t\t\n\t\t\t\tResearch and Applications\n\t\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\tFourth Edition",
+				"title" : "Biological Psychology",
 				"date" : "October 2014",
-				"pages" : "592",
-				"publisher" : "SAGE Publications, Inc"
-			},
-			{
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
-						"lastName" : "Privitera",
-						"firstName" : "Gregory"
-					}
-				],	
-				"title" : "Getting Into Graduate School\n\t\t\n\t\t\t\tA Comprehensive Guide for Psychology and the Behavioral Sciences",
-				"date" : "July 2014",
-				"pages" : "232",
-				"publisher" : "SAGE Publications, Inc"
-			},
-			{
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
-						"lastName" : "Lynn",
-						"firstName" : "Steven"
-					},
-					{
-						"1" : "",
-						"lastName" : "O'Donohue",
-						"firstName" : "William"
-					},
-					{
-						"2" : "",
-						"lastName" : "Lilienfeld",
-						"firstName" : "Scott"
-					}
-				],	
-				"title" : "Health, Happiness, and Well-Being\n\t\t\n\t\t\t\tBetter Living Through Psychological Science",
-				"date" : "September 2014",
-				"pages" : "424",
-				"publisher" : "SAGE Publications, Inc"
-			},
-			{
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
-						"lastName" : "Schug",
-						"firstName" : "Robert"
-					},
-					{
-						"1" : "",
-						"lastName" : "Fradella",
-						"firstName" : "Henry"
-					}
-				],	
-				"title" : "Mental Illness and Crime",
-				"date" : "August 2014",
-				"pages" : "600",
-				"publisher" : "SAGE Publications, Inc"
-			},
-			{
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
-						"lastName" : "Holden",
-						"firstName" : "George"
-					}
-				],		
-				"title" : "Parenting\n\t\t\n\t\t\t\tA Dynamic Perspective\n\t\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\tSecond Edition",
-				"date" : "October 2014",
-				"pages" : "440",
-				"publisher" : "SAGE Publications, Inc"
-			},
-			{	
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
-						"lastName" : "Hastie",
-						"firstName" : "Reid"
-					},
-					{
-						"1" : "",
-						"lastName" : "Dawes",
-						"firstName" : "Robyn"
-					}
-				],	
-				"title" : "Rational Choice in an Uncertain World\n\t\t\n\t\t\t\tThe Psychology of Judgment and Decision Making\n\t\t\n\t\t\n\t\t\t\n\t\t\t\t\n\t\t\t\t\n\t\t\t\t\tThird Edition",
-				"date" : "July 2015",
-				"pages" : "408",
-				"publisher" : "SAGE Publications, Inc"
-			},
-			{
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
-						"lastName" : "Privitera",
-						"firstName" : "Gregory"
-					}
-				],	
-				"title" : "Statistics for the Behavioral Sciences",
-				"edition" : "Second",
-				"date" : "August 2014",
-				"pages" : "776",
-				"publisher" : "SAGE Publications, Inc"
-			},
-			{
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
-						"lastName" : "Privitera",
-						"firstName" : "Gregory"
-					}
-				],	
-				"title" : "Student Study Guide With SPSS Workbook for Statistics for the Behavioral Sciences",
-				"edition" : "Second",
-				"date" : "August 2014",
-				"pages" : "488",
-				"publisher" : "SAGE Publications, Inc"
+				"pages" : "450",
+				"publisher" : "SAGE Publications Ltd"
 			}
 		]
 	}
