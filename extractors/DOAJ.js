@@ -113,6 +113,13 @@ var testCases = [
 				"ISSN" : "2045-7634",
 				"place" : "United Kingdom"
 			},
+			{
+				"itemType" : "journalArticle",
+				"title" : " Cancer Treatment Communications",
+				"publisher" : "Elsevier",
+				"ISSN" : "2213-0896",
+				"place" : "United Kingdom"
+			},
 			{	
 				"itemType": "journalArticle",
 				"title": "Chinese Journal of Cancer",
@@ -154,36 +161,6 @@ var testCases = [
 				"publisher" : "Bentham open",
 				"ISSN" : "1876-8202",
 				"place" : "United States"
-			},	
-			{
-				"itemType" : "journalArticle",
-				"creators" : [
-					{
-						"0" : "",
-						"firstName" : "Huilai",
-						"lastName" : "ZHANG"
-					},
-					{
-						"1" : "",
-						"firstName" : "Huaqing",
-						"lastName" : "WANG"
-					},
-					{
-						"2" : "",
-						"firstName" : "Pengfei",
-						"lastName" : "LIU"
-					}
-				],	
-				"title" : " Stomach One-Point Cancer: One Case Report and Literature Review",
-				"publisher" : "Cancer Biology &amp; Medicine",
-				"publicationDate" : "2009 June",
-				"publicationTitle" : "Cancer Biology &amp; Medicine",
-				"volume" : "6",
-				"issue" : "3",
-				"pages" : "233-234",
-				"ISSN" : "2095-3941",
-				"DOI" : "10.1007/s11805-009-0233-5",
-				"place" : "China"
 			}
 		]		
 	}

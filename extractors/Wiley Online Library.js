@@ -1128,14 +1128,67 @@ var testCases = [
 				"shortTitle": "Phosphane-Free Palladium-Catalyzed Coupling Reactions"
 			}
 		]
-	}/*,
+	},
 	{
 		"type": "web",
-		"url": "http://onlinelibrary.wiley.com/search",
+		"url": "http://onlinelibrary.wiley.com/advanced/search/results/reentry?scope=allContent&query=cancer&inTheLastList=6&queryStringEntered=false&searchRowCriteria[0].fieldName=all-fields&searchRowCriteria[0].booleanConnector=and&searchRowCriteria[1].fieldName=all-fields&searchRowCriteria[1].booleanConnector=and&searchRowCriteria[2].fieldName=all-fields&searchRowCriteria[2].booleanConnector=and&start=61&resultsPerPage=20&ordering=relevancy",
 		"items": [
-			
+			{
+				"itemType" : "bookSection",
+				"attachments" : [
+					{
+						"0" : "",
+						"title" : "Snapshot",
+						"mimeType" : "text/html"
+					}
+				],		
+				"tags" : [
+					"Ammoniumchromat",
+					"Ammoniumdichromat",
+					"Calciumchromat",
+					"Chromhexachlorid",
+					"Chromtrioxid",
+					"Chromylchlorid",
+					"Kaliumchromat",
+					"Kaliumdichromat",
+					"Natriumchromat",
+					"Natriumdichromat",
+					"Strontiumchromat",
+					"Zinkchromat",
+					"Zinkchromathydroxid",
+					"Zinkkaliumchromathydroxid",
+					"Wirkungsmechanismus",
+					"Toxikokinetik",
+					"Metabolismus",
+					"(sub)akute Toxizität",
+					"(sub)chronische Toxizität",
+					"Reizwirkung",
+					"allergene Wirkung",
+					"Reproduktionstoxizität",
+					"Fertilität",
+					"Entwicklungstoxizität",
+					"Genotoxizität",
+					"Kanzerogenität",
+					"Arbeitsstoff",
+					"maximale Arbeitsplatzkonzentration",
+					"MAK-Wert",
+					"Toxizität",
+					"Gefahrstoff"
+				],	
+				"title" : "Chrom(VI)-Verbindungen [MAK Value Documentation in German language, 2010]",
+				"publisher" : "Wiley-VCH Verlag GmbH & Co. KGaA",
+				"ISBN" : "9783527600410",
+				"url" : "http://onlinelibrary.wiley.com/doi/10.1002/3527600418.mb1854029stad0048/abstract",
+				"DOI" : "10.1002/3527600418.mb1854029stad0048",
+				"publicationTitle" : "The MAK-Collection for Occupational Health and Safety",
+				"date" : "2002",
+				"abstractNote" : "Veröffentlicht in der Reihe Gesundheitsschädliche Arbeitsstoffe, 48. Lieferung, Ausgabe 2010Der Artikel enthält folgende Kapitel:",
+				"bookTitle" : "The MAK-Collection for Occupational Health and Safety",
+				"language" : "de",
+				"rights" : "Copyright © 2002 by Wiley-VCH Verlag GmbH & Co. KGaA. All rights reserved."
+			}
 		]
-	}*/
+	}
 ]
 /** END TEST CASES **/
 PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });
