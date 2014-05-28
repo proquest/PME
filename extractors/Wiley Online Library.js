@@ -1184,8 +1184,6 @@ var testCases = [
 				"date" : "2002",
 				"abstractNote" : "Veröffentlicht in der Reihe Gesundheitsschädliche Arbeitsstoffe, 48. Lieferung, Ausgabe 2010Der Artikel enthält folgende Kapitel:",
 				"bookTitle" : "The MAK-Collection for Occupational Health and Safety",
-				"language" : "de",
-				"rights" : "Copyright © 2002 by Wiley-VCH Verlag GmbH & Co. KGaA. All rights reserved."
 			}
 		]
 	}
