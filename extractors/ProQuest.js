@@ -1146,27 +1146,16 @@ var testCases = [
 	}*/
 	{
 		"type": "web",
+		"extractor": "ProQuest",
 		"url": "http://search.proquest.com/docview/213445241",
 		"items": [
 			{
 				"itemType": "journalArticle",
-				"creators": [
-					{
-						"firstName": "Gerald F.",
-						"lastName": "Powers",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Drew",
-						"lastName": "Christiansen",
-						"creatorType": "author"
-					},
-					{
-						"firstName": "Robert T.",
-						"lastName": "Hennemeyer",
-						"creatorType": "author"
-					}
-				],
+				"creators" : [
+					"Powers, Gerald F",
+					"Christiansen, Drew",
+					"Hennemeyer, Robert T"
+				],	
 				"notes": [],
 				"tags": [
 					"Book reviews",

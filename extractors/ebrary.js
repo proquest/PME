@@ -59,6 +59,7 @@
 var testCases = [
 	{
 		"type": "web",
+		"extractor": "ebrary",
 		"url": "http://site.ebrary.com/lib/myproquest/search.action?p00=cancer&fromSearch=fromSearch&search=Search",
 		"items": [
 			{

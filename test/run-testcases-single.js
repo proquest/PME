@@ -15,7 +15,8 @@ const RESULTS_WAIT_SECONDS = 60; // number of seconds to wait for the translator
 // imports
 var webpage = require("webpage"),
 	system = require("system"),
-	testUtil = require("./test_util.js");
+	testUtil = require("./test_util.js"),
+	fs = require("fs");
 
 var waitFor = testUtil.waitFor,
 	debugLog = testUtil.conditionalLogger(DEBUG, "PME_TEST");
@@ -223,107 +224,187 @@ function testCaseSucceeded(tc) {
 function runTestCase(tc) {
 	debugLog("runTestCase", tc.url);
 
+	var content = (JSON.parse(fs.read('credential.txt')));
+
 	var page = webpage.create();
 
 	page.settings.userAgent = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_2) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1944.0 Safari/537.36";
+	//for sites using OAuth
+	if (tc.extractor == 'ebrary')
+		page.customHeaders={'Authorization': 'Basic '+btoa(content.ebrary.username+":"+content.ebrary.password)};
+	
+	if (tc.extractor == 'ProQuest') {
+		//for sites requiring submittin usename and password in POST
+		page.open(tc.url, 'post', "username="+content.ProQuest.username+"&password="+content.ProQuest.password, function(pageStatus) {	
+			if (pageStatus != "success")
+				return testCaseFailed(tc, "error loading testcase page");
+			debugLog("client page loaded");
 
-	page.open(tc.url, function(pageStatus) {
-		if (pageStatus != "success")
-			return testCaseFailed(tc, "error loading testcase page");
-		debugLog("client page loaded");
+			// the local PME server host and port constants are defined in test_util.js
+			// it is started by the run-testcases-all.js process in normal test runs
+			var localPMEServerHost = testUtil.PME_SERVER_HOST + ":" + testUtil.PME_SERVER_PORT;
+			debugLog("inserting PME using PME_SRV =", localPMEServerHost);
 
-		page.evaluate(function () {
-		      var username_field = document.getElementById('username');
-		      username_field.value = 'allmeta1';
-		      var password_field = document.getElementById('password');
-		      password_field.value = 'welcome';
-		      
-		      var form = document.getElementById('LoginForm');
-		      form.submit();
-		    });
-		setTimeout( function() {
-				debugLog('title');
-		}, 3000 );
+			// insert PME from locally running instance
+			// phantom has an includeJs method but we need to set the PME_SCR var
+			// anyway, so doing it bookmarklet style.
+			page.evaluate(function(testHost) {
+				var h = document.getElementsByTagName('head')[0];
+				PME_SRV = testHost;
+				PME_SCR = document.createElement('SCRIPT');
+				PME_SCR.src = 'http://' + PME_SRV + '/PME.js?' + (new Date().getTime());
+				h.appendChild(PME_SCR);
 
-		// the local PME server host and port constants are defined in test_util.js
-		// it is started by the run-testcases-all.js process in normal test runs
-		var localPMEServerHost = testUtil.PME_SERVER_HOST + ":" + testUtil.PME_SERVER_PORT;
-		debugLog("inserting PME using PME_SRV =", localPMEServerHost);
+				PME_TEST_RESULTS = null;
+			}, localPMEServerHost); // pass local server uri to the function running on the client page
 
-		// insert PME from locally running instance
-		// phantom has an includeJs method but we need to set the PME_SCR var
-		// anyway, so doing it bookmarklet style.
-		page.evaluate(function(testHost) {
-			var h = document.getElementsByTagName('head')[0];
-			PME_SRV = testHost;
-			PME_SCR = document.createElement('SCRIPT');
-			PME_SCR.src = 'http://' + PME_SRV + '/PME.js?' + (new Date().getTime());
-			h.appendChild(PME_SCR);
-
-			PME_TEST_RESULTS = null;
-		}, localPMEServerHost); // pass local server uri to the function running on the client page
-
-		// wait for PME to load in the page
-		waitFor(function() {
-			return page.evaluate(function() {
-				return window.PME && PME.getPageMetaData;
-			});
-		},
-		PME_WAIT_SECONDS * 1000,
-		function(pmeLoaded) {
-			if (! pmeLoaded) {
-				debugLog("PME did not load within " + PME_WAIT_SECONDS + "s");
-				return testCaseFailed(tc, "PME did not load successfully in the client page");
-			}
-
-			// start PME, will run async inside page
-			page.evaluate(function() {
-				PME.getPageMetaData(function(pi) {
-					window.PME_TEST_RESULTS = pi;
-				});
-			});
-
-			// give the translator some time to return the results
-			debugLog("waiting for resultset");
-
+			// wait for PME to load in the page
 			waitFor(function() {
 				return page.evaluate(function() {
-					return !!window.PME_TEST_RESULTS;
+					return window.PME && PME.getPageMetaData;
 				});
 			},
-			RESULTS_WAIT_SECONDS * 1000,
-			function(foundResults) {
-				if (! foundResults) {
-					debugLog("did not detect resultset in page");
-					testCaseFailed(tc, "did not find resultset after " + RESULTS_WAIT_SECONDS + "s");
+			PME_WAIT_SECONDS * 1000,
+			function(pmeLoaded) {
+				if (! pmeLoaded) {
+					debugLog("PME did not load within " + PME_WAIT_SECONDS + "s");
+					return testCaseFailed(tc, "PME did not load successfully in the client page");
 				}
-				else {
-					debugLog("found resultset");
 
-					// the translator completed, but results may be empty (0 items)
-					// try and get the array from the result object in a paranoid way
-					// to avoid unexpected errors.
-					var pageItems = page.evaluate(function() {
-						return window.PME_TEST_RESULTS;
+				// start PME, will run async inside page
+				page.evaluate(function() {
+					PME.getPageMetaData(function(pi) {
+						window.PME_TEST_RESULTS = pi;
 					});
+				});
 
-					if (pageItems)
-						pageItems = pageItems.items;
+				// give the translator some time to return the results
+				debugLog("waiting for resultset");
 
-					if (pageItems && pageItems.length) {
-						var errors = compareTestCaseItems(tc, pageItems);
-						if (errors.ok())
-							testCaseSucceeded(tc);
-						else
-							testCaseFailed(tc, errors);
+				waitFor(function() {
+					return page.evaluate(function() {
+						return !!window.PME_TEST_RESULTS;
+					});
+				},
+				RESULTS_WAIT_SECONDS * 1000,
+				function(foundResults) {
+					if (! foundResults) {
+						debugLog("did not detect resultset in page");
+						testCaseFailed(tc, "did not find resultset after " + RESULTS_WAIT_SECONDS + "s");
 					}
-					else
-						testCaseFailed(tc, "translator returned empty resultset");
-				}
+					else {
+						debugLog("found resultset");
+
+						// the translator completed, but results may be empty (0 items)
+						// try and get the array from the result object in a paranoid way
+						// to avoid unexpected errors.
+						var pageItems = page.evaluate(function() {
+							return window.PME_TEST_RESULTS;
+						});
+
+						if (pageItems)
+							pageItems = pageItems.items;
+
+						if (pageItems && pageItems.length) {
+							var errors = compareTestCaseItems(tc, pageItems);
+							if (errors.ok())
+								testCaseSucceeded(tc);
+							else
+								testCaseFailed(tc, errors);
+						}
+						else
+							testCaseFailed(tc, "translator returned empty resultset");
+					}
+				});
 			});
 		});
-	});
+	}
+	else{		
+		page.open(tc.url, function(pageStatus) {
+		
+			if (pageStatus != "success")
+				return testCaseFailed(tc, "error loading testcase page");
+			debugLog("client page loaded");
 
+			// the local PME server host and port constants are defined in test_util.js
+			// it is started by the run-testcases-all.js process in normal test runs
+			var localPMEServerHost = testUtil.PME_SERVER_HOST + ":" + testUtil.PME_SERVER_PORT;
+			debugLog("inserting PME using PME_SRV =", localPMEServerHost);
+
+			// insert PME from locally running instance
+			// phantom has an includeJs method but we need to set the PME_SCR var
+			// anyway, so doing it bookmarklet style.
+			page.evaluate(function(testHost) {
+				var h = document.getElementsByTagName('head')[0];
+				PME_SRV = testHost;
+				PME_SCR = document.createElement('SCRIPT');
+				PME_SCR.src = 'http://' + PME_SRV + '/PME.js?' + (new Date().getTime());
+				h.appendChild(PME_SCR);
+
+				PME_TEST_RESULTS = null;
+			}, localPMEServerHost); // pass local server uri to the function running on the client page
+
+			// wait for PME to load in the page
+			waitFor(function() {
+				return page.evaluate(function() {
+					return window.PME && PME.getPageMetaData;
+				});
+			},
+			PME_WAIT_SECONDS * 1000,
+			function(pmeLoaded) {
+				if (! pmeLoaded) {
+					debugLog("PME did not load within " + PME_WAIT_SECONDS + "s");
+					return testCaseFailed(tc, "PME did not load successfully in the client page");
+				}
+
+				// start PME, will run async inside page
+				page.evaluate(function() {
+					PME.getPageMetaData(function(pi) {
+						window.PME_TEST_RESULTS = pi;
+					});
+				});
+
+				// give the translator some time to return the results
+				debugLog("waiting for resultset");
+
+				waitFor(function() {
+					return page.evaluate(function() {
+						return !!window.PME_TEST_RESULTS;
+					});
+				},
+				RESULTS_WAIT_SECONDS * 1000,
+				function(foundResults) {
+					if (! foundResults) {
+						debugLog("did not detect resultset in page");
+						testCaseFailed(tc, "did not find resultset after " + RESULTS_WAIT_SECONDS + "s");
+					}
+					else {
+						debugLog("found resultset");
+
+						// the translator completed, but results may be empty (0 items)
+						// try and get the array from the result object in a paranoid way
+						// to avoid unexpected errors.
+						var pageItems = page.evaluate(function() {
+							return window.PME_TEST_RESULTS;
+						});
+
+						if (pageItems)
+							pageItems = pageItems.items;
+
+						if (pageItems && pageItems.length) {
+							var errors = compareTestCaseItems(tc, pageItems);
+							if (errors.ok())
+								testCaseSucceeded(tc);
+							else
+								testCaseFailed(tc, errors);
+						}
+						else
+							testCaseFailed(tc, "translator returned empty resultset");
+					}
+				});
+			});
+		});
+	}
 	// conditionally pipe PME console messages form the client page to the local stdout
 	if (PIPE_PME_OUTPUT) {
 		page.onConsoleMessage = function(msg) {
