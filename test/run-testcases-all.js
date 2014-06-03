@@ -118,7 +118,7 @@ function translatorError(fileName, message) {
 // returned to us in JSON form at the end of the stdout
 function runTranslatorTestCases(fileName, then) {
 	var child = exec(
-		PHANTOMJS_PATH + " run-testcases-single.js " + fileName,
+		PHANTOMJS_PATH + " run-testcases-single.js " + fileName + " " + credentials,
 		{
 			timeout: TEST_WAIT_SECONDS * 1000
 		},
@@ -221,6 +221,8 @@ function nextTranslator() {
 
 var args = process.argv.slice(2),
 	jenkinsBuildNumber = args.length > 0 ? args[0] : 1;
+	credentials = args[1];	
+	
 fs.readdir("../extractors/", function(err, files) {
 	fileNames = files.filter(function(f) {
 		return f.toLowerCase().substr(-3) == ".js";

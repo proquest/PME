@@ -21,11 +21,26 @@ var webpage = require("webpage"),
 var waitFor = testUtil.waitFor,
 	debugLog = testUtil.conditionalLogger(DEBUG, "PME_TEST");
 
+//Grabbing credential paramter from run-testcases-all.js
+var args = system.args.slice(1),
+	translatorName = [];
+	
+for(var i = 0; i < args.length; i++) {
+	if (args[i].indexOf(".js") >= 0)
+		break;
+	else
+		translatorName.push(args[i]);
+}	
+
+translatorName.push(args[i]);
+translatorName = translatorName.join(" ");
+var credential = args[i+1];
+
 
 // in: webCases is the filtered set of testCases from the translator (filename passed in as only arg to this script)
 // out: testResult will contain all testCase results and is passed to caller process in JSON form in stdout
 var webCases = [],
-	translatorName = system.args.slice(1).join(" "), // allow for filenames with spaces in them
+	//translatorName = system.args.slice(1).join(" "), // allow for filenames with spaces in them
 	testResult = new testUtil.TestResult(translatorName);
 
 
@@ -224,7 +239,7 @@ function testCaseSucceeded(tc) {
 function runTestCase(tc) {
 	debugLog("runTestCase", tc.url);
 
-	var content = (JSON.parse(fs.read('credential.txt')));
+	var content = (JSON.parse(credential));
 
 	var page = webpage.create();
 
@@ -430,6 +445,7 @@ function runNextTestCase() {
 
 // --------------------------
 // main
+
 if (system.args.length < 2) {
 	testResult.fatalError("the test script must be called with only the translator filename");
 	didCompleteTestCases();
