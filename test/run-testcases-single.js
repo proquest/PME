@@ -23,8 +23,9 @@ var waitFor = testUtil.waitFor,
 
 //Grabbing credential paramter from run-testcases-all.js
 var args = system.args.slice(1),
-	translatorName = [];
-	
+	translatorName = [],
+	credential = [];
+
 for(var i = 0; i < args.length; i++) {
 	if (args[i].indexOf(".js") >= 0)
 		break;
@@ -34,7 +35,11 @@ for(var i = 0; i < args.length; i++) {
 
 translatorName.push(args[i]);
 translatorName = translatorName.join(" ");
-var credential = args[i+1];
+
+for(var j = i+1; j < args.length; j++) {
+	credential.push(args[j]);
+}
+credential = credential.join(" ");
 
 
 // in: webCases is the filtered set of testCases from the translator (filename passed in as only arg to this script)
