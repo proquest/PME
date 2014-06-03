@@ -1102,6 +1102,7 @@ var fieldNames = {
 var testCases = [
 	/*{
 		"type": "web",
+		"extractor": "ProQuest",
 		"url": "http://search.proquest.com/dissertations/docview/251755786/abstract/132B8A749B71E82DBA1/1",
 		"items": [
 			{
@@ -1136,6 +1137,227 @@ var testCases = [
 				"rights": "Copyright UMI - Dissertations Publishing 2001",
 				"url": "http://search.proquest.com/dissertations/docview/251755786/abstract/132B8A749B71E82DBA1/1",
 				"place": "United States -- Ohio",
+				"abstractNote": "Russian modernist theatre greatly influenced the development of American theatre during the first three decades of the twentieth century. Several developments encouraged the relationships between Russian artists and their American counterparts, including key tours by Russian artists in America, the advent of modernism in the American theatre, the immigration of Eastern Europeans to the United States, American advertising and consumer culture, and the Bolshevik Revolution and all of its domestic and international ramifications. Within each of these major and overlapping developments, Russian culture became increasingly acknowledged and revered by American artists and thinkers, who were seeking new art forms to express new ideas. This study examines some of the most significant contributions of Russian theatre and its artists in the early decades of the twentieth century. Looking beyond the important visit of the Moscow Art Theatre in 1923, this study charts the contributions of various Russian artists and their American supporters. \n Certainly, the influence of Stanislavsky and the Moscow Art Theatre on the modern American theatre has been significant, but theatre historians' attention to his influence has overshadowed the contributions of other Russian artists, especially those who provided non-realistic approaches to theatre. In order to understand the extent to which Russian theatre influenced the American stage, this study focuses on the critics, intellectuals, producers, and touring artists who encouraged interaction between Russians and Americans, and in the process provided the catalyst for American theatrical experimentation. The key figures in this study include some leaders in the Yiddish intellectual and theatrical communities in New York City, Morris Gest and Otto H. Kahn, who imported many important Russian performers for American audiences, and a number of Russian émigré artists, including Jacob Gordin, Jacob Ben-Ami, Benno Schneider, Boris Aronson, and Michel Fokine, who worked in the American theatre during the first three decades of the twentieth century.",
+				"libraryCatalog": "ProQuest",
+				"shortTitle": "Beyond Stanislavsky",
+				"title": "Beyond Stanislavsky: The influence of Russian modernism on the American theatre",
+				"date": "2001"
+			}
+		]
+	},*/
+	{
+		"type": "web",
+		"extractor": "ProQuest",
+		"url": "http://search.proquest.com/docview/213445241",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"creators" : [
+					"Powers, Gerald F",
+					"Christiansen, Drew",
+					"Hennemeyer, Robert T"
+				],	
+				"notes": [],
+				"tags": [
+					"Book reviews",
+					"Peace",
+					"Political Science--International Relations",
+					"Sciences: Comprehensive Works",
+					"Sociology"
+				],
+				"seeAlso": [],
+				"attachments": [
+					{
+						"title": "Snapshot"
+					}
+				],
+				"issue": "2",
+				"ISSN": "00084697",
+				"language": "English",
+				"rights": "Copyright Peace Research May 1995",
+				"url": "http://search.proquest.com/docview/213445241",
+				"libraryCatalog": "ProQuest",
+				"shortTitle": "Peacemaking",
+				"title": "Peacemaking: moral & policy challenges for a new world // Review",
+				"publicationTitle": "Peace Research",
+				"volume": "27",
+				"pages": "90-100",
+				"date": "May 1995"
+			}
+		]
+	},
+	/*{
+		"type": "web",
+		"extractor": "ProQuest",
+		"url": "http://search.proquest.com/hnpnewyorktimes/docview/122485317/abstract/1357D8A4FC136DF28E3/11",
+		"items": [
+			{
+				"itemType": "newspaperArticle",
+				"creators": [
+					{
+						"firstName": "F. Stephen",
+						"lastName": "Larrabee",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "R. G.",
+						"lastName": "Livingston",
+						"creatorType": "author"
+					}
+				],
+				"notes": [],
+				"tags": [
+					"General Interest Periodicals--United States"
+				],
+				"seeAlso": [],
+				"attachments": [
+					{
+						"title": "Snapshot"
+					},
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"ISSN": "03624331",
+				"language": "English",
+				"rights": "Copyright New York Times Company Aug 22, 1984",
+				"url": "http://search.proquest.com/hnpnewyorktimes/docview/122485317/abstract/1357D8A4FC136DF28E3/11",
+				"place": "New York, N.Y., United States",
+				"abstractNote": "For some months now, a gradual thaw has been in the making between East Germany and West Germany. So far, the United States has paid scant attention -- an attitude very much in keeping with our neglect of East Germany throughout the postwar period. We should reconsider this policy before things much further -- and should in particular begin to look more closely at what is going on in East Germany.",
+				"libraryCatalog": "ProQuest",
+				"title": "Rethinking Policy on East Germany",
+				"publicationTitle": "New York Times (1923-Current file)",
+				"pages": "A23",
+				"date": "Aug 22, 1984"
+			}
+		]
+	},
+	{
+		"type": "web",
+		"extractor": "ProQuest",
+		"url": "http://search.proquest.com/docview/129023293/abstract",
+		"items": [
+			{
+				"itemType": "newspaperArticle",
+				"creators": [],
+				"notes": [],
+				"tags": [
+					"Business And Economics--Banking And Finance"
+				],
+				"seeAlso": [],
+				"attachments": [
+					{
+						"title": "Snapshot"
+					},
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"title": "THE PRESIDENT AND ALDRICH.: Railway Age Relates Happenings Behind the Scenes Regarding Rate Regulation.",
+				"publicationTitle": "Wall Street Journal (1889-1922)",
+				"pages": "7",
+				"numPages": "1",
+				"publisher": "Dow Jones & Company Inc",
+				"language": "English",
+				"rights": "Copyright Dow Jones & Company Inc Dec 5, 1905",
+				"url": "http://search.proquest.com/docview/129023293/abstract",
+				"place": "New York, N.Y., United States",
+				"date": "Dec 5, 1905",
+				"abstractNote": "The Railway Age says: \"The history of the affair (railroad rate question) as it has gone on behind the scenes, is about as follows.",
+				"libraryCatalog": "ProQuest",
+				"accessDate": "CURRENT_TIMESTAMP",
+				"shortTitle": "THE PRESIDENT AND ALDRICH."
+			}
+		]
+	},*/
+	{
+		"type": "web",
+		"extractor": "ProQuest",
+		"url": "http://search.proquest.com/dissertations/pagepdf/251755786/fulltextPDF",
+		"items": [
+			{
+				"itemType": "thesis",
+				"creators": [
+					"Robinson, Valleri Jane"
+				],
+				"notes": [],
+				"tags": [
+					"Communication and the arts",
+					"Konstantin",
+					"Konstantin Stanislavsky",
+					"Modernism",
+					"Russian",
+					"Stanislavsky",
+					"Theater"
+				],
+				"seeAlso": [],
+				"attachments": [
+					{
+						"title": "Snapshot"
+					},
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"numPages": "233",
+				"university": "The Ohio State University",
+				"thesisType": "Ph.D.",
+				"language": "English",
+				"rights": "Copyright UMI - Dissertations Publishing 2001",
+				"url": "http://search.proquest.com/dissertations/docview/251755786/abstract",
+				"place": "United States -- Ohio",
+				"abstractNote": "Russian modernist theatre greatly influenced the development of American theatre during the first three decades of the twentieth century. Several developments encouraged the relationships between Russian artists and their American counterparts, including key tours by Russian artists in America, the advent of modernism in the American theatre, the immigration of Eastern Europeans to the United States, American advertising and consumer culture, and the Bolshevik Revolution and all of its domestic and international ramifications. Within each of these major and overlapping developments, Russian culture became increasingly acknowledged and revered by American artists and thinkers, who were seeking new art forms to express new ideas. This study examines some of the most significant contributions of Russian theatre and its artists in the early decades of the twentieth century. Looking beyond the important visit of the Moscow Art Theatre in 1923, this study charts the contributions of various Russian artists and their American supporters. \n Certainly, the influence of Stanislavsky and the Moscow Art Theatre on the modern American theatre has been significant, but theatre historians' attention to his influence has overshadowed the contributions of other Russian artists, especially those who provided non-realistic approaches to theatre. In order to understand the extent to which Russian theatre influenced the American stage, this study focuses on the critics, intellectuals, producers, and touring artists who encouraged interaction between Russians and Americans, and in the process provided the catalyst for American theatrical experimentation. The key figures in this study include some leaders in the Yiddish intellectual and theatrical communities in New York City, Morris Gest and Otto H. Kahn, who imported many important Russian performers for American audiences, and a number of Russian émigré artists, including Jacob Gordin, Jacob Ben-Ami, Benno Schneider, Boris Aronson, and Michel Fokine, who worked in the American theatre during the first three decades of the twentieth century.",
+				"libraryCatalog": "ProQuest",
+				"shortTitle": "Beyond Stanislavsky",
+				"title": "Beyond Stanislavsky: The influence of Russian modernism on the American theatre",
+				"date": "2001"
+			}
+		]
+	}/*,
+	{
+		"type": "web",
+		"extractor": "ProQuest",
+		"url": "http://search.proquest.com/dissertations/docview/251755786/previewPDF",
+		"items": [
+			{
+				"itemType": "thesis",
+				"creators": [
+					{
+						"firstName": "Valleri Jane",
+						"lastName": "Robinson",
+						"creatorType": "author"
+					}
+				],
+				"notes": [],
+				"tags": [
+					"Communication and the arts",
+					"Konstantin",
+					"Konstantin Stanislavsky",
+					"Modernism",
+					"Russian",
+					"Stanislavsky",
+					"Theater"
+				],
+				"seeAlso": [],
+				"attachments": [
+					{
+						"title": "Snapshot"
+					},
+					{
+						"title": "Full Text PDF",
+						"mimeType": "application/pdf"
+					}
+				],
+				"numPages": "233",
+				"university": "The Ohio State University",
+				"thesisType": "Ph.D.",
+				"language": "English",
+				"rights": "Copyright UMI - Dissertations Publishing 2001",
+				"url": "http://search.proquest.com/dissertations/docview/251755786/abstract",
+				"place": "United States -- Ohio",
 				"abstractNote": "Russian modernist theatre greatly influenced the development of American theatre during the first three decades of the twentieth century. Several developments encouraged the relationships between Russian artists and their American counterparts, including key tours by Russian artists in America, the advent of modernism in the American theatre, the immigration of Eastern Europeans to the United States, American advertising and consumer culture, and the Bolshevik Revolution and all of its domestic and international ramifications. Within each of these major and overlapping developments, Russian culture became increasingly acknowledged and revered by American artists and thinkers, who were seeking new art forms to express new ideas. This study examines some of the most significant contributions of Russian theatre and its artists in the early decades of the twentieth century. Looking beyond the important visit of the Moscow Art Theatre in 1923, this study charts the contributions of various Russian artists and their American supporters.\nCertainly, the influence of Stanislavsky and the Moscow Art Theatre on the modern American theatre has been significant, but theatre historians' attention to his influence has overshadowed the contributions of other Russian artists, especially those who provided non-realistic approaches to theatre. In order to understand the extent to which Russian theatre influenced the American stage, this study focuses on the critics, intellectuals, producers, and touring artists who encouraged interaction between Russians and Americans, and in the process provided the catalyst for American theatrical experimentation. The key figures in this study include some leaders in the Yiddish intellectual and theatrical communities in New York City, Morris Gest and Otto H. Kahn, who imported many important Russian performers for American audiences, and a number of Russian émigré artists, including Jacob Gordin, Jacob Ben-Ami, Benno Schneider, Boris Aronson, and Michel Fokine, who worked in the American theatre during the first three decades of the twentieth century.",
 				"libraryCatalog": "ProQuest",
 				"shortTitle": "Beyond Stanislavsky",
@@ -1143,316 +1365,85 @@ var testCases = [
 				"date": "2001"
 			}
 		]
-	}*/
-	// {
-	// 	"type": "web",
-	// 	"url": "http://search.proquest.com/docview/213445241",
-	// 	"items": [
-	// 		{
-	// 			"itemType": "journalArticle",
-	// 			"creators": [
-	// 				{
-	// 					"firstName": "Gerald F.",
-	// 					"lastName": "Powers",
-	// 					"creatorType": "author"
-	// 				},
-	// 				{
-	// 					"firstName": "Drew",
-	// 					"lastName": "Christiansen",
-	// 					"creatorType": "author"
-	// 				},
-	// 				{
-	// 					"firstName": "Robert T.",
-	// 					"lastName": "Hennemeyer",
-	// 					"creatorType": "author"
-	// 				}
-	// 			],
-	// 			"notes": [],
-	// 			"tags": [
-	// 				"Book reviews",
-	// 				"Peace",
-	// 				"Political Science--International Relations",
-	// 				"Sciences: Comprehensive Works",
-	// 				"Sociology"
-	// 			],
-	// 			"seeAlso": [],
-	// 			"attachments": [
-	// 				{
-	// 					"title": "Snapshot"
-	// 				}
-	// 			],
-	// 			"issue": "2",
-	// 			"ISSN": "00084697",
-	// 			"language": "English",
-	// 			"rights": "Copyright Peace Research May 1995",
-	// 			"url": "http://search.proquest.com/docview/213445241",
-	// 			"libraryCatalog": "ProQuest",
-	// 			"shortTitle": "Peacemaking",
-	// 			"title": "Peacemaking: moral & policy challenges for a new world // Review",
-	// 			"publicationTitle": "Peace Research",
-	// 			"volume": "27",
-	// 			"pages": "90-100",
-	// 			"date": "May 1995"
-	// 		}
-	// 	]
-	// },
-	// {
-	// 	"type": "web",
-	// 	"url": "http://search.proquest.com/hnpnewyorktimes/docview/122485317/abstract/1357D8A4FC136DF28E3/11?accountid=12861",
-	// 	"items": [
-	// 		{
-	// 			"itemType": "newspaperArticle",
-	// 			"creators": [
-	// 				{
-	// 					"firstName": "F. Stephen",
-	// 					"lastName": "Larrabee",
-	// 					"creatorType": "author"
-	// 				},
-	// 				{
-	// 					"firstName": "R. G.",
-	// 					"lastName": "Livingston",
-	// 					"creatorType": "author"
-	// 				}
-	// 			],
-	// 			"notes": [],
-	// 			"tags": [
-	// 				"General Interest Periodicals--United States"
-	// 			],
-	// 			"seeAlso": [],
-	// 			"attachments": [
-	// 				{
-	// 					"title": "Snapshot"
-	// 				},
-	// 				{
-	// 					"title": "Full Text PDF",
-	// 					"mimeType": "application/pdf"
-	// 				}
-	// 			],
-	// 			"ISSN": "03624331",
-	// 			"language": "English",
-	// 			"rights": "Copyright New York Times Company Aug 22, 1984",
-	// 			"url": "http://search.proquest.com/hnpnewyorktimes/docview/122485317/abstract/1357D8A4FC136DF28E3/11?accountid=12861",
-	// 			"place": "New York, N.Y., United States",
-	// 			"abstractNote": "For some months now, a gradual thaw has been in the making between East Germany and West Germany. So far, the United States has paid scant attention -- an attitude very much in keeping with our neglect of East Germany throughout the postwar period. We should reconsider this policy before things much further -- and should in particular begin to look more closely at what is going on in East Germany.",
-	// 			"libraryCatalog": "ProQuest",
-	// 			"title": "Rethinking Policy on East Germany",
-	// 			"publicationTitle": "New York Times (1923-Current file)",
-	// 			"pages": "A23",
-	// 			"date": "Aug 22, 1984"
-	// 		}
-	// 	]
-	// },
-	// {
-	// 	"type": "web",
-	// 	"url": "http://search.proquest.com/docview/129023293/abstract?accountid=12861",
-	// 	"items": [
-	// 		{
-	// 			"itemType": "newspaperArticle",
-	// 			"creators": [],
-	// 			"notes": [],
-	// 			"tags": [
-	// 				"Business And Economics--Banking And Finance"
-	// 			],
-	// 			"seeAlso": [],
-	// 			"attachments": [
-	// 				{
-	// 					"title": "Snapshot"
-	// 				},
-	// 				{
-	// 					"title": "Full Text PDF",
-	// 					"mimeType": "application/pdf"
-	// 				}
-	// 			],
-	// 			"title": "THE PRESIDENT AND ALDRICH.: Railway Age Relates Happenings Behind the Scenes Regarding Rate Regulation.",
-	// 			"publicationTitle": "Wall Street Journal (1889-1922)",
-	// 			"pages": "7",
-	// 			"numPages": "1",
-	// 			"publisher": "Dow Jones & Company Inc",
-	// 			"language": "English",
-	// 			"rights": "Copyright Dow Jones & Company Inc Dec 5, 1905",
-	// 			"url": "http://search.proquest.com/docview/129023293/abstract?accountid=12861",
-	// 			"place": "New York, N.Y., United States",
-	// 			"date": "Dec 5, 1905",
-	// 			"abstractNote": "The Railway Age says: \"The history of the affair (railroad rate question) as it has gone on behind the scenes, is about as follows.",
-	// 			"libraryCatalog": "ProQuest",
-	// 			"accessDate": "CURRENT_TIMESTAMP",
-	// 			"shortTitle": "THE PRESIDENT AND ALDRICH."
-	// 		}
-	// 	]
-	// },
-	// {
-	// 	"type": "web",
-	// 	"url": "http://search.proquest.com/dissertations/pagepdf/251755786/fulltextPDF",
-	// 	"items": [
-	// 		{
-	// 			"itemType": "thesis",
-	// 			"creators": [
-	// 				{
-	// 					"firstName": "Valleri Jane",
-	// 					"lastName": "Robinson",
-	// 					"creatorType": "author"
-	// 				}
-	// 			],
-	// 			"notes": [],
-	// 			"tags": [
-	// 				"Communication and the arts",
-	// 				"Konstantin",
-	// 				"Konstantin Stanislavsky",
-	// 				"Modernism",
-	// 				"Russian",
-	// 				"Stanislavsky",
-	// 				"Theater"
-	// 			],
-	// 			"seeAlso": [],
-	// 			"attachments": [
-	// 				{
-	// 					"title": "Snapshot"
-	// 				},
-	// 				{
-	// 					"title": "Full Text PDF",
-	// 					"mimeType": "application/pdf"
-	// 				}
-	// 			],
-	// 			"numPages": "233",
-	// 			"university": "The Ohio State University",
-	// 			"thesisType": "Ph.D.",
-	// 			"language": "English",
-	// 			"rights": "Copyright UMI - Dissertations Publishing 2001",
-	// 			"url": "http://search.proquest.com/dissertations/docview/251755786/abstract?accountid=14541",
-	// 			"place": "United States -- Ohio",
-	// 			"abstractNote": "Russian modernist theatre greatly influenced the development of American theatre during the first three decades of the twentieth century. Several developments encouraged the relationships between Russian artists and their American counterparts, including key tours by Russian artists in America, the advent of modernism in the American theatre, the immigration of Eastern Europeans to the United States, American advertising and consumer culture, and the Bolshevik Revolution and all of its domestic and international ramifications. Within each of these major and overlapping developments, Russian culture became increasingly acknowledged and revered by American artists and thinkers, who were seeking new art forms to express new ideas. This study examines some of the most significant contributions of Russian theatre and its artists in the early decades of the twentieth century. Looking beyond the important visit of the Moscow Art Theatre in 1923, this study charts the contributions of various Russian artists and their American supporters.\nCertainly, the influence of Stanislavsky and the Moscow Art Theatre on the modern American theatre has been significant, but theatre historians' attention to his influence has overshadowed the contributions of other Russian artists, especially those who provided non-realistic approaches to theatre. In order to understand the extent to which Russian theatre influenced the American stage, this study focuses on the critics, intellectuals, producers, and touring artists who encouraged interaction between Russians and Americans, and in the process provided the catalyst for American theatrical experimentation. The key figures in this study include some leaders in the Yiddish intellectual and theatrical communities in New York City, Morris Gest and Otto H. Kahn, who imported many important Russian performers for American audiences, and a number of Russian émigré artists, including Jacob Gordin, Jacob Ben-Ami, Benno Schneider, Boris Aronson, and Michel Fokine, who worked in the American theatre during the first three decades of the twentieth century.",
-	// 			"libraryCatalog": "ProQuest",
-	// 			"shortTitle": "Beyond Stanislavsky",
-	// 			"title": "Beyond Stanislavsky: The influence of Russian modernism on the American theatre",
-	// 			"date": "2001"
-	// 		}
-	// 	]
-	// },
-	// {
-	// 	"type": "web",
-	// 	"url": "http://search.proquest.com/dissertations/docview/251755786/previewPDF",
-	// 	"items": [
-	// 		{
-	// 			"itemType": "thesis",
-	// 			"creators": [
-	// 				{
-	// 					"firstName": "Valleri Jane",
-	// 					"lastName": "Robinson",
-	// 					"creatorType": "author"
-	// 				}
-	// 			],
-	// 			"notes": [],
-	// 			"tags": [
-	// 				"Communication and the arts",
-	// 				"Konstantin",
-	// 				"Konstantin Stanislavsky",
-	// 				"Modernism",
-	// 				"Russian",
-	// 				"Stanislavsky",
-	// 				"Theater"
-	// 			],
-	// 			"seeAlso": [],
-	// 			"attachments": [
-	// 				{
-	// 					"title": "Snapshot"
-	// 				},
-	// 				{
-	// 					"title": "Full Text PDF",
-	// 					"mimeType": "application/pdf"
-	// 				}
-	// 			],
-	// 			"numPages": "233",
-	// 			"university": "The Ohio State University",
-	// 			"thesisType": "Ph.D.",
-	// 			"language": "English",
-	// 			"rights": "Copyright UMI - Dissertations Publishing 2001",
-	// 			"url": "http://search.proquest.com/dissertations/docview/251755786/abstract?accountid=14541",
-	// 			"place": "United States -- Ohio",
-	// 			"abstractNote": "Russian modernist theatre greatly influenced the development of American theatre during the first three decades of the twentieth century. Several developments encouraged the relationships between Russian artists and their American counterparts, including key tours by Russian artists in America, the advent of modernism in the American theatre, the immigration of Eastern Europeans to the United States, American advertising and consumer culture, and the Bolshevik Revolution and all of its domestic and international ramifications. Within each of these major and overlapping developments, Russian culture became increasingly acknowledged and revered by American artists and thinkers, who were seeking new art forms to express new ideas. This study examines some of the most significant contributions of Russian theatre and its artists in the early decades of the twentieth century. Looking beyond the important visit of the Moscow Art Theatre in 1923, this study charts the contributions of various Russian artists and their American supporters.\nCertainly, the influence of Stanislavsky and the Moscow Art Theatre on the modern American theatre has been significant, but theatre historians' attention to his influence has overshadowed the contributions of other Russian artists, especially those who provided non-realistic approaches to theatre. In order to understand the extent to which Russian theatre influenced the American stage, this study focuses on the critics, intellectuals, producers, and touring artists who encouraged interaction between Russians and Americans, and in the process provided the catalyst for American theatrical experimentation. The key figures in this study include some leaders in the Yiddish intellectual and theatrical communities in New York City, Morris Gest and Otto H. Kahn, who imported many important Russian performers for American audiences, and a number of Russian émigré artists, including Jacob Gordin, Jacob Ben-Ami, Benno Schneider, Boris Aronson, and Michel Fokine, who worked in the American theatre during the first three decades of the twentieth century.",
-	// 			"libraryCatalog": "ProQuest",
-	// 			"shortTitle": "Beyond Stanislavsky",
-	// 			"title": "Beyond Stanislavsky: The influence of Russian modernism on the American theatre",
-	// 			"date": "2001"
-	// 		}
-	// 	]
-	// },
-	// {
-	// 	"type": "web",
-	// 	"url": "http://search.proquest.com/docview/925553601/137CCF69B9E7916BDCF/1?accountid=14541",
-	// 	"items": [
-	// 		{
-	// 			"itemType": "journalArticle",
-	// 			"creators": [
-	// 				{
-	// 					"firstName": "Lian",
-	// 					"lastName": "Chen",
-	// 					"creatorType": "author"
-	// 				},
-	// 				{
-	// 					"firstName": "Shixia",
-	// 					"lastName": "Xu",
-	// 					"creatorType": "author"
-	// 				},
-	// 				{
-	// 					"firstName": "Kaiya",
-	// 					"lastName": "Zhou",
-	// 					"creatorType": "author"
-	// 				},
-	// 				{
-	// 					"firstName": "Guang",
-	// 					"lastName": "Yang",
-	// 					"creatorType": "author"
-	// 				},
-	// 				{
-	// 					"firstName": "Michael W.",
-	// 					"lastName": "Bruford",
-	// 					"creatorType": "author"
-	// 				}
-	// 			],
-	// 			"notes": [],
-	// 			"tags": [
-	// 				"CABSCLASS",
-	// 				"84.5.22",
-	// 				"GENETICS AND MOLECULAR BIOLOGY",
-	// 				"EUKARYOTIC GENETICS",
-	// 				"Ecological and Population Genetics",
-	// 				"CABSCLASS",
-	// 				"84.5.34",
-	// 				"GENETICS AND MOLECULAR BIOLOGY",
-	// 				"EUKARYOTIC GENETICS",
-	// 				"Mammalian Genetics",
-	// 				"CABSCLASS",
-	// 				"92.7.2",
-	// 				"PLANT SCIENCE",
-	// 				"DEVELOPMENT",
-	// 				"Growth Regulators"
-	// 			],
-	// 			"seeAlso": [],
-	// 			"attachments": [
-	// 				{
-	// 					"title": "Snapshot"
-	// 				},
- // 					{
-	// 					"title": "Full Text PDF",  
-	// 					"mimeType": "application/pdf"
-	// 				}
-	// 			],
-	// 			"title": "Microsatellite variation and significant population genetic structure of endangered finless porpoises (Neophocaena phocaenoides) in Chinese coastal waters and the Yangtze River",
-	// 			"publicationTitle": "Marine Biology",
-	// 			"volume": "157",
-	// 			"issue": "7",
-	// 			"pages": "1453-1462",
-	// 			"numPages": "10",
-	// 			"ISSN": "0025-3162",
-	// 			"language": "English",
-	// 			"DOI": "http://dx.doi.org/10.1007/s00227-010-1420-x",
-	// 			"url": "http://search.proquest.com/docview/925553601/137CCF69B9E7916BDCF/1?accountid=14541",
-	// 			"date": "2020",
-	// 			"abstractNote": "The finless porpoise (Neophocaena phocaenoides) inhabits a wide range of tropical and temperate waters of the Indo-Pacific region. Genetic structure of finless porpoises in Chinese waters in three regions (Yangtze River, Yellow Sea, and South China Sea) was analyzed, including the Yangtze finless porpoise which is widely known because of its highly endangered status and unusual adaptation to freshwater. To assist in conservation and management of this species, ten microsatellite loci were used to genotype 125 individuals from the three regions. Contrary to the low genetic diversity revealed in previous mtDNA control region sequence analyses, relatively high levels of genetic variation in microsatellite profiles (HE= 0.732-0.795) were found. Bayesian clustering analysis suggested that finless porpoises in Chinese waters could be described as three distinct genetic groups, which corresponded well to population \"units\" (populations, subspecies, or species) delimited in earlier studies, based on morphological variation, distribution, and genetic analyses. Genetic differentiation between regions was significant, with FST values ranging from 0.07 to 0.137. Immigration rates estimated using a Bayesian method and population ancestry analyses suggested no or very limited gene flow among regional types, even in the area of overlap between types. These results strongly support the classification of porpoises in these regions into distinct evolutionarily significant units, including at least two separate species, and therefore they should be treated as different management units in the design and implementation of conservation programmes. © 2010 Springer-Verlag.",
-	// 			"libraryCatalog": "ProQuest",
-	// 			"accessDate": "CURRENT_TIMESTAMP"
-	// 		}
-	/*	]
+	}/*,
+	{
+		"type": "web",
+		"extractor": "ProQuest",
+		"url": "http://search.proquest.com/docview/925553601/137CCF69B9E7916BDCF/1",
+		"items": [
+			{
+				"itemType": "journalArticle",
+				"creators": [
+					{
+						"firstName": "Lian",
+						"lastName": "Chen",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Shixia",
+						"lastName": "Xu",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Kaiya",
+						"lastName": "Zhou",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Guang",
+						"lastName": "Yang",
+						"creatorType": "author"
+					},
+					{
+						"firstName": "Michael W.",
+						"lastName": "Bruford",
+						"creatorType": "author"
+					}
+				],
+				"notes": [],
+				"tags": [
+					"CABSCLASS",
+					"84.5.22",
+					"GENETICS AND MOLECULAR BIOLOGY",
+					"EUKARYOTIC GENETICS",
+					"Ecological and Population Genetics",
+					"CABSCLASS",
+					"84.5.34",
+					"GENETICS AND MOLECULAR BIOLOGY",
+					"EUKARYOTIC GENETICS",
+					"Mammalian Genetics",
+					"CABSCLASS",
+					"92.7.2",
+					"PLANT SCIENCE",
+					"DEVELOPMENT",
+					"Growth Regulators"
+				],
+				"seeAlso": [],
+				"attachments": [
+					{
+						"title": "Snapshot"
+					},
+ 					{
+						"title": "Full Text PDF",  
+						"mimeType": "application/pdf"
+					}
+				],
+				"title": "Microsatellite variation and significant population genetic structure of endangered finless porpoises (Neophocaena phocaenoides) in Chinese coastal waters and the Yangtze River",
+				"publicationTitle": "Marine Biology",
+				"volume": "157",
+				"issue": "7",
+				"pages": "1453-1462",
+				"numPages": "10",
+				"ISSN": "0025-3162",
+				"language": "English",
+				"DOI": "http://dx.doi.org/10.1007/s00227-010-1420-x",
+				"url": "http://search.proquest.com/docview/925553601/137CCF69B9E7916BDCF/1",
+				"date": "2020",
+				"abstractNote": "The finless porpoise (Neophocaena phocaenoides) inhabits a wide range of tropical and temperate waters of the Indo-Pacific region. Genetic structure of finless porpoises in Chinese waters in three regions (Yangtze River, Yellow Sea, and South China Sea) was analyzed, including the Yangtze finless porpoise which is widely known because of its highly endangered status and unusual adaptation to freshwater. To assist in conservation and management of this species, ten microsatellite loci were used to genotype 125 individuals from the three regions. Contrary to the low genetic diversity revealed in previous mtDNA control region sequence analyses, relatively high levels of genetic variation in microsatellite profiles (HE= 0.732-0.795) were found. Bayesian clustering analysis suggested that finless porpoises in Chinese waters could be described as three distinct genetic groups, which corresponded well to population \"units\" (populations, subspecies, or species) delimited in earlier studies, based on morphological variation, distribution, and genetic analyses. Genetic differentiation between regions was significant, with FST values ranging from 0.07 to 0.137. Immigration rates estimated using a Bayesian method and population ancestry analyses suggested no or very limited gene flow among regional types, even in the area of overlap between types. These results strongly support the classification of porpoises in these regions into distinct evolutionarily significant units, including at least two separate species, and therefore they should be treated as different management units in the design and implementation of conservation programmes. © 2010 Springer-Verlag.",
+				"libraryCatalog": "ProQuest",
+				"accessDate": "CURRENT_TIMESTAMP"
+			}
+		]
 	}*/
 ]
 /** END TEST CASES **/

@@ -98,7 +98,7 @@ var testCases = [
 				"ISSN": "1471-2407",
 				"DOI": "10.1186/1471-2407-11-497",
 				"place": "United Kingdom"
-			},
+			}/*,
 			{
 				"itemType": "journalArticle",
 				"title": "Cancer Control : Journal of the Moffitt Cancer Center",
@@ -161,7 +161,7 @@ var testCases = [
 				"publisher" : "Bentham open",
 				"ISSN" : "1876-8202",
 				"place" : "United States"
-			}
+			}*/
 		]		
 	}
 ]
