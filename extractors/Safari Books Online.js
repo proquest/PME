@@ -116,6 +116,49 @@ function doWeb(doc, url) {
 		importBrowsePage(doc, url);
 }
 
+/** BEGIN TEST CASES **/
+var testCases = [
+	{
+		"type": "web",
+		"url": "http://proquestcombo.safaribooksonline.com/book/programming/java/9781935182351?bookview=overview",
+		"items": [
+			{
+				"itemType" : "book",
+				"creators" : [
+					"Craig Walls"
+				],	
+				"title" : "Spring in Action, Third Edition",
+				"publisher" : "Manning Publications",
+				"date" : "June 29, 2011",
+				"ISBN" : "978-1-935182-35-1",
+				"pages" : "424",
+				"edition" : "Third Edition",
+				"language" : "en",
+				"abstractNote" : "Summary\n\t\n\t\t\n\t\t\n\tTotally revised for Spring 3.0, this book is a hands-on guide to the Spring Framework. It covers the latest features, tools, and practices including Spring MVC, REST, Security, Web Flow, and more. Following short code snippets and an ongoing example developed throughout the book, you'll learn how to build simple and efficient J2EE applications.\n\n\t\t\n\t\t\t\n\t\tAbout the Technology\n\t\n\t\t\n\t\t\n\tSpring Framework is required knowledge for Java developers, and Spring 3.0 introduces powerful new features like SpEL, the Spring Expression Language, new annotations for the IoC container, and much-needed support for REST. Whether you're just discovering Spring or you want to absorb the new 3.0 features, there's no better way to master Spring than this book.\n\n\t\t\n\t\t\t\n\t\tAbout the Book\n\t\n\t\t\n\t\t\n\t\t\t\n\t\tSpring in Action, Third Edition\n\t\n\tcontinues the practical, hands-on style of the previous bestselling editions. Author Craig Walls has a special knack for crisp and entertaining examples that zoom in on the features and techniques you really need. This edition highlights the most important aspects of Spring 3.0 including REST, remote services, messaging, Security, MVC, Web Flow, and more.\n\n\t\t\n\tPurchase includes free PDF, ePub, and Kindle eBooks downloadable at manning.com."
+			}
+		]
+	},
+	{
+		"type": "web",
+		"url": "http://proquestcombo.safaribooksonline.com/browse?te=&query=CATEGORY+itdev.programming.java&pagetitle=Java+Development&vcategory=_FEAT_.itjava&sort=hits&order=desc&__ac=_FEAT_.itjava&vte=%2c_FEAT_.%2c&__ml=",
+		"items": [
+			{
+				"itemType" : "book",
+				"creators" : [
+					"Cay S. Horstmann"
+				],	
+				"title" : "Big Java Late Objects",
+				"publisher" : "John Wiley & Sons",
+				"date" : "February 1, 2012",
+				"ISBN" : "1-118087-88-7",
+				"pages" : "1056",
+				"language" : "en",
+				"abstractNote" : "Big Java: Late Objects is a comprehensive introduction to Java and computer programming, which focuses on the principles of programming, software engineering, and effective learning. It is designed for a two-semester first course in programming for computer science students."
+			}
+		]
+	}
+]
+/** END TEST CASES **/
 
-PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb });
+PME.TranslatorClass.loaded(translatorSpec, { detectWeb: detectWeb, doWeb: doWeb, testCases: testCases });
 }());

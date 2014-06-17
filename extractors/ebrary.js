@@ -59,6 +59,7 @@
 var testCases = [
 	{
 		"type": "web",
+		"extractor": "ebrary",
 		"url": "http://site.ebrary.com/lib/myproquest/search.action?p00=cancer&fromSearch=fromSearch&search=Search",
 		"items": [
 			{
@@ -333,6 +334,40 @@ var testCases = [
 				"url" : "http://site.ebrary.com/lib/myproquest/docDetail.action?docID=10160709&ppg=1"
 			},
 			{
+				"itemType" : "book",
+				"creators" : [
+					{
+						"0" : "",
+						"lastName" : "Institute of Medicine",
+						"creatorType" : "author"
+					},
+					{	
+						"1" : "",
+						"lastName" : "National Cancer Policy Forum",
+						"creatorType" : "author"
+					},
+					{
+						"2" : "",
+						"lastName" : "Board on Health Care Services",
+						"creatorType" : "author"
+					}
+				],	
+				"tags" : [
+					"Cancer -- Research.",
+					"Cancer -- Treatment.",
+					"Cancer -- Computer network resources."
+				],	
+				"date" : "201210",
+				"title" : "Informatics Needs and Challenges in Cancer Research : Workshop Summary",
+				"language" : "English",
+				"place" : "Washington, DC, USA",
+				"publisher" : "National Academies Press",
+				"ISBN" : "9780309259491",
+				"callNumber" : "RC268 -- .I48 2012eb",
+				"url" : "http://site.ebrary.com/lib/myproquest/docDetail.action?docID=10863941&ppg=1"
+
+			},
+			{
 				"itemType" : "report",
 				"creators" : [
 					{
@@ -366,36 +401,6 @@ var testCases = [
 				"reportNumber" : "9780309510912",
 				"callNumber" : "RC270.8.I57 2001eb",
 				"url" : "http://site.ebrary.com/lib/myproquest/docDetail.action?docID=10051621&ppg=1"
-			},
-			{
-				"itemType" : "book",
-				"creators" : [
-					{
-						"0" : "",
-						"lastName" : "Hewitt",
-						"firstName" : "Maria Elizabeth",
-						"creatorType" : "author"
-					},
-					{
-						"1" : "",
-						"lastName" : "Holland",
-						"firstName" : "Jimmie C.",
-						"creatorType" : "author"
-					}
-				],	
-				"tags" : [
-					"Breast -- Cancer -- Psychological aspects.",
-					"Breast -- Cancer -- Social aspects.",
-					"Breast -- Cancer -- Patients -- Services for."
-				],	
-				"date" : "2004",
-				"title" : "Meeting Psychosocial Needs of Women with Breast Cancer",
-				"language" : "English",
-				"place" : "Washington, DC, USA",
-				"publisher" : "National Academies Press",
-				"ISBN" : "9780309529532",
-				"callNumber" : "RC280.B8.M435 2004eb",
-				"url" : "http://site.ebrary.com/lib/myproquest/docDetail.action?docID=10055427&ppg=1"
 			},
 			{	
 				"itemType" : "book",
