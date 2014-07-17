@@ -87,14 +87,11 @@ Zotero.Translate.Sandbox = {
 			if(translate._complete) {
 				Zotero.debug("Translate: WARNING: Zotero.Item#complete() called after Zotero.done(); please fix your code", 2);
 			}
-      var params = translate._getParameters();
-      params.push(item);
-      Zotero.debug(translate._sandboxManager.sandbox["single"].apply(null, params));
 
-				/*
+
 			const allowedObjects = ["complete", "attachments", "seeAlso", "creators", "tags", "notes"];
 			
-			delete item.complete;
+			//delete item.complete;
 			for(var i in item) {
 				var val = item[i];
 				if(!val && val !== 0) {
@@ -142,17 +139,24 @@ Zotero.Translate.Sandbox = {
 					}
 				}
 			}
-		
-			// Fire itemSaving event
-			translate._runHandler("itemSaving", item);
-			
-			if(translate instanceof Zotero.Translate.Web) {
-				// For web translators, we queue saves
-				translate.saveQueue.push(item);
-			} else {
-				// Save items
-				translate._saveItems([item]);
-			}*/
+			Zotero.debug("_originWeb: "+translate._originWeb)
+			if (translate._originWeb) {
+				var params = translate._getParameters();
+				params.push(item);
+				Zotero.debug(translate._sandboxManager.sandbox["single"].apply(null, params));
+			}
+			else {
+				// Fire itemSaving event
+				translate._runHandler("itemSaving", item);
+
+				if (translate instanceof Zotero.Translate.Web) {
+					// For web translators, we queue saves
+					translate.saveQueue.push(item);
+				} else {
+					// Save items
+					translate._saveItems([item]);
+				}
+			}
 		},
 		
 		/**
@@ -466,10 +470,9 @@ Zotero.Translate.Sandbox = {
 			// This will break messaging outside of Firefox, so we need to fix it.
 			if(Object.prototype.toString.call(items) === "[object Array]") {
         translate._debug("WARNING: Zotero.selectItems should be called with an object, not an array");
-        translate._debug(items);
 				var itemsObj = {};
 				for(var i in items) itemsObj[i] = items[i];
-				items = itemsObj;
+				//items = itemsObj;
 			}
 			
 			if(translate._selectedItems) {
@@ -546,105 +549,7 @@ Zotero.Translate.Sandbox = {
 				return items;
 			}
 		},
-		
-		/**
-		 * Overloads {@link Zotero.Translate.Sandbox.Base._itemDone} to ensure that no standalone
-		 * items are saved, that an item type is specified, and to add a libraryCatalog and 
-		 * shortTitle if relevant.
-		 * @param {Zotero.Translate} translate
-		 * @param {SandboxItem} An item created using the Zotero.Item class from the sandbox
-		 */
-		 "_itemDone":function(translate, item) {
-		 	// Only apply checks if there is no parent translator
-		 	if(!translate._parentTranslator) {
-				if(!item.itemType) {
-					item.itemType = "webpage";
-					translate._debug("WARNING: No item type specified");
-				}
-				
-				if(item.type == "attachment" || item.type == "note") {
-					Zotero.debug("Translate: Discarding standalone "+item.type+" in non-import translator", 2);
-					return;
-				}
-				
-				// store library catalog if this item was captured from a website, and
-				// libraryCatalog is truly undefined (not false or "")
-				if(item.repository !== undefined) {
-					Zotero.debug("Translate: 'repository' field is now 'libraryCatalog'; please fix your code", 2);
-					item.libraryCatalog = item.repository;
-					delete item.repository;
-				}
-				
-				// automatically set library catalog
-				if(item.libraryCatalog === undefined) {
-					item.libraryCatalog = translate.translator[0].label;
-				}
-							
-				// automatically set access date if URL is set
-				if(item.url && typeof item.accessDate == 'undefined') {
-					item.accessDate = "CURRENT_TIMESTAMP";
-				}
-				
-				//consider type-specific "title" alternatives
-				var altTitle = Zotero.ItemFields.getName(Zotero.ItemFields.getFieldIDFromTypeAndBase(item.itemType, 'title'));
-				if(altTitle && item[altTitle]) item.title = item[altTitle];
-				
-				if(!item.title) {
-					translate.complete(false, new Error("No title specified for item"));
-					return;
-				}
-				
-				// create short title
-				if(item.shortTitle === undefined && Zotero.Utilities.fieldIsValidForType("shortTitle", item.itemType)) {		
-					// only set if changes have been made
-					var setShortTitle = false;
-					var title = item.title;
-					
-					// shorten to before first colon
-					var index = title.indexOf(":");
-					if(index !== -1) {
-						title = title.substr(0, index);
-						setShortTitle = true;
-					}
-					// shorten to after first question mark
-					index = title.indexOf("?");
-					if(index !== -1) {
-						index++;
-						if(index != title.length) {
-							title = title.substr(0, index);
-							setShortTitle = true;
-						}
-					}
-					
-					if(setShortTitle) item.shortTitle = title;
-				}
-				
-				// refuse to save very long tags
-				if(item.tags) {
-					for(var i=0; i<item.tags.length; i++) {
-						var tag = item.tags[i];
-							tagString = typeof tag === "string" ? tag :
-								typeof tag === "object" ? (tag.tag || tag.name) : null;
-						if(tagString && tagString.length > 255) {
-							translate._debug("WARNING: Skipping unsynchable tag "+JSON.stringify(tagString));
-							item.tags.splice(i--, 1);
-						}
-					}
-				}
-				
-				for(var i=0; i<item.attachments.length; i++) {
-					var attachment = item.attachments[i];
-					if(attachment.url) {
-						// Remap attachment (but not link) URLs
-						attachment.url = translate.resolveURL(attachment.url, attachment.snapshot === false);
-					}
-				}
-			}
-			
-			// call super
-			Zotero.Translate.Sandbox.Base._itemDone(translate, item);
-		},
-		
+
 		/**
 		 * Tells Zotero to monitor changes to the DOM and re-trigger detectWeb
 		 * Can only be set during the detectWeb call
@@ -1158,14 +1063,6 @@ Zotero.Translate.Base.prototype = {
 	 * Called when translator has been retrieved and loaded
 	 */
 	"_translateTranslatorLoaded":function() {
-    try{
-    this._sandboxManager.eval(this.injectionCode, [], (this._currentTranslator.file ? this._currentTranslator.file.path : this._currentTranslator.label));
-    Zotero.debug(this._sandboxManager.sandbox["entry"].apply(null, this._getParameters()));
-    }
-    catch(e){Zotero.debug("injecting:"+e.message);}
-    //var uiScript = this.document.createElement("script");
-    //uiScript.src = "http://localhost:8080/public/js/savetoflow.js";
-    //this.document.body.appendChild(uiScript);//"<script src='http://localhost:8080/public/js/savetoflow.js'></script>";
 		if(!this.translator[0].code) {
 			this.complete(false,
 				new Error("Translator "+this.translator[0].label+" is unsupported within this environment"));
@@ -1351,6 +1248,8 @@ Zotero.Translate.Base.prototype = {
 				this._runHandler("done", returnValue);
 			}
 		}
+
+		Zotero.debug("complete return: " + errorString)
 		
 		return errorString;
 	},
@@ -1748,6 +1647,15 @@ Zotero.Translate.Web.prototype.translate = function(libraryID, saveAttachments, 
  * Overload _translateTranslatorLoaded to send an RPC call if necessary
  */
 Zotero.Translate.Web.prototype._translateTranslatorLoaded = function() {
+
+	try {
+		this._originWeb = true;
+		this._sandboxManager.eval(this.injectionCode, [], (this._currentTranslator.file ? this._currentTranslator.file.path : this._currentTranslator.label));
+		Zotero.debug(this._sandboxManager.sandbox["entry"].apply(null, this._getParameters()));
+	}
+	catch (e) {
+		Zotero.debug("injecting:" + e.message);
+	}
 	var runMode = this.translator[0].runMode;
 	if(runMode === Zotero.Translator.RUN_MODE_IN_BROWSER || this._parentTranslator) {
 		Zotero.Translate.Base.prototype._translateTranslatorLoaded.apply(this);
