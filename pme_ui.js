@@ -96,7 +96,7 @@ function container(doc){
 			'</div>' +
 			'<div id="stf_processing">Finding references</div>' +
 			'<div id="stf_ui_main">' +
-				'<div class="stf_webref warn">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
+				'<div class="stf_webref warn" id="stf_webref">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
 				'<div class="stf_meta"></div>' +
 			'</div>' +
 			'<div class="stf_ui_itemlist" id="stf_ui_itemlist"></div>' +
@@ -271,8 +271,10 @@ function setListButton(doc,check){
 	button.innerHTML = "Save to Flow (" + count + ")";
 }
 
-function single(doc, url, item){
-	Z.debug(item)
+function single(doc, url, item, noneFound){
+  if(noneFound){
+    doc.getElementById("stf_webref").style.display = "block";
+  }
 	function saveReference(useItem){
 		var reference = {};
 		reference.refType = useItem ? mapping.getRefType(item.itemType) : doc.getElementById("reference_type").value;
@@ -326,7 +328,7 @@ function single(doc, url, item){
 	output.push("<div id='stf_ref_type_spec' class='clear'>");
 	output = createFields(item, output, refType);
 	output.push("</div>");
-	container.innerHTML = output.join('');
+	container.innerHTML += output.join('');
 	doc.getElementById("stf_save_button").disabled = false;
 
 	if (stf.className.indexOf("singleView") >= 0 && stf.className.indexOf("listView") == -1){
