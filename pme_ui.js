@@ -86,7 +86,7 @@ function container(doc){
 		'</div>' +
 		'<div id="stf_container">' +
 			'<div class="stf_ui_logo_wrapper">' +
-				'<img src="' + FLOW_SERVER + '/public/img/PQ-StF.png"/><img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel"/>' +
+				'<img src="' + FLOW_SERVER + '/public/img/PQ-StF.png"/><img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_cancel"/>' +
 				'<p class="selected_header left" id="stf_header_text">Select articles</p>' +
 				'<a class="stf_ui_pick_all all right" href="javascript:void(0);" id="stf_select_all">Select All</a>' +
 				'<span class="right single_nav">' +
@@ -103,6 +103,10 @@ function container(doc){
 			'<div class="stf_button_pane"><button class="stf_btn_save" disabled="disabled" id="stf_save_button">Save to Flow</button></div>' +
 		'</div>'
 	doc.body.appendChild(container);
+  doc.getElementById("stf_cancel").addEventListener("click", function (e) {
+    doc.body.removeChild(doc.getElementById("stf_capture"));
+    Z.done();
+  }, true);
 }
 function save(item) {
 	Z.debug(JSON.stringify(item))
@@ -272,6 +276,7 @@ function setListButton(doc,check){
 }
 
 function single(doc, url, item, noneFound){
+  Z.debug(JSON.stringify(item));
   if(noneFound){
     doc.getElementById("stf_webref").style.display = "block";
   }
@@ -330,7 +335,7 @@ function single(doc, url, item, noneFound){
 	output.push("</div>");
 	container.innerHTML += output.join('');
 	doc.getElementById("stf_save_button").disabled = false;
-
+  textarea(doc);
 	if (stf.className.indexOf("singleView") >= 0 && stf.className.indexOf("listView") == -1){
 		doc.getElementById("stf_save_button").addEventListener("click", function (e) {
 			try {
@@ -343,6 +348,52 @@ function single(doc, url, item, noneFound){
 	}
 	return "Item Displayed";
 }
+function textarea(doc) {
+  var offset = 0;
+  function autoSize() {
+    var text = this, textHeight = 102;
+    setTimeout(function () {
+      if (text.scrollHeight < textHeight || text.id == "stf_authors") {
+        text.style.height = 'auto';
+        text.style.height = (text.scrollHeight + offset + (text.id == "stf_authors" && offset ? 18 : 0)) + 'px';
+        text.style.overflow = 'hidden';
+      }
+      else {
+        text.style.height = textHeight + 'px';
+        text.style.overflowY = 'auto';
+      }
+    }, 0);
+  }
+  var container = doc.getElementById("stf_ui_main")
+  container.addEventListener("click", function (e) {
+  });
+  container.addEventListener("focus", function (e) {
+    //get the target
+    var textarea = e.target, parent = textarea.parentNode;
+    parent.getElementsByClassName("empty").style.display = 'none';
+    container.addEventListener("keypress", autoSize);
+  });
+  container.addEventListener("blur", function (e) {
+    container.removeEventListener("keypress", autoSize);
+  });
+  for (var index = 0; index < mapping.order.length; index++) {
+    var value = mapping.order[index];
+    Z.debug(value)
+    var text = doc.getElementById("stf_"+ value), textHeight = 102;
+    if(text) {
+      if (text.scrollHeight < textHeight || text.id == "stf_authors") {
+        text.style.height = 'auto';
+        text.style.height = (text.scrollHeight + offset + (text.id == "stf_authors" && offset ? 18 : 0)) + 'px';
+        text.style.overflow = 'hidden';
+      }
+      else {
+        text.style.height = textHeight + 'px';
+        text.style.overflowY = 'auto';
+      }
+    }
+  }
+}
+
 function saveField(ref,key,value){
 	//this mapping should occur in Flow, data going out of StF should be in Zotero format.
 	var complex = {
@@ -399,116 +450,129 @@ function createFields(item, output, refType){
 }
 var mapping = (function(){
 	var fields = {
-		abstract: { label: "Abstract" },
+		abstract: { label: "Abstract", zotero:"abstractNote" },
 		alternateTitle: {label: "Alternate Title"},
-		authors: { label: "Authors" },
+		authors: { label: "Authors", zotero:"creators" },//creator+type=author
 		arXivId: { label: "ArXiv ID" },
 		availability: { label: "Availability" },
 		classification: { label: "Classification"  },
 		compilers: { label: "Compilers"  },
 		department: { label: "Department" },
-		doi: { label: "DOI" },
-		edition: { label: "Edition" },
-		editors: { label: "Editors" },
+		doi: { label: "DOI", zotero:"DOI" },
+		edition: { label: "Edition", zotero:"edition" },
+		editors: { label: "Editors", zotero: "editors" },//creator+type=editors
 		eventName: { label: "Event" },
 		eventLocation: { label: "Event Location" },
 		eventDate: { label: "Event Date" },
 		extraData: { label: "Extra Data"},
-		isbn: { label: "ISBN" },
+		isbn: { label: "ISBN", zotero: "ISBN" },
 		isElectronic: { label: "Is Electronic?" },
-		issn: { label: "ISSN" },
-		issue: { label: "Issue" },
-		journalAbbrev: { label: "Journal Abbrev" },
-		language: { label: "Language" },
-		locCallNumber: { label: "LC Call #" },
-		location: { label: "Place of Publication" },
-		pages: { label: "Pages" },
-		pmcid: { label: "PMCID" },
-		pmid: { label: "PMID" },
-		publication: { label: "Publication" },
+		issn: { label: "ISSN", zotero: "ISSN" },
+		issue: { label: "Issue", zotero: "issue" },
+		journalAbbrev: { label: "Journal Abbrev", zotero: "journalAbbreviation" },
+		language: { label: "Language", zotero:"language" },
+		locCallNumber: { label: "LC Call #", zotero: "callNumber" },
+		location: { label: "Place of Publication", zotero: "place" },
+		pages: { label: "Pages", zotero: "pages" },
+		pmcid: { label: "PMCID", zotero: "PMCID" },
+		pmid: { label: "PMID", zotero: "PMID" },
+		publication: { label: "Publication", zotero: "publicationTitle" },
 		publicationEditors: { label: "Publication Editors" },
-		publicationDate: { label: "Date" },
-		publisher: { label: "Publisher" },
+		publicationDate: { label: "Date", zotero: "date" },
+		publisher: { label: "Publisher", zotero: "publisher" },
 		republishedDate: { label: "Republished Date"},
-		retrievedDate: { label: "Date Retrieved" },
-		shortTitle: { label: "Short Title" },
-		seriesEditors: { label: "Series Editors" },
-		seriesTitle: { label: "Series Title" },
+		retrievedDate: { label: "Date Retrieved", zotero: "retrievedDate" },//accessDate?
+		shortTitle: { label: "Short Title", zotero:"shortTitle" },
+		seriesEditors: { label: "Series Editors", zotero: "seriesEditors" },//creator+type=seriesEditor
+		seriesTitle: { label: "Series Title", zotero:"series" },
 		sourceName: { label: "Source Name"},
 		sourceDatabase: { label: "Source DB"},
 		sourceLibrary: { label: "Source Library"},
 		sourceLocation: { label: "Source Location"},
 		sourceAccession: { label: "Source Accession"},
-		title: { label: "Title" },
-		translators: { label: "Translators" },
+		title: { label: "Title", zotero: "title" },
+		translators: { label: "Translators", zotero:"translator" },//creator+type=translator
 		type: { label: "Type" },
-		url: { label: "Retrieved From" },
+		url: { label: "Retrieved From", zotero: "URL" },
 		userNotes: { label: "Notes" },
 		version: { label: "Version" },
-		volume: { label: "Volume" }
-		},
+		volume: { label: "Volume", zotero: "volume" }
+            //reviewedAuthor
+            //archive
+            //archiveLocation
+        },
 	referenceTypes = {
 		JOURNAL_ARTICLE_REF: {
+            zotero: 'journalArticle',
 			label: 'Journal Article',
 			defaultFields: [ 'abstract', 'authors', 'issue', 'pages', 'publication', 'publicationDate', 'title', 'url', 'userNotes', 'volume', 'doi', 'issn' ],
 			optionalFields: [ 'arXivId', 'alternateTitle', 'retrievedDate', 'edition', 'extraData', 'isElectronic', 'journalAbbrev', 'language', 'pmcid', 'pmid', 'republishedDate', 'seriesEditors', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
 			fieldLabelOverides: { publication: 'Journal' }
 		},
 		BOOK_REF: {
+            zotero: 'book',
 			label: "Book",
 			defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'publicationDate', 'seriesTitle', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
 			optionalFields: [ 'alternateTitle', 'compilers', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'translators', 'url'],
 			fieldLabelOverides: { }
 		},
 		BOOK_SECTION_REF: {
+            zotero: 'bookSection',
 			label: "Book section",
 			defaultFields: [ 'abstract', 'authors', 'editors', 'location', 'pages', 'publicationDate', 'publication', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
 			optionalFields: [ 'alternateTitle', 'compilers', 'edition', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'seriesEditors', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
-			fieldLabelOverides: { publication: 'Book title', title: 'Section title' }
+			fieldLabelOverides: { publication: 'Book title', title: 'Section title' },
 		},
 		GENERIC_REF: {
+            zotero: '',
 			label: "Generic",
 			defaultFields: [ 'abstract', 'authors', 'location', 'publication', 'publicationDate', 'publisher', 'title', 'url', 'userNotes', 'doi', 'isbn', 'issn' ],
 			optionalFields: [ 'availability', 'alternateTitle', 'arXivId', 'classification', 'compilers', 'department', 'doi', 'edition', 'editors', 'eventName', 'eventLocation', 'eventDate', 'extraData', 'isbn', 'isElectronic', 'issn', 'issue', 'journalAbbrev', 'language', 'lcCallNumber', 'pages', 'pmcid', 'pmid', 'publicationEditors', 'republishedDate', 'retrievedDate', 'seriesEditors', 'seriesTitle', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'type', 'version', 'volume' ],
 			fieldLabelOverides: { }
 		},
 		WEB_REF: {
+            zotero: 'webpage',
 			label: "Web page",
 			defaultFields: [ 'abstract', 'authors', 'publication', 'publicationDate', 'retrievedDate', 'title', 'url', 'userNotes', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'extraData', 'language', 'publicationEditors', 'version' ],
 			fieldLabelOverides: { publication: 'Website', url: 'URL' }
 		},
 		REPORT_REF: {
+            zotero: 'report',
 			label: "Report",
 			defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'retrievedDate', 'edition', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
 			fieldLabelOverides: { publication: 'Institution' }
 		},
 		CONF_REF: {
+            zotero: 'conferencePaper',
 			label: "Conference proceeding",
 			defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'retrievedDate', 'editors', 'eventName', 'eventDate', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
 			fieldLabelOverides: { eventName: 'Conference', eventDate: 'Conference Date', publication: 'Proceedings Title' }
 		},
 		NEWS_REF: {
+            zotero: 'newspaperArticle',
 			label: "Newspaper article",
 			defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'pages', 'publication', 'publicationDate', 'retrievedDate', 'title', 'userNotes', 'url', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'editors', 'extraData', 'isElectronic', 'language', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
 			fieldLabelOverides: { }
 		},
 		THESIS_REF: {
+            zotero: 'thesis',
 			label: "Thesis",
 			defaultFields: [ 'abstract', 'authors', 'department', 'pages', 'publicationDate', 'publisher', 'title', 'type', 'userNotes', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'location', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'url' ],
 			fieldLabelOverides: { publisher: 'University', location: 'Location' }
 		},
 		MAG_REF: {
+            zotero: 'magazineArticle',
 			label: "Magazine article",
 			defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'url', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'extraData', 'editors', 'isElectronic', 'language', 'lcCallNumber', 'retrievedDate', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'translators'],
 			fieldLabelOverides: { }
 		}
-	},
+    },
 	order = ['title', 'authors', 'editors', 'publication', 'publicationDate', 'seriesTitle', 'publisher', 'department', 'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'],
 	convertType = {
 		book: "BOOK_REF",
@@ -520,7 +584,7 @@ var mapping = (function(){
 		report: "REPORT_REF",
 		thesis: "THESIS_REF",
 		webpage: "WEB_REF"
-	},
+    },
 	convertField = {
 		abstract: "abstractNote",
 		authors: "creators",
@@ -581,7 +645,6 @@ function authorNameList(item, delimiter) {
 }
 
 function parseAuthor(value) {
-	Z.debug(value)
 	if (value)
 		return value.split(/\n/).map(function (item) {
 			return {rawName: item};
