@@ -7,7 +7,7 @@ function entry(doc,url){
 function style(doc){
 	var style = [];
 	style.push("@import url(//fonts.googleapis.com/css?family=Open+Sans:600,600italic,400,400italic,300,300italic);");
-	style.push("#stf_capture {z-index:1000000000;box-sizing:border-box;position:fixed;right:-360px;top:0;bottom:0;width:360px;display:block;border:none;overflow:hidden;transition: all 1s ease;-webkit-transition: all 1s ease;-moz-transition: all 1s ease;}");
+	style.push("#stf_capture {z-index:1000000000000009;box-sizing:border-box;position:fixed;right:-360px;top:0;bottom:0;width:360px;display:block;border:none;overflow:hidden;transition: all 1s ease;-webkit-transition: all 1s ease;-moz-transition: all 1s ease;}");
 	style.push("#stf_capture.show {right: 0px;}");
     style.push("#stf_capture * {-moz-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0;background:transparent;font-family:'Open Sans',Arial,Verdana,Helvetica,sans-serif;font-size:12px;line-height:18px;font-style:normal;font-weight:normal;text-align:left; color:#f1f2f5}");
 	style.push("#stf_capture img {display:inline;}");
@@ -98,7 +98,7 @@ function container(doc){
 			'<div id="stf_processing">Finding references</div>' +
 			'<div id="stf_ui_main">' +
 				'<div class="stf_webref warn" id="stf_webref">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
-				'<div class="stf_meta"></div>' +
+				'<div class="stf_meta" id="stf_meta"></div>' +
 			'</div>' +
 			'<div class="stf_ui_itemlist" id="stf_ui_itemlist"></div>' +
 			'<div class="stf_button_pane"><button class="stf_btn_save" disabled="disabled" id="stf_save_button">Save to Flow</button></div>' +
@@ -158,6 +158,8 @@ function selection(doc, url, items, callback){
 	//callback should complete items, so we'll basically want to use it when we want to see of save an item.
 	var container = doc.getElementById("stf_ui_itemlist"), stf = doc.getElementById("stf_capture"), ix = 1;
 	stf.className = "listView";
+    //list view is too fast? need a delay
+    ZU.setTimeout(function(){doc.getElementById("stf_capture").className += " show";},100);
 	for(itemId in items){
 		var item = doc.createElement("div");
 		item.className = "stf_ui_item";
@@ -185,15 +187,19 @@ function selection(doc, url, items, callback){
 		var item_id = stf.getAttribute("data-id"), reference = {};
 		reference.refType = doc.getElementById("reference_type").value;
 		for (var index = 0; index < mapping.order.length; index++) {
-			var elem = doc.getElementById("stf_" + mapping.order[index]);
-			if (elem) {
-				var val = elem.value
-				if (val) {
-					saveField(reference, mapping.order[index], val);
-				}
-			}
+            try {
+                var elem = doc.getElementById("stf_" + mapping.order[index]);
+                if (elem) {
+                    var val = elem.value
+                    if (val) {
+                        saveField(reference, mapping.order[index], val);
+                    }
+                }
+            }catch(e){
+                Z.debug("error in: "+ mapping.order[index]);
+            }
 		}
-		reference.attach = doc.getElementById("stf_attach").checked;
+		reference.attach = doc.getElementById("stf_attach") && doc.getElementById("stf_attach").checked;
 		savedReferences[item_id] = reference;
 	}
 	doc.getElementById("stf_select_all").addEventListener("click", function (e) {
@@ -242,7 +248,7 @@ function selection(doc, url, items, callback){
 			//Zotero.done();
 		}
 	}, true);
-	return "Translator results displayed";
+    return "Translator results displayed";
 }
 
 function move(doc,callback,items,offset){
@@ -304,13 +310,17 @@ function single(doc, url, item, noneFound){
 		reference.attach = useItem ? true : doc.getElementById("stf_attach").checked;
 		save(reference);
 	}
-	var container = doc.getElementById("stf_ui_main"), output = [], stf = doc.getElementById("stf_capture"), containerClass = stf.className,
+	var container = doc.getElementById("stf_meta"), output = [], stf = doc.getElementById("stf_capture"), containerClass = stf.className,
 		FLOW_SERVER = "http://flow.proquest.com";
 	if(stf.getAttribute("data-saving") == "true"){
 		saveReference(true);
 		return;
 	}
-	stf.className = (containerClass ? containerClass+" " : "") + "singleView"+(containerClass.indexOf("show") < 0 ? " show" : "");
+	stf.className = (containerClass ? containerClass+" " : "") + "singleView";
+    if(containerClass.indexOf("show") < 0)
+        ZU.setTimeout(function () {
+            doc.getElementById("stf_capture").className += " show";
+        }, 100);
 	if (containerClass.indexOf("listView") >= 0){
 		var ix = parseInt(stf.getAttribute("data-ix")), count = parseInt(stf.getAttribute("data-count"));
 		doc.getElementById("stf_header_text").innerHTML = "Article details - " + ix + " of " + count;
@@ -337,7 +347,7 @@ function single(doc, url, item, noneFound){
 	output.push("<div id='stf_ref_type_spec' class='clear'>");
 	output = createFields(item, output, refType);
 	output.push("</div>");
-	container.innerHTML += output.join('');
+	container.innerHTML = output.join('');
 	doc.getElementById("stf_save_button").disabled = false;
     textarea(doc);
 	if (stf.className.indexOf("singleView") >= 0 && stf.className.indexOf("listView") == -1){
@@ -352,10 +362,10 @@ function single(doc, url, item, noneFound){
 	}
 	return "Item Displayed";
 }
+
 function textarea(doc) {
   var offset = 0, textHeight = 102;
   function autoSize(text) {
-      Z.debug("autoSize called on: "+text.id)
           if (text.scrollHeight < textHeight || text.id == "stf_authors") {
               text.style.height = 'auto';
               text.style.height = (text.scrollHeight + offset + (text.id == "stf_authors" && offset ? 18 : 0)) + 'px';
@@ -379,13 +389,11 @@ function textarea(doc) {
     if(text) {
         autoSize(text);
         text.addEventListener("focus", function (e) {
-            Z.debug("focus called on: " + this.id);
             //var parent = this.parentNode;
             //parent.getElementsByClassName("empty").style.display = 'none';
             this.addEventListener("keypress", autoSizeEvent);
         });
         text.addEventListener("blur", function (e) {
-            Z.debug("blur called on: " + this.id);
             this.removeEventListener("keypress", autoSizeEvent);
         });
     }
