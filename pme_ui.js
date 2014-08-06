@@ -7,8 +7,9 @@ function entry(doc,url){
 function style(doc){
 	var style = [];
 	style.push("@import url(//fonts.googleapis.com/css?family=Open+Sans:600,600italic,400,400italic,300,300italic);");
-	style.push("#stf_capture {z-index:1000000000;box-sizing:border-box;position:fixed;right:0;top:0;bottom:0;width:360px;display:block;border:none;overflow:hidden;}");
-	style.push("#stf_capture * {-moz-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0;background:transparent;font-family:'Open Sans',Arial,Verdana,Helvetica,sans-serif;font-size:12px;line-height:18px;font-style:normal;font-weight:normal;text-align:left; color:#f1f2f5}");
+	style.push("#stf_capture {z-index:1000000000;box-sizing:border-box;position:fixed;right:-360px;top:0;bottom:0;width:360px;display:block;border:none;overflow:hidden;transition: all 1s ease;-webkit-transition: all 1s ease;-moz-transition: all 1s ease;}");
+	style.push("#stf_capture.show {right: 0px;}");
+    style.push("#stf_capture * {-moz-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0;background:transparent;font-family:'Open Sans',Arial,Verdana,Helvetica,sans-serif;font-size:12px;line-height:18px;font-style:normal;font-weight:normal;text-align:left; color:#f1f2f5}");
 	style.push("#stf_capture img {display:inline;}");
 	style.push("#stf_capture a {text-decoration:none;color:#73b9ff;}");
 	style.push("#stf_capture .clear {clear:both;margin-bottom:10px;}");
@@ -104,8 +105,12 @@ function container(doc){
 		'</div>'
 	doc.body.appendChild(container);
   doc.getElementById("stf_cancel").addEventListener("click", function (e) {
-    doc.body.removeChild(doc.getElementById("stf_capture"));
-    Z.done();
+      var elem = doc.getElementById("stf_capture"), className = elem.className;
+      elem.className = className.replace("show","");
+    ZU.setTimeout(function(){
+        doc.body.removeChild(elem);
+        Z.done();
+    },1000)
   }, true);
 }
 function save(item) {
@@ -276,7 +281,6 @@ function setListButton(doc,check){
 }
 
 function single(doc, url, item, noneFound){
-  Z.debug(JSON.stringify(item));
   if(noneFound){
     doc.getElementById("stf_webref").style.display = "block";
   }
@@ -306,7 +310,7 @@ function single(doc, url, item, noneFound){
 		saveReference(true);
 		return;
 	}
-	stf.className = (containerClass ? containerClass+" " : "") + "singleView";
+	stf.className = (containerClass ? containerClass+" " : "") + "singleView"+(containerClass.indexOf("show") < 0 ? " show" : "");
 	if (containerClass.indexOf("listView") >= 0){
 		var ix = parseInt(stf.getAttribute("data-ix")), count = parseInt(stf.getAttribute("data-count"));
 		doc.getElementById("stf_header_text").innerHTML = "Article details - " + ix + " of " + count;
@@ -335,7 +339,7 @@ function single(doc, url, item, noneFound){
 	output.push("</div>");
 	container.innerHTML += output.join('');
 	doc.getElementById("stf_save_button").disabled = false;
-  textarea(doc);
+    textarea(doc);
 	if (stf.className.indexOf("singleView") >= 0 && stf.className.indexOf("listView") == -1){
 		doc.getElementById("stf_save_button").addEventListener("click", function (e) {
 			try {
@@ -349,48 +353,43 @@ function single(doc, url, item, noneFound){
 	return "Item Displayed";
 }
 function textarea(doc) {
-  var offset = 0;
-  function autoSize() {
-    var text = this, textHeight = 102;
-    setTimeout(function () {
-      if (text.scrollHeight < textHeight || text.id == "stf_authors") {
-        text.style.height = 'auto';
-        text.style.height = (text.scrollHeight + offset + (text.id == "stf_authors" && offset ? 18 : 0)) + 'px';
-        text.style.overflow = 'hidden';
-      }
-      else {
-        text.style.height = textHeight + 'px';
-        text.style.overflowY = 'auto';
-      }
-    }, 0);
+  var offset = 0, textHeight = 102;
+  function autoSize(text) {
+      Z.debug("autoSize called on: "+text.id)
+          if (text.scrollHeight < textHeight || text.id == "stf_authors") {
+              text.style.height = 'auto';
+              text.style.height = (text.scrollHeight + offset + (text.id == "stf_authors" && offset ? 18 : 0)) + 'px';
+              text.style.overflow = 'hidden';
+          }
+          else {
+              text.style.height = textHeight + 'px';
+              text.style.overflowY = 'auto';
+          }
   }
-  var container = doc.getElementById("stf_ui_main")
-  container.addEventListener("click", function (e) {
-  });
-  container.addEventListener("focus", function (e) {
-    //get the target
-    var textarea = e.target, parent = textarea.parentNode;
-    parent.getElementsByClassName("empty").style.display = 'none';
-    container.addEventListener("keypress", autoSize);
-  });
-  container.addEventListener("blur", function (e) {
-    container.removeEventListener("keypress", autoSize);
-  });
+
+    function autoSizeEvent() {
+        var that = this;
+        ZU.setTimeout(function () {
+        autoSize(that)
+        }, 0);
+    }
   for (var index = 0; index < mapping.order.length; index++) {
     var value = mapping.order[index];
-    Z.debug(value)
-    var text = doc.getElementById("stf_"+ value), textHeight = 102;
+    var text = doc.getElementById("stf_"+ value);
     if(text) {
-      if (text.scrollHeight < textHeight || text.id == "stf_authors") {
-        text.style.height = 'auto';
-        text.style.height = (text.scrollHeight + offset + (text.id == "stf_authors" && offset ? 18 : 0)) + 'px';
-        text.style.overflow = 'hidden';
-      }
-      else {
-        text.style.height = textHeight + 'px';
-        text.style.overflowY = 'auto';
-      }
+        autoSize(text);
+        text.addEventListener("focus", function (e) {
+            Z.debug("focus called on: " + this.id);
+            //var parent = this.parentNode;
+            //parent.getElementsByClassName("empty").style.display = 'none';
+            this.addEventListener("keypress", autoSizeEvent);
+        });
+        text.addEventListener("blur", function (e) {
+            Z.debug("blur called on: " + this.id);
+            this.removeEventListener("keypress", autoSizeEvent);
+        });
     }
+
   }
 }
 
