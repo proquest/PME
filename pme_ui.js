@@ -1,9 +1,9 @@
-var references = {};
 function entry(doc,url){
 	style(doc);
 	container(doc);
 	return "Save to Flow Loaded"
 }
+
 function style(doc){
 	var style = [];
 	style.push("@import url(//fonts.googleapis.com/css?family=Open+Sans:600,600italic,400,400italic,300,300italic);");
@@ -76,6 +76,7 @@ function style(doc){
 	styleElement.innerHTML = style.join("");
 	doc.head.appendChild(styleElement);
 }
+
 function container(doc){
 	var container = doc.createElement("div"), FLOW_SERVER = "http://flow.proquest.com";
 	container.id = "stf_capture";
@@ -113,21 +114,25 @@ function container(doc){
     },1000)
   }, true);
 }
-function save(item) {
-	Z.debug(JSON.stringify(item))
+
+function save(item, doc, url) {
 	//pull out attach and attachments
 	ZU.HTTP.doGet('http://localhost:8080/api/1/doc/newid/',function(data_id){
-		var resp = JSON.parse(data_id),attachment = item.attachments, useAttachment = item.attach && attachment.length > 0;
-		if(useAttachment)
-			attachment = attachment[0].url;
+		var resp = JSON.parse(data_id),attachment, useAttachment = item.attach;
+        Z.debug(JSON.stringify(item.attachments))
+		if(item.attachments)
+            for (var i = 0; i < item.attachments.length; i++)
+                if (item.attachments[i].mimeType.indexOf("pdf") >= 0)
+                    attachment = {url:item.attachments[i].url, mimeType: item.attachments[i].mimeType};
+        Z.debug(JSON.stringify(attachment))
+        if(!attachment && useAttachment)//types other than pdf?
+            attachment = {html: doc.documentElement.outerHTML, url: url};
 
 		delete item.attachments;
 		delete item.attach;
-		Z.debug(resp.data);
 		ZU.HTTP.doPost('http://localhost:8080/edit/'+ resp.data+'/?project=all',
 			JSON.stringify(item),
 			function(data_edit){
-				Z.debug(data_edit);
 				if (useAttachment) {
 					saveAttachment(attachment, resp.data);
 				}
@@ -136,24 +141,36 @@ function save(item) {
 }
 function saveAttachment(attachment,id) {
 	var FLOW_SERVER = "http://localhost:8080";
-	ZU.HTTP.promise("GET", attachment, {responseType: "blob"}, function (blob) {//arraybuffer
-		Zotero.debug("got data from: "+ attachment);
-		//var arrayBuffer = http.response;
-		/*if (arrayBuffer) {
-		 var byteArray = new Uint8Array(arrayBuffer);
-		 for (var i = 0; i < byteArray.byteLength; i++) {
-		 // do something with each byte in the array
-		 }
-		 }*/
-		Zotero.debug("making request to: " + FLOW_SERVER + "/savetoflow/attachment/" + id + "/");
-		try {
-			ZU.HTTP.promise("POST", FLOW_SERVER + "/savetoflow/attachment/" + id + "/", {debug:true,body: blob, headers: {"Content-Type": "application/pdf"}}, function (http) {
-				Zotero.debug("uploaded");
-			});
-		}catch(e){
-			Zotero.debug(e.message);}
-	});
+    //check for content type:
+    //pdf goes to one place
+    //html goes to another
+    if(!attachment.html)
+        ZU.HTTP.promise("GET", attachment.url, {responseType: "blob", headers:{"Content-Type": attachment.mimeType}}, function (blob) {//arraybuffer
+            //var arrayBuffer = http.response;
+            /*if (arrayBuffer) {
+             var byteArray = new Uint8Array(arrayBuffer);
+             for (var i = 0; i < byteArray.byteLength; i++) {
+             // do something with each byte in the array
+             }
+             }*/
+            try {
+                if(attachment.mimeType.indexOf("html") < 0)
+                    ZU.HTTP.promise("POST", FLOW_SERVER + "/savetoflow/attachment/" + id + "/", {debug:true,body: blob, headers: {"Content-Type": "application/pdf"}}, function (http) {
+                        Zotero.debug("uploaded");
+                    });
+                else
+                    ZU.HTTP.promise("POST", FLOW_SERVER + "/edit/" + id + "/html/", {debug: true, body: "url=" + encodeURIComponent(attachment.url) + "&html=" + encodeURIComponent(blob)}, function (http) {
+                        Zotero.debug("uploaded");
+                    });
+            }catch(e){
+                Zotero.debug(e.message);}
+        });
+    else
+        ZU.HTTP.promise("POST", FLOW_SERVER + "/edit/" + id + "/html/", {debug: true, body: "url="+ encodeURIComponent(attachment.url)+"&html="+ encodeURIComponent(attachment.html)}, function (http) {
+            Zotero.debug("uploaded");
+        });
 }
+
 function selection(doc, url, items, callback){
 	//callback should complete items, so we'll basically want to use it when we want to see of save an item.
 	var container = doc.getElementById("stf_ui_itemlist"), stf = doc.getElementById("stf_capture"), ix = 1;
@@ -186,19 +203,20 @@ function selection(doc, url, items, callback){
 	function saveReference(){
 		var item_id = stf.getAttribute("data-id"), reference = {};
 		reference.refType = doc.getElementById("reference_type").value;
-		for (var index = 0; index < mapping.order.length; index++) {
+		for (var index = 0; index < labels.order.length; index++) {
             try {
-                var elem = doc.getElementById("stf_" + mapping.order[index]);
+                var elem = doc.getElementById("stf_" + labels.order[index]);
                 if (elem) {
                     var val = elem.value
                     if (val) {
-                        saveField(reference, mapping.order[index], val);
+                        saveField(reference, labels.order[index], val);
                     }
                 }
             }catch(e){
-                Z.debug("error in: "+ mapping.order[index]);
+                Z.debug("error in: "+ labels.order[index]);
             }
 		}
+        reference.attachments = item.attachments;
 		reference.attach = doc.getElementById("stf_attach") && doc.getElementById("stf_attach").checked;
 		savedReferences[item_id] = reference;
 	}
@@ -236,7 +254,7 @@ function selection(doc, url, items, callback){
 				if (cbx[i].checked){
 					var item_id = cbx[i].id.replace("stf_cbx_","");
 					if(savedReferences[item_id])
-						save(savedReferences[item_id]);
+						save(savedReferences[item_id],doc,url);
 					else{
 						var thisItem = {};
 						thisItem[item_id] = items[item_id];
@@ -287,28 +305,36 @@ function setListButton(doc,check){
 }
 
 function single(doc, url, item, noneFound){
-  if(noneFound){
-    doc.getElementById("stf_webref").style.display = "block";
-  }
+    if(!item.retrievedDate)
+        item.retrievedDate = new Date();
+    if(!item.URL)
+        item.URL = url;
+    if(noneFound){
+        doc.getElementById("stf_webref").style.display = "block";
+    }
 	function saveReference(useItem){
-		var reference = {};
-		reference.refType = useItem ? mapping.getRefType(item.itemType) : doc.getElementById("reference_type").value;
-		if(item.attachments)
-			reference.attachments = item.attachments;
-		for (var index = 0; index < mapping.order.length; index++) {
-			var elem = useItem ? mapping.convertField[mapping.order[index]] : doc.getElementById("stf_" + mapping.order[index]);
-			if (elem) {
-				var val = useItem ? item[elem] : elem.value;
-				if (mapping.order[index] == "authors")
-					val = authorNameList(val, "\n");
-				if (val) {
-					saveField(reference, mapping.order[index], val);
-				}
-			}
-		}
-		//may need to make this more complex for attach from list (like don't save html, but do save pdf)
-		reference.attach = useItem ? true : doc.getElementById("stf_attach").checked;
-		save(reference);
+		var reference = useItem ? convserion.convert(item) : {};
+        if(!useItem) {
+            reference.refType = doc.getElementById("reference_type").value;
+            if (item.attachments)
+                reference.attachments = item.attachments;
+            for (var index = 0; index < labels.order.length; index++) {
+                var elem = doc.getElementById("stf_" + labels.order[index]);
+                if (elem) {
+                    var val = elem.value;
+                    if (labels.order[index] == "authors")
+                        val = authorNameList(val, "\n");
+                    if (val) {
+                        reference[labels.order[index]] = val;
+                    }
+                }
+            }
+        }
+        reference = conversion.convert(reference);
+        //may need to make this more complex for attach from list (like don't save html, but do save pdf)
+        reference.attachments = item.attachments;
+        reference.attach = useItem ? true : doc.getElementById("stf_attach").checked;
+		save(reference,doc,url);
 	}
 	var container = doc.getElementById("stf_meta"), output = [], stf = doc.getElementById("stf_capture"), containerClass = stf.className,
 		FLOW_SERVER = "http://flow.proquest.com";
@@ -330,18 +356,26 @@ function single(doc, url, item, noneFound){
 	}
 	else
 		output.push("<div class='stf_lbl header'>Save As</div>");
-	var refType = refType || mapping.getRefType(item.itemType);
+    var converted = conversion.convert(item);
+	var refType = refType || converted.refType;
 	output.push("<select id='reference_type' class='stf_dropdown'>");
-	for(var index in mapping.referenceTypes) {
-		var value = mapping.referenceTypes[index];
+	for(var index in labels.referenceTypes) {
+		var value = labels.referenceTypes[index];
 		var selected = refType == index ? " selected='selected'" : "";
 		output.push("<option value='" + index + "'" + selected + ">" + value.label + "</option>");
 	}
 	output.push("</select>");
-	if (item.attachments && item.attachments.length > 0) {
+    var pdf = false;
+    if(item.attachments)
+        for(var i=0; i< item.attachments.length;i++)
+            if(item.attachments[i].mimeType.indexOf("pdf") >= 0)
+                pdf = true;
+    //smarter - check for url and type, saving html pages (that are not this one)
+	if (pdf) {
 		output.push("<img src='" + FLOW_SERVER + "/public/img/pdf.png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We see a PDF! Should we try to save it too?</span></label></span>");
 	}
 	else if (containerClass.indexOf("listView") == -1) {
+        item.attachments = [];//kill it with fire!
 		output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' class='stf_attach'> <span>Save the content of this web page</span></label></span>");
 	}
 	output.push("<div id='stf_ref_type_spec' class='clear'>");
@@ -368,7 +402,8 @@ function textarea(doc) {
   function autoSize(text) {
           if (text.scrollHeight < textHeight || text.id == "stf_authors") {
               text.style.height = 'auto';
-              text.style.height = (text.scrollHeight + offset + (text.id == "stf_authors" && offset ? 18 : 0)) + 'px';
+              var height = (text.scrollHeight + offset + (text.id == "stf_authors" && offset ? 18 : 0))
+              text.style.height = (height > 32 ? height : 32) + 'px';//minimum, one line
               text.style.overflow = 'hidden';
           }
           else {
@@ -383,8 +418,8 @@ function textarea(doc) {
         autoSize(that)
         }, 0);
     }
-  for (var index = 0; index < mapping.order.length; index++) {
-    var value = mapping.order[index];
+  for (var index = 0; index < labels.order.length; index++) {
+    var value = labels.order[index];
     var text = doc.getElementById("stf_"+ value);
     if(text) {
         autoSize(text);
@@ -401,231 +436,242 @@ function textarea(doc) {
   }
 }
 
-function saveField(ref,key,value){
-	//this mapping should occur in Flow, data going out of StF should be in Zotero format.
-	var complex = {
-		"abstract":"abstr",
-		"authors":{"key":"authors","fn": parseAuthor},
-		"publicationDate":"publicationDate.rawDate",
-		"publication":"publication.title",
-		"issn":"publication.issn",
-		"doi":"docIds.doi",
-		"volume": "series.volume",
-		"issue": "series.issue",
-		"pages": "pages.rawPages"
-	}
-	var where = complex[key] || key,
-		what = where.fn ? where.fn(value) : value;
-	if(where.key)
-		where = where.key;
-	if(where.indexOf(".") > 0){
-		//object
-		var obj = where.split("."),
-			tmp = ref;
-		for(var i = 0; i < obj.length; i++){
-			if(!tmp[obj[i]])
-				tmp[obj[i]] = {};
-			if(i == obj.length -1)
-				tmp[obj[i]] = what;
-			else
-				tmp = tmp[obj[i]];
-		}
-	}
-	else{
-		ref[where] = what;
-	}
-}
 function createFields(item, output, refType){
-	var fieldMapping = mapping.referenceTypes[refType].defaultFields;
-	for(var index = 0; index < mapping.order.length; index++) {
-		var value = mapping.order[index];
-		if (fieldMapping.indexOf(value) >= 0) {
-			var field = mapping.fields[value], label = mapping.referenceTypes[refType].fieldLabelOverides[value];
-			label = label ? label : field.label;
-			var val = item[mapping.convertField[value]];
-			if(value == "authors")
-				val = authorNameList(val,"\n");
-			if (val) {
-				output.push("<div class='stf_lbl'>" + label + "</div>" + (value == "authors" ? "<div class='textposition'><span class='author'>Last name, First names</span>" : "") + "<textarea class='stf_val' id='stf_" + value + "' rows='1'>" + val + "</textarea>" + (value == "authors" ? "</div>" : ""));
+	var fieldMapping = labels.referenceTypes[refType].defaultFields;
+    var converted = conversion.convert(item);
+	for(var index = 0; index < labels.order.length; index++) {
+		var field = labels.order[index];
+		if (fieldMapping.indexOf(field) >= 0) {
+			var override = labels.referenceTypes[refType].fieldLabelOverides[field], label = override ? override : labels.fields[field].label;
+			var value = field == "authors" ? authorNameList(converted[field], "\n") : converted[field];
+			if (value) {
+				output.push("<div class='stf_lbl'>" + label + "</div>" + (field == "authors" ? "<div class='textposition'><span class='author'>Last name, First names</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'>" + value + "</textarea>" + (field == "authors" ? "</div>" : ""));
 			}
 			else {
-				output.push("<div class='stf_lbl'>" + label + "</div><div class='textposition'><span class='empty'>Please enter metadata...</span>" + (value == "authors" ? "<span class='author'>Last name, First names (each on a new line)</span>" : "") + "<textarea class='stf_val' id='stf_" + value + "' rows='1'></textarea></div>");
+				output.push("<div class='stf_lbl'>" + label + "</div><div class='textposition'><span class='empty'>Please enter metadata...</span>" + (field == "authors" ? "<span class='author'>Last name, First names (each on a new line)</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'></textarea></div>");
 			}
 		}
 	}
 	return output;
 }
-var mapping = (function(){
+
+var labels = (function(){
 	var fields = {
-		abstract: { label: "Abstract", zotero:"abstractNote" },
+		abstract: { label: "Abstract"},
 		alternateTitle: {label: "Alternate Title"},
-		authors: { label: "Authors", zotero:"creators" },//creator+type=author
+		authors: { label: "Authors"},
 		arXivId: { label: "ArXiv ID" },
 		availability: { label: "Availability" },
-		classification: { label: "Classification"  },
+		classification: { label: "Classification"},
 		compilers: { label: "Compilers"  },
 		department: { label: "Department" },
-		doi: { label: "DOI", zotero:"DOI" },
-		edition: { label: "Edition", zotero:"edition" },
-		editors: { label: "Editors", zotero: "editors" },//creator+type=editors
+		doi: { label: "DOI"},
+		edition: { label: "Edition"},
+		editors: { label: "Editors"},
 		eventName: { label: "Event" },
 		eventLocation: { label: "Event Location" },
 		eventDate: { label: "Event Date" },
 		extraData: { label: "Extra Data"},
-		isbn: { label: "ISBN", zotero: "ISBN" },
+		isbn: { label: "ISBN"},
 		isElectronic: { label: "Is Electronic?" },
-		issn: { label: "ISSN", zotero: "ISSN" },
-		issue: { label: "Issue", zotero: "issue" },
-		journalAbbrev: { label: "Journal Abbrev", zotero: "journalAbbreviation" },
-		language: { label: "Language", zotero:"language" },
-		locCallNumber: { label: "LC Call #", zotero: "callNumber" },
-		location: { label: "Place of Publication", zotero: "place" },
-		pages: { label: "Pages", zotero: "pages" },
-		pmcid: { label: "PMCID", zotero: "PMCID" },
-		pmid: { label: "PMID", zotero: "PMID" },
-		publication: { label: "Publication", zotero: "publicationTitle" },
+		issn: { label: "ISSN"},
+		issue: { label: "Issue"},
+		journalAbbrev: { label: "Journal Abbrev"},
+		language: { label: "Language"},
+		locCallNumber: { label: "LC Call #"},
+		location: { label: "Place of Publication"},
+		pages: { label: "Pages"},
+		pmcid: { label: "PMCID"},
+		pmid: { label: "PMID"},
+		publication: { label: "Publication"},
 		publicationEditors: { label: "Publication Editors" },
-		publicationDate: { label: "Date", zotero: "date" },
-		publisher: { label: "Publisher", zotero: "publisher" },
+		publicationDate: { label: "Date"},
+		publisher: { label: "Publisher"},
 		republishedDate: { label: "Republished Date"},
-		retrievedDate: { label: "Date Retrieved", zotero: "retrievedDate" },//accessDate?
-		shortTitle: { label: "Short Title", zotero:"shortTitle" },
-		seriesEditors: { label: "Series Editors", zotero: "seriesEditors" },//creator+type=seriesEditor
-		seriesTitle: { label: "Series Title", zotero:"series" },
+		retrievedDate: { label: "Date Retrieved"},
+		shortTitle: { label: "Short Title"},
+		seriesEditors: { label: "Series Editors"},
+		seriesTitle: { label: "Series Title"},
 		sourceName: { label: "Source Name"},
 		sourceDatabase: { label: "Source DB"},
 		sourceLibrary: { label: "Source Library"},
 		sourceLocation: { label: "Source Location"},
 		sourceAccession: { label: "Source Accession"},
-		title: { label: "Title", zotero: "title" },
-		translators: { label: "Translators", zotero:"translator" },//creator+type=translator
+		title: { label: "Title"},
+		translators: { label: "Translators"},
 		type: { label: "Type" },
-		url: { label: "Retrieved From", zotero: "URL" },
+		url: { label: "Retrieved From"},
 		userNotes: { label: "Notes" },
 		version: { label: "Version" },
-		volume: { label: "Volume", zotero: "volume" }
-            //reviewedAuthor
-            //archive
-            //archiveLocation
+		volume: { label: "Volume"}
         },
 	referenceTypes = {
 		JOURNAL_ARTICLE_REF: {
-            zotero: 'journalArticle',
 			label: 'Journal Article',
 			defaultFields: [ 'abstract', 'authors', 'issue', 'pages', 'publication', 'publicationDate', 'title', 'url', 'userNotes', 'volume', 'doi', 'issn' ],
 			optionalFields: [ 'arXivId', 'alternateTitle', 'retrievedDate', 'edition', 'extraData', 'isElectronic', 'journalAbbrev', 'language', 'pmcid', 'pmid', 'republishedDate', 'seriesEditors', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
 			fieldLabelOverides: { publication: 'Journal' }
 		},
 		BOOK_REF: {
-            zotero: 'book',
 			label: "Book",
 			defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'publicationDate', 'seriesTitle', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
 			optionalFields: [ 'alternateTitle', 'compilers', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'translators', 'url'],
 			fieldLabelOverides: { }
 		},
 		BOOK_SECTION_REF: {
-            zotero: 'bookSection',
 			label: "Book section",
 			defaultFields: [ 'abstract', 'authors', 'editors', 'location', 'pages', 'publicationDate', 'publication', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
 			optionalFields: [ 'alternateTitle', 'compilers', 'edition', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'seriesEditors', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
 			fieldLabelOverides: { publication: 'Book title', title: 'Section title' },
 		},
 		GENERIC_REF: {
-            zotero: '',
 			label: "Generic",
 			defaultFields: [ 'abstract', 'authors', 'location', 'publication', 'publicationDate', 'publisher', 'title', 'url', 'userNotes', 'doi', 'isbn', 'issn' ],
 			optionalFields: [ 'availability', 'alternateTitle', 'arXivId', 'classification', 'compilers', 'department', 'doi', 'edition', 'editors', 'eventName', 'eventLocation', 'eventDate', 'extraData', 'isbn', 'isElectronic', 'issn', 'issue', 'journalAbbrev', 'language', 'lcCallNumber', 'pages', 'pmcid', 'pmid', 'publicationEditors', 'republishedDate', 'retrievedDate', 'seriesEditors', 'seriesTitle', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'type', 'version', 'volume' ],
 			fieldLabelOverides: { }
 		},
 		WEB_REF: {
-            zotero: 'webpage',
 			label: "Web page",
 			defaultFields: [ 'abstract', 'authors', 'publication', 'publicationDate', 'retrievedDate', 'title', 'url', 'userNotes', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'extraData', 'language', 'publicationEditors', 'version' ],
 			fieldLabelOverides: { publication: 'Website', url: 'URL' }
 		},
 		REPORT_REF: {
-            zotero: 'report',
 			label: "Report",
 			defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'retrievedDate', 'edition', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
 			fieldLabelOverides: { publication: 'Institution' }
 		},
 		CONF_REF: {
-            zotero: 'conferencePaper',
 			label: "Conference proceeding",
 			defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'retrievedDate', 'editors', 'eventName', 'eventDate', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
 			fieldLabelOverides: { eventName: 'Conference', eventDate: 'Conference Date', publication: 'Proceedings Title' }
 		},
 		NEWS_REF: {
-            zotero: 'newspaperArticle',
 			label: "Newspaper article",
 			defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'pages', 'publication', 'publicationDate', 'retrievedDate', 'title', 'userNotes', 'url', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'editors', 'extraData', 'isElectronic', 'language', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
 			fieldLabelOverides: { }
 		},
 		THESIS_REF: {
-            zotero: 'thesis',
 			label: "Thesis",
 			defaultFields: [ 'abstract', 'authors', 'department', 'pages', 'publicationDate', 'publisher', 'title', 'type', 'userNotes', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'location', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'url' ],
 			fieldLabelOverides: { publisher: 'University', location: 'Location' }
 		},
 		MAG_REF: {
-            zotero: 'magazineArticle',
 			label: "Magazine article",
 			defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'url', 'doi' ],
 			optionalFields: [ 'alternateTitle', 'extraData', 'editors', 'isElectronic', 'language', 'lcCallNumber', 'retrievedDate', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'translators'],
 			fieldLabelOverides: { }
 		}
     },
-	order = ['title', 'authors', 'editors', 'publication', 'publicationDate', 'seriesTitle', 'publisher', 'department', 'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'],
-	convertType = {
-		book: "BOOK_REF",
-		bookSection: "BOOK_SECTION_REF",
-		conferencePaper: "CONF_REF",
-		journalArticle: "JOURNAL_ARTICLE_REF",
-		magazineArticle: "MAG_REF",
-		newspaperArticle: "NEWS_REF",
-		report: "REPORT_REF",
-		thesis: "THESIS_REF",
-		webpage: "WEB_REF"
-    },
-	convertField = {
-		abstract: "abstractNote",
-		authors: "creators",
-		doi: "DOI",
-		edition: "edition",
-		editors: "editors",
-		isbn: "ISBN",
-		issn: "ISSN",
-		issue: "issue",
-		journalAbbrev: "journalAbbreviation",
-		location: "place",
-		pages: "pages",
-		pmcid: "PMCID",
-		pmid: "PMID",
-		publication: "publicationTitle",
-		publicationDate: "date",
-		publisher: "publisher",
-		retrievedDate: "retrievedDate",
-		title: "title",
-		url: "URL",
-		volume: "volume"
-	};
+	order = ['title', 'authors', 'editors', 'publication', 'publicationDate', 'seriesTitle', 'publisher', 'department', 'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'];
 
-	function getRefType(pmeRefType) {
-		pmeRefType = pmeRefType || "JOURNAL_ARTICLE_REF";
-		if (referenceTypes[pmeRefType])
-			return pmeRefType;
-		else {
-			var stfType = convertType[pmeRefType];
-			return stfType || "JOURNAL_ARTICLE_REF";
-		}
-	}
+	return {order:order, fields: fields, referenceTypes: referenceTypes};
+})();
 
-	return {order:order, fields: fields, referenceTypes: referenceTypes, getRefType: getRefType, convertField: convertField};
+var conversion = (function(){
+    var zotero = {
+        itemType:{
+            book: "BOOK_REF",
+            bookSection: "BOOK_SECTION_REF",
+            conferencePaper: "CONF_REF",
+            journalArticle: "JOURNAL_ARTICLE_REF",
+            magazineArticle: "MAG_REF",
+            newspaperArticle: "NEWS_REF",
+            report: "REPORT_REF",
+            thesis: "THESIS_REF",
+            webpage: "WEB_REF"
+        },
+        fields: {
+            abstractNote: "abstract",
+            creators: "authors",
+            DOI: "doi",
+            edition: "edition",
+            editors: "editors",//creator+type=editors
+            ISBN: "isbn",
+            ISSN: "issn",
+            issue: "issue",
+            journalAbbreviation: "journalAbbrev",
+            language: "language",
+            place: "location",
+            pages: "pages",
+            PMCID: "pmcid",
+            PMID: "pmid",
+            publicationTitle: "publication",
+            date: "publicationDate",
+            publisher: "publisher",
+            retrievedDate: "retrievedDate",
+            title: "title",
+            translator:"translator",//creator+type=translator
+            URL: "url",
+            volume: "volume"
+        }
+    }
+    var flow = {
+        fields: {
+            "abstract": "abstr",
+            "authors": {"key": "authors", "fn": parseAuthor},
+            "doi": "docIds.doi",
+            "PMCID": "docIds.pmcid",
+            "PMID": "docIds.pmid",
+            "edition": "series.edition",
+            "editors": {"key": "contributors.editors", "fn": parseAuthor},
+            "isbn": "publication.isbn",
+            "issn": "publication.issn",
+            "journalAbbrev": "publication.abbrev",
+            "language": "language",
+            "publicationDate": "publicationDate.rawDate",
+            "publication": "publication.title",
+            "volume": "series.volume",
+            "issue": "series.issue",
+            "pages": "pages.rawPages",
+            "publisher": "publisher.name",
+            "location": "publisher.location",
+            "translator": {"key": "contributors.translator", "fn": parseAuthor},
+            "title":"title",
+            "retrievedDate": "retrievedDate.rawDate",
+            "url":"url"
+        }
+    }
+    function convert(item){
+        var converted = {}
+        if(item.itemType){//zotero
+            converted.refType = zotero.itemType[item.itemType];
+            for(var field in item){
+                if(zotero.fields[field])
+                    converted[zotero.fields[field]] = item[field];
+            }
+        }
+        else if(item.refType){//flow
+            converted.refType = item.refType;
+            for (var field in item) {
+                if (flow.fields[field]) {
+                    var key = flow.fields[field].key ? flow.fields[field].key : flow.fields[field],
+                        value = flow.fields[field].fn ? flow.fields[field].fn(item[field]) : item[field];
+                    if (key.indexOf(".") > 0) {//object
+                        var obj = key.split("."),
+                            tmp = converted;
+                        for (var i = 0; i < obj.length; i++) {
+                            if (!tmp[obj[i]])
+                                tmp[obj[i]] = {};
+                            if (i == obj.length - 1)
+                                tmp[obj[i]] = value;
+                            else
+                                tmp = tmp[obj[i]];
+                        }
+                    }
+                    else {
+                        converted[key] = value;
+                    }
+                }
+            }
+        }
+        return converted;
+    }
+    return {convert:convert};
 })();
 
 function authorNameList(item, delimiter) {
