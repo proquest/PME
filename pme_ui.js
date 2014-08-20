@@ -80,11 +80,12 @@ function style(doc){
 function container(doc){
 	var container = doc.createElement("div"), FLOW_SERVER = "http://flow.proquest.com";
 	container.id = "stf_capture";
+    container.className = "notranslate";
 	container.innerHTML =
-		'<div class="stf_status"></div>' +
-		'<div class="stf_download">' +
+		'<div class="stf_status" id="stf_status"></div>' +
+		'<div class="stf_download" id="stf_progress">' +
 			'<div class="stf_download_info">Saving to Flow</div>' +
-			'<div class="stf_download_bar"><div class="stf_download_progress"></div></div>' +
+			'<div class="stf_download_bar"><div class="stf_download_progress" id="stf_download_progress"></div></div>' +
 		'</div>' +
 		'<div id="stf_container">' +
 			'<div class="stf_ui_logo_wrapper">' +
@@ -117,57 +118,69 @@ function container(doc){
 
 function save(item, doc, url) {
 	//pull out attach and attachments
+    doc.getElementById("stf_container").style.display = "none";
+    doc.getElementById("stf_progress").style.display = "block";
 	ZU.HTTP.doGet('http://localhost:8080/api/1/doc/newid/',function(data_id){
 		var resp = JSON.parse(data_id),attachment, useAttachment = item.attach;
-        Z.debug(JSON.stringify(item.attachments))
+        progressDialog(doc,0.2);
 		if(item.attachments)
             for (var i = 0; i < item.attachments.length; i++)
                 if (item.attachments[i].mimeType.indexOf("pdf") >= 0)
-                    attachment = {url:item.attachments[i].url, mimeType: item.attachments[i].mimeType};
-        Z.debug(JSON.stringify(attachment))
-        if(!attachment && useAttachment)//types other than pdf?
-            attachment = {html: doc.documentElement.outerHTML, url: url};
+                    attachment = {url:item.attachments[0].url, mimeType: item.attachments[0].mimeType};
+        if(!attachment && useAttachment) {//types other than pdf?
+            attachment = {html: doc.documentElement.outerHTML || (new XMLSerializer().serializeToString(doc)), url: url};
+        }
 
 		delete item.attachments;
 		delete item.attach;
 		ZU.HTTP.doPost('http://localhost:8080/edit/'+ resp.data+'/?project=all',
 			JSON.stringify(item),
 			function(data_edit){
+                progressDialog(doc, (useAttachment ? 0.5: 0.9));
 				if (useAttachment) {
-					saveAttachment(attachment, resp.data);
+					saveAttachment(doc, attachment, resp.data);
 				}
 		},{"Content-Type":"application/json"});
 	});
 }
-function saveAttachment(attachment,id) {
+
+function progressDialog(doc,ratio){
+    doc.getElementById("stf_download_progress").style.width = Math.round(ratio * 315) + "px"
+}
+
+function completeDialog(doc){
+    var FLOW_SERVER = "http://localhost:8080";
+    var count;
+    var status = doc.getElementById("stf_status");
+    progressDialog(doc, 0.9);
+    doc.getElementById("stf_progress").style.display = "none";
+    status.style.display = "block";
+    var countText = count ? count + " articles saved." : "1 article saved."
+    status.innerHTML = countText + '<form method="get" action="'+ FLOW_SERVER+'/library/recent/" target="ProQuestFlow"><button id="stf_view_button" type="submit">View in Flow</button></form>';
+}
+
+function saveAttachment(doc, attachment,id) {
 	var FLOW_SERVER = "http://localhost:8080";
-    //check for content type:
-    //pdf goes to one place
-    //html goes to another
     if(!attachment.html)
-        ZU.HTTP.promise("GET", attachment.url, {responseType: "blob", headers:{"Content-Type": attachment.mimeType}}, function (blob) {//arraybuffer
-            //var arrayBuffer = http.response;
-            /*if (arrayBuffer) {
-             var byteArray = new Uint8Array(arrayBuffer);
-             for (var i = 0; i < byteArray.byteLength; i++) {
-             // do something with each byte in the array
-             }
-             }*/
+        ZU.HTTP.promise("GET", attachment.url, {responseType: "blob", headers:{"Content-Type": attachment.mimeType}}, function (blob) {
+            progressDialog(doc, 0.7);
             try {
-                if(attachment.mimeType.indexOf("html") < 0)
-                    ZU.HTTP.promise("POST", FLOW_SERVER + "/savetoflow/attachment/" + id + "/", {debug:true,body: blob, headers: {"Content-Type": "application/pdf"}}, function (http) {
-                        Zotero.debug("uploaded");
+                if (attachment.mimeType.indexOf("html") < 0)
+                    ZU.HTTP.promise("POST", FLOW_SERVER + "/savetoflow/attachment/" + id + "/", {debug: true, body: blob, headers: {"Content-Type": "application/pdf"}}, function (http) {
+                        completeDialog(doc);
                     });
-                else
-                    ZU.HTTP.promise("POST", FLOW_SERVER + "/edit/" + id + "/html/", {debug: true, body: "url=" + encodeURIComponent(attachment.url) + "&html=" + encodeURIComponent(blob)}, function (http) {
-                        Zotero.debug("uploaded");
+                else {
+                    Z.debug("url=" + encodeURIComponent(attachment.url) + "&html=" + encodeURIComponent(blob));
+                    ZU.HTTP.promise("POST", FLOW_SERVER + "/edit/" + id + "/html/?url="+ encodeURIComponent(attachment.url), {debug: true, headers: {"Content-Type": attachment.mimeType}, body: blob}, function (http) {
+                        completeDialog(doc);
                     });
+                }
             }catch(e){
                 Zotero.debug(e.message);}
         });
     else
-        ZU.HTTP.promise("POST", FLOW_SERVER + "/edit/" + id + "/html/", {debug: true, body: "url="+ encodeURIComponent(attachment.url)+"&html="+ encodeURIComponent(attachment.html)}, function (http) {
-            Zotero.debug("uploaded");
+        ZU.HTTP.promise("POST", FLOW_SERVER + "/edit/" + id + "/html/?url=" + encodeURIComponent(attachment.url), {debug: true, body: attachment.html}, function (http) {
+            completeDialog(doc);
         });
 }
 
@@ -262,7 +275,6 @@ function selection(doc, url, items, callback){
 					}
 				}
 			}
-			stf.style.display = "none";
 			//Zotero.done();
 		}
 	}, true);
@@ -391,7 +403,6 @@ function single(doc, url, item, noneFound){
 			} catch (e) {
 				Z.debug(e.message);
 			}
-			stf.style.display = "none";
 		}, true);
 	}
 	return "Item Displayed";
