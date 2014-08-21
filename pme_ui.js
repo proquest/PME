@@ -1,3 +1,4 @@
+var FLOW_SERVER = "http://flow.proquest.com";
 function entry(doc,url){
 	style(doc);
 	container(doc);
@@ -78,7 +79,7 @@ function style(doc){
 }
 
 function container(doc){
-	var container = doc.createElement("div"), FLOW_SERVER = "http://flow.proquest.com";
+	var container = doc.createElement("div");
 	container.id = "stf_capture";
     container.className = "notranslate";
 	container.innerHTML =
@@ -117,31 +118,53 @@ function container(doc){
 }
 
 function save(item, doc, url) {
-	//pull out attach and attachments
+    //FLOW_SERVER + "/savetoflow/tracking/"
+    var stf = doc.getElementById("stf_capture"),
+        found = stf.getAttribute("data-total") || 1,
+        selected = stf.getAttribute("data-selected") || 1,
+        citation = stf.getAttribute("data-translator") == "true" ? "web" : "regular",
+        tracking = {"url": url,"found": found,"selected": selected, "citation": citation,"modified":[{title:true},{authors:true}]};
+
     doc.getElementById("stf_container").style.display = "none";
     doc.getElementById("stf_progress").style.display = "block";
-	ZU.HTTP.doGet('http://localhost:8080/api/1/doc/newid/',function(data_id){
-		var resp = JSON.parse(data_id),attachment, useAttachment = item.attach;
-        progressDialog(doc,0.2);
-		if(item.attachments)
-            for (var i = 0; i < item.attachments.length; i++)
-                if (item.attachments[i].mimeType.indexOf("pdf") >= 0)
-                    attachment = {url:item.attachments[0].url, mimeType: item.attachments[0].mimeType};
-        if(!attachment && useAttachment) {//types other than pdf?
-            attachment = {html: doc.documentElement.outerHTML || (new XMLSerializer().serializeToString(doc)), url: url};
-        }
 
-		delete item.attachments;
-		delete item.attach;
-		ZU.HTTP.doPost('http://localhost:8080/edit/'+ resp.data+'/?project=all',
-			JSON.stringify(item),
-			function(data_edit){
-                progressDialog(doc, (useAttachment ? 0.5: 0.9));
-				if (useAttachment) {
-					saveAttachment(doc, attachment, resp.data);
-				}
-		},{"Content-Type":"application/json"});
-	});
+    ZU.HTTP.doGet('http://localhost:8080/login/session/', function (data_login) {//check for logged in
+        Z.debug(data_login)
+        if(JSON.parse(data_login).result != "success")
+            loginDialog(doc);
+        else
+            ZU.HTTP.doGet(FLOW_SERVER+'/api/1/doc/newid/', function (data_id) {
+                var resp = JSON.parse(data_id), attachment, useAttachment = item.attach;
+                progressDialog(doc, 0.2);
+                if (item.attachments) {
+                    //take pdf over html
+                    for (var i = 0; i < item.attachments.length; i++)
+                        if (item.attachments[i].mimeType.indexOf("pdf") >= 0)
+                            attachment = {url: item.attachments[i].url, mimeType: item.attachments[i].mimeType};
+
+                    if (!attachment)
+                        for (var i = 0; i < item.attachments.length; i++)
+                            if (item.attachments[i].mimeType.indexOf("html") >= 0)
+                                attachment = {url: item.attachments[i].url, mimeType: item.attachments[i].mimeType};
+
+                }
+
+                if (!attachment && useAttachment) {//types other than pdf?
+                    attachment = {html: doc.documentElement.outerHTML || (new XMLSerializer().serializeToString(doc)), url: url};
+                }
+
+                delete item.attachments;
+                delete item.attach;
+                ZU.HTTP.doPost(FLOW_SERVER+'/edit/' + resp.data + '/?project=all',
+                    JSON.stringify(item),
+                    function (data_edit) {
+                        progressDialog(doc, (useAttachment ? 0.5 : 0.9));
+                        if (useAttachment) {
+                            saveAttachment(doc, attachment, resp.data);
+                        }
+                    }, {"Content-Type": "application/json"});
+            });
+    });
 }
 
 function progressDialog(doc,ratio){
@@ -149,18 +172,34 @@ function progressDialog(doc,ratio){
 }
 
 function completeDialog(doc){
-    var FLOW_SERVER = "http://localhost:8080";
-    var count;
-    var status = doc.getElementById("stf_status");
+    var count = doc.getElementById("stf_capture").getAttribute("data-selected"),
+        status = doc.getElementById("stf_status"),
+        countText = count ? count + " articles saved." : "1 article saved.";
+
     progressDialog(doc, 0.9);
     doc.getElementById("stf_progress").style.display = "none";
     status.style.display = "block";
-    var countText = count ? count + " articles saved." : "1 article saved."
     status.innerHTML = countText + '<form method="get" action="'+ FLOW_SERVER+'/library/recent/" target="ProQuestFlow"><button id="stf_view_button" type="submit">View in Flow</button></form>';
+
+    ZU.setTimeout(function(){
+        status.style.display = "none";
+        Z.done();
+    },8000)
+}
+
+function loginDialog(doc) {
+    var status = doc.getElementById("stf_status");
+    doc.getElementById("stf_progress").style.display = "none";
+    status.style.display = "block";
+    status.innerHTML = 'You must be logged in. <form method="get" action="' + FLOW_SERVER + '" target="ProQuestFlow"><button id="stf_view_button" type="submit">Log in now</button></form>';
+
+    ZU.setTimeout(function () {
+        status.style.display = "none";
+        doc.getElementById("stf_container").style.display = "none";
+    }, 4000)
 }
 
 function saveAttachment(doc, attachment,id) {
-	var FLOW_SERVER = "http://localhost:8080";
     if(!attachment.html)
         ZU.HTTP.promise("GET", attachment.url, {responseType: "blob", headers:{"Content-Type": attachment.mimeType}}, function (blob) {
             progressDialog(doc, 0.7);
@@ -170,13 +209,11 @@ function saveAttachment(doc, attachment,id) {
                         completeDialog(doc);
                     });
                 else {
-                    Z.debug("url=" + encodeURIComponent(attachment.url) + "&html=" + encodeURIComponent(blob));
                     ZU.HTTP.promise("POST", FLOW_SERVER + "/edit/" + id + "/html/?url="+ encodeURIComponent(attachment.url), {debug: true, headers: {"Content-Type": attachment.mimeType}, body: blob}, function (http) {
                         completeDialog(doc);
                     });
                 }
-            }catch(e){
-                Zotero.debug(e.message);}
+            }catch(e){}
         });
     else
         ZU.HTTP.promise("POST", FLOW_SERVER + "/edit/" + id + "/html/?url=" + encodeURIComponent(attachment.url), {debug: true, body: attachment.html}, function (http) {
@@ -190,6 +227,7 @@ function selection(doc, url, items, callback){
 	stf.className = "listView";
     //list view is too fast? need a delay
     ZU.setTimeout(function(){doc.getElementById("stf_capture").className += " show";},100);
+    stf.setAttribute("data-total", items.length);
 	for(itemId in items){
 		var item = doc.createElement("div");
 		item.className = "stf_ui_item";
@@ -208,7 +246,7 @@ function selection(doc, url, items, callback){
 			}
 		}, true);
 		item.innerHTML= '<p><input type="checkbox" id="stf_cbx_'+ itemId+'"/><label for="stf_cbx_'+ itemId+'">'+ items[itemId]+'</label></p>'
-		+ '<img src="http://flow.proquest.com/public/img/oval-arrow-grey.png" class="detail"/>';
+		+ '<img src="'+ FLOW_SERVER+'/public/img/oval-arrow-grey.png" class="detail"/>';
 		container.appendChild(item);
 	}
 	stf.setAttribute("data-count", ix-1);
@@ -226,7 +264,7 @@ function selection(doc, url, items, callback){
                     }
                 }
             }catch(e){
-                Z.debug("error in: "+ labels.order[index]);
+                Z.debug("error in selection.saveReference: "+ labels.order[index]);
             }
 		}
         reference.attachments = item.attachments;
@@ -256,15 +294,17 @@ function selection(doc, url, items, callback){
 	doc.getElementById("stf_save_button").addEventListener("click", function (e) {
 		if (stf.className.indexOf("listView") >= 0 && stf.className.indexOf("singleView") >= 0) {
 			saveReference();
-			stf.className = "listView";//save and back to list
+			stf.className = "listView show";//save and back to list
 			doc.getElementById("stf_header_text").innerHTML = "Select articles";
 			setListButton(doc);
 		}
 		else if (stf.className.indexOf("listView") >= 0){
 			stf.setAttribute("data-saving", "true");
-			var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input");
+			var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
+                count = 0;
 			for (var i = 0; i < cbx.length; i++) {
 				if (cbx[i].checked){
+                    count++;
 					var item_id = cbx[i].id.replace("stf_cbx_","");
 					if(savedReferences[item_id])
 						save(savedReferences[item_id],doc,url);
@@ -275,6 +315,7 @@ function selection(doc, url, items, callback){
 					}
 				}
 			}
+            stf.setAttribute("data-selected", count);
 			//Zotero.done();
 		}
 	}, true);
@@ -316,145 +357,190 @@ function setListButton(doc,check){
 	button.innerHTML = "Save to Flow (" + count + ")";
 }
 
+function singleHeader(doc,refType,attachments){
+    var stf = doc.getElementById("stf_capture"),
+        containerClass = stf.className,
+        output = [];
+    stf.className = (containerClass ? containerClass + " " : "") + "singleView";
+    if (containerClass.indexOf("show") < 0)
+        ZU.setTimeout(function () {
+            doc.getElementById("stf_capture").className += " show";
+        }, 100);
+    if (containerClass.indexOf("listView") >= 0) {
+        var ix = parseInt(stf.getAttribute("data-ix")),
+            count = parseInt(stf.getAttribute("data-count"));
+        doc.getElementById("stf_header_text").innerHTML = "Article details - " + ix + " of " + count;
+        doc.getElementById("stf_single_prev").className = "prev" + (ix <= 1 ? " disabled" : "");
+        doc.getElementById("stf_single_next").className = "next" + (ix >= count ? " disabled" : "");
+        doc.getElementById("stf_save_button").innerHTML = "Done editing";
+    }
+    else
+        output.push("<div class='stf_lbl header'>Save As</div>");
+
+    output.push("<select id='reference_type' class='stf_dropdown'>");
+    for (var index in labels.referenceTypes) {
+        var value = labels.referenceTypes[index];
+        var selected = refType == index ? " selected='selected'" : "";
+        output.push("<option value='" + index + "'" + selected + ">" + value.label + "</option>");
+    }
+    output.push("</select>");
+    var pdf = false;
+    if (attachments)
+        for (var i = 0; i < attachments.length; i++)
+            if (attachments[i].mimeType.indexOf("pdf") >= 0)
+                pdf = true;
+    //smarter - check for url and type, saving html pages (that are not this one)
+    if (pdf) {
+        output.push("<img src='" + FLOW_SERVER + "/public/img/pdf.png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We see a PDF! Should we try to save it too?</span></label></span>");
+    }
+    else if (containerClass.indexOf("listView") == -1) {
+        output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' class='stf_attach'> <span>Save the content of this web page</span></label></span>");
+    }
+
+    output.push("<div id='stf_ref_type_spec' class='clear'>");
+    return output;
+}
+
 function single(doc, url, item, noneFound){
+    var container = doc.getElementById("stf_meta"),
+        stf = doc.getElementById("stf_capture");
+
     if(!item.retrievedDate)
         item.retrievedDate = new Date();
     if(!item.URL)
         item.URL = url;
-    if(noneFound){
-        doc.getElementById("stf_webref").style.display = "block";
+
+    stf.setAttribute("data-translator", noneFound || false);
+
+    if (stf.getAttribute("data-saving") == "true") {
+        saveReference(true);
+        return;
     }
-	function saveReference(useItem){
-		var reference = useItem ? convserion.convert(item) : {};
-        if(!useItem) {
-            reference.refType = doc.getElementById("reference_type").value;
-            if (item.attachments)
-                reference.attachments = item.attachments;
-            for (var index = 0; index < labels.order.length; index++) {
-                var elem = doc.getElementById("stf_" + labels.order[index]);
-                if (elem) {
-                    var val = elem.value;
-                    if (labels.order[index] == "authors")
-                        val = authorNameList(val, "\n");
-                    if (val) {
-                        reference[labels.order[index]] = val;
-                    }
+
+    if (noneFound)
+        doc.getElementById("stf_webref").style.display = "block";
+
+    function getModified(){
+        var reference = {},
+            converted = conversion.convert(item);
+        reference.refType = doc.getElementById("reference_type").value;
+        for (var index = 0; index < labels.order.length; index++) {
+            var elem = doc.getElementById("stf_" + labels.order[index]);
+            if (elem) {
+                var val = elem.value;
+                if (labels.order[index] == "authors")
+                    val = authorNameList(val, "\n");
+                if (val) {
+                    reference[labels.order[index]] = val;
                 }
             }
+            else if(converted[labels.order[index]])
+                reference[labels.order[index]] = converted[labels.order[index]];
+
         }
+        reference.attachments = item.attachments;
+        item = reference;
+        return reference;
+    }
+	function saveReference(useItem){
+		var reference = useItem ? conversion.convert(item) : getModified();
         reference = conversion.convert(reference);
-        //may need to make this more complex for attach from list (like don't save html, but do save pdf)
         reference.attachments = item.attachments;
         reference.attach = useItem ? true : doc.getElementById("stf_attach").checked;
 		save(reference,doc,url);
 	}
-	var container = doc.getElementById("stf_meta"), output = [], stf = doc.getElementById("stf_capture"), containerClass = stf.className,
-		FLOW_SERVER = "http://flow.proquest.com";
-	if(stf.getAttribute("data-saving") == "true"){
-		saveReference(true);
-		return;
-	}
-	stf.className = (containerClass ? containerClass+" " : "") + "singleView";
-    if(containerClass.indexOf("show") < 0)
-        ZU.setTimeout(function () {
-            doc.getElementById("stf_capture").className += " show";
-        }, 100);
-	if (containerClass.indexOf("listView") >= 0){
-		var ix = parseInt(stf.getAttribute("data-ix")), count = parseInt(stf.getAttribute("data-count"));
-		doc.getElementById("stf_header_text").innerHTML = "Article details - " + ix + " of " + count;
-		doc.getElementById("stf_single_prev").className = "prev" + (ix <= 1 ? " disabled" : "");
-		doc.getElementById("stf_single_next").className = "next" + (ix >= count ? " disabled" : "");
-		doc.getElementById("stf_save_button").innerHTML = "Done editing";
-	}
-	else
-		output.push("<div class='stf_lbl header'>Save As</div>");
-    var converted = conversion.convert(item);
-	var refType = refType || converted.refType;
-	output.push("<select id='reference_type' class='stf_dropdown'>");
-	for(var index in labels.referenceTypes) {
-		var value = labels.referenceTypes[index];
-		var selected = refType == index ? " selected='selected'" : "";
-		output.push("<option value='" + index + "'" + selected + ">" + value.label + "</option>");
-	}
-	output.push("</select>");
-    var pdf = false;
-    if(item.attachments)
-        for(var i=0; i< item.attachments.length;i++)
-            if(item.attachments[i].mimeType.indexOf("pdf") >= 0)
-                pdf = true;
-    //smarter - check for url and type, saving html pages (that are not this one)
-	if (pdf) {
-		output.push("<img src='" + FLOW_SERVER + "/public/img/pdf.png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We see a PDF! Should we try to save it too?</span></label></span>");
-	}
-	else if (containerClass.indexOf("listView") == -1) {
-        item.attachments = [];//kill it with fire!
-		output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' class='stf_attach'> <span>Save the content of this web page</span></label></span>");
-	}
-	output.push("<div id='stf_ref_type_spec' class='clear'>");
-	output = createFields(item, output, refType);
+
+    var converted = conversion.convert(item),
+        output = singleHeader(doc,converted.refType,item.attachments);
+    output = output.concat(createFields(converted));
 	output.push("</div>");
+
+
+    removeAutoSizeEvents(doc);
+
 	container.innerHTML = output.join('');
+
 	doc.getElementById("stf_save_button").disabled = false;
-    textarea(doc);
+
+    addAutoSizeEvents(doc);
+
+    doc.getElementById("reference_type").addEventListener("change", function (e) {
+        //get current field values (may be editted)
+        removeAutoSizeEvents(doc);
+        doc.getElementById("stf_ref_type_spec").innerHTML = createFields(getModified(), this.value).join('');
+        addAutoSizeEvents(doc);
+    }, true);
+
 	if (stf.className.indexOf("singleView") >= 0 && stf.className.indexOf("listView") == -1){
 		doc.getElementById("stf_save_button").addEventListener("click", function (e) {
-			try {
 				saveReference();
-			} catch (e) {
-				Z.debug(e.message);
-			}
 		}, true);
 	}
 	return "Item Displayed";
 }
 
-function textarea(doc) {
-  var offset = 0, textHeight = 102;
-  function autoSize(text) {
-          if (text.scrollHeight < textHeight || text.id == "stf_authors") {
-              text.style.height = 'auto';
-              var height = (text.scrollHeight + offset + (text.id == "stf_authors" && offset ? 18 : 0))
-              text.style.height = (height > 32 ? height : 32) + 'px';//minimum, one line
-              text.style.overflow = 'hidden';
-          }
-          else {
-              text.style.height = textHeight + 'px';
-              text.style.overflowY = 'auto';
-          }
-  }
-
-    function autoSizeEvent() {
-        var that = this;
-        ZU.setTimeout(function () {
-        autoSize(that)
-        }, 0);
+function autoSize(text) {
+    var textHeight = 102;
+    if (text.scrollHeight < textHeight || text.id == "stf_authors") {
+        text.style.height = 'auto';
+        var height = (text.scrollHeight + (text.id == "stf_authors" ? 18 : 0))
+        text.style.height = (height > 32 ? height : 32) + 'px';//minimum, one line
+        text.style.overflow = 'hidden';
     }
-  for (var index = 0; index < labels.order.length; index++) {
-    var value = labels.order[index];
-    var text = doc.getElementById("stf_"+ value);
-    if(text) {
-        autoSize(text);
-        text.addEventListener("focus", function (e) {
-            //var parent = this.parentNode;
-            //parent.getElementsByClassName("empty").style.display = 'none';
-            this.addEventListener("keypress", autoSizeEvent);
-        });
-        text.addEventListener("blur", function (e) {
-            this.removeEventListener("keypress", autoSizeEvent);
-        });
+    else {
+        text.style.height = textHeight + 'px';
+        text.style.overflowY = 'auto';
     }
-
-  }
 }
 
-function createFields(item, output, refType){
-	var fieldMapping = labels.referenceTypes[refType].defaultFields;
-    var converted = conversion.convert(item);
+function autoSizeFocusEvent() {
+    //var parent = this.parentNode;
+    //parent.getElementsByClassName("empty").style.display = 'none';
+    this.addEventListener("keypress", autoSizeKeyEvent);
+}
+
+function autoSizeBlurEvent() {
+    this.removeEventListener("keypress", autoSizeKeyEvent);
+}
+
+function autoSizeKeyEvent() {
+    var that = this;
+    ZU.setTimeout(function () {
+        autoSize(that)
+    }, 0);
+}
+
+function removeAutoSizeEvents(doc){
+    for (var index = 0; index < labels.order.length; index++) {
+        var value = labels.order[index];
+        var text = doc.getElementById("stf_" + value);
+        if (text) {
+            text.removeEventListener("focus", autoSizeFocusEvent);
+            text.removeEventListener("blur", autoSizeBlurEvent);
+        }
+    }
+}
+
+function addAutoSizeEvents(doc) {
+    for (var index = 0; index < labels.order.length; index++) {
+        var value = labels.order[index];
+        var text = doc.getElementById("stf_" + value);
+        if (text) {
+            autoSize(text);
+            text.addEventListener("focus", autoSizeFocusEvent);
+            text.addEventListener("blur", autoSizeBlurEvent);
+        }
+    }
+}
+
+function createFields(item){
+	var fieldMapping = labels.referenceTypes[item.refType].defaultFields,
+        output = [];
 	for(var index = 0; index < labels.order.length; index++) {
 		var field = labels.order[index];
 		if (fieldMapping.indexOf(field) >= 0) {
-			var override = labels.referenceTypes[refType].fieldLabelOverides[field], label = override ? override : labels.fields[field].label;
-			var value = field == "authors" ? authorNameList(converted[field], "\n") : converted[field];
+			var override = labels.referenceTypes[item.refType].fieldLabelOverides[field], label = override ? override : labels.fields[field].label;
+			var value = field == "authors" ? authorNameList(item[field], "\n") : item[field];
 			if (value) {
 				output.push("<div class='stf_lbl'>" + label + "</div>" + (field == "authors" ? "<div class='textposition'><span class='author'>Last name, First names</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'>" + value + "</textarea>" + (field == "authors" ? "</div>" : ""));
 			}
@@ -624,12 +710,12 @@ var conversion = (function(){
     var flow = {
         fields: {
             "abstract": "abstr",
-            "authors": {"key": "authors", "fn": parseAuthor},
+            "authors": {"key": "authors", "fn": handleAuthor},
             "doi": "docIds.doi",
             "PMCID": "docIds.pmcid",
             "PMID": "docIds.pmid",
             "edition": "series.edition",
-            "editors": {"key": "contributors.editors", "fn": parseAuthor},
+            "editors": {"key": "contributors.editors", "fn": handleAuthor},
             "isbn": "publication.isbn",
             "issn": "publication.issn",
             "journalAbbrev": "publication.abbrev",
@@ -641,7 +727,7 @@ var conversion = (function(){
             "pages": "pages.rawPages",
             "publisher": "publisher.name",
             "location": "publisher.location",
-            "translator": {"key": "contributors.translator", "fn": parseAuthor},
+            "translator": {"key": "contributors.translator", "fn": handleAuthor},
             "title":"title",
             "retrievedDate": "retrievedDate.rawDate",
             "url":"url"
@@ -684,6 +770,10 @@ var conversion = (function(){
     }
     return {convert:convert};
 })();
+
+function handleAuthor(author){
+    return parseAuthor(authorNameList(author,"\n"));
+}
 
 function authorNameList(item, delimiter) {
 	delimiter = delimiter || "; ";
