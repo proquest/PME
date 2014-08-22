@@ -1,4 +1,4 @@
-var FLOW_SERVER = "http://flow.proquest.com";
+var FLOW_SERVER = "http://localhost:8080";//"http://flow.proquest.com";
 function entry(doc,url){
 	style(doc);
 	container(doc);
@@ -72,6 +72,9 @@ function style(doc){
 	style.push("#stf_capture #stf_ui_main .stf_dropdown {margin:10px 20px 20px 20px;width:320px;height:28px;background:#f1f2f5;border:1px solid #565b64;color:#333;}");
 	style.push("#stf_capture #stf_ui_main .stf_dropdown option {background:#f1f2f5;color:#333;}");
 	style.push("#stf_capture #stf_ui_main .stf_webref {display:none;}");
+    style.push("#stf_capture #reference_json {display:none;}");
+    style.push("#stf_debug {z-index:1000000000000009;position:fixed;top:0;left:0;width:400px;height:100%;border:1px solid #333;background:#fff;}");
+    style.push("#stf_debug div {margin:10px; border-bottom:1px solid #ccc;}");
 
 	var styleElement = doc.createElement("style");
 	styleElement.innerHTML = style.join("");
@@ -83,6 +86,14 @@ function container(doc){
 	container.id = "stf_capture";
     container.className = "notranslate";
 	container.innerHTML =
+        '<iframe frameborder="0" id="stf_tracking_iframe" name="stf_tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
+        '<form method="post" action="' + FLOW_SERVER + '/savetoflow/tracking/" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" target="stf_tracking_iframe" name="stf_tracking_form" id="stf_tracking_form">' +
+        '<input type="hidden" name="found" id="stf_track_found">' +
+        '<input type="hidden" name="selected" id="stf_track_selected">' +
+        '<input type="hidden" name="url" id="stf_track_url">' +
+        '<input type="hidden" name="modified" id="stf_track_modified">' +
+        '<input type="hidden" name="citation" id="stf_track_citation">' +
+        '</form>' +
 		'<div class="stf_status" id="stf_status"></div>' +
 		'<div class="stf_download" id="stf_progress">' +
 			'<div class="stf_download_info">Saving to Flow</div>' +
@@ -117,14 +128,21 @@ function container(doc){
   }, true);
 }
 
-function save(item, doc, url) {
-    //FLOW_SERVER + "/savetoflow/tracking/"
-    var stf = doc.getElementById("stf_capture"),
-        found = stf.getAttribute("data-total") || 1,
-        selected = stf.getAttribute("data-selected") || 1,
-        citation = stf.getAttribute("data-translator") == "true" ? "web" : "regular",
-        tracking = {"url": url,"found": found,"selected": selected, "citation": citation,"modified":[{title:true},{authors:true}]};
+function tracking(doc, tracking){
+    try {
+        doc.getElementById("stf_track_found").value = tracking.found;
+        doc.getElementById("stf_track_selected").value = items.length;
+        doc.getElementById("stf_track_url").value = tracking.url;
+        doc.getElementById("stf_track_citation").value = tracking.citation;
+        doc.getElementById("stf_track_modified").value = JSON.stringify(tracking.modified);
+        doc.getElementById("stf_tracking_form").submit();
+    }
+    catch(e){}
+}
 
+//need to correctly handle progress on multiple reference selection
+
+function save(item, doc, url) {
     doc.getElementById("stf_container").style.display = "none";
     doc.getElementById("stf_progress").style.display = "block";
 
@@ -227,7 +245,6 @@ function selection(doc, url, items, callback){
 	stf.className = "listView";
     //list view is too fast? need a delay
     ZU.setTimeout(function(){doc.getElementById("stf_capture").className += " show";},100);
-    stf.setAttribute("data-total", items.length);
 	for(itemId in items){
 		var item = doc.createElement("div");
 		item.className = "stf_ui_item";
@@ -235,6 +252,8 @@ function selection(doc, url, items, callback){
 		item.setAttribute("data-ix", ix++);
 		item.addEventListener("click", function (e) {
 			if(e.target.className == "detail"){//go to reference
+                //we should check if the item exists in savedReferences
+                //if so, directly call single with the modified version in savedReferences
 				var thisItem = {}, thisItemId = this.getAttribute("data-id");
 				stf.setAttribute("data-id", thisItemId);
 				stf.setAttribute("data-ix", this.getAttribute("data-ix"));
@@ -251,26 +270,7 @@ function selection(doc, url, items, callback){
 	}
 	stf.setAttribute("data-count", ix-1);
 	var savedReferences = {};
-	function saveReference(){
-		var item_id = stf.getAttribute("data-id"), reference = {};
-		reference.refType = doc.getElementById("reference_type").value;
-		for (var index = 0; index < labels.order.length; index++) {
-            try {
-                var elem = doc.getElementById("stf_" + labels.order[index]);
-                if (elem) {
-                    var val = elem.value
-                    if (val) {
-                        saveField(reference, labels.order[index], val);
-                    }
-                }
-            }catch(e){
-                Z.debug("error in selection.saveReference: "+ labels.order[index]);
-            }
-		}
-        reference.attachments = item.attachments;
-		reference.attach = doc.getElementById("stf_attach") && doc.getElementById("stf_attach").checked;
-		savedReferences[item_id] = reference;
-	}
+
 	doc.getElementById("stf_select_all").addEventListener("click", function (e) {
 		if(this.getAttribute("unselect") == "true"){
 			this.innerHTML = "Select All";
@@ -284,16 +284,19 @@ function selection(doc, url, items, callback){
 		}
 	},true);
 	doc.getElementById("stf_single_next").addEventListener("click", function (e) {
-		saveReference();
+        var item_id = stf.getAttribute("data-id");
+        savedReferences[item_id] = getModified(doc);
 		move(doc, callback, items, 1);
 	}, true);
 	doc.getElementById("stf_single_prev").addEventListener("click", function (e) {
-		saveReference();
+        var item_id = stf.getAttribute("data-id");
+        savedReferences[item_id] = getModified(doc);
 		move(doc, callback, items, -1);
 	}, true);
 	doc.getElementById("stf_save_button").addEventListener("click", function (e) {
 		if (stf.className.indexOf("listView") >= 0 && stf.className.indexOf("singleView") >= 0) {
-			saveReference();
+            var item_id = stf.getAttribute("data-id");
+            savedReferences[item_id] = getModified(doc);
 			stf.className = "listView show";//save and back to list
 			doc.getElementById("stf_header_text").innerHTML = "Select articles";
 			setListButton(doc);
@@ -301,13 +304,17 @@ function selection(doc, url, items, callback){
 		else if (stf.className.indexOf("listView") >= 0){
 			stf.setAttribute("data-saving", "true");
 			var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
-                count = 0;
+                count = 0,
+                modified = [];
 			for (var i = 0; i < cbx.length; i++) {
 				if (cbx[i].checked){
                     count++;
 					var item_id = cbx[i].id.replace("stf_cbx_","");
-					if(savedReferences[item_id])
-						save(savedReferences[item_id],doc,url);
+					if(savedReferences[item_id]) {
+                        if(savedReferences[item_id].modifiedFields)
+                            modified.push(savedReferences[item_id].modifiedFields)
+                        save(savedReferences[item_id], doc, url);
+                    }
 					else{
 						var thisItem = {};
 						thisItem[item_id] = items[item_id];
@@ -315,7 +322,10 @@ function selection(doc, url, items, callback){
 					}
 				}
 			}
-            stf.setAttribute("data-selected", count);
+            var stf = doc.getElementById("stf_capture"),
+                found = stf.getAttribute("data-count") || 1,
+                selected = count;
+            tracking(doc,{"url": url, "found": found, "selected": selected, "citation": "regular", "modified": modified});
 			//Zotero.done();
 		}
 	}, true);
@@ -386,10 +396,10 @@ function singleHeader(doc,refType,attachments){
     output.push("</select>");
     var pdf = false;
     if (attachments)
-        for (var i = 0; i < attachments.length; i++)
-            if (attachments[i].mimeType.indexOf("pdf") >= 0)
+        for (var i = 0; i < attachments.length; i++) {
+            if (attachments[i] && attachments[i].mimeType && attachments[i].mimeType.indexOf("pdf") >= 0)
                 pdf = true;
-    //smarter - check for url and type, saving html pages (that are not this one)
+        }
     if (pdf) {
         output.push("<img src='" + FLOW_SERVER + "/public/img/pdf.png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We see a PDF! Should we try to save it too?</span></label></span>");
     }
@@ -404,153 +414,173 @@ function singleHeader(doc,refType,attachments){
 function single(doc, url, item, noneFound){
     var container = doc.getElementById("stf_meta"),
         stf = doc.getElementById("stf_capture");
-
     if(!item.retrievedDate)
         item.retrievedDate = new Date();
     if(!item.URL)
         item.URL = url;
-
-    stf.setAttribute("data-translator", noneFound || false);
+    var attachments = item.attachments;
+    item = conversion.convert(item);
+    item.attachments = attachments;
 
     if (stf.getAttribute("data-saving") == "true") {
-        saveReference(true);
+        saveReference(doc, url, item, true);
         return;
     }
 
     if (noneFound)
         doc.getElementById("stf_webref").style.display = "block";
 
-    function getModified(){
-        var reference = {},
-            converted = conversion.convert(item);
-        reference.refType = doc.getElementById("reference_type").value;
-        for (var index = 0; index < labels.order.length; index++) {
-            var elem = doc.getElementById("stf_" + labels.order[index]);
-            if (elem) {
-                var val = elem.value;
-                if (labels.order[index] == "authors")
-                    val = authorNameList(val, "\n");
-                if (val) {
-                    reference[labels.order[index]] = val;
-                }
-            }
-            else if(converted[labels.order[index]])
-                reference[labels.order[index]] = converted[labels.order[index]];
+    var output = singleHeader(doc, item.refType,item.attachments)
+        .concat(createFields(item));
+    output.push("</div>");
 
-        }
-        reference.attachments = item.attachments;
-        item = reference;
-        return reference;
-    }
-	function saveReference(useItem){
-		var reference = useItem ? conversion.convert(item) : getModified();
-        reference = conversion.convert(reference);
-        reference.attachments = item.attachments;
-        reference.attach = useItem ? true : doc.getElementById("stf_attach").checked;
-		save(reference,doc,url);
-	}
-
-    var converted = conversion.convert(item),
-        output = singleHeader(doc,converted.refType,item.attachments);
-    output = output.concat(createFields(converted));
-	output.push("</div>");
-
-
-    removeAutoSizeEvents(doc);
+    autoSize.removeEvents(doc);
 
 	container.innerHTML = output.join('');
 
 	doc.getElementById("stf_save_button").disabled = false;
 
-    addAutoSizeEvents(doc);
+    autoSize.addEvents(doc);
 
     doc.getElementById("reference_type").addEventListener("change", function (e) {
         //get current field values (may be editted)
-        removeAutoSizeEvents(doc);
-        doc.getElementById("stf_ref_type_spec").innerHTML = createFields(getModified(), this.value).join('');
-        addAutoSizeEvents(doc);
+        autoSize.removeEvents(doc);
+        item = getModified(doc);
+        doc.getElementById("stf_ref_type_spec").innerHTML = createFields(item).join('');
+        autoSize.addEvents(doc);
     }, true);
 
-	if (stf.className.indexOf("singleView") >= 0 && stf.className.indexOf("listView") == -1){
+    if (stf.className.indexOf("singleView") >= 0 && stf.className.indexOf("listView") == -1)
 		doc.getElementById("stf_save_button").addEventListener("click", function (e) {
-				saveReference();
+		    item = saveReference(doc,url,item,false);
+            var found = 1,
+                selected = 1,
+                citation = noneFound ? "web" : "regular";
+            tracking(doc, {"url": url, "found": found, "selected": selected, "citation": citation, "modified": [item.modifiedFields]});
 		}, true);
-	}
 	return "Item Displayed";
 }
 
-function autoSize(text) {
-    var textHeight = 102;
-    if (text.scrollHeight < textHeight || text.id == "stf_authors") {
-        text.style.height = 'auto';
-        var height = (text.scrollHeight + (text.id == "stf_authors" ? 18 : 0))
-        text.style.height = (height > 32 ? height : 32) + 'px';//minimum, one line
-        text.style.overflow = 'hidden';
+function debug(doc,str){
+    var debug = doc.getElementById("stf_debug")
+    if(!debug) {
+        doc.body.innerHTML += '<div id="stf_debug"></div>';
+        debug = doc.getElementById("stf_debug")
     }
-    else {
-        text.style.height = textHeight + 'px';
-        text.style.overflowY = 'auto';
-    }
+    debug.innerHTML += "<div>"+str+"</div>";
+
 }
 
-function autoSizeFocusEvent() {
-    //var parent = this.parentNode;
-    //parent.getElementsByClassName("empty").style.display = 'none';
-    this.addEventListener("keypress", autoSizeKeyEvent);
-}
-
-function autoSizeBlurEvent() {
-    this.removeEventListener("keypress", autoSizeKeyEvent);
-}
-
-function autoSizeKeyEvent() {
-    var that = this;
-    ZU.setTimeout(function () {
-        autoSize(that)
-    }, 0);
-}
-
-function removeAutoSizeEvents(doc){
+function getModified(doc) {
+    var reference = {}, item = JSON.parse(doc.getElementById("reference_json").innerHTML);
+    reference.refType = doc.getElementById("reference_type").value;
+    reference.modifiedFields = item.modifiedFields ? item.modifiedFields : [];
     for (var index = 0; index < labels.order.length; index++) {
-        var value = labels.order[index];
-        var text = doc.getElementById("stf_" + value);
-        if (text) {
-            text.removeEventListener("focus", autoSizeFocusEvent);
-            text.removeEventListener("blur", autoSizeBlurEvent);
+        var elem = doc.getElementById("stf_" + labels.order[index]);
+        if (elem) {
+            var val = elem.value;
+            if (labels.order[index] == "authors")
+                val = authorNameList(val, "\n");
+            if (val) {
+                reference[labels.order[index]] = val;
+                if(reference[labels.order[index]] != item[labels.order[index]] && reference.modifiedFields.indexOf(conversion.tracking(labels.order[index])) == -1)
+                    reference.modifiedFields.push(conversion.tracking(labels.order[index]));
+            }
         }
+        else if (item[labels.order[index]])
+            reference[labels.order[index]] = item[labels.order[index]];
+
     }
+    reference.attachments = item.attachments;
+    reference.attach = doc.getElementById("stf_attach") && doc.getElementById("stf_attach").checked;
+    return reference;
 }
 
-function addAutoSizeEvents(doc) {
-    for (var index = 0; index < labels.order.length; index++) {
-        var value = labels.order[index];
-        var text = doc.getElementById("stf_" + value);
-        if (text) {
-            autoSize(text);
-            text.addEventListener("focus", autoSizeFocusEvent);
-            text.addEventListener("blur", autoSizeBlurEvent);
-        }
-    }
+function saveReference(doc, url, item, useItem) {
+    var reference = useItem ? item : getModified(doc);
+    reference = conversion.convert(reference);//convert to deep flow model
+    reference.attachments = item.attachments;
+    reference.attach = useItem ? true : doc.getElementById("stf_attach").checked;
+    save(reference, doc, url);
+    return reference;
 }
 
-function createFields(item){
-	var fieldMapping = labels.referenceTypes[item.refType].defaultFields,
+function createFields(item) {
+    var fieldMapping = labels.referenceTypes[item.refType].defaultFields,
         output = [];
-	for(var index = 0; index < labels.order.length; index++) {
-		var field = labels.order[index];
-		if (fieldMapping.indexOf(field) >= 0) {
-			var override = labels.referenceTypes[item.refType].fieldLabelOverides[field], label = override ? override : labels.fields[field].label;
-			var value = field == "authors" ? authorNameList(item[field], "\n") : item[field];
-			if (value) {
-				output.push("<div class='stf_lbl'>" + label + "</div>" + (field == "authors" ? "<div class='textposition'><span class='author'>Last name, First names</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'>" + value + "</textarea>" + (field == "authors" ? "</div>" : ""));
-			}
-			else {
-				output.push("<div class='stf_lbl'>" + label + "</div><div class='textposition'><span class='empty'>Please enter metadata...</span>" + (field == "authors" ? "<span class='author'>Last name, First names (each on a new line)</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'></textarea></div>");
-			}
-		}
-	}
-	return output;
+    for (var index = 0; index < labels.order.length; index++) {
+        var field = labels.order[index];
+        if (fieldMapping.indexOf(field) >= 0) {
+            var override = labels.referenceTypes[item.refType].fieldLabelOverides[field], label = override ? override : labels.fields[field].label;
+            var value = field == "authors" ? authorNameList(item[field], "\n") : item[field];
+            if (value) {
+                output.push("<div class='stf_lbl'>" + label + "</div>" + (field == "authors" ? "<div class='textposition'><span class='author'>Last name, First names</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'>" + value + "</textarea>" + (field == "authors" ? "</div>" : ""));
+            }
+            else {
+                output.push("<div class='stf_lbl'>" + label + "</div><div class='textposition'><span class='empty'>Please enter metadata...</span>" + (field == "authors" ? "<span class='author'>Last name, First names (each on a new line)</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'></textarea></div>");
+            }
+        }
+    }
+    output.push("<div id='reference_json'>"+JSON.stringify(item)+"</div>");
+    return output;
 }
+
+var autoSize = (function(){
+    function autoSize(text) {
+        var textHeight = 102;
+        if (text.scrollHeight < textHeight || text.id == "stf_authors") {
+            text.style.height = 'auto';
+            var height = (text.scrollHeight + (text.id == "stf_authors" ? 18 : 0))
+            text.style.height = (height > 32 ? height : 32) + 'px';//minimum, one line
+            text.style.overflow = 'hidden';
+        }
+        else {
+            text.style.height = textHeight + 'px';
+            text.style.overflowY = 'auto';
+        }
+    }
+
+    function focusEvent() {
+        //var parent = this.parentNode;
+        //parent.getElementsByClassName("empty").style.display = 'none';
+        this.addEventListener("keypress", keyEvent);
+    }
+
+    function blurEvent() {
+        this.removeEventListener("keypress", keyEvent);
+    }
+
+    function keyEvent() {
+        var that = this;
+        ZU.setTimeout(function () {
+            autoSize(that)
+        }, 0);
+    }
+
+    function removeEvents(doc) {
+        for (var index = 0; index < labels.order.length; index++) {
+            var value = labels.order[index];
+            var text = doc.getElementById("stf_" + value);
+            if (text) {
+                text.removeEventListener("focus", focusEvent);
+                text.removeEventListener("blur", blurEvent);
+            }
+        }
+    }
+
+    function addEvents(doc) {
+        for (var index = 0; index < labels.order.length; index++) {
+            var value = labels.order[index];
+            var text = doc.getElementById("stf_" + value);
+            if (text) {
+                autoSize(text);
+                text.addEventListener("focus", focusEvent);
+                text.addEventListener("blur", blurEvent);
+            }
+        }
+    }
+    return {addEvents: addEvents, removeEvents: removeEvents};
+})();
 
 var labels = (function(){
 	var fields = {
@@ -730,13 +760,16 @@ var conversion = (function(){
             "translator": {"key": "contributors.translator", "fn": handleAuthor},
             "title":"title",
             "retrievedDate": "retrievedDate.rawDate",
-            "url":"url"
+            "url":"url",
+            "modifiedFields":"modifiedFields"
         }
     }
     function convert(item){
         var converted = {}
         if(item.itemType){//zotero
             converted.refType = zotero.itemType[item.itemType];
+            if(!converted.refType)
+                converted.refType = "GENERIC_REF";
             for(var field in item){
                 if(zotero.fields[field])
                     converted[zotero.fields[field]] = item[field];
@@ -768,7 +801,10 @@ var conversion = (function(){
         }
         return converted;
     }
-    return {convert:convert};
+    function tracking(field){
+        return flow.fields[field] ? flow.fields[field].key ? flow.fields[field].key : flow.fields[field] : "";
+    }
+    return {convert:convert, tracking: tracking};
 })();
 
 function handleAuthor(author){
