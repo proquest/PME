@@ -16,8 +16,8 @@ function style(doc){
         style.push("#stf_capture img {display:inline;}");
         style.push("#stf_capture a {text-decoration:none;color:#73b9ff;}");
         style.push("#stf_capture .clear {clear:both;margin-bottom:10px;}");
-        style.push("#stf_capture .stf_status,#stf_capture .stf_download {height:72px;width:355px;background:#454a53;border-radius:4px;padding:20px;position:absolute;top:5px;right:5px;display:none;}");
-        style.push("#stf_capture .stf_status {font-size:14px;font-weight:300;line-height:32px;}");
+        style.push("#stf_capture .stf_status,#stf_capture .stf_download,#stf_capture .stf_error {height:72px;width:355px;background:#454a53;border-radius:4px;padding:20px;position:absolute;top:5px;right:5px;display:none;}");
+        style.push("#stf_capture .stf_status,#stf_capture .stf_error {font-size:14px;font-weight:300;line-height:32px;}");
         style.push("#stf_capture .stf_status a {font-size:14px;font-weight:300;}");
         style.push("#stf_capture .stf_status button {position:absolute;top:0;right:0;font-size:13px;color:#fff;font-weight:300;text-align:center;color:#fff;width:auto;padding-left:20px;padding-right:20px;}");
         style.push("#stf_capture .stf_download {display:none;position:relative;right:0px;}");
@@ -75,7 +75,7 @@ function style(doc){
         style.push("#stf_capture #stf_ui_main .stf_dropdown option {background:#f1f2f5;color:#333;}");
         style.push("#stf_capture #stf_ui_main .stf_webref {display:none;}");
         style.push("#stf_capture #reference_json {display:none;}");
-        style.push("#stf_debug {z-index:1000000000000009;position:fixed;top:0;left:0;width:400px;height:100%;border:1px solid #333;background:#fff;}");
+        style.push("#stf_debug {z-index:1000000000000009;position:absolute;top:0;left:0;width:400px;min-height:100%;border:1px solid #333;background:#fff;}");
         style.push("#stf_debug div {margin:10px; border-bottom:1px solid #ccc;}");
 
         var styleElement = doc.createElement("style");
@@ -102,6 +102,7 @@ function container(doc){
             '<input type="hidden" name="citation" id="stf_track_citation">' +
             '</form>' +
             '<div class="stf_status" id="stf_status"></div>' +
+            '<div class="stf_error" id="stf_error"></div>' +
             '<div class="stf_download" id="stf_progress">' +
             '<div class="stf_download_info">Saving to Flow</div>' +
             '<div class="stf_download_bar"><div class="stf_download_progress" id="stf_download_progress"></div></div>' +
@@ -153,6 +154,16 @@ function close(doc){
     }
 }
 
+function debug(doc, str) {
+    var debug = doc.getElementById("stf_debug")
+    if (!debug) {
+        doc.body.innerHTML += '<div id="stf_debug"></div>';
+        debug = doc.getElementById("stf_debug")
+    }
+    debug.innerHTML += "<div>" + str + "</div>";
+
+}
+
 function error(doc,e){
     //severity levels?
     debug(doc, JSON.stringify(e));
@@ -179,8 +190,6 @@ function tracking(doc, tracking){
     catch(e){error(doc,e);}
 }
 
-//need to correctly handle progress on multiple reference selection
-
 function save(item, doc, url) {
     try {
         doc.getElementById("stf_container").style.display = "none";
@@ -194,11 +203,13 @@ function save(item, doc, url) {
                     loginDialog(doc);
             }
             catch (e) {
+                saveFailed(doc);
                 error(doc, e);
             }
         });
     }
     catch (e) {
+        saveFailed(doc);
         error(doc, e);
     }
 }
@@ -211,13 +222,17 @@ function newDocument(doc,url,item) {
                 //no id = failure
                 if (id)
                     updateDocument(doc, url, item, id);
+                else
+                    saveFailed(doc);
             }
             catch (e) {
+                saveFailed(doc);
                 error(doc, e);
             }
         });
     }
     catch (e) {
+        saveFailed(doc);
         error(doc, e);
     }
 }
@@ -249,9 +264,16 @@ function updateDocument(doc,url,item,id){
             JSON.stringify(item),
             function (data_edit) {
                 try {
-                    progressDialog(doc, (useAttachment ? 0.5 : 0.9));
-                    if (attachment)
+                    if (attachment) {
+                        progressDialog(doc, 0.5);
                         getAttachment(doc, attachment, id);
+                    }
+                    else{
+                        var stf = doc.getElementById("stf_capture"),
+                            done = parseInt(stf.getAttribute("data-saving-done"));
+                        stf.setAttribute("data-saving-done",(isNaN(done)?1:done+1));
+                        progressDialog(doc, 0.5);
+                    }
                 }
                 catch (e) {
                     error(doc, e);
@@ -274,23 +296,61 @@ function getAttachment(doc, attachment, id) {
                     saveAttachment(doc, id, blob, attachment.mimeType, attachment.url);
                 }
                 catch (e) {
+                    attachmentFailed(doc)
                     error(doc, e);
                 }
             });
     }
     catch (e) {
+        attachmentFailed(doc)
         error(doc, e);
     }
 }
 
 function saveAttachment(doc,id,body,mimeType,attachUrl){
     try {
-        var url = attachment.html || attachment.mimeType.indexOf("pdf") < 0 ?
+        var url = mimeType.indexOf("html") > 0 ?
             FLOW_SERVER + "/edit/" + id + "/html/?url=" + encodeURIComponent(attachUrl) :
             FLOW_SERVER + "/savetoflow/attachment/" + id + "/";
         ZU.HTTP.promise("POST", url, {debug: true, headers: {"Content-Type": mimeType}, body: body}, function (http) {
-            completeDialog(doc);
+            try {
+                var stf = doc.getElementById("stf_capture"),
+                    done = parseInt(stf.getAttribute("data-saving-done"));
+                stf.setAttribute("data-saving-done", (isNaN(done) ? 1 : done + 1));
+                progressDialog(doc, 1);
+            }
+            catch (e) {
+                attachmentFailed(doc);
+                error(doc, e);
+            }
         });
+    }
+    catch (e) {
+        attachmentFailed(doc);
+        error(doc, e);
+    }
+}
+
+function saveFailed(doc) {
+    progressDialog(doc, 1);//allow completion
+    try {
+        var errorDialog = doc.getElementById("stf_error");
+        doc.getElementById("stf_progress").style.display = "none";
+        errorDialog.style.display = "block";
+        errorDialog.innerHTML = "We're sorry, we were unable to save to Flow. We tried, but came up empty.";
+    }
+    catch (e) {
+        error(doc, e);
+    }
+}
+
+function attachmentFailed(doc){
+    progressDialog(doc, 1);//allow completion
+    try {
+        var errorDialog = doc.getElementById("stf_error");
+        doc.getElementById("stf_progress").style.display = "none";
+        errorDialog.style.display = "block";
+        errorDialog.innerHTML = "We're sorry, we were unable to get the full-text. We tried, but came up empty.";
     }
     catch (e) {
         error(doc, e);
@@ -298,16 +358,27 @@ function saveAttachment(doc,id,body,mimeType,attachUrl){
 }
 
 function progressDialog(doc,ratio){
-    doc.getElementById("stf_download_progress").style.width = Math.round(ratio * 315) + "px"
+    var stf = doc.getElementById("stf_capture"),
+        count = stf.getAttribute("data-saving-count"),
+        done = stf.getAttribute("data-saving-done");
+    if(count){
+        count = parseInt(count),done = parseInt(done);
+        if(isNaN(done))
+            done = 0;
+        ratio = done/count;
+    }
+    if(ratio == 1)
+        completeDialog(doc);
+    else
+        doc.getElementById("stf_download_progress").style.width = Math.round(ratio * 315) + "px";
 }
 
 function completeDialog(doc){
     try {
-        var count = doc.getElementById("stf_capture").getAttribute("data-selected"),
+        var count = doc.getElementById("stf_capture").getAttribute("data-saving-count"),
             status = doc.getElementById("stf_status"),
             countText = count ? count + " articles saved." : "1 article saved.";
 
-        progressDialog(doc, 0.9);
         doc.getElementById("stf_progress").style.display = "none";
         status.style.display = "block";
         status.innerHTML = countText + '<form method="get" action="' + FLOW_SERVER + '/library/recent/" target="ProQuestFlow"><button id="stf_view_button" type="submit">View in Flow</button></form>';
@@ -372,13 +443,17 @@ function selection(doc, url, items, callback){
                 item.addEventListener("click", function (e) {
                     try {
                         if (e.target.className == "detail") {//go to reference
-                            //we should check if the item exists in savedReferences
-                            //if so, directly call single with the modified version in savedReferences
-                            var thisItem = {}, thisItemId = this.getAttribute("data-id");
+                            var thisItemId = this.getAttribute("data-id");
                             stf.setAttribute("data-id", thisItemId);
                             stf.setAttribute("data-ix", this.getAttribute("data-ix"));
-                            thisItem[thisItemId] = items[thisItemId];
-                            callback(thisItem);
+                            if(savedReferences[thisItemId]){
+                                single(doc,url,savedReferences[thisItemId]);
+                            }
+                            else {
+                                var thisItem = {};
+                                thisItem[thisItemId] = items[thisItemId];
+                                callback(thisItem);
+                            }
                         }
                         else {//update count of selected. enable button if > 0
                             setListButton(doc);
@@ -420,7 +495,7 @@ function selection(doc, url, items, callback){
             try {
                 var item_id = stf.getAttribute("data-id");
                 savedReferences[item_id] = getModified(doc);
-                move(doc, callback, items, 1);
+                move(doc, url, callback, items, 1, savedReferences);
             }
             catch (e) {
                 error(doc, e);
@@ -430,7 +505,7 @@ function selection(doc, url, items, callback){
             try {
                 var item_id = stf.getAttribute("data-id");
                 savedReferences[item_id] = getModified(doc);
-                move(doc, callback, items, -1);
+                move(doc, url, callback, items, -1, savedReferences);
             }
             catch (e) {
                 error(doc, e);
@@ -438,6 +513,7 @@ function selection(doc, url, items, callback){
         }, true);
         doc.getElementById("stf_save_button").addEventListener("click", function (e) {
             try {
+                var stf = doc.getElementById("stf_capture");
                 if (stf.className.indexOf("listView") >= 0 && stf.className.indexOf("singleView") >= 0) {
                     var item_id = stf.getAttribute("data-id");
                     savedReferences[item_id] = getModified(doc);
@@ -447,6 +523,7 @@ function selection(doc, url, items, callback){
                 }
                 else if (stf.className.indexOf("listView") >= 0) {
                     stf.setAttribute("data-saving", "true");
+                    stf.setAttribute("data-saving-count", 1);
                     var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
                         count = 0,
                         modified = [];
@@ -466,8 +543,8 @@ function selection(doc, url, items, callback){
                             }
                         }
                     }
-                    var stf = doc.getElementById("stf_capture"),
-                        found = stf.getAttribute("data-count") || 1,
+                    stf.setAttribute("data-saving-count", count);
+                    var found = stf.getAttribute("data-count"),
                         selected = count;
                     tracking(doc, {"url": url, "found": found, "selected": selected, "citation": "regular", "modified": modified});
                     //Zotero.done();
@@ -484,7 +561,7 @@ function selection(doc, url, items, callback){
     return "Translator results displayed";
 }
 
-function move(doc,callback,items,offset){
+function move(doc,url,callback,items,offset,savedReferences){
 	var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
 		stf = doc.getElementById("stf_capture"),
 		id = stf.getAttribute("data-id");
@@ -494,8 +571,13 @@ function move(doc,callback,items,offset){
                 var thisItem = {}, thisItemId = cbx[i + offset].id.replace("stf_cbx_", "");
                 stf.setAttribute("data-id", thisItemId);
                 stf.setAttribute("data-ix", i + (1 + offset));
-                thisItem[thisItemId] = items[thisItemId];
-                callback(thisItem);
+                if(savedReferences[thisItemId]){
+                    single(doc, url, savedReferences[thisItemId]);
+                }
+                else {
+                    thisItem[thisItemId] = items[thisItemId];
+                    callback(thisItem);
+                }
             }
         }
         catch (e) {
@@ -557,21 +639,23 @@ function singleHeader(doc,refType,attachments){
             output.push("<option value='" + index + "'" + selected + ">" + value.label + "</option>");
         }
         output.push("</select>");
-        var pdf = false;
+        var pdf = false, html = false;
         try {
             if (attachments)
                 for (var i = 0; i < attachments.length; i++) {
                     if (attachments[i] && attachments[i].mimeType && attachments[i].mimeType.indexOf("pdf") >= 0)
                         pdf = true;
+                    if (attachments[i] && attachments[i].mimeType && attachments[i].mimeType.indexOf("html") >= 0)
+                        html = true;
                 }
         }
         catch (e) {
             error(doc, e);
         }
-        if (pdf) {
-            output.push("<img src='" + FLOW_SERVER + "/public/img/pdf.png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We see a PDF! Should we try to save it too?</span></label></span>");
+        if (pdf || html) {
+            output.push("<img src='" + FLOW_SERVER + "/public/img/"+(html?"web":"pdf")+".png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We found the article, want to save it?</span></label></span>");
         }
-        else if (containerClass.indexOf("listView") == -1) {
+        else if (containerClass.indexOf("listView") == -1 || html) {
             output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' class='stf_attach'> <span>Save the content of this web page</span></label></span>");
         }
 
@@ -587,13 +671,16 @@ function single(doc, url, item, noneFound){
     try {
         var container = doc.getElementById("stf_meta"),
             stf = doc.getElementById("stf_capture");
-        if (!item.retrievedDate)
-            item.retrievedDate = new Date();
-        if (!item.URL)
-            item.URL = url;
-        var attachments = item.attachments;
-        item = conversion.convert(item);
-        item.attachments = attachments;
+
+        if(!item.refType) {//this function can be called with zotero format or flow format (first view, and there-after)
+            if (!item.retrievedDate)
+                item.retrievedDate = new Date();
+            if (!item.URL)
+                item.URL = url;
+            var attachments = item.attachments;
+            item = conversion.convert(item);
+            item.attachments = attachments;
+        }
 
         if (stf.getAttribute("data-saving") == "true") {
             saveReference(doc, url, item, true);
@@ -646,16 +733,6 @@ function single(doc, url, item, noneFound){
         error(doc, e);
     }
 	return "Item Displayed";
-}
-
-function debug(doc,str){
-    var debug = doc.getElementById("stf_debug")
-    if(!debug) {
-        doc.body.innerHTML += '<div id="stf_debug"></div>';
-        debug = doc.getElementById("stf_debug")
-    }
-    debug.innerHTML += "<div>"+str+"</div>";
-
 }
 
 function getModified(doc) {
