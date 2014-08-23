@@ -1,4 +1,4 @@
-var FLOW_SERVER = "http://localhost:8080",//"http://flow.proquest.com";
+var FLOW_SERVER = "http://flow.proquest.com",
     MODE = "debug";
 function entry(doc,url){
 	style(doc);
@@ -166,16 +166,18 @@ function debug(doc, str) {
 
 function error(doc,e){
     //severity levels?
-    debug(doc, JSON.stringify(e));
+    var errorObj = {
+        name: e.name,
+        message: e.message,
+        func: arguments.callee.caller.name,
+        lineNumber: e.lineNumber//,
+        //url:url
+    }
     if(MODE == "debug") {
-        debug(doc, e.message);
-        debug(doc, e.lineNumber);
-        debug(doc, e.columnNumber);
-        debug(doc, e.stack);
-        debug(doc, arguments.callee.caller.name);
+        debug(doc, JSON.stringify(errorObj));
     }
     else
-        ;//send to server to be logged
+        ZU.HTTP.doPost("http://ec2-54-80-213-189.compute-1.amazonaws.com:8080/stferror", JSON.stringify(errorObj),function(){}, {"Content-Type": "application/json"});//send to server to be logged
 }
 
 function tracking(doc, tracking){
