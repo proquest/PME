@@ -1,4 +1,4 @@
-var FLOW_SERVER = "http://flow.proquest.com",
+var FLOW_SERVER = "https://flow.proquest.com",
     MODE = "production";
 function entry(doc,url){
 	style(doc);
@@ -187,7 +187,7 @@ function tracking(doc, tracking){
         doc.getElementById("stf_track_url").value = tracking.url;
         doc.getElementById("stf_track_citation").value = tracking.citation;
         doc.getElementById("stf_track_modified").value = JSON.stringify(tracking.modified);
-        doc.getElementById("stf_tracking_form").submit();
+        //doc.getElementById("stf_tracking_form").submit();
     }
     catch(e){error(doc,e);}
 }
@@ -265,6 +265,7 @@ function updateDocument(doc,url,item,id){
         ZU.HTTP.doPost(FLOW_SERVER + '/edit/' + id + '/?project=all',
             JSON.stringify(item),
             function (data_edit) {
+                Z.debug(data_edit)
                 try {
                     if (attachment) {
                         progressDialog(doc, 0.5);
