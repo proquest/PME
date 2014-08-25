@@ -1,5 +1,5 @@
 var FLOW_SERVER = "http://flow.proquest.com",
-    MODE = "debug";
+    MODE = "production";
 function entry(doc,url){
 	style(doc);
 	container(doc);
