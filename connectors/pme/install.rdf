@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<RDF xmlns="http://www.w3.org/1999/02/22-rdf-syntax-ns#" 
+     xmlns:em="http://www.mozilla.org/2004/em-rdf#">
+
+  <Description about="urn:mozilla:install-manifest">
+  
+    <em:id>flow@proquest.com</em:id>
+    <em:name>Flow</em:name>
+    <em:version>0.2</em:version>
+    <em:creator>ProQuest</em:creator>
+    <em:homepageURL>http://flow.proquest.com</em:homepageURL>
+    <em:optionsURL>chrome://zotero/content/preferences/preferences.xul</em:optionsURL>
+    <em:aboutURL>chrome://zotero/content/about.xul</em:aboutURL>
+    <em:iconURL>chrome://zotero/skin/zotero-new-z-48px.png</em:iconURL>
+    <em:type>2</em:type> <!-- type=extension --> 
+    
+    <!-- Firefox -->
+	<em:targetApplication>
+      <Description>
+        <em:id>{ec8030f7-c20a-464f-9b0e-13a3a9e97384}</em:id>
+        <em:minVersion>20.0</em:minVersion>
+        <em:maxVersion>22.*</em:maxVersion>
+      </Description>
+    </em:targetApplication>
+    
+  </Description>
+</RDF>
