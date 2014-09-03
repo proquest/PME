@@ -1,0 +1,13 @@
+var path = require("path");
+var buildId = (new Date()).valueOf()
+module.exports = {
+  buildID: buildId,
+  baseUrl: "http://localhost:8082/bookmarklet/",
+  defaultVersion: "3.0.999",
+  builderConfigFilesLocation: path.join(process.cwd(), "config"),
+  connectorsCommonFilesLocation: path.join(process.cwd(), "zotero-connectors/src/common"),
+  zoteroFilesLocation: path.join(process.cwd(), "proquest_zotero"),
+  zoteroSrcFilesLocation: path.join(process.cwd(), "zotero-connectors/src"),
+  buildLocation: path.join(process.cwd(), "build"),
+  UIConfigURL : '"http://localhost:8083/pme_ui.js?" + ' + buildId
+};

@@ -2,41 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Author</key>
-	<string>Center for History and New Media</string>
 	<key>Builder Version</key>
-	<string>8536.8.5</string>
+	<string>9537.78.2</string>
 	<key>CFBundleDisplayName</key>
-	<string>Zotero Connector</string>
+	<string>PME</string>
 	<key>CFBundleIdentifier</key>
-	<string>org.zotero.zoteroconnectorforsafari</string>
+	<string>com.proquest.pme</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>3.0.3</string>
+	<string>3.0.999</string>
 	<key>CFBundleVersion</key>
-	<string>3.0.3</string>
+	<string>3.0.999</string>
 	<key>Chrome</key>
 	<dict>
-		<key>Context Menu Items</key>
-		<array>
-			<dict>
-				<key>Command</key>
-				<string>zotero-saveSnapshot</string>
-				<key>Identifier</key>
-				<string>zotero-saveSnapshot</string>
-				<key>Title</key>
-				<string>Save Zotero Snapshot from Current Page</string>
-			</dict>
-			<dict>
-				<key>Command</key>
-				<string>zotero-preferences</string>
-				<key>Identifier</key>
-				<string>zotero-preferences</string>
-				<key>Title</key>
-				<string>Zotero Preferences...</string>
-			</dict>
-		</array>
 		<key>Global Page</key>
 		<string>global.html</string>
 		<key>Toolbar Items</key>
@@ -47,13 +26,11 @@
 				<key>Identifier</key>
 				<string>zotero-translate</string>
 				<key>Image</key>
-				<string>images/toolbar/zotero-z-16px.png</string>
+				<string>Icon.png</string>
 				<key>Label</key>
-				<string>Save to Zotero</string>
+				<string>save to flow</string>
 				<key>Palette Label</key>
-				<string>Zotero</string>
-				<key>Tool Tip</key>
-				<string>Save to Zotero</string>
+				<string>flow</string>
 			</dict>
 		</array>
 	</dict>
@@ -97,8 +74,6 @@
 			</array>
 		</dict>
 	</dict>
-	<key>Description</key>
-	<string>Saves references to Zotero from Safari</string>
 	<key>ExtensionInfoDictionaryVersion</key>
 	<string>1.0</string>
 	<key>Permissions</key>
@@ -111,9 +86,5 @@
 			<string>All</string>
 		</dict>
 	</dict>
-	<key>Update Manifest URL</key>
-	<string>https://www.zotero.org/download/everywhere/safari/update.plist</string>
-	<key>Website</key>
-	<string>http://www.zotero.org/</string>
 </dict>
 </plist>
