@@ -16,7 +16,7 @@ function buildExtension(root, browser, config, oncomplete) {
     fs.mkdir(root, function() {
       common.copyCode(_connectorsCommonFilesLocation, root, [], [
         "inject",
-//      "preferences",
+        //"preferences",
         "itemSelector"
       ], common.versionFix());
       common.copyCode(_builderConfigFilesLocation, root, [config], null, {
@@ -30,7 +30,10 @@ function buildExtension(root, browser, config, oncomplete) {
             return $3 + _defaultVersion + $4;
         }
       });
-      common.copyCode(path.join(_zoteroSrcFilesLocation, browser), root, ["!", config]);
+      common.copyCode(path.join(_zoteroSrcFilesLocation, browser), root, ["!", config, "global.html"]);
+      if(browser == 'safari') {
+        common.copyCode(_builderConfigFilesLocation, root, ["global.html"]);
+      }
       var rootZotero = path.join(root, "zotero");
       common.stackInst.push();
       fs.mkdir(rootZotero, function() {
@@ -101,7 +104,7 @@ module.exports = new function() {
   this.buildSafari = function() {
     console.log('Starting Safari build');
     var root = path.join(_buildLocation, "safari.safariextension");
-    buildExtension(root, "safari", "Info.plist",function() {
+    buildExtension(root, "safari", "Info.plist", function() {
       //build Safari package
       console.log("complete Safari");
     })
