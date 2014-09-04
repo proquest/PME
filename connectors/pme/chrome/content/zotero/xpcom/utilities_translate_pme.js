@@ -1,6 +1,8 @@
+Zotero.Utilities.Translate.prototype.setTimeout = function (f, d) {
+    setTimeout(f, d);
+};
 
-/* Zotero.Utilities.Translate additions */
-Zotero.Utilities.Translate.prototype.promise = function(method,url,options,callback) {
+Zotero.Utilities.Translate.prototype.promise = function (method, url, options, callback) {
     var xmlhttp = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
     xmlhttp.mozBackgroundRequest = true;
     xmlhttp.open(method, url, true);
@@ -24,14 +26,14 @@ Zotero.Utilities.Translate.prototype.promise = function(method,url,options,callb
     xmlhttp.onloadend = function () {
         if (xmlhttp.status >= 200 && xmlhttp.status < 300) {
             if (options && options.debug) {
-                Zotero.debug("HTTP " + method + " " + dispURL
+                Zotero.debug("HTTP " + method + " " + url
                     + " succeeded with " + xmlhttp.status);
                 Zotero.debug(xmlhttp.responseText);
             }
-            var blob = new Blob([http.response], {type: contentType});
+            var blob = new Blob([xmlhttp.response], {type: headers["Content-Type"]});
             callback(blob);
         } else {
-            var msg = "HTTP " + method + " " + dispURL + " failed: "
+            var msg = "HTTP " + method + " " + url + " failed: "
                 + "Unexpected status code " + xmlhttp.status;
             Zotero.debug(msg, 1);
             if (options && options.debug) {
@@ -44,27 +46,5 @@ Zotero.Utilities.Translate.prototype.promise = function(method,url,options,callb
     xmlhttp.send((options && options.body) || null);
 }
 
-Zotero.Utilities.Translate.prototype.setTimeout = function(f,d){setTimeout(f,d);};
-
-/* Zotero.Translate.Sandbox overrides*/
-Zotero.Translate.Sandbox.Base._itemDone
-/*
- var params = translate._getParameters();
- params.push(item);
- params.push(translate.translator[0].translatorID == "8cb314cf-2628-40cd-9713-4e773b8ed5d4")
- Zotero.debug(translate._sandboxManager.sandbox["single"].apply(null, params));
-
- move into "translate._runHandler("itemSaving", item);"
- "translate._saveItems" noop
-
-*/
-
-Zotero.Translate.Sandbox.Web.selectItems = function(){
-    //new function, just pme
-}
-
-Zotero.Translate.Sandbox.Web._itemDone = function (translate, item) {
-    Zotero.Translate.Sandbox.Base._itemDone(translate, item);
-    //new function, just pme?
-}
-
+Zotero.Utilities.Translate.prototype.__exposedProps__["setTimeout"] = "r";
+Zotero.Utilities.Translate.prototype.__exposedProps__["promise"] = "r";
