@@ -1,0 +1,14 @@
+{
+  "name": "pme",
+  "version": "1.0.0",
+  "description": "",
+  "keywords": ["pme","zotero","chrome","safari"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/proquest/PME/tree/connectors/connectors"
+  },
+  "dependencies": {
+    "crx": "",
+    "uglify-js": ""
+  }
+}
