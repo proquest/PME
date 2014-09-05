@@ -8,9 +8,24 @@ var _connectorsCommonFilesLocation = common.config.connectorsCommonFilesLocation
 var _zoteroFilesLocation = common.config.zoteroFilesLocation;
 var _zoteroSrcFilesLocation = common.config.zoteroSrcFilesLocation;
 var _buildLocation = common.config.buildLocation;
+var _pmeLocation = common.config.pmeFilesLocation;
 
 function buildExtension(root, browser, config, oncomplete) {
-  common.stackInst = new common.stack(oncomplete);
+  common.stackInst = new common.stack(function(){
+      //var overWrite = ['chrome/content/zotero/xpcom/progressWindow.js', 'install.rdf', 'update.rdf', 'chrome/content/zotero/overlay.xul', 'translators/Empty.js', 'translators/pme_ui.js'];
+      //var append = ['chrome/content/zotero/xpcom/utilities_translate.js', 'chrome/content/zotero/browser.js', 'chrome/content/zotero/xpcom/translation/translate.js'];
+      var overWrite = ['chrome/inject/progressWindow.js', 'chrome/content/zotero/overlay.xul', 'translators/Empty.js', 'translators/pme_ui.js'];
+      var append = ['chrome/zotero/utilities_translate.js', 'chrome/zotero/translation/translate.js'];
+      overWrite.forEach(function (val) {
+          var fileName = val.substring(val.lastIndexOf("/") + 1);
+          common.copyFile(_pmeLocation+"/"+fileName, _buildLocation+"/"+val);
+      });
+      append.forEach(function (val) {
+          var fileName = val.substring(val.lastIndexOf("/") + 1);
+          common.appendCode([_pmeLocation+"/"+fileName], _buildLocation+"/"+val);
+      });
+      oncomplete();
+  });
   common.doPrepWork(root, function() {
     common.stackInst.push();
     fs.mkdir(root, function() {

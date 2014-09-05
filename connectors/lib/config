@@ -5,9 +5,10 @@ module.exports = {
   baseUrl: "http://localhost:8082/bookmarklet/",
   defaultVersion: "3.0.999",
   builderConfigFilesLocation: path.join(process.cwd(), "config"),
-  connectorsCommonFilesLocation: path.join(process.cwd(), "zotero-connectors/src/common"),
-  zoteroFilesLocation: path.join(process.cwd(), "proquest_zotero"),
-  zoteroSrcFilesLocation: path.join(process.cwd(), "zotero-connectors/src"),
-  buildLocation: path.join(process.cwd(), "build"),
+  pmeFilesLocation: path.join(process.cwd(), "pme"),
+  connectorsCommonFilesLocation: path.join("/Users/aepheus", "zotero-connectors/src/common"),
+  zoteroFilesLocation: path.join("/Users/aepheus", "zotero"),
+  zoteroSrcFilesLocation: path.join("/Users/aepheus", "zotero-connectors/src"),
+  buildLocation: path.join("/Users/aepheus", "savetoflow"),
   UIConfigURL : '"http://localhost:8083/pme_ui.js?" + ' + buildId
 };
