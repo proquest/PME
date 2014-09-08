@@ -8,12 +8,30 @@ var _zoteroSrcFilesLocation = config.zoteroSrcFilesLocation;
 var _buildLocation = config.buildLocation;
 var _UIConfigURL = config.UIConfigURL;
 
-module.exports = new function() {
+function stack(oncomplete) {
+    var stackObj = [];
+    this.push = function(name) {
+      stackObj.push(stackObj.length);
+    }
+    this.pop = function(name) {
+      stackObj.pop();
+      if(stackObj.length == 0) {
+        oncomplete();
+      }
+    }
+  }
+
+module.exports = function(debug, oncomplete) {
   var _this = this;
 
   this.config = config;
   this.debug = false;
-  this.stackInst = undefined;
+  this.stackInst = new stack(oncomplete);
+
+  if(debug) {
+    this.debug = true;
+    this.config.buildID = '(new Date()).valueOf()';
+  }
 
   this.doPrepWork = function(location, callback) {
     fs.exists(location, function(exists) {
@@ -166,13 +184,6 @@ module.exports = new function() {
       replacement: '$1' + _defaultVersion + '$2'
     }
   }
-  this.translateFix = function() {
-    return{
-      fileName: ["translate.js"],
-      pattern: /"%UIConfigURL%"/g,
-      replacement: _UIConfigURL
-    }
-  }
   this.explorerify = function(fileName) {
     /*
      replacing
@@ -231,28 +242,4 @@ module.exports = new function() {
       _this.appendCode([path.join(_zoteroSrcFilesLocation, "bookmarklet", appendFile)], ieFile, undefined, false);
     });
   }
-  this.stack = function(oncomplete) {
-    var stackObj = [];
-    var test=[]
-    var i= 0, o=0;
-    this.push = function(name) {
-      i++
-      if(typeof(name)=='string'){
-      test[name]=test[name]?test[name]+1:1;
-      }
-      stackObj.push(stackObj.length);
-    }
-    this.pop = function(name) {o++
-      stackObj.pop();
-      if(typeof (name)=='string') {
-        test[name] = test[name] - 1;
-        var tt = []
-        for(t in test)
-          tt.push(t + ':' + test[t]);
-        console.log(tt.join(';'));
-      }
-      if(stackObj.length == 0)
-        oncomplete();
-    }
-  }
-}
+ }

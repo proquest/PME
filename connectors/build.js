@@ -1,20 +1,13 @@
 console.log("______________________________________________________");
-var common = require('./lib/common');
+var c = require('./lib/common');
+var common = new c();
 var extensions = require('./lib/extensions');
+//var extensionsS = require('./lib/extensions');
 var bookmark = require('./lib/bookmarklet');
 var config = common.config;
 
-//if (process.argv[2] == 'debug')
-//  common.debug = true;
-//if(common.debug) {
-//  common.config.buildID = '(new Date()).valueOf()';
-//}
-
-//////////////////////////////
-//extensions.buildChrome()
-//return
-//////////////////////////////
-var connector = '';
+var connector = '',
+    debug = false;
 var help =
       "To build connectors enter a valid argument.\n" +
       "The following arguments are available\n" +
@@ -44,36 +37,30 @@ for(var i = 2; i < process.argv.length; i++) {
       connector = 'all';
       break;
     case '-d':
-      common.debug = true;
-      common.config.buildID = '(new Date()).valueOf()';
-      break;
+      debug = true;
+       break;
     default:
       console.log(help);
       break;
   }
 }
 
-//console.log('choose chrome|safari|bookmark|all:')
-//process.stdin.on('data', function(module) {
-//  module = module.toString().substr(0, module.length - 1);
   switch(connector) {
     case 'chrome':
-      extensions.buildChrome();
+      (new extensions(debug)).buildChrome();
       break;
     case 'safari':
-      extensions.buildSafari();
+      (new extensions(debug)).buildSafari();
       break;
     case 'bookmark':
-      bookmark.buildBookmarklet();
+      (new bookmark(debug)).buildBookmarklet();
       break;
     case 'all':
-      extensions.buildChrome();
-      extensions.buildSafari();
-      bookmark.buildBookmarklet();
+      (new bookmark(debug)).buildBookmarklet();
+      (new extensions(debug)).buildChrome();
+      (new extensions(debug)).buildSafari();
       break;
     default:
       console.log('invalid connector');
       return;
   }
-//var i=setInterval(function(){console.log(common.asyncProcessCnt)},1)
-//})

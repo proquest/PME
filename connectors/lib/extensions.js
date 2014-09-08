@@ -1,35 +1,21 @@
 var fs = require('fs');
 var path = require('path');
-var common = require('./common');
+var c = require('./common');
 var ChromeExtension = require("crx")
-var _defaultVersion = common.config.defaultVersion;
-var _builderConfigFilesLocation = common.config.builderConfigFilesLocation;
-var _connectorsCommonFilesLocation = common.config.connectorsCommonFilesLocation;
-var _zoteroFilesLocation = common.config.zoteroFilesLocation;
-var _zoteroSrcFilesLocation = common.config.zoteroSrcFilesLocation;
-var _buildLocation = common.config.buildLocation;
-var _pmeLocation = common.config.pmeFilesLocation;
+var _defaultVersion,
+    _builderConfigFilesLocation,
+    _connectorsCommonFilesLocation,
+    _zoteroFilesLocation,
+    _zoteroSrcFilesLocation,
+    _buildLocation,
+    _pmeLocation;
 
-function buildExtension(root, browser, config, oncomplete) {
-  common.stackInst = new common.stack(function(){
-      //var overWrite = ['chrome/content/zotero/xpcom/progressWindow.js', 'install.rdf', 'update.rdf', 'chrome/content/zotero/overlay.xul', 'translators/Empty.js', 'translators/pme_ui.js'];
-      //var append = ['chrome/content/zotero/xpcom/utilities_translate.js', 'chrome/content/zotero/browser.js', 'chrome/content/zotero/xpcom/translation/translate.js'];
-      var overWrite = ['chrome/inject/progressWindow.js', 'chrome/content/zotero/overlay.xul', 'translators/Empty.js', 'translators/pme_ui.js'];
-      var append = ['chrome/zotero/utilities_translate.js', 'chrome/zotero/translation/translate.js'];
-      overWrite.forEach(function (val) {
-          var fileName = val.substring(val.lastIndexOf("/") + 1);
-          common.copyFile(_pmeLocation+"/"+fileName, _buildLocation+"/"+val);
-      });
-      append.forEach(function (val) {
-          var fileName = val.substring(val.lastIndexOf("/") + 1);
-          common.appendCode([_pmeLocation+"/"+fileName], _buildLocation+"/"+val);
-      });
-      oncomplete();
-  });
+function buildExtension(root, browser, config, common) {
   common.doPrepWork(root, function() {
     common.stackInst.push();
     fs.mkdir(root, function() {
-      common.copyCode(_connectorsCommonFilesLocation, root, [], [
+      common.copyCode(_pmeLocation, root, ["pme_ui.js"]);
+      common.copyCode(_connectorsCommonFilesLocation, root, ["!", "progressWindow.js"], [
         "inject",
         //"preferences",
         "itemSelector"
@@ -52,10 +38,13 @@ function buildExtension(root, browser, config, oncomplete) {
       var rootZotero = path.join(root, "zotero");
       common.stackInst.push();
       fs.mkdir(rootZotero, function() {
+        common.appendCode([
+          path.join(_zoteroFilesLocation, 'chrome/content/zotero/xpcom/utilities_translate.js'),
+          path.join(_pmeLocation, 'utilities_translate.js')
+        ], path.join(rootZotero, 'utilities_translate.js'), null, false);
         common.copyCode(path.join(_zoteroFilesLocation, 'chrome/content/zotero/xpcom'),
           rootZotero, [
             "utilities.js",
-            "utilities_translate.js",
             "date.js",
             "debug.js",
             "openurl.js"
@@ -67,11 +56,12 @@ function buildExtension(root, browser, config, oncomplete) {
         var translation = path.join(rootZotero, "translation");
         common.stackInst.push();
         fs.mkdir(translation, function() {
+          common.appendCode([
+            path.join(_zoteroFilesLocation, 'chrome/content/zotero/xpcom/translation/translate.js'),
+            path.join(_pmeLocation, 'translate.js')
+          ], path.join(translation, 'translate.js'), null, false);
           common.copyCode(path.join(_zoteroFilesLocation, 'chrome/content/zotero/xpcom/translation'),
-            translation, [
-              "tlds.js",
-              "translate.js"
-            ], null, common.translateFix());
+            translation, ["tlds.js"]);
           common.stackInst.pop();
         });
         common.stackInst.pop();
@@ -82,15 +72,20 @@ function buildExtension(root, browser, config, oncomplete) {
   });
 }
 
-module.exports = new function() {
+function setConfig(common) {
+  _defaultVersion = common.config.defaultVersion;
+  _builderConfigFilesLocation = common.config.builderConfigFilesLocation;
+  _connectorsCommonFilesLocation = common.config.connectorsCommonFilesLocation;
+  _zoteroFilesLocation = common.config.zoteroFilesLocation;
+  _zoteroSrcFilesLocation = common.config.zoteroSrcFilesLocation;
+  _buildLocation = common.config.buildLocation;
+  _pmeLocation = common.config.pmeFilesLocation;
+}
+
+var extensions = function (debug) {
   this.buildChrome = function() {
     console.log("Starting Chrome");
-    var extFile = "chromeConnector.crx";
-    fs.unlink(path.join(_buildLocation, extFile), function() {
-    });
-    var root = path.join(_buildLocation, "chrome");
-    //common.complete()
-    buildExtension(root, "chrome", "manifest.json", function() {
+    var common = new c(debug, function() {
       if(!common.debug) {
         //build Chrome package
         var crx = new ChromeExtension({
@@ -113,15 +108,24 @@ module.exports = new function() {
         })
       }
       else
-        console.log("Chrome complete");
+        console.log("Chrome complete. No extension file.");
+    }, 'chrome')
+    setConfig(common);
+    var extFile = "chromeConnector.crx";
+    fs.unlink(path.join(_buildLocation, extFile), function() {
     });
+    var root = path.join(_buildLocation, "chrome");
+    buildExtension(root, "chrome", "manifest.json", common);
   }
   this.buildSafari = function() {
     console.log('Starting Safari build');
-    var root = path.join(_buildLocation, "safari.safariextension");
-    buildExtension(root, "safari", "Info.plist", function() {
+    var common = new c(debug, function() {
       //build Safari package
       console.log("complete Safari");
-    })
+    },'safari')
+    setConfig(common);
+    var root = path.join(_buildLocation, "safari.safariextension");
+    buildExtension(root, "safari", "Info.plist", common);
   }
 }
+module.exports = extensions;
