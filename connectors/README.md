@@ -12,7 +12,7 @@ NOTE: safari extension need to built manually using Safari's Extension Builder t
 ## Install
 
 `
-npm install --save-dev
+npm install
 `
 
 ## Usage
