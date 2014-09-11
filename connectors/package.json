@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "crx": "",
-    "uglify-js": ""
+    "uglify-js": "",
+    "graceful-fs": ""
   }
 }

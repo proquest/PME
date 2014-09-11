@@ -1,4 +1,5 @@
-var fs = require('fs');
+var fs = require('graceful-fs');
+//var fs = require('fs');
 var path = require('path');
 var config = require('./config');
 
@@ -6,20 +7,79 @@ var _defaultVersion = config.defaultVersion;
 var _builderConfigFilesLocation = config.builderConfigFilesLocation;
 var _zoteroSrcFilesLocation = config.zoteroSrcFilesLocation;
 var _buildLocation = config.buildLocation;
-var _UIConfigURL = config.UIConfigURL;
+//var _UIConfigURL = config.UIConfigURL;
 
 function stack(oncomplete) {
-    var stackObj = [];
-    this.push = function(name) {
-      stackObj.push(stackObj.length);
-    }
-    this.pop = function(name) {
-      stackObj.pop();
-      if(stackObj.length == 0) {
-        oncomplete();
-      }
+  var stackObj = [];
+  this.oncomplete = oncomplete;
+  this.push = function(name) {
+    stackObj.push(stackObj.length);
+  }
+  this.pop = function(name) {
+    stackObj.pop();
+    if(stackObj.length == 0 && this.oncomplete) {
+      this.oncomplete();
     }
   }
+}
+
+deleteRecursive = function(root, callback) {
+
+  function deleteAllObjects(objects, fromDir) {
+    objects.every(function(obj) {
+      var objPath = path.join(fromDir, obj);
+      fs.stat(objPath, function(err, st) {
+        if(!st)
+          return false;
+        if(st.isDirectory()) {
+          deleteFolder(objPath)
+        }
+        else {
+          fs.unlink(objPath, function() {
+            deleteParentFolder(fromDir);
+          })
+        }
+      });
+      return true;
+    });
+  }
+
+  function deleteFolder(folder) {
+    fs.exists(folder, function(exists) {
+      if(exists) {
+        fs.readdir(folder, function(err, objects) {
+          if(!objects)
+            deleteParentFolder(folder)
+          else if(objects.length == 0) {
+            fs.rmdir(folder, function(err) {
+              if(!err) {
+                deleteParentFolder(folder)
+                if(folder == root)
+                  callback();
+              }
+            });
+          }
+          else
+            deleteAllObjects(objects, folder)
+        });
+      }
+    });
+  }
+
+  function deleteParentFolder(dir) {
+    var parent = path.join(dir, "..");
+    if(parent.indexOf(root) == 0)
+      deleteFolder(parent);
+  }
+
+  fs.exists(root, function(exists) {
+    if(exists) {
+      deleteFolder(root);
+    }
+    else
+      callback();
+  });
+};
 
 module.exports = function(debug, oncomplete) {
   var _this = this;
@@ -34,19 +94,14 @@ module.exports = function(debug, oncomplete) {
   }
 
   this.doPrepWork = function(location, callback) {
-    fs.exists(location, function(exists) {
-      if(exists) {
-        _this.deleteFilesAndFolders(location, callback);
-      }
-      else
-        callback()
-    });
+    deleteRecursive(location, callback);
   }
   this.deleteFilesAndFolders = function(fromDir, callback) {
-    _this.deleteAllFilesSync(fromDir);
-    _this.deleteAllFoldersSync(fromDir)
-    callback();
+    _this.deleteAllFiles(fromDir, new stack(function() {
+      _this.deleteAllFolders(fromDir, new stack(callback));
+    }));
   }
+
   this.deleteAllFilesSync = function(fromDir) {
     var objects = fs.readdirSync(fromDir);
     objects.forEach(function(obj) {
@@ -63,7 +118,7 @@ module.exports = function(debug, oncomplete) {
       var objects = fs.readdirSync(fromDir);
       if(objects.length == 0) {
         fs.rmdirSync(fromDir);
-        _this.deleteParentFolder(fromDir);
+        _this.deleteParentFolderSync(fromDir);
       }
       else {
         objects.forEach(function(obj) {
@@ -73,17 +128,17 @@ module.exports = function(debug, oncomplete) {
       }
     }
   }
-  this.deleteParentFolder = function(dir) {
+  this.deleteParentFolderSync = function(dir) {
     var parent = path.join(dir, "..");
     if(parent != _buildLocation)
       _this.deleteAllFoldersSync(parent);
   }
+
   this.copyCode = function(fromDir, toDir, files, directories, adjustments) {
     if(files === undefined)
       files = [];
     if(directories === undefined)
       directories = [];
-
     _this.stackInst.push();
     fs.readdir(fromDir, function(err, objects) {
       objects.every(function(obj) {
@@ -92,22 +147,23 @@ module.exports = function(debug, oncomplete) {
         _this.stackInst.push();
         fs.stat(fromPath, function(err, st) {
           if(st.isDirectory()) {
-            if(directories === null || (directories.length > 0 && directories.indexOf(obj) == -1)) {
+            if(obj.indexOf(".") == 0 || directories === null || (directories.length > 0 && directories.indexOf(obj) == -1)) {
               _this.stackInst.pop()
               return false;
             }
             var newDir = toPath;
             _this.stackInst.push();
             fs.mkdir(newDir, function() {
-              _this.copyCode(fromPath, newDir);
+              _this.copyCode(fromPath, newDir, files, directories, adjustments);
               _this.stackInst.pop();
             });
           }
           else {
-            if(files.length > 0 && (
+            if(obj.indexOf(".") == 0 ||
+              (files.length > 0 && (
               (files[0] == "!" && files.indexOf(obj) > -1) ||
               (files[0] != "!" && files.indexOf(obj) == -1 ))
-              ) {
+              )) {
               _this.stackInst.pop()
               return false;
             }
@@ -143,23 +199,31 @@ module.exports = function(debug, oncomplete) {
     );
   }
   this.copyFile = function(fromFile, toFile, adjustments, callback) {
-    if(adjustments && adjustments.fileName.indexOf(path.basename(fromFile)) > -1) {
+    _this.stackInst.push();
+    fs.readFile(fromFile, function(err, data) {
+      if(adjustments && adjustments.fileName.indexOf(path.basename(fromFile)) > -1)
+        data = data.toString().replace(adjustments.pattern, adjustments.replacement);
       _this.stackInst.push();
-      fs.readFile(fromFile, function(err, data) {
-        var s = data.toString().replace(adjustments.pattern, adjustments.replacement);
-        _this.stackInst.push();
-        fs.writeFile(toFile, s, function() {
-           if(callback) {
-            callback(toFile);
-          }
-          _this.stackInst.pop();
-        });
+      fs.writeFile(toFile, data, function() {
+        if(callback) {
+          callback(toFile);
+        }
         _this.stackInst.pop();
-      })
-    }
-    else {
-      fs.createReadStream(fromFile).pipe(fs.createWriteStream(toFile));
-    }
+      });
+      _this.stackInst.pop();
+    })
+//    }
+//    else {
+//      _this.stackInst.push();
+//      fs.readFile(fromFile, function(err, data) {
+//        _this.stackInst.push();
+//        fs.writeFile(toFile, data, function() {
+//          _this.stackInst.pop();
+//        })
+//        _this.stackInst.pop();
+//      });
+//       // fs.createReadStream(fromFile).pipe(fs.createWriteStream(toFile));
+//    }
   }
   this.copyImages = function(inDir) {
     var images = path.join(inDir, "images");
