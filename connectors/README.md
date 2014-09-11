@@ -6,7 +6,7 @@ in the connectors directory
 *	create empty "build" folder. This is where extensions will go.
 *	you will need to obtain certificates for chrome(chrome.pem) and safari. Add them to the "build"	folder.
 
-NOTE: safari extension need to built manually using Safari's Extension Builder tool off of "safari.safariextension"
+NOTE: safari extension needs to be built manually using Safari's Extension Builder tool off of "safari.safariextension"
  folder 
 	
 ## Install
