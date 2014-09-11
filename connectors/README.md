@@ -1,5 +1,6 @@
-  ## Requirements:
-in the connectors directory 
+## Requirements:
+in the connectors directory
+
 *	create "proquest_zotero" folder. Pull https://github.com/proquest/zotero into it
 *	create "zotero-connectors" folder. Pull https://github.com/proquest/zotero-connectors into it
 *	create empty "build" folder. This is where extensions will go.
@@ -8,20 +9,21 @@ in the connectors directory
 NOTE: safari extension need to built manually using Safari's Extension Builder tool off of "safari.safariextension"
  folder 
 	
-	## Install
+## Install
 
-```bash
+`
 npm install --save-dev
-```
+`
 
-  ## Usage
+## Usage
 
-```bash
+`
 node build
-```
+`
 
-  ## Arguments
+## Arguments
   The following arguments are available
+  
 * -f: for Firefox extension
 * -c: for Chrome extension
 * -s: for Safari extension
