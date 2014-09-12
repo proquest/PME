@@ -1,101 +1,28 @@
 var fs = require('graceful-fs');
-//var fs = require('fs');
 var path = require('path');
 var config = require('./config');
 
 var _defaultVersion = config.defaultVersion;
 var _builderConfigFilesLocation = config.builderConfigFilesLocation;
 var _zoteroSrcFilesLocation = config.zoteroSrcFilesLocation;
-var _buildLocation = config.buildLocation;
+//var _buildLocation = config.buildLocation;
 //var _UIConfigURL = config.UIConfigURL;
 
-function stack(oncomplete) {
-  var stackObj = [];
-  this.oncomplete = oncomplete;
-  this.push = function(name) {
-    stackObj.push(stackObj.length);
-  }
-  this.pop = function(name) {
-    stackObj.pop();
-    if(stackObj.length == 0 && this.oncomplete) {
-      this.oncomplete();
-    }
-  }
-}
-
-deleteRecursive = function(root, callback) {
-
-  function deleteAllObjects(objects, fromDir) {
-    objects.every(function(obj) {
-      var objPath = path.join(fromDir, obj);
-      fs.stat(objPath, function(err, st) {
-        if(!st)
-          return false;
-        if(st.isDirectory()) {
-          deleteFolder(objPath)
-        }
-        else {
-          fs.unlink(objPath, function() {
-            deleteParentFolder(fromDir);
-          })
-        }
-      });
-      return true;
-    });
-  }
-
-  function deleteFolder(folder) {
-    fs.exists(folder, function(exists) {
-      if(exists) {
-        fs.readdir(folder, function(err, objects) {
-          if(!objects)
-            deleteParentFolder(folder)
-          else if(objects.length == 0) {
-            fs.rmdir(folder, function(err) {
-              if(!err) {
-                deleteParentFolder(folder)
-                if(folder == root)
-                  callback();
-              }
-            });
-          }
-          else
-            deleteAllObjects(objects, folder)
-        });
-      }
-    });
-  }
-
-  function deleteParentFolder(dir) {
-    var parent = path.join(dir, "..");
-    if(parent.indexOf(root) == 0)
-      deleteFolder(parent);
-  }
-
-  fs.exists(root, function(exists) {
-    if(exists) {
-      deleteFolder(root);
-    }
-    else
-      callback();
-  });
-};
-
-module.exports = function(debug, oncomplete) {
+var commonObj = function(debug, stack) {
   var _this = this;
 
   this.config = config;
-  this.debug = false;
-  this.stackInst = new stack(oncomplete);
+  this.debug = debug;
+  this.stackInst = stack;
 
-  if(debug) {
-    this.debug = true;
+  if(this.debug) {
     this.config.buildID = '(new Date()).valueOf()';
   }
 
   this.doPrepWork = function(location, callback) {
-    deleteRecursive(location, callback);
+    this.deleteDirectory(location, callback);
   }
+  /*
   this.deleteFilesAndFolders = function(fromDir, callback) {
     _this.deleteAllFiles(fromDir, new stack(function() {
       _this.deleteAllFolders(fromDir, new stack(callback));
@@ -133,7 +60,7 @@ module.exports = function(debug, oncomplete) {
     if(parent != _buildLocation)
       _this.deleteAllFoldersSync(parent);
   }
-
+*/
   this.copyCode = function(fromDir, toDir, files, directories, adjustments) {
     if(files === undefined)
       files = [];
@@ -161,9 +88,9 @@ module.exports = function(debug, oncomplete) {
           else {
             if(obj.indexOf(".") == 0 ||
               (files.length > 0 && (
-              (files[0] == "!" && files.indexOf(obj) > -1) ||
-              (files[0] != "!" && files.indexOf(obj) == -1 ))
-              )) {
+                (files[0] == "!" && files.indexOf(obj) > -1) ||
+                (files[0] != "!" && files.indexOf(obj) == -1 ))
+                )) {
               _this.stackInst.pop()
               return false;
             }
@@ -212,18 +139,6 @@ module.exports = function(debug, oncomplete) {
       });
       _this.stackInst.pop();
     })
-//    }
-//    else {
-//      _this.stackInst.push();
-//      fs.readFile(fromFile, function(err, data) {
-//        _this.stackInst.push();
-//        fs.writeFile(toFile, data, function() {
-//          _this.stackInst.pop();
-//        })
-//        _this.stackInst.pop();
-//      });
-//       // fs.createReadStream(fromFile).pipe(fs.createWriteStream(toFile));
-//    }
   }
   this.copyImages = function(inDir) {
     var images = path.join(inDir, "images");
@@ -306,4 +221,10 @@ module.exports = function(debug, oncomplete) {
       _this.appendCode([path.join(_zoteroSrcFilesLocation, "bookmarklet", appendFile)], ieFile, undefined, false);
     });
   }
- }
+  this.deleteDirectory = function(dir, callback) {
+    var d = require('./delete');
+    d.delete(dir, callback);
+  }
+}
+
+module.exports = commonObj;

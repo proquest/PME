@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var uglifyjs = require('uglify-js');
+var stack = require('./stack');
 var c = require('./common'),
     common,
     _builderConfigFilesLocation,
@@ -47,19 +48,19 @@ function uglify (dir, stack) {
         }
       }
     });
-    common.stackInst.pop();
+    stack.pop();
   });
 }
 
 module.exports = function(debug) {
   this.buildBookmarklet = function() {
     console.log("Starting Bookmarklet");
-    common = new c(debug, function() {
-      common = new c(debug, function() {
+    common = new c(debug, new stack(function() {
+      common.stackInst = new stack(function() {
         console.log("complete bookmarklet");
       });
       uglify(root, common.stackInst);
-    });
+    }));
     setConfig();
     var root = path.join(_buildLocation, "bookmarklet");
     common.doPrepWork(root, function() {

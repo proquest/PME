@@ -1,14 +1,11 @@
 console.log("______________________________________________________");
-var c = require('./lib/common');
-var common = new c();
-var extensions = require('./lib/extensions');
-var bookmark = require('./lib/bookmarklet');
-var firefox = require('./lib/firefox');
-var config = common.config;
+var extensions = require('./lib/extensions'),
+    bookmark = require('./lib/bookmarklet'),
+    firefox = require('./lib/firefox');
 
 var connector = '',
-    debug = false;
-var help =
+    debug = false,
+    help =
       "To build connectors enter a valid argument.\n" +
       "The following arguments are available\n" +
       "-f: for Firefox extension\n" +
@@ -49,26 +46,26 @@ for(var i = 2; i < process.argv.length; i++) {
   }
 }
 
-  switch(connector) {
-    case 'firefox':
-      (new firefox(debug)).buildFirefox();
-      break;
-    case 'chrome':
-      (new extensions(debug)).buildChrome();
-      break;
-    case 'safari':
-      (new extensions(debug)).buildSafari();
-      break;
-    case 'bookmark':
-      (new bookmark(debug)).buildBookmarklet();
-      break;
-    case 'all':
-      (new bookmark(debug)).buildBookmarklet();
-      (new extensions(debug)).buildChrome();
-      (new extensions(debug)).buildSafari();
-      (new firefox(debug)).buildFirefox();
-      break;
-    default:
-      console.log('invalid connector');
-      return;
-  }
+switch(connector) {
+  case 'firefox':
+    (new firefox(debug)).buildFirefox();
+    break;
+  case 'chrome':
+    (new extensions(debug)).buildChrome();
+    break;
+  case 'safari':
+    (new extensions(debug)).buildSafari();
+    break;
+  case 'bookmark':
+    (new bookmark(debug)).buildBookmarklet();
+    break;
+  case 'all':
+    (new bookmark(debug)).buildBookmarklet();
+    (new firefox(debug)).buildFirefox();
+    (new extensions(debug)).buildChrome();
+    (new extensions(debug)).buildSafari();
+    break;
+  default:
+    console.log('invalid connector');
+    return;
+}

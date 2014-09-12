@@ -1,13 +1,12 @@
 var fs = require('fs');
 var path = require('path');
-var uglifyjs = require('uglify-js');
+var stack = require('./stack');
 var c = require('./common'),
-    common,
     _zoteroFilesLocation,
     _pmeLocation,
     _buildLocation;
 
-function setConfig() {
+function setConfig(common) {
   _zoteroFilesLocation = common.config.zoteroFilesLocation;
   _pmeLocation = common.config.pmeFilesLocation;
   _buildLocation = common.config.buildLocation;
@@ -16,12 +15,52 @@ function setConfig() {
 module.exports = function(debug) {
   this.buildFirefox = function() {
     console.log("Starting Firefox");
-    common = new c(debug, function() {
-      common = new c(debug, function() {
-        if(!common.debug) {
-          //compress into .xpi
+    var common = new c(debug,  new stack(function() {
+      common.stackInst = new stack(function() {
+        function addFolderToZip(cnt) {
+          var dir = directories[cnt];
+          zip.zipFolder(path.join(root, dir), function() {
+            zip.writeToFile(extFile + "zip", function() {
+              if(++cnt < directories.length)
+                addFolderToZip(cnt);
+              else {
+                common.deleteDirectory(root, function() {
+                  fs.rename(extFile + "zip", extFile + "xpi", function() {
+                    console.log("Firefox complete");
+                  });
+                });
+              }
+            });
+          });
         }
-        console.log("complete firefox")
+        if(!common.debug) {
+          console.log('creating .xpi file')
+          var EasyZip = require('./easy-zip').EasyZip;
+          var zip = new EasyZip();
+          var directories = [];
+          var stk = new stack(function(){addFolderToZip(0)},'xpi');
+          stk.push();
+          fs.readdir(root, function(err, objects) {
+            objects.forEach(function(obj) {
+              var objPath = path.join(root, obj);
+              stk.push();
+              fs.stat(objPath, function(err, st) {
+                if(st.isDirectory()) {
+                  directories.push(obj);
+                }
+                else {
+                  zip.addFile(obj, objPath, function() {
+                    zip.writeToFile(extFile + "zip");
+                  })
+                }
+                stk.pop();
+              });
+            });
+            stk.pop();
+          });
+        }
+        else
+          console.log("Firefox complete. No extension file")
       });
       // var overWrite = ['chrome/inject/progressWindow.js', 'chrome/content/zotero/overlay.xul', 'translators/Empty.js', 'translators/pme_ui.js'];
       // var append = ['chrome/zotero/utilities_translate.js', 'chrome/zotero/translation/translate.js'];
@@ -35,12 +74,12 @@ module.exports = function(debug) {
         path.join(_zoteroFilesLocation, 'chrome/content/zotero/xpcom/utilities_translate.js'),
         path.join(_pmeLocation, 'utilities_translate.js')
       ], path.join(root, 'chrome/content/zotero/xpcom/utilities_translate.js'), null, false);
-    });
+    }));
 
-    setConfig();
+    setConfig(common);
     var root = path.join(_buildLocation, "firefox");
-    var extFile = "firefoxConnector.xpi";
-    fs.unlink(path.join(_buildLocation, extFile), function() {
+    var extFile = path.join(_buildLocation, "firefoxConnector.");
+    fs.unlink(extFile + "xpi", function() {
     });
 
     common.doPrepWork(root, function() {

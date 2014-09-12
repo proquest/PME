@@ -1,5 +1,6 @@
 var fs = require('fs');
 var path = require('path');
+var stack = require('./stack');
 var c = require('./common');
 var ChromeExtension = require("crx")
 var _defaultVersion,
@@ -85,9 +86,9 @@ function setConfig(common) {
 var extensions = function (debug) {
   this.buildChrome = function() {
     console.log("Starting Chrome");
-    var common = new c(debug, function() {
+    var common = new c(debug, new stack(function() {
       if(!common.debug) {
-        //build Chrome package
+        console.log('creating .crx file');
         var crx = new ChromeExtension({
           privateKey: fs.readFileSync(path.join(_buildLocation, "chrome.pem")),
           rootDirectory: root
@@ -98,8 +99,8 @@ var extensions = function (debug) {
           this.pack(function(err, data) {
             if(err) throw err
 
-            fs.writeFile(path.join(_buildLocation, extFile), data, function() {
-              common.deleteFilesAndFolders(root, function() {
+            fs.writeFile(extFile, data, function() {
+              common.deleteDirectory(root, function() {
                 console.log("completed Chrome")
               })
             })
@@ -109,20 +110,20 @@ var extensions = function (debug) {
       }
       else
         console.log("Chrome complete. No extension file.");
-    }, 'chrome')
+    }))
     setConfig(common);
-    var extFile = "chromeConnector.crx";
-    fs.unlink(path.join(_buildLocation, extFile), function() {
+    var extFile = path.join(_buildLocation, "chromeConnector.crx");
+    fs.unlink(extFile, function() {
     });
     var root = path.join(_buildLocation, "chrome");
     buildExtension(root, "chrome", "manifest.json", common);
   }
   this.buildSafari = function() {
     console.log('Starting Safari build');
-    var common = new c(debug, function() {
+    var common = new c(debug, new stack(function() {
       //build Safari package
       console.log("complete Safari");
-    },'safari')
+    }))
     setConfig(common);
     var root = path.join(_buildLocation, "safari.safariextension");
     buildExtension(root, "safari", "Info.plist", common);
