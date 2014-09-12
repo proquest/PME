@@ -62,16 +62,12 @@ module.exports = function(debug) {
         else
           console.log("Firefox complete. No extension file")
       });
-      // var overWrite = ['chrome/inject/progressWindow.js', 'chrome/content/zotero/overlay.xul', 'translators/Empty.js', 'translators/pme_ui.js'];
-      // var append = ['chrome/zotero/utilities_translate.js', 'chrome/zotero/translation/translate.js'];
       common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["progressWindow.js"]);
       common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["overlay.xul"]);
       common.appendCode([
-        path.join(_zoteroFilesLocation, 'chrome/content/zotero/xpcom/translation/translate.js'),
         path.join(_pmeLocation, 'translate.js')
       ], path.join(root, 'chrome/content/zotero/xpcom/translation/translate.js'), null, false);
       common.appendCode([
-        path.join(_zoteroFilesLocation, 'chrome/content/zotero/xpcom/utilities_translate.js'),
         path.join(_pmeLocation, 'utilities_translate.js')
       ], path.join(root, 'chrome/content/zotero/xpcom/utilities_translate.js'), null, false);
     }));
@@ -85,7 +81,7 @@ module.exports = function(debug) {
     common.doPrepWork(root, function() {
       common.stackInst.push();
       fs.mkdir(root, function() {
-        common.copyCode(_zoteroFilesLocation, root, ["!", "utilities_translate.js", "translate.js", "progressWindow.js"]);
+        common.copyCode(_zoteroFilesLocation, root);
         common.stackInst.pop();
       });
     });

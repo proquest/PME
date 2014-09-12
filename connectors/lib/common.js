@@ -81,7 +81,7 @@ var commonObj = function(debug, stack) {
             var newDir = toPath;
             _this.stackInst.push();
             fs.mkdir(newDir, function() {
-              _this.copyCode(fromPath, newDir, files, directories, adjustments);
+              _this.copyCode(fromPath, newDir);
               _this.stackInst.pop();
             });
           }
