@@ -64,13 +64,19 @@ module.exports = function(debug) {
       });
       common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["progressWindow.js"]);
       common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["overlay.xul"]);
+      common.copyCode(_pmeLocation, path.join(root, "translators"), ["Empty.js", "pme_ui.js"]);
+      common.copyCode(_pmeLocation, root, ["install.rdf","update.rdf"]);
+
       common.appendCode([
         path.join(_pmeLocation, 'translate.js')
       ], path.join(root, 'chrome/content/zotero/xpcom/translation/translate.js'), null, false);
       common.appendCode([
         path.join(_pmeLocation, 'utilities_translate.js')
       ], path.join(root, 'chrome/content/zotero/xpcom/utilities_translate.js'), null, false);
-    }));
+      common.appendCode([
+        path.join(_pmeLocation, 'browser.js')
+      ], path.join(root, 'chrome/content/zotero/browser.js'), null, false);
+     }));
 
     setConfig(common);
     var root = path.join(_buildLocation, "firefox");
