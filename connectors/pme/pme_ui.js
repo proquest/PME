@@ -946,7 +946,7 @@ var labels = (function(){
 			label: "Book section",
 			defaultFields: [ 'abstract', 'authors', 'editors', 'location', 'pages', 'publicationDate', 'publication', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
 			optionalFields: [ 'alternateTitle', 'compilers', 'edition', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'seriesEditors', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
-			fieldLabelOverides: { publication: 'Book title', title: 'Section title' },
+			fieldLabelOverides: { publication: 'Book title', title: 'Section title' }
 		},
 		GENERIC_REF: {
 			label: "Generic",
