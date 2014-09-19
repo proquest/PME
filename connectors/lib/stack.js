@@ -1,7 +1,7 @@
 var stackObj = function (oncomplete) {
   var stObj = [];
   this.oncomplete = oncomplete;
-  this.push = function(name) {
+  this.push = function() {
     stObj.push(stObj.length);
   }
   this.pop = function() {

@@ -22,45 +22,6 @@ var commonObj = function(debug, stack) {
   this.doPrepWork = function(location, callback) {
     this.deleteDirectory(location, callback);
   }
-  /*
-  this.deleteFilesAndFolders = function(fromDir, callback) {
-    _this.deleteAllFiles(fromDir, new stack(function() {
-      _this.deleteAllFolders(fromDir, new stack(callback));
-    }));
-  }
-
-  this.deleteAllFilesSync = function(fromDir) {
-    var objects = fs.readdirSync(fromDir);
-    objects.forEach(function(obj) {
-      var objPath = path.join(fromDir, obj);
-      var st = fs.statSync(objPath)
-      if(st.isDirectory())
-        _this.deleteAllFilesSync(objPath)
-      else
-        fs.unlinkSync(objPath);
-    })
-  }
-  this.deleteAllFoldersSync = function(fromDir) {
-    if(fs.existsSync(fromDir)) {
-      var objects = fs.readdirSync(fromDir);
-      if(objects.length == 0) {
-        fs.rmdirSync(fromDir);
-        _this.deleteParentFolderSync(fromDir);
-      }
-      else {
-        objects.forEach(function(obj) {
-          var objPath = path.join(fromDir, obj);
-          _this.deleteAllFoldersSync(objPath)
-        })
-      }
-    }
-  }
-  this.deleteParentFolderSync = function(dir) {
-    var parent = path.join(dir, "..");
-    if(parent != _buildLocation)
-      _this.deleteAllFoldersSync(parent);
-  }
-*/
   this.copyCode = function(fromDir, toDir, files, directories, adjustments) {
     if(files === undefined)
       files = [];
@@ -74,7 +35,11 @@ var commonObj = function(debug, stack) {
         _this.stackInst.push();
         fs.stat(fromPath, function(err, st) {
           if(st.isDirectory()) {
-            if(obj.indexOf(".") == 0 || directories === null || (directories.length > 0 && directories.indexOf(obj) == -1)) {
+            if(obj.indexOf(".") == 0 || directories === null ||
+              (directories.length > 0 &&
+                (directories[0] != "!" && directories.indexOf(obj) == -1) ||
+                (directories[0] == "!" && directories.indexOf(obj) > -1)
+              )) {
               _this.stackInst.pop()
               return false;
             }
@@ -224,6 +189,14 @@ var commonObj = function(debug, stack) {
   this.deleteDirectory = function(dir, callback) {
     var d = require('./delete');
     d.delete(dir, callback);
+  }
+  this.modifyZoteroConfig = function(filePath) {
+    fs.readFile(filePath, function(err, data) {
+      fs.readFile(path.join(_this.config.pmeFilesLocation, "zotero_config.js"), function(err, newdata) {
+        fs.writeFile(filePath, data.toString().replace(/const ZOTERO_CONFIG = {(?:.|\n)+?};/, newdata.toString()), function() {
+        });
+      });
+    });
   }
 }
 

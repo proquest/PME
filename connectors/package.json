@@ -11,6 +11,6 @@
     "crx": "",
     "uglify-js": "",
     "graceful-fs": "",
-    "async": ""
+    "archiver": ""
   }
 }
