@@ -23,6 +23,8 @@ var commonObj = function(debug, stack) {
     this.deleteDirectory(location, callback);
   }
   this.copyCode = function(fromDir, toDir, files, directories, adjustments) {
+    if(arguments.length == 3 && !Array.isArray(arguments[2]))
+      adjustments = arguments[2];
     if(files === undefined)
       files = [];
     if(directories === undefined)
@@ -46,7 +48,7 @@ var commonObj = function(debug, stack) {
             var newDir = toPath;
             _this.stackInst.push();
             fs.mkdir(newDir, function() {
-              _this.copyCode(fromPath, newDir);
+              _this.copyCode(fromPath, newDir, adjustments);
               _this.stackInst.pop();
             });
           }
@@ -93,7 +95,7 @@ var commonObj = function(debug, stack) {
   this.copyFile = function(fromFile, toFile, adjustments, callback) {
     _this.stackInst.push();
     fs.readFile(fromFile, function(err, data) {
-      if(adjustments && adjustments.fileName.indexOf(path.basename(fromFile)) > -1)
+      if(adjustments && (adjustments.fileName == 'all' || adjustments.fileName.indexOf(path.basename(fromFile)) > -1))
         data = data.toString().replace(adjustments.pattern, adjustments.replacement);
       _this.stackInst.push();
       fs.writeFile(toFile, data, function() {

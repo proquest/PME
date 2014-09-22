@@ -24,13 +24,13 @@
     ***** END LICENSE BLOCK *****
 -->
 
-<?xul-overlay href="chrome://zotero/content/zoteroPane.xul"?>
-<?xml-stylesheet href="chrome://zotero/skin/overlay.css" type="text/css"?>
-<?xml-stylesheet href="chrome://zotero-platform/content/overlay.css" type="text/css"?>
+<?xul-overlay href="chrome://pme/content/zoteroPane.xul"?>
+<?xml-stylesheet href="chrome://pme/skin/overlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://pme-platform/content/overlay.css" type="text/css"?>
 
 <!DOCTYPE overlay [
 	<!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd"> %globalDTD;
-	<!ENTITY % zoteroDTD SYSTEM "chrome://zotero/locale/zotero.dtd"> %zoteroDTD;
+	<!ENTITY % zoteroDTD SYSTEM "chrome://pme/locale/zotero.dtd"> %zoteroDTD;
 ]>
 
 <overlay id="zotero"

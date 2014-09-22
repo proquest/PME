@@ -6,6 +6,7 @@ var c = require('./common'),
     _zoteroFilesLocation,
     _pmeLocation,
     _buildLocation,
+    _builderConfigFilesLocation,
     _archiveInfo = []
     _translatorsIndex = [];
 
@@ -29,7 +30,6 @@ function addZipInfo(from, st) {
   });
 }
 function addTranslatorToZip(st, root) {
-  console.log('starting translators')
   st.push();
   var translators = path.join(_zoteroFilesLocation, "translators"),
       translatorsCount,
@@ -43,7 +43,6 @@ function addTranslatorToZip(st, root) {
     throw err;
   });
   output.on('finish', function() {
-    console.log('done with translators: '+ archive.pointer())
     st.pop();
   });
   archive.pipe(output);
@@ -107,6 +106,7 @@ function setConfig(common) {
   _zoteroFilesLocation = common.config.zoteroFilesLocation;
   _pmeLocation = common.config.pmeFilesLocation;
   _buildLocation = common.config.buildLocation;
+  _builderConfigFilesLocation = common.config.builderConfigFilesLocation;
 }
 
 module.exports = function(debug) {
@@ -122,7 +122,7 @@ module.exports = function(debug) {
             throw err;
           });
           output.on('finish', function() {
-            //common.deleteDirectory(root, function(){})
+            common.deleteDirectory(root, function(){})
             console.log('Firefox complete');
           });
           archive.pipe(output);
@@ -140,6 +140,8 @@ module.exports = function(debug) {
       common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["overlay.xul"]);
       common.copyCode(path.join(_zoteroFilesLocation, "translators"), root, ["deleted.txt"]);
       common.copyCode(_pmeLocation, root, ["install.rdf", "update.rdf"]);
+      common.copyCode(_builderConfigFilesLocation, root, ['chrome.manifest'])
+      common.copyCode(_builderConfigFilesLocation, path.join(root, 'chrome/skin/default/zotero'), ['zotero-new-z-48px.png','zotero-new-z-16px.png'])
 
       common.modifyZoteroConfig(path.join(root, "chrome/content/zotero/xpcom/zotero.js"));
 
@@ -163,7 +165,13 @@ module.exports = function(debug) {
     common.doPrepWork(root, function() {
       common.stackInst.push();
       fs.mkdir(root, function() {
-        common.copyCode(_zoteroFilesLocation, root, undefined, ["!", "translators"]);
+        common.copyCode(_zoteroFilesLocation, root, undefined, ["!", "translators"],{
+          fileName : 'all',
+          pattern: /(?:((?:(?:chrome)|(?:resource)):\/\/)zotero((?:-platform)?\/))|(?:(\.append\(')zotero('\)))/g,
+          replacement: function() {
+            return (RegExp.$1 || RegExp.$3) + 'pme' + (RegExp.$2 || RegExp.$4);
+          }
+        });
         addTranslatorToZip(common.stackInst, root);
         common.stackInst.pop();
       });

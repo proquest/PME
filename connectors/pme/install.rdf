@@ -9,9 +9,9 @@
     <em:version>0.2</em:version>
     <em:creator>ProQuest</em:creator>
     <em:homepageURL>http://flow.proquest.com</em:homepageURL>
-    <em:optionsURL>chrome://zotero/content/preferences/preferences.xul</em:optionsURL>
-    <em:aboutURL>chrome://zotero/content/about.xul</em:aboutURL>
-    <em:iconURL>chrome://zotero/skin/zotero-new-z-48px.png</em:iconURL>
+    <em:optionsURL>chrome://pme/content/preferences/preferences.xul</em:optionsURL>
+    <em:aboutURL>chrome://pme/content/about.xul</em:aboutURL>
+    <em:iconURL>chrome://pme/skin/zotero-new-z-48px.png</em:iconURL>
     <em:type>2</em:type> <!-- type=extension --> 
     
     <!-- Firefox -->

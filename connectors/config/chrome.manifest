@@ -1,0 +1,79 @@
+content	pme				chrome/content/zotero/
+content	pme-platform		chrome/content/zotero-platform/		platform
+resource pme				resource/
+
+locale	pme	en-US		chrome/locale/en-US/zotero/
+locale	pme	af-ZA		chrome/locale/af-ZA/zotero/
+locale	pme	ar		chrome/locale/ar/zotero/
+locale	pme	bg-BG		chrome/locale/bg-BG/zotero/
+locale	pme	ca-AD		chrome/locale/ca-AD/zotero/
+locale	pme	cs-CZ		chrome/locale/cs-CZ/zotero/
+locale	pme	da-DK		chrome/locale/da-DK/zotero/
+locale	pme	de		chrome/locale/de/zotero/
+locale	pme	el-GR		chrome/locale/el-GR/zotero/
+locale	pme	es-ES		chrome/locale/es-ES/zotero/
+locale	pme	et-EE		chrome/locale/et-EE/zotero/
+locale	pme	eu-ES		chrome/locale/eu-ES/zotero/
+locale	pme	fa		chrome/locale/fa/zotero/
+locale	pme	fi-FI		chrome/locale/fi-FI/zotero/
+locale	pme	fr-FR		chrome/locale/fr-FR/zotero/
+locale	pme	gl-ES		chrome/locale/gl-ES/zotero/
+locale	pme	he-IL		chrome/locale/he-IL/zotero/
+locale	pme	hr-HR		chrome/locale/hr-HR/zotero/
+locale	pme	hu-HU		chrome/locale/hu-HU/zotero/
+locale	pme	id-ID		chrome/locale/id-ID/zotero/
+locale	pme	is-IS		chrome/locale/is-IS/zotero/
+locale	pme	it-IT		chrome/locale/it-IT/zotero/
+locale	pme	ja-JP		chrome/locale/ja-JP/zotero/
+locale	pme	km			chrome/locale/km/zotero/
+locale	pme	ko-KR		chrome/locale/ko-KR/zotero/
+locale  pme  lt-LT           chrome/locale/lt-LT/zotero/
+locale	pme	mn-MN		chrome/locale/mn-MN/zotero/
+locale	pme	nb-NO		chrome/locale/nb-NO/zotero/
+locale	pme	nn-NO		chrome/locale/nn-NO/zotero/
+locale	pme	nl-NL		chrome/locale/nl-NL/zotero/
+locale	pme	pl-PL		chrome/locale/pl-PL/zotero/
+locale	pme	pt-BR		chrome/locale/pt-BR/zotero/
+locale	pme	pt-PT		chrome/locale/pt-PT/zotero/
+locale	pme	ro-RO		chrome/locale/ro-RO/zotero/
+locale	pme	ru-RU		chrome/locale/ru-RU/zotero/
+locale  pme  sk-SK		chrome/locale/sk-SK/zotero/
+locale	pme	sl-SI		chrome/locale/sl-SI/zotero/
+locale	pme	sr-RS		chrome/locale/sr-RS/zotero/
+locale	pme	sv-SE		chrome/locale/sv-SE/zotero/
+locale	pme	th-TH		chrome/locale/th-TH/zotero/
+locale	pme	tr-TR		chrome/locale/tr-TR/zotero/
+locale	pme	uk-UA		chrome/locale/uk-UA/zotero/
+locale	pme	vi-VN		chrome/locale/vi-VN/zotero/
+locale	pme	zh-CN		chrome/locale/zh-CN/zotero/
+locale	pme	zh-TW		chrome/locale/zh-TW/zotero/
+
+skin		pme	default		chrome/skin/default/zotero/
+
+overlay	chrome://browser/content/browser.xul	chrome://pme/content/overlay.xul
+
+overlay chrome://pme/content/preferences/preferences.xul chrome://pme/content/preferences/preferences_firefox.xul
+application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}
+overlay	chrome://pme/content/preferences/preferences.xul#cite	chrome://pme/content/preferences/preferences_firefox.xul application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}
+overlay chrome://pme/content/preferences/preferences_general.xul chrome://pme/content/preferences/preferences_general_firefox.xul application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}
+overlay chrome://pme/content/preferences/preferences_export.xul chrome://pme/content/preferences/preferences_export_firefox.xul application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}
+overlay chrome://pme/content/preferences/preferences_keys.xul chrome://pme/content/preferences/preferences_keys_firefox.xul application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}
+overlay chrome://pme/content/preferences/preferences_advanced.xul chrome://pme/content/preferences/preferences_advanced_firefox.xul application={ec8030f7-c20a-464f-9b0e-13a3a9e97384}
+overlay chrome://pme/content/preferences/preferences_advanced.xul chrome://pme/content/preferences/preferences_advanced_standalone.xul application=flow@proquest.com
+
+overlay chrome://mozapps/content/downloads/unknownContentType.xul chrome://pme/content/downloadOverlay.xul
+
+style	chrome://browser/content/browser.xul	chrome://pme/skin/zotero.css
+style	chrome://global/content/customizeToolbar.xul	chrome://pme/skin/zotero.css
+
+component	{e4c61080-ec2d-11da-8ad9-0800200c9a66}			components/zotero-service.js
+component	{531828f8-a16c-46be-b9aa-14845c3b010f}			components/zotero-service.js
+contract	@zotero.org/Zotero;1 							{e4c61080-ec2d-11da-8ad9-0800200c9a66}
+contract	@mozilla.org/commandlinehandler/general-startup;1?type=zotero 	{531828f8-a16c-46be-b9aa-14845c3b010f}
+category	command-line-handler 	m-zotero	@mozilla.org/commandlinehandler/general-startup;1?type=zotero
+
+component	{06a2ed11-d0a4-4ff0-a56f-a44545eee6ea}			components/zotero-autocomplete.js
+contract	@mozilla.org/autocomplete/search;1?name=zotero 	{06a2ed11-d0a4-4ff0-a56f-a44545eee6ea}
+
+component	{9BC3D762-9038-486A-9D70-C997AF848A7C}			components/zotero-protocol-handler.js
+contract	@mozilla.org/network/protocol;1?name=zotero 	{9BC3D762-9038-486A-9D70-C997AF848A7C}
