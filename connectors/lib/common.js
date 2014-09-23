@@ -95,7 +95,15 @@ var commonObj = function(debug, stack) {
   this.copyFile = function(fromFile, toFile, adjustments, callback) {
     _this.stackInst.push();
     fs.readFile(fromFile, function(err, data) {
-      if(adjustments && (adjustments.fileName == 'all' || adjustments.fileName.indexOf(path.basename(fromFile)) > -1))
+      var fileExt = path.extname(fromFile);
+      if(adjustments &&
+        ((adjustments.fileName == 'all' &&
+          fileExt != '.jpg' &&
+          fileExt != '.png' &&
+          fileExt != '.gif' &&
+          fileExt != '.svg'
+          ) || adjustments.fileName.indexOf(path.basename(fromFile)) > -1)
+        )
         data = data.toString().replace(adjustments.pattern, adjustments.replacement);
       _this.stackInst.push();
       fs.writeFile(toFile, data, function() {

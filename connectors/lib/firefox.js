@@ -141,7 +141,7 @@ module.exports = function(debug) {
       common.copyCode(path.join(_zoteroFilesLocation, "translators"), root, ["deleted.txt"]);
       common.copyCode(_pmeLocation, root, ["install.rdf", "update.rdf"]);
       common.copyCode(_builderConfigFilesLocation, root, ['chrome.manifest'])
-      common.copyCode(_builderConfigFilesLocation, path.join(root, 'chrome/skin/default/zotero'), ['zotero-new-z-48px.png','zotero-new-z-16px.png'])
+      common.copyCode(_builderConfigFilesLocation, path.join(root, 'chrome/skin/default/zotero'), ['zotero-new-z-48px.png','zotero-new-z-16px.png','zotero-z-16px-australis.svg'])
 
       common.modifyZoteroConfig(path.join(root, "chrome/content/zotero/xpcom/zotero.js"));
 
