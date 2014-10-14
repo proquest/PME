@@ -82,7 +82,7 @@ reload all references.
 # AGPL v3 License
 
 Publication Metadata Extraction – extracts metadata from online publication pages.
-Copyright (C) 2013 ProQuest LLC
+Copyright (C) 2013-2014 ProQuest LLC
 
 Based on the Zotero Web Translators - https://github.com/zotero/translators
 Project documentation at http://www.zotero.org/support/dev/translators.
