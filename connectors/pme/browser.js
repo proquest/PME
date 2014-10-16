@@ -32,13 +32,13 @@
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Zotero_Browser
+// PME_Browser
 //
 //////////////////////////////////////////////////////////////////////////////
 
 // Class to interface with the browser when ingesting data
 
-var Zotero_Browser = new function() {
+var PME_Browser = new function() {
 	this.init = init;
 	this.scrapeThisPage = scrapeThisPage;
 	this.annotatePage = annotatePage;
@@ -93,7 +93,7 @@ var Zotero_Browser = new function() {
 
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// Public Zotero_Browser methods
+	// Public PME_Browser methods
 	//
 	//////////////////////////////////////////////////////////////////////////////
 	
@@ -138,7 +138,7 @@ var Zotero_Browser = new function() {
 			chromeLoaded.promise
 		])
 		.then(function() {
-			Zotero_Browser.chromeLoad()
+			PME_Browser.chromeLoad()
 		})
 		.done();
 	}
@@ -148,7 +148,7 @@ var Zotero_Browser = new function() {
 	 */
 	function reload() {
 		// Handles the display of a div showing progress in scraping
-		Zotero_Browser.progress = new Zotero.ProgressWindow();
+		PME_Browser.progress = new Zotero.ProgressWindow();
 	}
 	
 	/**
@@ -157,10 +157,10 @@ var Zotero_Browser = new function() {
 	 */
 	function scrapeThisPage(translator) {
 		// Perform translation
-		var tab = _getTabObject(Zotero_Browser.tabbrowser.selectedBrowser);
+		var tab = _getTabObject(PME_Browser.tabbrowser.selectedBrowser);
 		if(tab.page.translators && tab.page.translators.length) {
 			tab.page.translate.setTranslator(translator || tab.page.translators[0]);
-			Zotero_Browser.performTranslation(tab.page.translate);
+			PME_Browser.performTranslation(tab.page.translate);
 		}
 	}
 	
@@ -190,23 +190,23 @@ var Zotero_Browser = new function() {
 		}
 		
 		// make sure annotation action is toggled
-		var tab = _getTabObject(Zotero_Browser.tabbrowser.selectedBrowser);
+		var tab = _getTabObject(PME_Browser.tabbrowser.selectedBrowser);
 		if(tab.page && tab.page.annotations && tab.page.annotations.clearAction) tab.page.annotations.clearAction();
 		
 		if(!toggleTool) return;
 		
-		var body = Zotero_Browser.tabbrowser.selectedBrowser.contentDocument.getElementsByTagName("body")[0];
+		var body = PME_Browser.tabbrowser.selectedBrowser.contentDocument.getElementsByTagName("body")[0];
 		var addElement = document.getElementById(toggleTool);
 		
 		if(addElement.getAttribute("tool-active")) {
 			// turn off
 			body.style.cursor = "auto";
 			addElement.removeAttribute("tool-active");
-			Zotero_Browser.tabbrowser.selectedBrowser.removeEventListener(tools[toggleTool].event, tools[toggleTool].callback, true);
+			PME_Browser.tabbrowser.selectedBrowser.removeEventListener(tools[toggleTool].event, tools[toggleTool].callback, true);
 		} else {
 			body.style.cursor = tools[toggleTool].cursor;
 			addElement.setAttribute("tool-active", "true");
-			Zotero_Browser.tabbrowser.selectedBrowser.addEventListener(tools[toggleTool].event, tools[toggleTool].callback, true);
+			PME_Browser.tabbrowser.selectedBrowser.addEventListener(tools[toggleTool].event, tools[toggleTool].callback, true);
 		}
 	}
 	
@@ -214,7 +214,7 @@ var Zotero_Browser = new function() {
 	 * expands all annotations
 	 */
 	function toggleCollapsed() {
-		var tab = _getTabObject(Zotero_Browser.tabbrowser.selectedBrowser);
+		var tab = _getTabObject(PME_Browser.tabbrowser.selectedBrowser);
 		tab.page.annotations.toggleCollapsed();
 	}
 	
@@ -230,12 +230,12 @@ var Zotero_Browser = new function() {
 		gBrowser.tabContainer.addEventListener("TabClose",
 			function(e) {
 				//Zotero.debug("TabClose");
-				Zotero_Browser.tabClose(e);
+				PME_Browser.tabClose(e);
 			}, false);
 		gBrowser.tabContainer.addEventListener("TabSelect",
 			function(e) {
 				//Zotero.debug("TabSelect");
-				Zotero_Browser.updateStatus();
+				PME_Browser.updateStatus();
 			}, false);
 		// this is for pageshow, for updating the status of the book icon
 		this.appcontent.addEventListener("pageshow", contentLoad, true);
@@ -243,11 +243,11 @@ var Zotero_Browser = new function() {
 		this.appcontent.addEventListener("pagehide",
 			function(e) {
 				//Zotero.debug("pagehide");
-				Zotero_Browser.contentHide(e);
+				PME_Browser.contentHide(e);
 			}, true);
 		
 		this.tabbrowser.addEventListener("resize",
-			function(e) { Zotero_Browser.resize(e) }, false);
+			function(e) { PME_Browser.resize(e) }, false);
 		// Resize on text zoom changes
 		
 		// Fx2
@@ -264,11 +264,11 @@ var Zotero_Browser = new function() {
 		}
 		
 		if(reduce) reduce.addEventListener("command",
-			function(e) { Zotero_Browser.resize(e) }, false);
+			function(e) { PME_Browser.resize(e) }, false);
 		if(enlarge) enlarge.addEventListener("command",
-			function(e) { Zotero_Browser.resize(e) }, false);
+			function(e) { PME_Browser.resize(e) }, false);
 		if(reset) reset.addEventListener("command",
-			function(e) { Zotero_Browser.resize(e) }, false);
+			function(e) { PME_Browser.resize(e) }, false);
 	}
 	
 	/*
@@ -279,7 +279,7 @@ var Zotero_Browser = new function() {
 		var doc = event.originalTarget;
 		var isHTML = doc instanceof HTMLDocument;
 		var rootDoc = (doc instanceof HTMLDocument ? doc.defaultView.top.document : doc);
-		var browser = Zotero_Browser.tabbrowser.getBrowserForDocument(rootDoc);
+		var browser = PME_Browser.tabbrowser.getBrowserForDocument(rootDoc);
 		if(!browser) return;
 		
 		if(isHTML) {
@@ -319,7 +319,7 @@ var Zotero_Browser = new function() {
 					//window.alert(Zotero.getString("annotations.oneWindowWarning"));
 				} else if(!tab.page.annotations) {
 					// enable annotation
-					tab.page.annotations = new Zotero.Annotations(Zotero_Browser, browser, annotationID);
+					tab.page.annotations = new Zotero.Annotations(PME_Browser, browser, annotationID);
 					var saveAnnotations = function() {
 						tab.page.annotations.save();
 						tab.page.annotations = undefined;
@@ -352,7 +352,7 @@ var Zotero_Browser = new function() {
 		if(!(doc instanceof HTMLDocument)) return;
 	
 		var rootDoc = (doc instanceof HTMLDocument ? doc.defaultView.top.document : doc);
-		var browser = Zotero_Browser.tabbrowser.getBrowserForDocument(rootDoc);
+		var browser = PME_Browser.tabbrowser.getBrowserForDocument(rootDoc);
 		if(!browser) return;
 		
 		var tab = _getTabObject(browser);
@@ -366,7 +366,7 @@ var Zotero_Browser = new function() {
 		}
 		
 		// update status
-		if(Zotero_Browser.tabbrowser.selectedBrowser == browser) {
+		if(PME_Browser.tabbrowser.selectedBrowser == browser) {
 			updateStatus();
 		}
 	}
@@ -377,7 +377,7 @@ var Zotero_Browser = new function() {
 	function itemUpdated(doc) {
 		try {
 			var rootDoc = (doc instanceof HTMLDocument ? doc.defaultView.top.document : doc);
-			var browser = Zotero_Browser.tabbrowser.getBrowserForDocument(rootDoc);
+			var browser = PME_Browser.tabbrowser.getBrowserForDocument(rootDoc);
 			var tab = _getTabObject(browser);
 			if(doc == tab.page.document || doc == rootDoc) tab.clear();
 			tab.detectTranslators(rootDoc, doc);
@@ -479,7 +479,7 @@ var Zotero_Browser = new function() {
 	
 	//////////////////////////////////////////////////////////////////////////////
 	//
-	// Private Zotero_Browser methods
+	// Private PME_Browser methods
 	//
 	//////////////////////////////////////////////////////////////////////////////
 	
@@ -491,15 +491,15 @@ var Zotero_Browser = new function() {
 			tab.page.translate.setHandler("done", function(obj, status) {
 				if(status) {
 					success(e, obj);
-					Zotero_Browser.progress.close();
+					PME_Browser.progress.close();
 				} else {
-					Zotero_Browser.progress.changeHeadline(Zotero.getString("ingester.lookup.error"));
-					Zotero_Browser.progress.startCloseTimer(8000);
+					PME_Browser.progress.changeHeadline(Zotero.getString("ingester.lookup.error"));
+					PME_Browser.progress.startCloseTimer(8000);
 				}
 			});
 			
-			Zotero_Browser.progress.show();
-			Zotero_Browser.progress.changeHeadline(Zotero.getString("ingester.lookup.performing"));
+			PME_Browser.progress.show();
+			PME_Browser.progress.changeHeadline(Zotero.getString("ingester.lookup.performing"));
 			tab.page.translate.translate(false);
 		}
 	}
@@ -510,7 +510,7 @@ var Zotero_Browser = new function() {
 	function _getTabObject(browser) {
 		if(!browser) return false;
 		if(!browser.zoteroBrowserData) {
-			browser.zoteroBrowserData = new Zotero_Browser.Tab(browser);
+			browser.zoteroBrowserData = new PME_Browser.Tab(browser);
 		}
 		return browser.zoteroBrowserData;
 	}
@@ -519,7 +519,7 @@ var Zotero_Browser = new function() {
 	 * Adds an annotation
 	 */
 	 function _add(type, e) {
-		var tab = _getTabObject(Zotero_Browser.tabbrowser.selectedBrowser);
+		var tab = _getTabObject(PME_Browser.tabbrowser.selectedBrowser);
 		
 		if(type == "annotation") {
 			// ignore click if it's on an existing annotation
@@ -532,7 +532,7 @@ var Zotero_Browser = new function() {
 			toggleMode();
 		} else {
 			try {
-				var selection = Zotero_Browser.tabbrowser.selectedBrowser.contentWindow.getSelection();
+				var selection = PME_Browser.tabbrowser.selectedBrowser.contentWindow.getSelection();
 			} catch(err) {
 				return;
 			}
@@ -556,11 +556,11 @@ var Zotero_Browser = new function() {
 
 //////////////////////////////////////////////////////////////////////////////
 //
-// Zotero_Browser.Tab
+// PME_Browser.Tab
 //
 //////////////////////////////////////////////////////////////////////////////
 
-Zotero_Browser.Tab = function(browser) {
+PME_Browser.Tab = function(browser) {
 	this.browser = browser;
 	this.page = new Object();
 }
@@ -568,7 +568,7 @@ Zotero_Browser.Tab = function(browser) {
 /*
  * clears page-specific information
  */
-Zotero_Browser.Tab.prototype.clear = function() {
+PME_Browser.Tab.prototype.clear = function() {
 	delete this.page;
 	this.page = new Object();
 }
@@ -576,7 +576,7 @@ Zotero_Browser.Tab.prototype.clear = function() {
 /*
  * detects translators for this browser object
  */
-Zotero_Browser.Tab.prototype.detectTranslators = function(rootDoc, doc) {	
+PME_Browser.Tab.prototype.detectTranslators = function(rootDoc, doc) {	
 	if(doc instanceof HTMLDocument && doc.documentURI.substr(0, 6) != "about:") {
 		// get translators
 		var me = this;
@@ -584,7 +584,7 @@ Zotero_Browser.Tab.prototype.detectTranslators = function(rootDoc, doc) {
 		var translate = new Zotero.Translate.Web();
 		translate.setDocument(doc);
 		translate.setHandler("translators", function(obj, item) { me._translatorsAvailable(obj, item) });
-		translate.setHandler("pageModified", function(translate, doc) { Zotero_Browser.itemUpdated(doc) });
+		translate.setHandler("pageModified", function(translate, doc) { PME_Browser.itemUpdated(doc) });
 		translate.getTranslators(true);
 	} else if(doc.documentURI.substr(0, 7) == "file://") {
 		this._attemptLocalFileImport(doc);
@@ -595,7 +595,7 @@ Zotero_Browser.Tab.prototype.detectTranslators = function(rootDoc, doc) {
 /*
  * searches for a document in all of the frames of a given document
  */
-Zotero_Browser.Tab.prototype._searchFrames = function(rootDoc, searchDoc) {
+PME_Browser.Tab.prototype._searchFrames = function(rootDoc, searchDoc) {
 	if(rootDoc == searchDoc) return true;
 	var frames = rootDoc.getElementsByTagName("frame");
 	for each(var frame in frames) {
@@ -621,7 +621,7 @@ Zotero_Browser.Tab.prototype._searchFrames = function(rootDoc, searchDoc) {
 /*
  * Attempts import of a file; to be run on local files only
  */
-Zotero_Browser.Tab.prototype._attemptLocalFileImport = function(doc) {
+PME_Browser.Tab.prototype._attemptLocalFileImport = function(doc) {
 	if(doc.documentURI.match(/\.csl(\.xml|\.txt)?$/i)) {
 		// read CSL string
 		var csl = Zotero.File.getContentsFromURL(doc.documentURI);
@@ -647,7 +647,7 @@ Zotero_Browser.Tab.prototype._attemptLocalFileImport = function(doc) {
  * returns the URL of the image representing the translator to be called on the
  * current page, or false if the page cannot be scraped
  */
-Zotero_Browser.Tab.prototype.getCaptureIcon = function() {
+PME_Browser.Tab.prototype.getCaptureIcon = function() {
 	if(this.page.translators && this.page.translators.length) {
 		var itemType = this.page.translators[0].itemType;
 		return (itemType === "multiple"
@@ -658,7 +658,7 @@ Zotero_Browser.Tab.prototype.getCaptureIcon = function() {
 	return false;
 }
 
-Zotero_Browser.Tab.prototype.getCaptureTooltip = function() {
+PME_Browser.Tab.prototype.getCaptureTooltip = function() {
 	if (this.page.translators && this.page.translators.length) {
 		var arr = [Zotero.getString('ingester.saveToZotero')];
 		if (this.page.translators[0].itemType == 'multiple') {
@@ -676,14 +676,14 @@ Zotero_Browser.Tab.prototype.getCaptureTooltip = function() {
 /*
  * called when a user is supposed to select items
  */
-Zotero_Browser.Tab.prototype._selectItems = function(obj, itemList, callback) {
+PME_Browser.Tab.prototype._selectItems = function(obj, itemList, callback) {
 	// this is kinda ugly, mozillazine made me do it! honest!
 	var io = { dataIn:itemList, dataOut:null }
 	var newDialog = window.openDialog("chrome://zotero/content/ingester/selectitems.xul",
 		"_blank","chrome,modal,centerscreen,resizable=yes", io);
 	
 	if(!io.dataOut) {	// user selected no items, so close the progress indicatior
-		Zotero_Browser.progress.close();
+		PME_Browser.progress.close();
 	}
 	
 	callback(io.dataOut);
@@ -692,7 +692,7 @@ Zotero_Browser.Tab.prototype._selectItems = function(obj, itemList, callback) {
 /*
  * called when translators are available
  */
-Zotero_Browser.Tab.prototype._translatorsAvailable = function(translate, translators) {
+PME_Browser.Tab.prototype._translatorsAvailable = function(translate, translators) {
 	if(translators && translators.length) {
 		//see if we should keep the previous set of translators
 		if(//we already have a translator for part of this page
@@ -735,7 +735,7 @@ Zotero_Browser.Tab.prototype._translatorsAvailable = function(translate, transla
 	
 	if(!translators || !translators.length) Zotero.debug("Translate: No translators found");
 	
-	Zotero_Browser.updateStatus();
+	PME_Browser.updateStatus();
 }
 
-Zotero_Browser.init();
+PME_Browser.init();
