@@ -48,7 +48,7 @@ var commonObj = function(debug, stack) {
             var newDir = toPath;
             _this.stackInst.push();
             fs.mkdir(newDir, function() {
-              _this.copyCode(fromPath, newDir, adjustments);
+              _this.copyCode(fromPath, newDir,[],[], adjustments);
               _this.stackInst.pop();
             });
           }
@@ -95,16 +95,21 @@ var commonObj = function(debug, stack) {
   this.copyFile = function(fromFile, toFile, adjustments, callback) {
     _this.stackInst.push();
     fs.readFile(fromFile, function(err, data) {
-      var fileExt = path.extname(fromFile);
-      if(adjustments &&
-        ((adjustments.fileName == 'all' &&
-          fileExt != '.jpg' &&
-          fileExt != '.png' &&
-          fileExt != '.gif' &&
-          fileExt != '.svg'
-          ) || adjustments.fileName.indexOf(path.basename(fromFile)) > -1)
-        )
-        data = data.toString().replace(adjustments.pattern, adjustments.replacement);
+        var fileExt = path.extname(fromFile);
+        if (!(adjustments instanceof Array))
+            adjustments = [adjustments];
+        for (var i = 0; i < adjustments.length; i++) {
+            if (adjustments[i] &&
+                ((adjustments[i].fileName == 'all' &&
+                    fileExt != '.jpg' &&
+                    fileExt != '.png' &&
+                    fileExt != '.gif' &&
+                    fileExt != '.svg'
+                    ) || adjustments[i].fileName.indexOf(path.basename(fromFile)) > -1)
+                ){
+                data = data.toString().replace(adjustments[i].pattern, adjustments[i].replacement);
+			}
+        }
       _this.stackInst.push();
       fs.writeFile(toFile, data, function() {
         if(callback) {

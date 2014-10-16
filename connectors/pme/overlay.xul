@@ -42,9 +42,9 @@
 	<popup id="contentAreaContextMenu"/>
 	
 	<toolbarpalette id="BrowserToolbarPalette">
-		<toolbarbutton id="zotero-toolbar-button" class="toolbarbutton-1"
+		<toolbarbutton id="pme-toolbar-button" class="toolbarbutton-1"
 						label="Zotero"
-						oncommand="Zotero_Browser.scrapeThisPage()"/>
+						oncommand="PME_Browser.scrapeThisPage()"/>
 	</toolbarpalette>
 	
 	<toolbar id="zotero-toolbar" nowindowdrag="true"/>
@@ -79,7 +79,7 @@
 			 modifiers="accel shift" />
 		 <key id="key_saveToZotero"
 			 key="S"
-			 oncommand="Zotero_Browser.scrapeThisPage();"
+			 oncommand="PME_Browser.scrapeThisPage();"
 			 modifiers="accel shift" />
 	</keyset>
 </overlay>

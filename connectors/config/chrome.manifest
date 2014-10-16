@@ -66,9 +66,9 @@ overlay chrome://mozapps/content/downloads/unknownContentType.xul chrome://pme/c
 style	chrome://browser/content/browser.xul	chrome://pme/skin/zotero.css
 style	chrome://global/content/customizeToolbar.xul	chrome://pme/skin/zotero.css
 
-component	{e4c61080-ec2d-11da-8ad9-0800200c9a66}			components/zotero-service.js
+component	{b1571583-82c5-499a-b578-b2e719ddc094}			components/zotero-service.js
 component	{531828f8-a16c-46be-b9aa-14845c3b010f}			components/zotero-service.js
-contract	@zotero.org/Zotero;1 							{e4c61080-ec2d-11da-8ad9-0800200c9a66}
+contract	@proquest.com/PME;1 							{b1571583-82c5-499a-b578-b2e719ddc094}
 contract	@mozilla.org/commandlinehandler/general-startup;1?type=zotero 	{531828f8-a16c-46be-b9aa-14845c3b010f}
 category	command-line-handler 	m-zotero	@mozilla.org/commandlinehandler/general-startup;1?type=zotero
 
