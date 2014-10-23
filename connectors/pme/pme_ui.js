@@ -1,8 +1,10 @@
 var FLOW_SERVER = "https://flow.proquest.com",
     MODE = "DEBUG";
 function entry(doc,url){
-	style(doc);
-	container(doc);
+	if(!doc.getElementById("stf_capture")) {
+		style(doc);
+		container(doc);
+	}
 	return "Save to Flow Loaded"
 }
 
@@ -79,6 +81,7 @@ function style(doc){
         style.push("#stf_debug div {margin:10px; border-bottom:1px solid #ccc;}");
 
         var styleElement = doc.createElement("style");
+        styleElement.id = "stf_style";
         styleElement.innerHTML = style.join("");
         doc.head.appendChild(styleElement);
     }
@@ -135,23 +138,25 @@ function container(doc){
     }
 }
 
-function close(doc){
-    try {
-        var elem = doc.getElementById("stf_capture"), className = elem.className;
-        elem.className = className.replace("show", "");
-        ZU.setTimeout(function () {
-            try {
-                doc.body.removeChild(elem);
-                Z.done();
-            }
-            catch (e) {
-                error(doc, e);
-            }
-        }, 1000);
-    }
-    catch (e) {
-        error(doc, e);
-    }
+function close(doc) {
+	try {
+		var elem = doc.getElementById("stf_capture"), className = elem.className;
+		elem.className = className.replace("show", "");
+		ZU.setTimeout(function() {
+			try {
+				Z.debug('close')
+				doc.body.removeChild(elem);
+				doc.head.removeChild(doc.getElementById("stf_style"));
+				Z.done();
+			}
+			catch(e) {
+				error(doc, e);
+			}
+		}, 1000);
+	}
+	catch(e) {
+		error(doc, e);
+	}
 }
 
 function debug(doc, str) {
@@ -389,6 +394,7 @@ function completeDialog(doc){
         ZU.setTimeout(function () {
             try {
                 status.style.display = "none";
+                close(doc)
                 Z.done();
             }
             catch (e) {
