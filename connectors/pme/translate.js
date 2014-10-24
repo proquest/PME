@@ -1,4 +1,5 @@
 Zotero.Translate.Base.prototype["_translateTranslatorLoadedOld"] = Zotero.Translate.Base.prototype._translateTranslatorLoaded;
+Zotero.Translate.Base.prototype["completeOld"] = Zotero.Translate.Base.prototype.complete;
 
 Zotero.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
     try {
@@ -30,6 +31,17 @@ Zotero.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
     catch (e) {
         Zotero.debug("Error _translateTranslatorLoaded: " + e.message);
     }
+}
+
+Zotero.Translate.Base.prototype["complete"] = function (returnValue, error) {
+	try {
+		var state = this._currentState;
+		this.completeOld(returnValue, error);
+		this._currentState = state;
+	}
+	catch(e) {
+		Zotero.debug("Error complete: " + e.message);
+	}
 }
 
 Zotero.Translate.Base.prototype["_saveItems"] = function (items) {
