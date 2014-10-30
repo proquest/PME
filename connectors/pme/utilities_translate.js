@@ -1,8 +1,8 @@
-PME.Utilities.Translate.prototype.setTimeout = function (f, d) {
+Zotero.Utilities.Translate.prototype.setTimeout = function (f, d) {
     setTimeout(f, d);
 };
 
-PME.Utilities.Translate.prototype.promise = function (method, url, options, callback) {
+Zotero.Utilities.Translate.prototype.promise = function (method, url, options, callback) {
     var xmlhttp = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
     xmlhttp.mozBackgroundRequest = true;
     xmlhttp.open(method, url, true);
@@ -39,7 +39,8 @@ PME.Utilities.Translate.prototype.promise = function (method, url, options, call
             if (options && options.debug) {
                 PME.debug(xmlhttp.responseText);
             }
-            callback(xmlhttp);
+            //callback(xmlhttp);
+            callback();
         }
     };
 

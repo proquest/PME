@@ -1,5 +1,7 @@
 PME.Translate.Base.prototype["_translateTranslatorLoadedOld"] = PME.Translate.Base.prototype._translateTranslatorLoaded;
 PME.Translate.Base.prototype["completeOld"] = PME.Translate.Base.prototype.complete;
+PME.Translate.Sandbox.Base["_itemDoneOld"] = PME.Translate.Sandbox.Base._itemDone;
+
 PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
     try {
 
@@ -41,6 +43,12 @@ PME.Translate.Base.prototype["complete"] = function (returnValue, error) {
 	catch(e) {
 		PME.debug("Error complete: " + e.message);
 	}
+}
+
+PME.Translate.Sandbox.Base["_itemDone"] = function (translate, item) {
+	this._itemDoneOld(translate, item);
+	translate.saveQueue = [];
+	translate._saveItems([item]);
 }
 
 PME.Translate.Base.prototype["_saveItems"] = function (items) {

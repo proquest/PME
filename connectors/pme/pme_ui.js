@@ -1,7 +1,7 @@
 var FLOW_SERVER = "https://flow.proquest.com",
     MODE = "DEBUG";
 function entry(doc,url){
-	if(!doc.getElementById("stf_capture")) {
+	if(doc && !doc.getElementById("stf_capture")) {
 		style(doc);
 		container(doc);
 	}
@@ -19,7 +19,7 @@ function style(doc){
         style.push("#stf_capture a {text-decoration:none;color:#73b9ff;}");
         style.push("#stf_capture .clear {clear:both;margin-bottom:10px;}");
         style.push("#stf_capture .stf_status,#stf_capture .stf_download,#stf_capture .stf_error {height:72px;width:355px;background:#454a53;border-radius:4px;padding:20px;position:absolute;top:5px;right:5px;display:none;}");
-        style.push("#stf_capture .stf_status,#stf_capture .stf_error {font-size:14px;font-weight:300;line-height:32px;}");
+        style.push("#stf_capture .stf_status,#stf_capture .stf_error {font-size:14px;font-weight:300;line-height:20px;}");
         style.push("#stf_capture .stf_status a {font-size:14px;font-weight:300;}");
         style.push("#stf_capture .stf_status button {position:absolute;top:0;right:0;font-size:13px;color:#fff;font-weight:300;text-align:center;color:#fff;width:auto;padding-left:20px;padding-right:20px;}");
         style.push("#stf_capture .stf_download {display:none;position:relative;right:0px;}");
@@ -37,7 +37,7 @@ function style(doc){
         style.push("#stf_capture.listView .stf_ui_logo_wrapper .selected_header {display:inline;}");
         style.push("#stf_capture .stf_ui_logo_wrapper .left {display:none;position:absolute;left:18px;top:51px;margin:0;line-height:20px;}");
         style.push("#stf_capture .stf_ui_logo_wrapper .right {display:none;position:absolute;right:18px;top:51px;margin:0;line-height:20px;font-size:13px;}");
-        style.push("#stf_capture .stf_ui_logo_wrapper .stf_cancel {position:absolute;right:10px;top:0px;cursor:pointer;opacity:0.65;padding:10px;}");
+        style.push("#stf_capture .stf_ui_logo_wrapper .stf_cancel,#stf_capture .stf_error .stf_cancel {position:absolute;right:10px;top:0px;cursor:pointer;opacity:0.65;padding:10px;}");
         style.push("#stf_capture.listView:not(.singleView) .stf_ui_logo_wrapper #stf_select_all {display:inline;}");
         style.push("#stf_capture .stf_ui_logo_wrapper .single_nav img {cursor:pointer;padding:10px;opacity:0.65;}");
         style.push("#stf_capture .stf_ui_logo_wrapper .single_nav img.disabled {cursor:default;opacity:0.2;}");
@@ -129,30 +129,40 @@ function container(doc){
             '<div class="stf_button_pane"><button class="stf_btn_save" disabled="disabled" id="stf_save_button">Save to Flow</button></div>' +
             '</div>'
         doc.body.appendChild(container);
-        doc.getElementById("stf_cancel").addEventListener("click", function (e) {
-            close(doc);
-        }, true);
+				attachCloseEvent(doc, "stf_cancel");
     }
     catch (e) {
         error(doc, e);
     }
 }
 
+function attachCloseEvent(doc, id) {
+	doc.getElementById(id).addEventListener("click", function(e) {
+		close(doc);
+	}, true);
+}
+
 function close(doc) {
 	try {
-		var elem = doc.getElementById("stf_capture"), className = elem.className;
-		elem.className = className.replace("show", "");
-		ZU.setTimeout(function() {
-			try {
-				Z.debug('close')
-				doc.body.removeChild(elem);
-				doc.head.removeChild(doc.getElementById("stf_style"));
-				Z.done();
-			}
-			catch(e) {
-				error(doc, e);
-			}
-		}, 1000);
+		var elem = doc.getElementById("stf_capture");
+		if(elem) {
+			var className = elem.className;
+			elem.className = className.replace("show", "");
+			ZU.setTimeout(function() {
+				try {
+					//need to recheck if the element still there, it could've been removed by now
+					var elem = doc.getElementById("stf_capture");
+					if(elem) {
+						doc.body.removeChild(elem);
+						doc.head.removeChild(doc.getElementById("stf_style"));
+						Z.done();
+					}
+				}
+				catch(e) {
+					error(doc, e);
+				}
+			}, 1000);
+		}
 	}
 	catch(e) {
 		error(doc, e);
@@ -251,12 +261,12 @@ function updateDocument(doc,url,item,id){
         if (item.attachments && item.attach) {
             //take pdf over html
             for (var i = 0; i < item.attachments.length; i++)
-                if (item.attachments[i].mimeType.indexOf("pdf") >= 0)
+                if (item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("pdf") >= 0)
                     attachment = {url: item.attachments[i].url, mimeType: item.attachments[i].mimeType};
 
             if (!attachment)
                 for (var i = 0; i < item.attachments.length; i++)
-                    if (item.attachments[i].mimeType.indexOf("html") >= 0)
+                    if (item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("html") >= 0)
                         attachment = {url: item.attachments[i].url, mimeType: item.attachments[i].mimeType};
 
         }
@@ -270,17 +280,14 @@ function updateDocument(doc,url,item,id){
         ZU.HTTP.doPost(FLOW_SERVER + '/edit/' + id + '/?project=all',
             JSON.stringify(item),
             function (data_edit) {
-                Z.debug(data_edit)
+            //    Z.debug(data_edit)
                 try {
                     if (attachment) {
                         progressDialog(doc, 0.5);
                         getAttachment(doc, attachment, id);
                     }
                     else{
-                        var stf = doc.getElementById("stf_capture"),
-                            done = parseInt(stf.getAttribute("data-saving-done"));
-                        stf.setAttribute("data-saving-done",(isNaN(done)?1:done+1));
-                        progressDialog(doc, 0.5);
+											completeProgress(doc);
                     }
                 }
                 catch (e) {
@@ -293,26 +300,41 @@ function updateDocument(doc,url,item,id){
     }
 }
 
+function completeProgress(doc) {
+	Z.debug("completeProgress")
+	var stf = doc.getElementById("stf_capture"),
+			done = parseInt(stf.getAttribute("data-saving-done"));
+	stf.setAttribute("data-saving-done", (isNaN(done) ? 1 : done + 1));
+	Z.debug("done:"+done)
+	progressDialog(doc, 0.5);
+}
+
 function getAttachment(doc, attachment, id) {
-    try {
-        if (attachment.html)
-            saveAttachment(doc, id, attachment.html, "text/html", attachment.url);
-        else
-            ZU.HTTP.promise("GET", attachment.url, {responseType: "blob", headers: {"Content-Type": attachment.mimeType}}, function (blob) {
-                try {
-                    progressDialog(doc, 0.7);
-                    saveAttachment(doc, id, blob, attachment.mimeType, attachment.url);
-                }
-                catch (e) {
-                    attachmentFailed(doc)
-                    error(doc, e);
-                }
-            });
-    }
-    catch (e) {
-        attachmentFailed(doc)
-        error(doc, e);
-    }
+	try {
+		if(attachment.html)
+			saveAttachment(doc, id, attachment.html, "text/html", attachment.url);
+		else
+			ZU.HTTP.promise("GET", attachment.url, {responseType: "blob", headers: {"Content-Type": attachment.mimeType}}, function(blob) {
+				if(!blob) {
+					attachmentFailed(doc);
+					//error(doc, e);
+				}
+				else {
+					try {
+						progressDialog(doc, 0.7);
+						saveAttachment(doc, id, blob, attachment.mimeType, attachment.url);
+					}
+					catch(e) {
+						attachmentFailed(doc)
+						error(doc, e);
+					}
+				}
+			});
+	}
+	catch(e) {
+		attachmentFailed(doc)
+		error(doc, e);
+	}
 }
 
 function saveAttachment(doc,id,body,mimeType,attachUrl){
@@ -320,13 +342,13 @@ function saveAttachment(doc,id,body,mimeType,attachUrl){
         var url = mimeType.indexOf("html") > 0 ?
             FLOW_SERVER + "/edit/" + id + "/html/?url=" + encodeURIComponent(attachUrl) :
             FLOW_SERVER + "/savetoflow/attachment/" + id + "/";
-        ZU.HTTP.promise("POST", url, {debug: true, headers: {"Content-Type": mimeType}, body: body}, function (http) {
+        ZU.HTTP.promise("POST", url, {debug: true, headers: {"Content-Type": mimeType}, body: body}, function (blob) {
             try {
-                var stf = doc.getElementById("stf_capture"),
-                    done = parseInt(stf.getAttribute("data-saving-done"));
-                stf.setAttribute("data-saving-done", (isNaN(done) ? 1 : done + 1));
-                progressDialog(doc, 1);
-            }
+							if(!blob)
+								attachmentFailed(doc);
+							else
+								completeProgress(doc);
+						}
             catch (e) {
                 attachmentFailed(doc);
                 error(doc, e);
@@ -352,17 +374,20 @@ function saveFailed(doc) {
     }
 }
 
-function attachmentFailed(doc){
-    progressDialog(doc, 1);//allow completion
-    try {
-        var errorDialog = doc.getElementById("stf_error");
-        doc.getElementById("stf_progress").style.display = "none";
-        errorDialog.style.display = "block";
-        errorDialog.innerHTML = "We're sorry, we were unable to get the full-text. We tried, but came up empty.";
-    }
-    catch (e) {
-        error(doc, e);
-    }
+function attachmentFailed(doc) {
+	progressDialog(doc, 1);//allow completion
+	try {
+		var errorDialog = doc.getElementById("stf_error");
+		errorDialog.style.display = "block";
+		errorDialog.style.top = '85px';
+		errorDialog.innerHTML = "We're sorry, we were unable to get some of the full-text. We tried, but came up empty.";
+//		errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_err_cancel"/>We\'re sorry, we were unable to get some of the full-text. We tried, but came up empty.';
+//		attachCloseEvent(doc, "stf_err_cancel");
+	}
+	catch(e) {
+		error(doc, e);
+	}
+	completeProgress(doc);
 }
 
 function progressDialog(doc,ratio){
