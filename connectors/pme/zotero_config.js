@@ -7,12 +7,12 @@ const ZOTERO_CONFIG = {
 	BASE_URI: 'http://zotero.org/',
 	WWW_BASE_URL: 'http://www.zotero.org/',
 	PROXY_AUTH_URL: 'http://zotero.org.s3.amazonaws.com/proxy-auth',
-	SYNC_URL: 'https://sync.zotero.org/',
-	API_URL: 'https://api.zotero.org/',
+	SYNC_URL: 'http://flow.proquest.com',
+	API_URL: 'http://flow.proquest.com',
 	API_VERSION: 2,
-	PREF_BRANCH: 'extensions.zotero.',
-	BOOKMARKLET_ORIGIN : 'https://www.zotero.org',
-	HTTP_BOOKMARKLET_ORIGIN : 'http://www.zotero.org',
-	BOOKMARKLET_URL: 'https://www.zotero.org/bookmarklet/',
+	PREF_BRANCH: 'extensions.pme.',
+	BOOKMARKLET_ORIGIN : 'http://pme.proquest.com',
+	HTTP_BOOKMARKLET_ORIGIN : 'http://pme.proquest.com',
+	BOOKMARKLET_URL: 'http://pme.proquest.com',
 	VERSION: "4.0.22.SOURCE"
 };

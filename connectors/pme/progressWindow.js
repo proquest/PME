@@ -5,7 +5,7 @@
                      George Mason University, Fairfax, Virginia, USA
                      http://zotero.org
     
-    This file is part of Zotero.
+    This file is part of PME.
     
     Zotero is free software: you can redistribute it and/or modify
     it under the terms of the GNU Affero General Public License as published by
@@ -18,13 +18,13 @@
     GNU Affero General Public License for more details.
     
     You should have received a copy of the GNU Affero General Public License
-    along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
+    along with PME.  If not, see <http://www.gnu.org/licenses/>.
     
     ***** END LICENSE BLOCK *****
 */
 
 
-Zotero.ProgressWindowSet = new function() {
+PME.ProgressWindowSet = new function() {
 	this.add = add;
 	this.tile = tile;
 	this.remove = remove;
@@ -106,7 +106,7 @@ Zotero.ProgressWindowSet = new function() {
  *
  * Pass the active window into the constructor
  */
-Zotero.ProgressWindow = function(_window){
+PME.ProgressWindow = function(_window){
 	var self = this,
 		_window = null,
 		_progressWindow = null,

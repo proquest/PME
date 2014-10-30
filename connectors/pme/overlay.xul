@@ -24,7 +24,6 @@
     ***** END LICENSE BLOCK *****
 -->
 
-<?xul-overlay href="chrome://pme/content/zoteroPane.xul"?>
 <?xml-stylesheet href="chrome://pme/skin/overlay.css" type="text/css"?>
 <?xml-stylesheet href="chrome://pme-platform/content/overlay.css" type="text/css"?>
 
@@ -33,39 +32,41 @@
 	<!ENTITY % zoteroDTD SYSTEM "chrome://pme/locale/zotero.dtd"> %zoteroDTD;
 ]>
 
-<overlay id="zotero"
+<overlay id="pme"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 	
     <!-- Include the global XPCOM object -->
-	<script src="overlay.js"/>
-	
-	<popup id="contentAreaContextMenu"/>
-	
+    <script src="include.js"/>
+    <script src="xpcom/date.js"/>
+    <script src="xpcom/debug.js"/>
+    <script src="xpcom/db.js"/>
+    <script src="xpcom/error.js"/>
+    <script src="xpcom/file.js"/>
+    <script src="xpcom/http.js"/>
+    <script src="xpcom/ipc.js"/>
+    <script src="xpcom/mimeTypeHandler.js"/>
+    <script src="xpcom/notifier.js"/>
+    <script src="xpcom/openurl.js"/>
+    <script src="xpcom/proxy.js"/>
+    <script src="xpcom/translation/translate.js"/>
+    <script src="xpcom/translation/translate_firefox.js"/>
+    <script src="xpcom/translation/translate_item.js"/>
+    <script src="xpcom/translation/translator.js"/>
+    <script src="xpcom/translation/tlds.js"/>
+    <script src="xpcom/xregexp/xregexp.js"/>
+    <script src="xpcom/utilities.js"/>
+    <script src="xpcom/utilities_internal.js"/>
+    <script src="xpcom/utilities_translate.js"/>
+    <script src="browser.js" type="application/javascript;version=1.8"/>
+
 	<toolbarpalette id="BrowserToolbarPalette">
 		<toolbarbutton id="pme-toolbar-button" class="toolbarbutton-1"
-						label="Zotero"
+						label="PME"
 						oncommand="PME_Browser.scrapeThisPage()"/>
 	</toolbarpalette>
 	
-	<toolbar id="zotero-toolbar" nowindowdrag="true"/>
-	
 	<vbox id="appcontent">
-		<!-- onmouseup shouldn't be necessary but seems to help prevent tag selector from sometimes going off the screen -->
-		<splitter id="zotero-splitter" resizebefore="closest" resizeafter="closest" hidden="true"
-			onmouseup="ZoteroPane.updateTagSelectorSize()"/>
-		
-		<stack id="zotero-pane-stack" persist="savedHeight" savedHeight="300" hidden="true"/>
-		
-		<zoteroguidancepanel id="zotero-toolbar-button-guidance" about="toolbarButton" for="zotero-toolbar-button" position="bottomcenter topleft" delay="2000" foregroundonly="true" hidden="true"/>
-		
-		<!-- Annotation Toolbar -->
-		<toolbar id="zotero-annotate-tb" crop="end" insertbefore="content" hidden="true">
-			<toolbarbutton id="zotero-annotate-tb-add" tooltiptext="&zotero.annotate.toolbar.add.label;" oncommand="Zotero_Browser.toggleMode(this.id);"/>
-			<toolbarbutton id="zotero-annotate-tb-collapse" tooltiptext="&zotero.annotate.toolbar.collapse.label;" oncommand="Zotero_Browser.toggleCollapsed();"/>
-			<toolbarseparator/>
-			<toolbarbutton id="zotero-annotate-tb-highlight" tooltiptext="&zotero.annotate.toolbar.highlight.label;" oncommand="Zotero_Browser.toggleMode(this.id);"/>
-			<toolbarbutton id="zotero-annotate-tb-unhighlight" tooltiptext="&zotero.annotate.toolbar.unhighlight.label;" oncommand="Zotero_Browser.toggleMode(this.id);"/>
-		</toolbar>
+		<zoteroguidancepanel id="pme-toolbar-button-guidance" about="toolbarButton" for="pme-toolbar-button" position="bottomcenter topleft" delay="2000" foregroundonly="true" hidden="true"/>
 	</vbox>
 	
 	<keyset id="mainKeyset">
@@ -73,10 +74,6 @@
 			The key can be changed by the pref extensions.zotero.keys.openZotero,
 			but if the values are changed here, the pref won't override them.
 		-->
-		<key id="key_openZotero"
-			 key="Z" 
-			 oncommand="ZoteroOverlay.toggleDisplay();"
-			 modifiers="accel shift" />
 		 <key id="key_saveToZotero"
 			 key="S"
 			 oncommand="PME_Browser.scrapeThisPage();"

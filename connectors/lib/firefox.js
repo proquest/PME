@@ -137,6 +137,8 @@ module.exports = function (debug) {
 				else
 					console.log("Firefox complete. No extension file")
 			});
+			common.copyCode(_pmeLocation, path.join(root, "defaults/preferences"), ["pme_prefs.js"]);
+			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js"]);
 			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["progressWindow.js"]);
 			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["overlay.xul","browser.js"]);
 			common.copyCode(path.join(_zoteroFilesLocation, "translators"), root, ["deleted.txt"]);
@@ -190,6 +192,28 @@ module.exports = function (debug) {
 						fileName: 'all',
 						pattern: /zotero-toolbar-button/g,
 						replacement: "pme-toolbar-button"
+					},
+					{
+						fileName: ["zotero.js","date.js","debug.js","db.js","error.js","file.js","http.js","mimeTypeHandler.js",
+							"openurl.js","ipc.js","proxy.js","translate.js","translate_firefox.js","translate_item.js","translator.js","tlds.js",
+							"utilities.js","utilities_internal.js","utilities_translate.js","browser.js","notifier.js"],
+						pattern: /Zotero\./g,
+						replacement: "PME."
+					},
+					{
+						fileName: ["zotero.js"],
+						pattern: /\(Zotero\)/g,
+						replacement: "(PME)"
+					},
+					{
+						fileName: ["translate.js"],
+						pattern: /"PME/g,
+						replacement: "\"Zotero"
+					},
+					{
+						fileName: ["translate.js"],
+						pattern: /_sandboxPME/g,
+						replacement: "_sandboxZotero"
 					}
 				]);
 				addTranslatorToZip(common.stackInst, root);

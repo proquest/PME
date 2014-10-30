@@ -1,8 +1,8 @@
-Zotero.Utilities.Translate.prototype.setTimeout = function (f, d) {
+PME.Utilities.Translate.prototype.setTimeout = function (f, d) {
     setTimeout(f, d);
 };
 
-Zotero.Utilities.Translate.prototype.promise = function (method, url, options, callback) {
+PME.Utilities.Translate.prototype.promise = function (method, url, options, callback) {
     var xmlhttp = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
     xmlhttp.mozBackgroundRequest = true;
     xmlhttp.open(method, url, true);
@@ -26,18 +26,18 @@ Zotero.Utilities.Translate.prototype.promise = function (method, url, options, c
     xmlhttp.onloadend = function () {
         if (xmlhttp.status >= 200 && xmlhttp.status < 300) {
             if (options && options.debug) {
-                Zotero.debug("HTTP " + method + " " + url
+                PME.debug("HTTP " + method + " " + url
                     + " succeeded with " + xmlhttp.status);
-                Zotero.debug(xmlhttp.responseText);
+                PME.debug(xmlhttp.responseText);
             }
             var blob = new Blob([xmlhttp.response], {type: headers["Content-Type"]});
             callback(blob);
         } else {
             var msg = "HTTP " + method + " " + url + " failed: "
                 + "Unexpected status code " + xmlhttp.status;
-            Zotero.debug(msg, 1);
+            PME.debug(msg, 1);
             if (options && options.debug) {
-                Zotero.debug(xmlhttp.responseText);
+                PME.debug(xmlhttp.responseText);
             }
             callback(xmlhttp);
         }
@@ -46,5 +46,5 @@ Zotero.Utilities.Translate.prototype.promise = function (method, url, options, c
     xmlhttp.send((options && options.body) || null);
 }
 
-Zotero.Utilities.Translate.prototype.__exposedProps__["setTimeout"] = "r";
-Zotero.Utilities.Translate.prototype.__exposedProps__["promise"] = "r";
+PME.Utilities.Translate.prototype.__exposedProps__["setTimeout"] = "r";
+PME.Utilities.Translate.prototype.__exposedProps__["promise"] = "r";

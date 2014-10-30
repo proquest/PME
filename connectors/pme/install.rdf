@@ -5,12 +5,11 @@
   <Description about="urn:mozilla:install-manifest">
   
     <em:id>flow@proquest.com</em:id>
-    <em:name>Flow</em:name>
-    <em:version>0.2</em:version>
+    <em:name>ProQuest Flow</em:name>
+    <em:description>Tame your workflow</em:description>
+    <em:version>0.5.3</em:version>
     <em:creator>ProQuest</em:creator>
     <em:homepageURL>http://flow.proquest.com</em:homepageURL>
-    <em:optionsURL>chrome://pme/content/preferences/preferences.xul</em:optionsURL>
-    <em:aboutURL>chrome://pme/content/about.xul</em:aboutURL>
     <em:iconURL>chrome://pme/skin/zotero-new-z-48px.png</em:iconURL>
     <em:type>2</em:type> <!-- type=extension --> 
     
