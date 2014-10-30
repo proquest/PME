@@ -1,5 +1,5 @@
 PME.Translate.Base.prototype["_translateTranslatorLoadedOld"] = PME.Translate.Base.prototype._translateTranslatorLoaded;
-
+PME.Translate.Base.prototype["completeOld"] = Zotero.Translate.Base.prototype.complete;
 PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
     try {
 
@@ -30,6 +30,17 @@ PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
     catch (e) {
         PME.debug("Error _translateTranslatorLoaded: " + e.message);
     }
+}
+
+PME.Translate.Base.prototype["complete"] = function (returnValue, error) {
+	try {
+		var state = this._currentState;
+		this.completeOld(returnValue, error);
+		this._currentState = state;
+	}
+	catch(e) {
+		Zotero.debug("Error complete: " + e.message);
+	}
 }
 
 PME.Translate.Base.prototype["_saveItems"] = function (items) {
