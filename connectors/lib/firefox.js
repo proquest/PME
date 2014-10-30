@@ -139,15 +139,11 @@ module.exports = function (debug) {
 			});
 			common.copyCode(_pmeLocation, path.join(root, "defaults/preferences"), ["pme_prefs.js"]);
 			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js"]);
-			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["progressWindow.js"]);
 			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["overlay.xul","browser.js"]);
 			common.copyCode(path.join(_zoteroFilesLocation, "translators"), root, ["deleted.txt"]);
 			common.copyCode(_pmeLocation, root, ["install.rdf", "update.rdf"]);
 			common.copyCode(_builderConfigFilesLocation, root, ['chrome.manifest'])
 			common.copyCode(_builderConfigFilesLocation, path.join(root, 'chrome/skin/default/zotero'), ['zotero-new-z-48px.png', 'zotero-new-z-16px.png', 'zotero-z-16px-australis.svg', 'zotero-z-32px-australis.svg']);
-
-			common.modifyZoteroConfig(path.join(root, "chrome/content/zotero/xpcom/zotero.js"));
-
 			common.appendCode([
 				path.join(_pmeLocation, 'translate.js')
 			], path.join(root, 'chrome/content/zotero/xpcom/translation/translate.js'), null, false);
@@ -165,7 +161,9 @@ module.exports = function (debug) {
 		common.doPrepWork(root, function () {
 			common.stackInst.push();
 			fs.mkdir(root, function () {
-				common.copyCode(_zoteroFilesLocation, root, undefined, ["!", "translators"], [
+				common.copyCode(_zoteroFilesLocation, root, ["xregexp.js","q.js", "overlay.css", "zotero.css","date.js", "debug.js", "db.js", "error.js", "file.js", "http.js", "mimeTypeHandler.js",
+					"openurl.js", "ipc.js", "proxy.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
+					"utilities.js", "utilities_internal.js", "utilities_translate.js", "browser.js", "notifier.js"], ["!", "translators"], [
 					{
 						fileName: 'all',
 						pattern: /(?:((?:(?:chrome)|(?:resource)):\/\/)zotero((?:-platform)?\/))|(?:(\.append\(')zotero('\)))/g,
@@ -180,11 +178,6 @@ module.exports = function (debug) {
 					},
 					{
 						fileName: 'all',
-						pattern: /@zotero\.org\/Zotero/g,
-						replacement: "@proquest.com/PME"
-					},
-					{
-						fileName: 'all',
 						pattern: /e4c61080-ec2d-11da-8ad9-0800200c9a66/g,
 						replacement: "b1571583-82c5-499a-b578-b2e719ddc094"
 					},
@@ -194,7 +187,7 @@ module.exports = function (debug) {
 						replacement: "pme-toolbar-button"
 					},
 					{
-						fileName: ["zotero.js","date.js","debug.js","db.js","error.js","file.js","http.js","mimeTypeHandler.js",
+						fileName: ["date.js","debug.js","db.js","error.js","file.js","http.js","mimeTypeHandler.js",
 							"openurl.js","ipc.js","proxy.js","translate.js","translate_firefox.js","translate_item.js","translator.js","tlds.js",
 							"utilities.js","utilities_internal.js","utilities_translate.js","browser.js","notifier.js"],
 						pattern: /Zotero\./g,
