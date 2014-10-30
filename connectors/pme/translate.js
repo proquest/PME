@@ -1,5 +1,5 @@
 PME.Translate.Base.prototype["_translateTranslatorLoadedOld"] = PME.Translate.Base.prototype._translateTranslatorLoaded;
-PME.Translate.Base.prototype["completeOld"] = Zotero.Translate.Base.prototype.complete;
+PME.Translate.Base.prototype["completeOld"] = PME.Translate.Base.prototype.complete;
 PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
     try {
 
@@ -39,7 +39,7 @@ PME.Translate.Base.prototype["complete"] = function (returnValue, error) {
 		this._currentState = state;
 	}
 	catch(e) {
-		Zotero.debug("Error complete: " + e.message);
+		PME.debug("Error complete: " + e.message);
 	}
 }
 
