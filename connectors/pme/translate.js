@@ -55,7 +55,7 @@ PME.Translate.Base.prototype["_saveItems"] = function (items) {
 	var _this = this;
 
 	function transferObject(obj) {
-		return PME.isFx ? _this._sandboxManager.sandbox.JSON.parse(JSON.stringify(obj)) : obj;
+		return PME.isFx ? _this._sandboxManager.sandbox.JSON.wrappedJSObject.parse(JSON.stringify(obj)) : obj;
 	}
 
 	PME.debug("~~~~translate._saveItems method overide");
@@ -72,7 +72,7 @@ PME.Translate.Base.prototype["_saveItems"] = function (items) {
 
 PME.Translate.Sandbox.Web.selectItems = function (translate, items, callback) {
 	function transferObject(obj) {
-		return PME.isFx ? translate._sandboxManager.sandbox.JSON.parse(JSON.stringify(obj)) : obj;
+		return PME.isFx ? translate._sandboxManager.sandbox.JSON.wrappedJSObject.parse(JSON.stringify(obj)) : obj;
 	}
 
 	if(PME.Utilities.isEmpty(items))
