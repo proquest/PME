@@ -863,7 +863,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 		}
 		else {
 			var file = PME.getProfileDirectory();
-			file.append('zotero');
+			file.append('pme');
 
 			// if standalone and no directory yet, check Firefox directory
 			// or if in Firefox and no directory yet, check standalone Zotero directory
