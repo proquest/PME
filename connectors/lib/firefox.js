@@ -138,7 +138,7 @@ module.exports = function (debug) {
 					console.log("Firefox complete. No extension file")
 			});
 			common.copyCode(_pmeLocation, path.join(root, "defaults/preferences"), ["pme_prefs.js"]);
-			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js"]);
+			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js", "pme_ui.js"]);
 			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["debug.js"]);
 			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["overlay.xul","browser.js"]);
 			common.copyCode(path.join(_zoteroFilesLocation, "translators"), root, ["deleted.txt"]);
