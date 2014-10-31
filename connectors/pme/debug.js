@@ -56,16 +56,16 @@ PME.Debug = new function () {
 		}
 
 		deltaStr = '(+' + delta + ')';
+		if (level < 3){
+			var stack = (new Error()).stack;
+			var nl1Index = stack.indexOf("\n")
+			var nl2Index = stack.indexOf("\n", nl1Index + 1);
+			var line2 = stack.substring(nl1Index + 2, nl2Index - 1);
+			var debugLine = line2.substr(line2.indexOf("@"));
 
-		var stack = (new Error()).stack;
-		var nl1Index = stack.indexOf("\n")
-		var nl2Index = stack.indexOf("\n", nl1Index + 1);
-		var line2 = stack.substring(nl1Index + 2, nl2Index - 1);
-		var debugLine = line2.substr(line2.indexOf("@"));
-
-		stack = stack.substring(nl2Index, stack.length - 1);
-		message += "\n" + debugLine + stack;
-
+			stack = stack.substring(nl2Index, stack.length - 1);
+			message += "\n" + debugLine + stack;
+		}
 		var output = 'zotero(' + level + ')' + (_time ? deltaStr : '') + ': ' + message;
 		if (window.console) {
 			window.console.log(output);
