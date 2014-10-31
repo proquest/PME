@@ -45,7 +45,7 @@ const ZOTERO_CONFIG = {
 
 
 // Commonly used imports accessible anywhere
-Components.utils.import("resource://zotero/q.js");
+Components.utils.import("resource://pme/q.js");
 Components.utils.import("resource://gre/modules/XPCOMUtils.jsm");
 Components.utils.import("resource://gre/modules/Services.jsm");
 
