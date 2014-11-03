@@ -303,7 +303,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 		var appLocale = localeService.getApplicationLocale();
 
 		_localizedStringBundle = stringBundleService.createBundle(
-			"chrome://zotero/locale/zotero.properties", appLocale);
+			"chrome://pme/locale/zotero.properties", appLocale);
 
 		// Also load the brand as appName
 		var brandBundle = stringBundleService.createBundle(
@@ -440,23 +440,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 		}};
 		Services.obs.addObserver(_shutdownObserver, "quit-application", false);
 
-		try {
-			PME.IPC.init();
-		}
-		catch (e) {
-			if (e.name == 'NS_ERROR_FILE_ACCESS_DENIED') {
-				var msg = PME.localeJoin([
-					PME.getString('startupError.databaseCannotBeOpened'),
-					PME.getString('startupError.checkPermissions')
-				]);
-				PME.startupError = msg;
-				PME.debug(e);
-				Components.utils.reportError(e);
-				return false;
-			}
-			throw (e);
-		}
-
 		var cs = Components.classes["@mozilla.org/consoleservice;1"].
 			getService(Components.interfaces.nsIConsoleService);
 		// Get startup errors
@@ -484,11 +467,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 			// Store a startupError until we get information from Zotero Standalone
 			PME.startupError = PME.getString("connector.loadInProgress")
 
-			if (!PME.isFirstLoadThisSession) {
-				// We want to get a checkInitComplete message before initializing if we switched to
-				// connector mode because Standalone was launched
-				PME.IPC.broadcast("checkInitComplete");
-			} else {
+			if (PME.isFirstLoadThisSession) {
 				PME.initComplete();
 			}
 		} else {
@@ -548,11 +527,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 		if (!_initDB()) return false;
 
 		PME.HTTP.triggerProxyAuth();
-
-		// Add notifier queue callbacks to the DB layer
-		PME.DB.addCallback('begin', PME.Notifier.begin);
-		PME.DB.addCallback('commit', PME.Notifier.commit);
-		PME.DB.addCallback('rollback', PME.Notifier.reset);
 
 		// Require >=2.1b3 database to ensure proper locking
 		if (PME.isStandalone && PME.Schema.getDBVersion('system') > 0 && PME.Schema.getDBVersion('system') < 31) {
@@ -625,11 +599,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 
 			var dbfile = PME.getZoteroDatabase();
 
-			// Tell any other Zotero instances to release their lock,
-			// in case we lost the lock on the database (how?) and it's
-			// now open in two places at once
-			PME.IPC.broadcast("releaseLock " + dbfile.persistentDescriptor);
-
 			// Test write access on Zotero data directory
 			if (!dbfile.parent.isWritable()) {
 				var msg = 'Cannot write to ' + dbfile.parent.path + '/';
@@ -663,7 +632,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 			} else if (e.name == "NS_ERROR_STORAGE_BUSY" || e.result == 2153971713) {
 				if (PME.isStandalone) {
 					// Standalone should force Fx to release lock
-					if (!haveReleasedLock && PME.IPC.broadcast("releaseLock")) {
+					if (!haveReleasedLock) {
 						_waitingForDBLock = true;
 
 						var timeout = Date.now() + 5000; // 5 second timeout
@@ -676,12 +645,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 						// Run a second init with haveReleasedLock = true, so that
 						// if we still can't acquire a DB lock, we will give up
 						return _initDB(true);
-					}
-				} else {
-					// Fx should start as connector if Standalone is running
-					var haveStandalone = PME.IPC.broadcast("test");
-					if (haveStandalone) {
-						throw "ZOTERO_SHOULD_START_AS_CONNECTOR";
 					}
 				}
 
@@ -763,7 +726,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 				// close DB
 				return PME.DB.closeDatabase(true).then(function () {
 					// broadcast that DB lock has been released
-					PME.IPC.broadcast("lockReleased");
 				});
 			}
 
@@ -2053,8 +2015,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 				PME.getString("standalone.rootWarning.continue"),
 				null, null, {}) == 0) {
 				Components.utils.import("resource://gre/modules/ctypes.jsm");
-				var exit = PME.IPC.getLibc().declare("exit", ctypes.default_abi,
-					ctypes.void_t, ctypes.int);
 				// Zap cache files
 				try {
 					Services.dirsvc.get("ProfLD", Components.interfaces.nsIFile).remove(true);

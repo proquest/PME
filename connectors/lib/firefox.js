@@ -138,9 +138,8 @@ module.exports = function (debug) {
 					console.log("Firefox complete. No extension file")
 			});
 			common.copyCode(_pmeLocation, path.join(root, "defaults/preferences"), ["pme_prefs.js"]);
-			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js", "pme_ui.js"]);
+			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js", "pme_ui.js", "overlay.xul", "browser.js"]);
 			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["debug.js"]);
-			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["overlay.xul","browser.js"]);
 			common.copyCode(path.join(_zoteroFilesLocation, "translators"), root, ["deleted.txt"]);
 			common.copyCode(_pmeLocation, root, ["install.rdf", "update.rdf"]);
 			common.copyCode(_builderConfigFilesLocation, root, ['chrome.manifest'])
@@ -162,9 +161,9 @@ module.exports = function (debug) {
 		common.doPrepWork(root, function () {
 			common.stackInst.push();
 			fs.mkdir(root, function () {
-				common.copyCode(_zoteroFilesLocation, root, ["schema.js","xregexp.js","q.js", "overlay.css", "zotero.css","date.js", "debug.js", "db.js", "error.js", "file.js", "http.js", "mimeTypeHandler.js",
-					"openurl.js", "ipc.js", "proxy.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
-					"utilities.js", "utilities_internal.js", "utilities_translate.js", "browser.js", "notifier.js"], ["!", "translators"], [
+				common.copyCode(_zoteroFilesLocation, root, ["xregexp.js", "q.js", "file.js", "date.js", "db.js", "zotero.css", /*"schema.js", "error.js",*/
+				   "proxy.js","openurl.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
+					"http.js", "utilities.js", "utilities_internal.js", "utilities_translate.js"], ["!", "translators"], [
 					{
 						fileName: 'all',
 						pattern: /(?:((?:(?:chrome)|(?:resource)):\/\/)zotero((?:-platform)?\/))|(?:(\.append\(')zotero('\)))/g,
