@@ -24,8 +24,7 @@
     ***** END LICENSE BLOCK *****
 -->
 
-<?xml-stylesheet href="chrome://pme/skin/overlay.css" type="text/css"?>
-<?xml-stylesheet href="chrome://pme-platform/content/overlay.css" type="text/css"?>
+<?xml-stylesheet href="chrome://pme/skin/zotero.css" type="text/css"?>
 
 <!DOCTYPE overlay [
 	<!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd"> %globalDTD;
@@ -34,19 +33,15 @@
 
 <overlay id="pme"
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
-	
-    <!-- Include the global XPCOM object -->
+
     <script src="include.js"/>
     <script src="xpcom/date.js"/>
     <script src="xpcom/debug.js"/>
     <script src="xpcom/db.js"/>
-    <script src="xpcom/error.js"/>
+    <script src="xpcom/openurl.js"/>
+    <!--script src="xpcom/error.js"/-->
     <script src="xpcom/file.js"/>
     <script src="xpcom/http.js"/>
-    <script src="xpcom/ipc.js"/>
-    <script src="xpcom/mimeTypeHandler.js"/>
-    <script src="xpcom/notifier.js"/>
-    <script src="xpcom/openurl.js"/>
     <script src="xpcom/proxy.js"/>
     <script src="xpcom/translation/translate.js"/>
     <script src="xpcom/translation/translate_firefox.js"/>
@@ -64,11 +59,7 @@
 						label="PME"
 						oncommand="PME_Browser.scrapeThisPage()"/>
 	</toolbarpalette>
-	
-	<vbox id="appcontent">
-		<zoteroguidancepanel id="pme-toolbar-button-guidance" about="toolbarButton" for="pme-toolbar-button" position="bottomcenter topleft" delay="2000" foregroundonly="true" hidden="true"/>
-	</vbox>
-	
+
 	<keyset id="mainKeyset">
 		<!--
 			The key can be changed by the pref extensions.zotero.keys.openZotero,

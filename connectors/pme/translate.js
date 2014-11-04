@@ -4,30 +4,25 @@ PME.Translate.Sandbox.Base["_itemDoneOld"] = PME.Translate.Sandbox.Base._itemDon
 
 PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
 	try {
-
-		var fStream = Components.classes["@mozilla.org/network/file-input-stream;1"].
-			createInstance(Components.interfaces.nsIFileInputStream);
-		var cStream = Components.classes["@mozilla.org/intl/converter-input-stream;1"].
-			createInstance(Components.interfaces.nsIConverterInputStream);
-		var ui_file = PME.getTranslatorsDirectory().QueryInterface(Components.interfaces.nsILocalFile);
-		ui_file.append("pme_ui.js");
-		fStream.init(ui_file, -1, -1, 0);
-		cStream.init(fStream, "UTF-8", 100000,
-			Components.interfaces.nsIConverterInputStream.DEFAULT_REPLACEMENT_CHARACTER);
-
-		var str = {};
-		cStream.readString(100000, str);
-		this._originWeb = true;
-		this._sandboxManager.eval(str.value, ["entry", "selection", "single"], (this._currentTranslator.file ? this._currentTranslator.file.path : this._currentTranslator.label));
-		PME.debug(this._sandboxManager.sandbox["entry"].apply(null, this._getParameters(true)));
-		this._translateTranslatorLoadedOld();
-		var _this = this;
-		this.setHandler("error", function() {
-			var params = _this._getParameters(true);
-			params.push({});
-			params.push(true)
-			PME.debug(_this._sandboxManager.sandbox["single"].apply(null, params));
-		});
+		var _this = this,
+			xmlhttp = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
+		xmlhttp.mozBackgroundRequest = true;
+		xmlhttp.open('GET', "chrome://pme/content/pme_ui.js", true);
+		xmlhttp.onreadystatechange = function() {
+			if (xmlhttp.readyState == 4) {
+				PME.debug(xmlhttp.responseText)
+				_this._sandboxManager.eval(xmlhttp.responseText, ["entry", "selection", "single"], (_this._currentTranslator.file ? _this._currentTranslator.file.path : _this._currentTranslator.label));
+				PME.debug(_this._sandboxManager.sandbox["entry"].apply(null, _this._getParameters(true)));
+				_this._translateTranslatorLoadedOld();
+				_this.setHandler("error", function () {
+					var params = _this._getParameters(true);
+					params.push({});
+					params.push(true)
+					PME.debug(_this._sandboxManager.sandbox["single"].apply(null, params));
+				});
+			}
+		};
+		xmlhttp.send(null);
 	}
 	catch(e) {
 		PME.debug("Error _translateTranslatorLoaded: " + e.message);

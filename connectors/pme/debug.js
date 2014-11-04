@@ -66,7 +66,7 @@ PME.Debug = new function () {
 			stack = stack.substring(nl2Index, stack.length - 1);
 			message += "\n" + debugLine + stack;
 		}
-		var output = 'zotero(' + level + ')' + (_time ? deltaStr : '') + ': ' + message;
+		var output = 'PME(' + level + ')' + (_time ? deltaStr : '') + ': ' + message;
 		if (window.console) {
 			window.console.log(output);
 		}
