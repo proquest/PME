@@ -19,11 +19,11 @@ PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
 		cStream.readString(100000, str);
 		this._originWeb = true;
 		this._sandboxManager.eval(str.value, ["entry", "selection", "single"], (this._currentTranslator.file ? this._currentTranslator.file.path : this._currentTranslator.label));
-		PME.debug(this._sandboxManager.sandbox["entry"].apply(null, this._getParameters()));
+		PME.debug(this._sandboxManager.sandbox["entry"].apply(null, this._getParameters(true)));
 		this._translateTranslatorLoadedOld();
 		var _this = this;
 		this.setHandler("error", function() {
-			var params = _this._getParameters();
+			var params = _this._getParameters(true);
 			params.push({});
 			params.push(true)
 			PME.debug(_this._sandboxManager.sandbox["single"].apply(null, params));
@@ -58,11 +58,11 @@ PME.Translate.Base.prototype["_saveItems"] = function (items) {
 		return PME.isFx ? _this._sandboxManager.sandbox.JSON.wrappedJSObject.parse(JSON.stringify(obj)) : obj;
 	}
 
-	PME.debug("~~~~translate._saveItems method overide");
+	PME.debug("~~~~translate._saveItems method override");
 	try {
 		if(Object.prototype.toString.call(items) === "[object Array]")
 			items = items[0];
-		var params = this._getParameters().concat([transferObject(items), this.translator[0].translatorID == "8cb314cf-2628-40cd-9713-4e773b8ed5d4"]);
+		var params = this._getParameters(true).concat([transferObject(items), this.translator[0].translatorID == "8cb314cf-2628-40cd-9713-4e773b8ed5d4"]);
 		PME.debug(this._sandboxManager.sandbox["single"].apply(null, params));
 	}
 	catch(e) {
@@ -85,7 +85,7 @@ PME.Translate.Sandbox.Web.selectItems = function (translate, items, callback) {
 		items = transferObject(itemsObj);
 	}
 	translate._aborted = true;
-	var params = translate._getParameters().concat([items, function(selectedItems) {
+	var params = translate._getParameters(true).concat([items, function(selectedItems) {
 		callback(transferObject(selectedItems));
 	}]);
 	PME.debug(translate._sandboxManager.sandbox["selection"].apply(null, params));
@@ -99,3 +99,14 @@ PME.Translate.Sandbox.Web._itemDone = function (translate, item) {
 }
 
 PME.Translate.Web.prototype.Sandbox = PME.Translate.Sandbox._inheritFromBase(PME.Translate.Sandbox.Web);
+
+PME.Translate.Search.prototype._getParameters = function(getDocument) {
+	PME.debug("~~~~translate._getParameters method override");
+
+	if(getDocument)
+		return [this._parentTranslator.document, this._parentTranslator.location];
+	if(PME.isFx) {
+		return [this._sandboxManager._copyObject(this.search)];
+	}
+	return [this.search];
+}

@@ -206,6 +206,13 @@ module.exports = function (debug) {
 					},
 					{
 						fileName: ["translate.js"],
+						pattern:/([^a-z]*[a-z]+)Zotero/g,
+						replacement: function() {
+							return RegExp.$1 + 'PME'
+						}
+					},
+					{
+						fileName: ["translate.js"],
 						pattern: /_sandboxPME/g,
 						replacement: "_sandboxZotero"
 					}
