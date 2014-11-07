@@ -836,8 +836,6 @@ function saveReference(doc, url, item, useItem) {
 
 function createFields(doc, item) {
 	try {
-//		Z.debug(item)
-		Z.debug(item.refType)
 		var fieldMapping = labels.referenceTypes[item.refType].defaultFields,
 				output = [];
 		for(var index = 0; index < labels.order.length; index++) {
@@ -1058,6 +1056,7 @@ var conversion = (function() {
 		},
 		fields: {
 			abstractNote: "abstract",
+			bookTitle: "publication",
 			creators: "authors",
 			DOI: "doi",
 			edition: "edition",
