@@ -200,7 +200,7 @@ function error(doc, e) {
 function tracking(doc, tracking) {
 	try {
 		doc.getElementById("stf_track_found").value = tracking.found;
-		doc.getElementById("stf_track_selected").value = items.length;
+		doc.getElementById("stf_track_selected").value = tracking.selected;
 		doc.getElementById("stf_track_url").value = tracking.url;
 		doc.getElementById("stf_track_citation").value = tracking.citation;
 		doc.getElementById("stf_track_modified").value = JSON.stringify(tracking.modified);
@@ -309,7 +309,6 @@ function completeProgress(doc) {
 	var stf = doc.getElementById("stf_capture"),
 			done = parseInt(stf.getAttribute("data-saving-done"));
 	stf.setAttribute("data-saving-done", (isNaN(done) ? 1 : done + 1));
-	Z.debug("done:" + done)
 	progressDialog(doc, 0.5);
 }
 
@@ -404,10 +403,12 @@ function progressDialog(doc, ratio) {
 			done = 0;
 		ratio = done / count;
 	}
+	if(!count && parseInt(done) == 1)
+		ratio = 1;
+
+	doc.getElementById("stf_download_progress").style.width = Math.round(ratio * 315) + "px";
 	if(ratio == 1)
 		completeDialog(doc);
-	else
-		doc.getElementById("stf_download_progress").style.width = Math.round(ratio * 315) + "px";
 }
 
 function completeDialog(doc) {
@@ -466,7 +467,8 @@ function selection(doc, url, items, callback) {
 		//list view is too fast? need a delay
 		ZU.setTimeout(function() {
 			try {
-				doc.getElementById("stf_capture").className += " show";
+				if(doc.getElementById("stf_capture").className.indexOf("show") < 0)
+					doc.getElementById("stf_capture").className += " show";
 			}
 			catch(e) {
 				error(doc, e);
@@ -654,10 +656,11 @@ function singleHeader(doc, refType, attachments) {
 		var stf = doc.getElementById("stf_capture"),
 				containerClass = stf.className,
 				output = [];
-		stf.className = (containerClass ? containerClass + " " : "") + "singleView";
-		if(containerClass.indexOf("show") < 0)
+		if(containerClass.indexOf("singleView") < 0)
+			stf.className = (containerClass ? containerClass + " " : "") + "singleView";
 			ZU.setTimeout(function() {
-				doc.getElementById("stf_capture").className += " show";
+				if(containerClass.indexOf("show") < 0)
+					doc.getElementById("stf_capture").className += " show";
 			}, 100);
 		if(containerClass.indexOf("listView") >= 0) {
 			var ix = parseInt(stf.getAttribute("data-ix")),
@@ -740,32 +743,36 @@ function single(doc, url, item, noneFound) {
 
 		autoSize.addEvents(doc);
 
-		doc.getElementById("reference_type").addEventListener("change", function(e) {
-			try {
-				//get current field values (may be editted)
-				autoSize.removeEvents(doc);
-				item = getModified(doc);
-				doc.getElementById("stf_ref_type_spec").innerHTML = createFields(doc, item).join('');
-				autoSize.addEvents(doc);
-			}
-			catch(e) {
-				error(doc, e);
-			}
-		}, true);
-
-		if(stf.className.indexOf("singleView") >= 0 && stf.className.indexOf("listView") == -1)
-			doc.getElementById("stf_save_button").addEventListener("click", function(e) {
+		if(doc.getElementById("stf_capture").getAttribute("events_attached") != "true") {
+			doc.getElementById("reference_type").addEventListener("change", function(e) {
 				try {
-					item = saveReference(doc, url, item, false);
-					var found = 1,
-							selected = 1,
-							citation = noneFound ? "web" : "regular";
-					tracking(doc, {"url": url, "found": found, "selected": selected, "citation": citation, "modified": [item.modifiedFields]});
+					//get current field values (may be editted)
+					autoSize.removeEvents(doc);
+					item = getModified(doc);
+					doc.getElementById("stf_ref_type_spec").innerHTML = createFields(doc, item).join('');
+					autoSize.addEvents(doc);
 				}
-				catch(e) {
-					error(doc, e);
+				catch(ex) {
+					error(doc, ex);
 				}
 			}, true);
+
+			if(stf.className.indexOf("singleView") >= 0 && stf.className.indexOf("listView") == -1) {
+				doc.getElementById("stf_save_button").addEventListener("click", function(e) {
+					try {
+						item = saveReference(doc, url, item, false);
+						var found = 1,
+								selected = 1,
+								citation = noneFound ? "web" : "regular";
+						tracking(doc, {"url": url, "found": found, "selected": selected, "citation": citation, "modified": [item.modifiedFields]});
+					}
+					catch(e) {
+						error(doc, e);
+					}
+				}, true);
+			}
+			doc.getElementById("stf_capture").setAttribute("events_attached", "true")
+		}
 	}
 	catch(e) {
 		error(doc, e);
@@ -829,6 +836,7 @@ function saveReference(doc, url, item, useItem) {
 
 function createFields(doc, item) {
 	try {
+//		Z.debug(item)
 		Z.debug(item.refType)
 		var fieldMapping = labels.referenceTypes[item.refType].defaultFields,
 				output = [];
@@ -838,6 +846,8 @@ function createFields(doc, item) {
 				if(fieldMapping.indexOf(field) >= 0) {
 					var override = labels.referenceTypes[item.refType].fieldLabelOverides[field], label = override ? override : labels.fields[field].label;
 					var value = field == "authors" ? authorNameList(item[field], "\n") : item[field];
+					if(label.toLowerCase() == 'isbn')
+						value = value.split(',')[0];
 					if(value) {
 						output.push("<div class='stf_lbl'>" + label + "</div>" + (field == "authors" ? "<div class='textposition'><span class='author'>Last name, First names</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'>" + value + "</textarea>" + (field == "authors" ? "</div>" : ""));
 					}
