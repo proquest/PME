@@ -211,6 +211,11 @@ module.exports = function (debug) {
 						}
 					},
 					{
+						fileName: ["all"],
+						pattern:/PME.RDF/g,
+						replacement: "Zotero.RDF"
+					},
+					{
 						fileName: ["translate.js"],
 						pattern: /_sandboxPME/g,
 						replacement: "_sandboxZotero"
