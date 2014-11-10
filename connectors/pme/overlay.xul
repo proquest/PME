@@ -52,6 +52,7 @@
     <script src="xpcom/utilities.js"/>
     <script src="xpcom/utilities_internal.js"/>
     <script src="xpcom/utilities_translate.js"/>
+    <script src="xpcom/data/cachedTypes.js"/>
     <script src="browser.js" type="application/javascript;version=1.8"/>
 
 	<toolbarpalette id="BrowserToolbarPalette">
