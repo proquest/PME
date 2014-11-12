@@ -10,7 +10,7 @@ PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
 		xmlhttp.open('GET', "chrome://pme/content/pme_ui.js", true);
 		xmlhttp.onreadystatechange = function() {
 			if (xmlhttp.readyState == 4) {
-				PME.debug(xmlhttp.responseText)
+				//PME.debug(xmlhttp.responseText)
 				_this._sandboxManager.eval(xmlhttp.responseText, ["entry", "selection", "single"], (_this._currentTranslator.file ? _this._currentTranslator.file.path : _this._currentTranslator.label));
 				PME.debug(_this._sandboxManager.sandbox["entry"].apply(null, _this._getParameters(true)));
 				_this._translateTranslatorLoadedOld();
@@ -50,7 +50,19 @@ PME.Translate.Base.prototype["_saveItems"] = function (items) {
 	var _this = this;
 
 	function transferObject(obj) {
-		return PME.isFx ? _this._sandboxManager.sandbox.JSON.wrappedJSObject.parse(JSON.stringify(obj)) : obj;
+		if(PME.isFx) {
+			PME.debug("attachments.length: "+obj.attachments.length)
+			if(obj.attachments && Array.isArray(obj.attachments)) {
+				var attachments = obj.attachments.filter(function(att) {
+					if(att.document)
+						return false;
+					return true;
+				});
+				obj.attachments = attachments;
+			}
+			return _this._sandboxManager.sandbox.JSON.wrappedJSObject.parse(JSON.stringify(obj));
+		}
+		return obj;
 	}
 
 	PME.debug("~~~~translate._saveItems method override");

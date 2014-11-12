@@ -163,9 +163,8 @@ module.exports = function (debug) {
 			fs.mkdir(root, function () {
 				common.copyCode(_zoteroFilesLocation, root, ["xregexp.js", "q.js", "file.js", "date.js", "db.js", "zotero.css", /*"schema.js", "error.js",*/
 				   "proxy.js","openurl.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
-					"http.js", "utilities.js", "utilities_internal.js", "utilities_translate.js",
 					"init.js","uri.js","term.js","identity.js","match.js","n3parser.js","serialize.js"
-				], ["!", "translators"], [
+					"http.js", "utilities.js", "utilities_internal.js", "utilities_translate.js", "cachedTypes.js"], ["!", "translators"], [
 					{
 						fileName: 'all',
 						pattern: /(?:((?:(?:chrome)|(?:resource)):\/\/)zotero((?:-platform)?\/))|(?:(\.append\(')zotero('\)))/g,
@@ -191,7 +190,7 @@ module.exports = function (debug) {
 					{
 						fileName: ["schema.js","date.js","debug.js","db.js","error.js","file.js","http.js","mimeTypeHandler.js",
 							"openurl.js","ipc.js","proxy.js","translate.js","translate_firefox.js","translate_item.js","translator.js","tlds.js",
-							"utilities.js","utilities_internal.js","utilities_translate.js","browser.js","notifier.js",
+							"utilities.js","utilities_internal.js","utilities_translate.js","browser.js","notifier.js","cachedTypes.js",
 							"init.js", "uri.js", "term.js", "identity.js", "match.js", "n3parser.js", "serialize.js"],
 						pattern: /Zotero\./g,
 						replacement: "PME."
@@ -212,6 +211,11 @@ module.exports = function (debug) {
 						replacement: function() {
 							return RegExp.$1 + 'PME'
 						}
+					},
+					{
+						fileName: ["all"],
+						pattern:/PME\.RDF/g,
+						replacement: "Zotero.RDF"
 					},
 					{
 						fileName: ["translate.js"],

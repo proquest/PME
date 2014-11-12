@@ -59,6 +59,7 @@
     <script src="xpcom/translation/translate_item.js"/>
     <script src="xpcom/translation/translator.js"/>
     <script src="xpcom/translation/tlds.js"/>
+    <script src="xpcom/data/cachedTypes.js"/>
     <script src="browser.js" type="application/javascript;version=1.8"/>
 
 	<toolbarpalette id="BrowserToolbarPalette">
