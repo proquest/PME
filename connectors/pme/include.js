@@ -534,7 +534,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 				.getService(Components.interfaces.nsIAppStartup);
 
 			var dir = PME.getProfileDirectory();
-			dir.append('zotero');
+			dir.append('pme');
 
 			var ps = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
 				.createInstance(Components.interfaces.nsIPromptService);
@@ -848,13 +848,13 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 				} else {
 					if (PME.isWin) {
 						prefDir = prefDir.parent;
-						prefDir.append("Zotero");
-						prefDir.append("Zotero");
+						prefDir.append("pme");
+						prefDir.append("pme");
 					} else if (PME.isMac) {
-						prefDir.append("Zotero");
+						prefDir.append("pme");
 					} else {
-						prefDir.append(".zotero");
-						prefDir.append("zotero");
+						prefDir.append(".pme");
+						prefDir.append("pme");
 					}
 				}
 
@@ -873,7 +873,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 				if (defProfile) {
 					// get Zotero directory
 					var zoteroDir = defProfile[0].clone();
-					zoteroDir.append("zotero");
+					zoteroDir.append("pme");
 
 					if (zoteroDir.exists()) {
 						// if Zotero directory exists in default profile for alternative app, ask
@@ -902,7 +902,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 	}
 
 	function getZoteroDatabase(name, ext) {
-		name = name ? name + '.sqlite' : 'zotero.sqlite';
+		name = name ? name + '.sqlite' : 'pme.sqlite';
 		ext = ext ? '.' + ext : '';
 
 		var file = PME.getZoteroDirectory();
@@ -974,7 +974,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 
 					if (file.directoryEntries.hasMoreElements()) {
 						var dbfile = file.clone();
-						dbfile.append('zotero.sqlite');
+						dbfile.append('pme.sqlite');
 
 						// Warn if non-empty and no zotero.sqlite
 						if (!dbfile.exists()) {
@@ -1257,7 +1257,7 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 		)
 			{
 				switch (addon.id) {
-					case "zotero@chnm.gmu.edu":
+					case "flow@proquest.com":
 					case "{972ce4c6-7e08-4474-a285-3208198ce6fd}": // Default theme
 						continue;
 				}
@@ -1658,50 +1658,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 	 * @return    void
 	 */
 	this.showZoteroPaneProgressMeter = function (msg, determinate, icon) {
-		var wm = Components.classes["@mozilla.org/appshell/window-mediator;1"]
-			.getService(Components.interfaces.nsIWindowMediator);
-		var currentWindow = wm.getMostRecentWindow("navigator:browser");
-		var enumerator = wm.getEnumerator("navigator:browser");
-		var progressMeters = [];
-		while (enumerator.hasMoreElements()) {
-			var win = enumerator.getNext();
-			if (!win.ZoteroPane) continue;
-			if (!win.ZoteroPane.isShowing()) {
-				if (win != currentWindow) {
-					continue;
-				}
-
-				// If Zotero is closed in the top-most window, show a popup instead
-				_progressPopup = new PME.ProgressWindow();
-				_progressPopup.changeHeadline("Zotero");
-				if (icon) {
-					_progressPopup.addLines([msg], [icon]);
-				}
-				else {
-					_progressPopup.addDescription(msg);
-				}
-				_progressPopup.show();
-				continue;
-			}
-
-			win.ZoteroPane.document.getElementById('zotero-pane-progress-label').value = msg;
-			var progressMeter = win.ZoteroPane.document.getElementById('zotero-pane-progressmeter')
-			if (determinate) {
-				progressMeter.mode = 'determined';
-				progressMeter.value = 0;
-				progressMeter.max = 1000;
-			}
-			else {
-				progressMeter.mode = 'undetermined';
-			}
-
-			_showWindowZoteroPaneOverlay(win.ZoteroPane.document);
-			win.ZoteroPane.document.getElementById('zotero-pane-overlay-deck').selectedIndex = 0;
-
-			progressMeters.push(progressMeter);
-		}
-		_locked = true;
-		_progressMeters = progressMeters;
 	}
 
 
@@ -1709,32 +1665,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 	 * @param    {Number}    percentage        Percentage complete as integer or float
 	 */
 	this.updateZoteroPaneProgressMeter = function (percentage) {
-		if (percentage !== null) {
-			if (percentage < 0 || percentage > 100) {
-				PME.debug("Invalid percentage value '" + percentage + "' in PME.updateZoteroPaneProgressMeter()");
-				return;
-			}
-			percentage = Math.round(percentage * 10);
-		}
-		if (percentage === _lastPercentage) {
-			return;
-		}
-		for each(var pm
-		in
-		_progressMeters
-		)
-		{
-			if (percentage !== null) {
-				if (pm.mode == 'undetermined') {
-					pm.max = 1000;
-					pm.mode = 'determined';
-				}
-				pm.value = percentage;
-			} else if (pm.mode === 'determined') {
-				pm.mode = 'undetermined';
-			}
-		}
-		_lastPercentage = percentage;
 	}
 
 
@@ -2400,10 +2330,6 @@ PME.Keys = new function () {
 	 */
 	function windowInit(document) {
 		var globalKeys = [
-			{
-				name: 'openZotero',
-				defaultKey: 'Z'
-			},
 			{
 				name: 'saveToZotero',
 				defaultKey: 'S'
