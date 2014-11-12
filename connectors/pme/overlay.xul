@@ -35,6 +35,7 @@
 	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
 
     <script src="include.js"/>
+    <script src="xpcom/xregexp/xregexp.js"/>
     <script src="xpcom/date.js"/>
     <script src="xpcom/debug.js"/>
     <script src="xpcom/db.js"/>
@@ -43,15 +44,21 @@
     <script src="xpcom/file.js"/>
     <script src="xpcom/http.js"/>
     <script src="xpcom/proxy.js"/>
+    <script src="xpcom/utilities.js"/>
+    <script src="xpcom/utilities_internal.js"/>
+    <script src="xpcom/utilities_translate.js"/>
+    <script src="xpcom/rdf/init.js"/>
+    <script src="xpcom/rdf/uri.js"/>
+    <script src="xpcom/rdf/term.js"/>
+    <script src="xpcom/rdf/identity.js"/>
+    <script src="xpcom/rdf/match.js"/>
+    <script src="xpcom/rdf/n3parser.js"/>
+    <script src="xpcom/rdf/serialize.js"/>
     <script src="xpcom/translation/translate.js"/>
     <script src="xpcom/translation/translate_firefox.js"/>
     <script src="xpcom/translation/translate_item.js"/>
     <script src="xpcom/translation/translator.js"/>
     <script src="xpcom/translation/tlds.js"/>
-    <script src="xpcom/xregexp/xregexp.js"/>
-    <script src="xpcom/utilities.js"/>
-    <script src="xpcom/utilities_internal.js"/>
-    <script src="xpcom/utilities_translate.js"/>
     <script src="browser.js" type="application/javascript;version=1.8"/>
 
 	<toolbarpalette id="BrowserToolbarPalette">

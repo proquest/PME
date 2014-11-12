@@ -59,7 +59,8 @@ var PME_Browser = new function() {
 		"questionmarket.com",
 		"atdmt.com",
 		"aggregateknowledge.com",
-		"ad.yieldmanager.com"
+		"ad.yieldmanager.com",
+		"addthis.com"
 	];
 	
 	var _locationBlacklist = [
