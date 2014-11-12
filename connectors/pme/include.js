@@ -494,97 +494,13 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 	 * Initialization function to be called only if Zotero is in full mode
 	 */
 	function _initFull() {
-		var dataDir = PME.getZoteroDirectory();
 		PME.VersionHeader.init();
-
-		// Check for DB restore
-		var restoreFile = dataDir.clone();
-		restoreFile.append('restore-from-server');
-		if (restoreFile.exists()) {
-			try {
-				// TODO: better error handling
-
-				// TODO: prompt for location
-				// TODO: Back up database
-
-				restoreFile.remove(false);
-
-				var dbfile = PME.getZoteroDatabase();
-				dbfile.remove(false);
-
-				// Recreate database with no quick start guide
-				PME.Schema.skipDefaultData = true;
-				PME.Schema.updateSchema();
-
-				PME.restoreFromServer = true;
-			}
-			catch (e) {
-				// Restore from backup?
-				alert(e);
-			}
-		}
 
 		if (!_initDB()) return false;
 
+		PME.Schema.updateSchema();
+
 		PME.HTTP.triggerProxyAuth();
-
-		// Require >=2.1b3 database to ensure proper locking
-		if (PME.isStandalone && PME.Schema.getDBVersion('system') > 0 && PME.Schema.getDBVersion('system') < 31) {
-			var appStartup = Components.classes["@mozilla.org/toolkit/app-startup;1"]
-				.getService(Components.interfaces.nsIAppStartup);
-
-			var dir = PME.getProfileDirectory();
-			dir.append('pme');
-
-			var ps = Components.classes["@mozilla.org/embedcomp/prompt-service;1"]
-				.createInstance(Components.interfaces.nsIPromptService);
-			var buttonFlags = (ps.BUTTON_POS_0) * (ps.BUTTON_TITLE_IS_STRING)
-				+ (ps.BUTTON_POS_1) * (ps.BUTTON_TITLE_IS_STRING)
-				+ (ps.BUTTON_POS_2) * (ps.BUTTON_TITLE_IS_STRING)
-				+ ps.BUTTON_POS_2_DEFAULT;
-			var index = ps.confirmEx(
-				null,
-				PME.getString('dataDir.incompatibleDbVersion.title'),
-				PME.getString('dataDir.incompatibleDbVersion.text'),
-				buttonFlags,
-				PME.getString('general.useDefault'),
-				PME.getString('dataDir.standaloneMigration.selectCustom'),
-				PME.getString('general.quit'),
-				null,
-				{}
-			);
-
-			var quit = false;
-
-			// Default location
-			if (index == 0) {
-				PME.File.createDirectoryIfMissing(dir);
-
-				PME.Prefs.set("useDataDir", false)
-
-				appStartup.quit(
-						Components.interfaces.nsIAppStartup.eAttemptQuit
-						| Components.interfaces.nsIAppStartup.eRestart
-				);
-			}
-			// Select new data directory
-			else if (index == 1) {
-				var dir = PME.chooseZoteroDirectory(true);
-				if (!dir) {
-					quit = true;
-				}
-			}
-			else {
-				quit = true;
-			}
-
-			if (quit) {
-				appStartup.quit(Components.interfaces.nsIAppStartup.eAttemptQuit);
-			}
-
-			PME.skipLoading = true;
-			return false;
-		}
 
 		return true;
 	}

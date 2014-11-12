@@ -39,6 +39,7 @@
     <script src="xpcom/date.js"/>
     <script src="xpcom/debug.js"/>
     <script src="xpcom/db.js"/>
+    <script src="xpcom/schema.js"/>
     <script src="xpcom/openurl.js"/>
     <!--script src="xpcom/error.js"/-->
     <script src="xpcom/file.js"/>

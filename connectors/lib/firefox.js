@@ -139,7 +139,7 @@ module.exports = function (debug) {
 			});
 			common.copyCode(_pmeLocation, path.join(root, "defaults/preferences"), ["pme_prefs.js"]);
 			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js", "pme_ui.js", "overlay.xul", "browser.js"]);
-			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["debug.js"]);
+			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["debug.js","schema.js"]);
 			common.copyCode(path.join(_zoteroFilesLocation, "translators"), root, ["deleted.txt"]);
 			common.copyCode(_pmeLocation, root, ["install.rdf", "update.rdf"]);
 			common.copyCode(_builderConfigFilesLocation, root, ['chrome.manifest'])
@@ -161,10 +161,11 @@ module.exports = function (debug) {
 		common.doPrepWork(root, function () {
 			common.stackInst.push();
 			fs.mkdir(root, function () {
-				common.copyCode(_zoteroFilesLocation, root, ["xregexp.js", "q.js", "file.js", "date.js", "db.js", "zotero.css", /*"schema.js", "error.js",*/
+				common.copyCode(_zoteroFilesLocation, root, ["xregexp.js", "q.js", "file.js", "date.js", "db.js", "zotero.css",
 				   "proxy.js","openurl.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
-					"init.js","uri.js","term.js","identity.js","match.js","n3parser.js","serialize.js"
-					"http.js", "utilities.js", "utilities_internal.js", "utilities_translate.js", "cachedTypes.js"], ["!", "translators"], [
+					"init.js","uri.js","term.js","identity.js","match.js","n3parser.js","serialize.js",
+					"http.js", "utilities.js", "utilities_internal.js", "utilities_translate.js", "cachedTypes.js",
+					"repotime.txt"], ["!", "translators"], [
 					{
 						fileName: 'all',
 						pattern: /(?:((?:(?:chrome)|(?:resource)):\/\/)zotero((?:-platform)?\/))|(?:(\.append\(')zotero('\)))/g,
@@ -213,14 +214,14 @@ module.exports = function (debug) {
 						}
 					},
 					{
-						fileName: ["all"],
-						pattern:/PME\.RDF/g,
-						replacement: "Zotero.RDF"
-					},
-					{
 						fileName: ["translate.js"],
 						pattern: /_sandboxPME/g,
 						replacement: "_sandboxZotero"
+					},
+					{
+						fileName: ["db.js"],
+						pattern: /'zotero'/g,
+						replacement: "'pme'"
 					}
 				]);
 				addTranslatorToZip(common.stackInst, root);
