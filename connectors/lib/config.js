@@ -1,5 +1,5 @@
 var path = require("path");
-var repoPath = process.cwd();
+var repoPath = "/Users/aepheus";//process.cwd();
 var buildId = (new Date()).valueOf()
 module.exports = {
   buildID: buildId,
