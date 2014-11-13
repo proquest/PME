@@ -192,7 +192,7 @@ PME.Schema = new function(){
 			var deferred = Q.defer();
 			Components.utils.import("resource://gre/modules/AddonManager.jsm");
 			AddonManager.getAddonByID(
-				ZOTERO_CONFIG['GUID'],
+				PME_CONFIG['GUID'],
 				function(addon) {
 					var up = _updateBundledFilesCallback(
 						addon.getResourceURI().QueryInterface(Components.interfaces.nsIFileURL).file,
@@ -634,7 +634,7 @@ PME.Schema = new function(){
 			// Determine the earliest local time that we'd query the repository again
 			var nextCheck = new Date();
 			nextCheck.setTime((parseInt(this.getDBVersion('lastcheck'))
-				+ ZOTERO_CONFIG['REPOSITORY_CHECK_INTERVAL']) * 1000); // JS uses ms
+				+ PME_CONFIG['REPOSITORY_CHECK_INTERVAL']) * 1000); // JS uses ms
 			var now = new Date();
 			
 			// If enough time hasn't passed, don't update
@@ -668,7 +668,7 @@ PME.Schema = new function(){
 		// Get the last timestamp we got from the server
 		var lastUpdated = this.getDBVersion('repository');
 		
-		var url = ZOTERO_CONFIG['REPOSITORY_URL'] + '/updated?'
+		var url = PME_CONFIG['REPOSITORY_URL'] + '/updated?'
 			+ (lastUpdated ? 'last=' + lastUpdated + '&' : '')
 			+ 'version=' + PME.version;
 		
@@ -698,7 +698,7 @@ PME.Schema = new function(){
 		// TODO: instead, add an observer to start and stop timer on online state change
 		if (!get){
 			PME.debug('Browser is offline -- skipping check');
-			_setRepositoryTimer(ZOTERO_CONFIG['REPOSITORY_RETRY_INTERVAL']);
+			_setRepositoryTimer(PME_CONFIG['REPOSITORY_RETRY_INTERVAL']);
 		}
 	}
 	
@@ -1124,7 +1124,7 @@ PME.Schema = new function(){
 			}
 			
 			if (!manual){
-				_setRepositoryTimer(ZOTERO_CONFIG['REPOSITORY_RETRY_INTERVAL']);
+				_setRepositoryTimer(PME_CONFIG['REPOSITORY_RETRY_INTERVAL']);
 			}
 			
 			_remoteUpdateInProgress = false;
@@ -1153,7 +1153,7 @@ PME.Schema = new function(){
 			PME.debug('All translators and styles are up-to-date');
 			PME.DB.commitTransaction();
 			if (!manual){
-				_setRepositoryTimer(ZOTERO_CONFIG['REPOSITORY_CHECK_INTERVAL']);
+				_setRepositoryTimer(PME_CONFIG['REPOSITORY_CHECK_INTERVAL']);
 			}
 			_remoteUpdateInProgress = false;
 			return -1;
@@ -1171,7 +1171,7 @@ PME.Schema = new function(){
 			PME.debug(e, 1);
 			PME.DB.rollbackTransaction();
 			if (!manual){
-				_setRepositoryTimer(ZOTERO_CONFIG['REPOSITORY_RETRY_INTERVAL']);
+				_setRepositoryTimer(PME_CONFIG['REPOSITORY_RETRY_INTERVAL']);
 			}
 			_remoteUpdateInProgress = false;
 			return false;
@@ -1179,7 +1179,7 @@ PME.Schema = new function(){
 		
 		PME.DB.commitTransaction();
 		if (!manual){
-			_setRepositoryTimer(ZOTERO_CONFIG['REPOSITORY_CHECK_INTERVAL']);
+			_setRepositoryTimer(PME_CONFIG['REPOSITORY_CHECK_INTERVAL']);
 		}
 		_remoteUpdateInProgress = false;
 		return true;
@@ -1193,7 +1193,7 @@ PME.Schema = new function(){
 	**/
 	function _setRepositoryTimer(interval){
 		if (!interval){
-			interval = ZOTERO_CONFIG['REPOSITORY_CHECK_INTERVAL'];
+			interval = PME_CONFIG['REPOSITORY_CHECK_INTERVAL'];
 		}
 		
 		var fudge = 2; // two seconds

@@ -24,7 +24,7 @@ var PME = {};
  ***** END LICENSE BLOCK *****
  */
 
-const ZOTERO_CONFIG = {
+const PME_CONFIG = {
 	GUID: 'flow@proquest.com',
 	DB_REBUILD: false, // erase DB and recreate from schema
 	REPOSITORY_URL: 'https://repo.zotero.org/repo',
@@ -248,15 +248,15 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 		this.platformMajorVersion = parseInt(appInfo.platformVersion.match(/^[0-9]+/)[0]);
 		this.isFx = true;
 
-		this.isStandalone = appInfo.ID == ZOTERO_CONFIG['GUID'];
+		this.isStandalone = appInfo.ID == PME_CONFIG['GUID'];
 		if (this.isStandalone) {
 			this.version = appInfo.version;
 		} else {
 			// Use until we collect version from extension manager
-			this.version = ZOTERO_CONFIG['VERSION'];
+			this.version = PME_CONFIG['VERSION'];
 
 			Components.utils.import("resource://gre/modules/AddonManager.jsm");
-			AddonManager.getAddonByID(ZOTERO_CONFIG['GUID'],
+			AddonManager.getAddonByID(PME_CONFIG['GUID'],
 				function (addon) {
 					PME.version = addon.version;
 				});
@@ -403,9 +403,9 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 						Components.utils.evalInSandbox(prefsJs, sandbox);
 						var prefs = sandbox.prefs;
 						for (var key in prefs) {
-							if (key.substr(0, ZOTERO_CONFIG.PREF_BRANCH.length) === ZOTERO_CONFIG.PREF_BRANCH
+							if (key.substr(0, PME_CONFIG.PREF_BRANCH.length) === PME_CONFIG.PREF_BRANCH
 								&& key !== "extensions.zotero.firstRun2") {
-								PME.Prefs.set(key.substr(ZOTERO_CONFIG.PREF_BRANCH.length), prefs[key]);
+								PME.Prefs.set(key.substr(PME_CONFIG.PREF_BRANCH.length), prefs[key]);
 							}
 						}
 					}
@@ -494,7 +494,6 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 	 * Initialization function to be called only if Zotero is in full mode
 	 */
 	function _initFull() {
-		PME.VersionHeader.init();
 
 		if (!_initDB()) return false;
 
@@ -1904,7 +1903,7 @@ PME.Prefs = new function () {
 	function init() {
 		var prefs = Components.classes["@mozilla.org/preferences-service;1"]
 			.getService(Components.interfaces.nsIPrefService);
-		this.prefBranch = prefs.getBranch(ZOTERO_CONFIG.PREF_BRANCH);
+		this.prefBranch = prefs.getBranch(PME_CONFIG.PREF_BRANCH);
 
 		// Register observer to handle pref changes
 		this.register();
@@ -1961,7 +1960,7 @@ PME.Prefs = new function () {
 			}
 		}
 		catch (e) {
-			throw ("Invalid preference '" + pref + "' " + e.message + " " + ZOTERO_CONFIG.PREF_BRANCH + ": " + this.prefBranch);
+			throw ("Invalid preference '" + pref + "' " + e.message + " " + PME_CONFIG.PREF_BRANCH + ": " + this.prefBranch);
 		}
 	}
 
@@ -2147,15 +2146,6 @@ PME.Prefs = new function () {
 					}
 					break;
 
-				case "zoteroDotOrgVersionHeader":
-					if (this.get("zoteroDotOrgVersionHeader")) {
-						PME.VersionHeader.register();
-					}
-					else {
-						PME.VersionHeader.unregister();
-					}
-					break;
-
 				case "sync.autoSync":
 					if (this.get("sync.autoSync")) {
 						PME.Sync.Runner.IdleListener.register();
@@ -2284,41 +2274,6 @@ PME.Keys = new function () {
 	}
 }
 
-
-/**
- * Add X-Zotero-Version header to HTTP requests to zotero.org
- *
- * @namespace
- */
-PME.VersionHeader = {
-	init: function () {
-		if (PME.Prefs.get("zoteroDotOrgVersionHeader")) {
-			this.register();
-		}
-		PME.addShutdownListener(this.unregister);
-	},
-
-	// Called from this.init() and PME.Prefs.observe()
-	register: function () {
-		Services.obs.addObserver(this, "http-on-modify-request", false);
-	},
-
-	observe: function (subject, topic, data) {
-		try {
-			var channel = subject.QueryInterface(Components.interfaces.nsIHttpChannel);
-			if (channel.URI.host.match(/zotero\.org$/)) {
-				channel.setRequestHeader("X-Zotero-Version", PME.version, false);
-			}
-		}
-		catch (e) {
-			PME.debug(e);
-		}
-	},
-
-	unregister: function () {
-		Services.obs.removeObserver(PME.VersionHeader, "http-on-modify-request");
-	}
-}
 
 PME.DragDrop = {
 	currentDragEvent: null,

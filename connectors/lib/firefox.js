@@ -180,6 +180,11 @@ module.exports = function (debug) {
 					},
 					{
 						fileName: 'all',
+						pattern: /ZOTERO_CONFIG/g,
+						replacement: "PME_CONFIG"
+					},
+					{
+						fileName: 'all',
 						pattern: /e4c61080-ec2d-11da-8ad9-0800200c9a66/g,
 						replacement: "b1571583-82c5-499a-b578-b2e719ddc094"
 					},
