@@ -1478,15 +1478,12 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 					_waiting++;
 					return;
 				}
-			} catch (e if e
-			.
-			toString() === "[object StopIteration]"
-			)
+			}
+			catch (e if e.toString() === "[object StopIteration]")
 			{
 				// There must be a better way to perform this check
 			}
-			catch
-			(e)
+			catch (e)
 			{
 				err = e;
 			}
@@ -2132,10 +2129,10 @@ PME.Prefs = new function () {
 
 				case "automaticScraperUpdates":
 					if (this.get('automaticScraperUpdates')) {
-						PME.Schema.updateFromRepository();
+						//PME.Schema.updateFromRepository();
 					}
 					else {
-						PME.Schema.stopRepositoryTimer();
+						//PME.Schema.stopRepositoryTimer();
 					}
 					break;
 

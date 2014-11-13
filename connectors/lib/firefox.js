@@ -162,7 +162,7 @@ module.exports = function (debug) {
 			common.stackInst.push();
 			fs.mkdir(root, function () {
 				common.copyCode(_zoteroFilesLocation, root, ["xregexp.js", "q.js", "file.js", "date.js", "db.js", "zotero.css",
-				   "proxy.js","openurl.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
+					"proxy.js","openurl.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
 					"init.js","uri.js","term.js","identity.js","match.js","n3parser.js","serialize.js",
 					"http.js", "utilities.js", "utilities_internal.js", "utilities_translate.js", "cachedTypes.js",
 					"repotime.txt"], ["!", "translators"], [

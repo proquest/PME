@@ -65,101 +65,28 @@ PME.Schema = new function(){
 	 * Checks if the DB schema exists and is up-to-date, updating if necessary
 	 */
 	this.updateSchema = function () {
-		var dbVersion = this.getDBVersion('userdata');
-		var dbVersion2 = this.getDBVersion('userdata2');
-
+		var dbVersion = this.getDBVersion('schema');
 		// 'schema' check is for old (<= 1.0b1) schema system,
 		// 'user' is for pre-1.0b2 'user' table
-		if (!dbVersion && !this.getDBVersion('schema') && !this.getDBVersion('user')){
+		PME.debug("dbVersion == " + dbVersion)
+		if (!dbVersion){
 			PME.debug('Database does not exist -- creating\n');
 			_initializeSchema();
+			setTimeout(function () {
+				PME.UnresponsiveScriptIndicator.disable();
+				PME.Schema.updateBundledFiles(null, false, true)
+					.finally(function () {
+						PME.UnresponsiveScriptIndicator.enable();
+					})
+					.done();
+			}, 5000);
 			return true;
 		}
-
-		var schemaVersion = _getSchemaSQLVersion('userdata');
-
-		try {
-			PME.UnresponsiveScriptIndicator.disable();
-
-			// If upgrading userdata, make backup of database first
-			if (dbVersion < schemaVersion){
-				PME.DB.backupDatabase(dbVersion);
-				PME.wait(1000);
-			}
-
-			PME.DB.beginTransaction();
-
-			try {
-				// Old schema system
-				if (!dbVersion){
-					// Check for pre-1.0b2 'user' table
-					 var user = this.getDBVersion('user');
-					 if (user)
-					 {
-						 dbVersion = user;
-						 var sql = "UPDATE version SET schema=? WHERE schema=?";
-						 PME.DB.query(sql, ['userdata', 'user']);
-					 }
-					 else
-					 {
-						 dbVersion = 0;
-					 }
-				}
-
-				var up2 = _migrateUserDataSchema(dbVersion);
-
-				PME.DB.commitTransaction();
-			}
-			catch(e){
-				PME.debug(e);
-				PME.DB.rollbackTransaction();
-				throw(e);
-			}
-
-			if (up2) {
-				// Upgrade seems to have been a success -- delete any previous backups
-				var maxPrevious = dbVersion - 1;
-				var file = PME.getZoteroDirectory();
-				var toDelete = [];
-				try {
-					var files = file.directoryEntries;
-					while (files.hasMoreElements()) {
-						var file = files.getNext();
-						file.QueryInterface(Components.interfaces.nsIFile);
-						if (file.isDirectory()) {
-							continue;
-						}
-						var matches = file.leafName.match(/pme\.sqlite\.([0-9]{2,})\.bak/);
-						if (!matches) {
-							continue;
-						}
-						if (matches[1]>=28 && matches[1]<=maxPrevious) {
-							toDelete.push(file);
-						}
-					}
-					for each(var file in toDelete) {
-						PME.debug('Removing previous backup file ' + file.leafName);
-						file.remove(false);
-					}
-				}
-				catch (e) {
-					PME.debug(e);
-				}
-			}
-		}
-		finally {
-			PME.UnresponsiveScriptIndicator.enable();
+		else {
+			PME.debug("db exists")
+			PME.Schema.updateFromRepository();
 		}
 
-		// After a delay, start update of bundled files and repo updates
-		setTimeout(function () {
-			PME.UnresponsiveScriptIndicator.disable();
-			PME.Schema.updateBundledFiles(null, false, true)
-			.finally(function () {
-				PME.UnresponsiveScriptIndicator.enable();
-			})
-			.done();
-		}, 5000);
 	}
 	
 	/**
@@ -211,14 +138,14 @@ PME.Schema = new function(){
 					if (PME.Prefs.get('automaticScraperUpdates')) {
 						PME.proxyAuthComplete
 						.then(function () {
-							PME.Schema.updateFromRepository(2, function () deferred.resolve());
+							PME.Schema.updateFromRepository(2, function (){deferred.resolve()});
 						})
 					}
 				}
 				else {
 					PME.proxyAuthComplete
 					.then(function () {
-						PME.Schema.updateFromRepository(false, function () deferred.resolve());
+						PME.Schema.updateFromRepository(false, function (){deferred.resolve()});
 					})
 					.done();
 				}
@@ -1049,6 +976,7 @@ PME.Schema = new function(){
 			PME.DB.query("PRAGMA page_size = 4096");
 			PME.DB.query("PRAGMA encoding = 'UTF-8'");
 			PME.DB.query("PRAGMA auto_vacuum = 1");
+			_migrateUserDataSchema();
 			PME.DB.commitTransaction();
 			self.dbInitialized = true;
 		}
@@ -1059,7 +987,6 @@ PME.Schema = new function(){
 			alert('Error initializing Zotero database');
 			throw(e);
 		}
-		_migrateUserDataSchema();
 		PME.Schema.updateBundledFiles(null, null, true)
 		.catch(function (e) {
 			PME.debug(e);
@@ -1289,11 +1216,13 @@ PME.Schema = new function(){
 		PME.DB.beginTransaction();
 		
 		try {
-
+			PME.debug("_migrateUserDataSchema")
 			PME.DB.query("DROP TABLE IF EXISTS translatorCache");
 			PME.DB.query("CREATE TABLE translatorCache (\n	leafName TEXT PRIMARY KEY,\n	translatorJSON TEXT,\n	code TEXT,\n	lastModifiedTime INT\n)");
 			PME.DB.query("DROP TABLE IF EXISTS version");
 			PME.DB.query("CREATE TABLE version (schema TEXT PRIMARY KEY,version INT NOT NULL); CREATE INDEX schema ON version(schema);");
+
+			_updateDBVersion("schema", "1");
 			PME.DB.commitTransaction();
 		}
 		catch (e) {
