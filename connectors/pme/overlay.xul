@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<!--
+    ***** BEGIN LICENSE BLOCK *****
+    
+    Copyright © 2009 Center for History and New Media
+                     George Mason University, Fairfax, Virginia, USA
+                     http://zotero.org
+    
+    This file is part of Zotero.
+    
+    Zotero is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    
+    Zotero is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+    
+    You should have received a copy of the GNU Affero General Public License
+    along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
+    
+    ***** END LICENSE BLOCK *****
+-->
+
+<?xml-stylesheet href="chrome://pme/skin/zotero.css" type="text/css"?>
+
+<!DOCTYPE overlay [
+	<!ENTITY % globalDTD SYSTEM "chrome://global/locale/global.dtd"> %globalDTD;
+	<!ENTITY % zoteroDTD SYSTEM "chrome://pme/locale/zotero.dtd"> %zoteroDTD;
+]>
+
+<overlay id="pme"
+	xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+
+    <script src="include.js"/>
+    <script src="xpcom/xregexp/xregexp.js"/>
+    <script src="xpcom/date.js"/>
+    <script src="xpcom/debug.js"/>
+    <script src="xpcom/db.js"/>
+    <script src="xpcom/schema.js"/>
+    <script src="xpcom/openurl.js"/>
+    <!--script src="xpcom/error.js"/-->
+    <script src="xpcom/file.js"/>
+    <script src="xpcom/http.js"/>
+    <script src="xpcom/proxy.js"/>
+    <script src="xpcom/utilities.js"/>
+    <script src="xpcom/utilities_internal.js"/>
+    <script src="xpcom/utilities_translate.js"/>
+    <script src="xpcom/rdf/init.js"/>
+    <script src="xpcom/rdf/uri.js"/>
+    <script src="xpcom/rdf/term.js"/>
+    <script src="xpcom/rdf/identity.js"/>
+    <script src="xpcom/rdf/match.js"/>
+    <script src="xpcom/rdf/n3parser.js"/>
+    <script src="xpcom/rdf/serialize.js"/>
+    <script src="xpcom/translation/translate.js"/>
+    <script src="xpcom/translation/translate_firefox.js"/>
+    <script src="xpcom/translation/translate_item.js"/>
+    <script src="xpcom/translation/translator.js"/>
+    <script src="xpcom/translation/tlds.js"/>
+    <script src="xpcom/data/cachedTypes.js"/>
+    <script src="browser.js" type="application/javascript;version=1.8"/>
+
+	<toolbarpalette id="BrowserToolbarPalette">
+		<toolbarbutton id="pme-toolbar-button" class="toolbarbutton-1"
+						label="ProQuest Flow"
+						oncommand="PME_Browser.scrapeThisPage()"/>
+	</toolbarpalette>
+
+	<keyset id="mainKeyset">
+		<!--
+			The key can be changed by the pref extensions.zotero.keys.openZotero,
+			but if the values are changed here, the pref won't override them.
+		-->
+		 <key id="key_saveToZotero"
+			 key="S"
+			 oncommand="PME_Browser.scrapeThisPage();"
+			 modifiers="accel shift" />
+	</keyset>
+</overlay>

@@ -1,0 +1,7 @@
+content	pme				chrome/content/zotero/
+content	pme-platform		chrome/content/zotero-platform/		platform
+resource pme				resource/
+
+skin		pme	default		chrome/skin/default/zotero/
+
+overlay	chrome://browser/content/browser.xul	chrome://pme/content/overlay.xul

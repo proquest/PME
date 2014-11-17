@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Builder Version</key>
+	<string>9537.78.2</string>
+	<key>CFBundleDisplayName</key>
+	<string>PME</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.proquest.pme</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>CFBundleShortVersionString</key>
+	<string>3.0.999</string>
+	<key>CFBundleVersion</key>
+	<string>3.0.999</string>
+	<key>Chrome</key>
+	<dict>
+		<key>Global Page</key>
+		<string>global.html</string>
+		<key>Toolbar Items</key>
+		<array>
+			<dict>
+				<key>Command</key>
+				<string>zotero-translate</string>
+				<key>Identifier</key>
+				<string>zotero-translate</string>
+				<key>Image</key>
+				<string>Icon.png</string>
+				<key>Label</key>
+				<string>save to flow</string>
+				<key>Palette Label</key>
+				<string>flow</string>
+			</dict>
+		</array>
+	</dict>
+	<key>Content</key>
+	<dict>
+		<key>Scripts</key>
+		<dict>
+			<key>End</key>
+			<array>
+				<string>zotero.js</string>
+				<string>zotero_config.js</string>
+				<string>http.js</string>
+				<string>zotero/connector/cachedTypes.js</string>
+				<string>zotero/date.js</string>
+				<string>zotero/debug.js</string>
+				<string>zotero/openurl.js</string>
+				<string>zotero/xregexp/xregexp.js</string>
+				<string>zotero/xregexp/addons/build.js</string>
+				<string>zotero/xregexp/addons/matchrecursive.js</string>
+				<string>zotero/xregexp/addons/unicode/unicode-base.js</string>
+				<string>zotero/xregexp/addons/unicode/unicode-categories.js</string>
+				<string>zotero/xregexp/addons/unicode/unicode-zotero.js</string>
+				<string>zotero/rdf/init.js</string>
+				<string>zotero/rdf/uri.js</string>
+				<string>zotero/rdf/term.js</string>
+				<string>zotero/rdf/identity.js</string>
+				<string>zotero/rdf/match.js</string>
+				<string>zotero/rdf/rdfparser.js</string>
+				<string>zotero/translation/translate.js</string>
+				<string>zotero/connector/translate_item.js</string>
+				<string>zotero/connector/typeSchemaData.js</string>
+				<string>zotero/utilities.js</string>
+				<string>zotero/utilities_translate.js</string>
+				<string>inject/http.js</string>
+				<string>inject/progressWindow.js</string>
+				<string>inject/translator.js</string>
+				<string>inject/translate_inject.js</string>
+				<string>messages.js</string>
+				<string>messaging_inject.js</string>
+				<string>inject/inject.js</string>
+			</array>
+		</dict>
+	</dict>
+	<key>ExtensionInfoDictionaryVersion</key>
+	<string>1.0</string>
+	<key>Permissions</key>
+	<dict>
+		<key>Website Access</key>
+		<dict>
+			<key>Include Secure Pages</key>
+			<true/>
+			<key>Level</key>
+			<string>All</string>
+		</dict>
+	</dict>
+</dict>
+</plist>
