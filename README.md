@@ -1,87 +1,37 @@
-# PME (Publication Metadata Extraction)
+#What is PME?
+PME (Publication Metadata Extraction) allows users to extract, display, and save article metadata from webpages using Zotero Translators. Zotero Translators are the de-facto language for extracting metadata from webpages and we want to provide a way for them to be used in all bibliographic management software.
 
-Publication Metadata Extraction (PME) provides functionality for extracting document-specific journal/article metadata out of site-specific web pages, at the time of viewing the page in a user’s web browser.
+PME is a freely available open source project, licensed under AGPLv3. It is based on the Zotero Connectors project. PME adapts this work, creating a tool capable of building add-ons that incorporate the functionality of Translators, and allows for a configurable UI capable of saving metadata to any web service.
 
-PME is a freely available open source project, licensed under AGPLv3. It is based on the Zotero Web Translators ([on Github](https://github.com/zotero/translators); [project documentation](http://www.zotero.org/support/dev/translators)). PME adapts this work making the translators easier to use by implementing boiler plate code and adding cross-browser support. 
+PME is a work in progress, many of its functions are not yet complete.
 
-## Using PME
+#How do I use PME?
+PME is a node.js application which pulls together parts of Zotero, Zotero Connectors, and Zotero Translators, along with its own code and your configurations to create a browser add-on. The add-on created uses the code you configure to show and save metadata which is found by Zotero Translators.
 
-To use PME, simple include it with a `<script>` tag and call it from your scripts. PME exposes one function:
+To get started, clone Zotero (https://github.com/zotero/zotero.git), Zotero Connectors (https://github.com/zotero/zotero-connectors.git), and Zotero Translators (https://github.com/zotero/translators.git) to your machine.
 
-`getPageMetaData(callback: function) : PubItems`
+Next, you’ll need to point PME to these locations. Change config.js to point to the correct locations for all three, and update the build path while you’re at it.
 
-_in:_
+Now, run ‘npm install’ followed by ‘node build.js -f’. Your Firefox add-on will show up in the build directory you configured.
 
-Function that is to be called when extracting successfully completes
+Still with us? Now on to the fun part, make PME look and feel the way you want it to. We’ve included a default configuration in the file “pme_ui.js”. There are three important functions: entry, selection, and single. Entry is called at the same time as the translator is loaded; it should initialize your UI and prepare for the results of translation. Next, either single or selection will be called, depending on whether we’re looking at a single article or a result list.
 
-_out:_
+Each of these functions is called with the page url, and document object. Selection is also passed an object of {id:title} pairs (for each article found), and a callback function to get the full article metadata. The callback function of selection should be passed back an object with only the ids the user selects. The callback function will result in single being called with the full metadata of those selected.
 
-An object with the following fields:
+entry(doc,url)
+doc: This is the document object for the page where PME was invoked.
+url: This is the url of the page where PME was invoked.
 
-* `Item[] items`
+selection(doc,url,items,callback)
+items: A javascript object containing id:title pairs for items which can be selected. example: {“1234”:”the title one two three four”, “5678”:”some other title”}
+callback: A callback function which instructs the translator to get full metadata for a list of ids from items. The parameter should be a subset of items.
 
-where an item is:
-
-* `title`
-* `object (with lastName and/or firstName props) or  string creators`
-* `string abstractNote`
-* `string date`
-* `string issue`
-* `string volume`
-* `string edition`
-* `string publisher` - publisher name
-* `string place` - publisher location
-* `string language`
-* `string pages`
-* `string publicationTitle`
-* `string ISSN`
-* `string ISBN`
-* `string DOI`
-* `string extra` - the extra field may contain 1 or more xxid: 12345 lines
-
-All fields are optional and dependent on the source page.
-
-
-## Setting up the PME Tester
-
-The PME test harness allows you to run and test PME without connecting to Flow. It consists of the files tester.js and TesterBookmark.js 
-in the PME Git repository. You will also need PME.js as well as any site-specific extractor files (located in the /extractors/ subdirectory) 
-that you plan to work with.
-
-Place the PME files inside a /PME/ directory in your development environment.
-Any extractor files should be inside the /PME/extractors/ subdirectory.
-
-Set up PME as a site on your localhost via IIS or other server manager. The bookmark script expects the server to be localhost/PME. If you 
-use a different base directory, make sure you change the setting of the SRV variable in the bookmark script.
-
-When your localhost is set up, open the file TesterBookmark.js in a text editor.
-
-	1. Copy the line of JavaScript code found in the comments under ////bookmark////. (This line of code is duplicated above the comment 
-		and broken up with whitespace for reference.)
-	2. Open your browser of choice.
-	3. Create a new bookmark, and paste that line of JavaScript code into the "Location" or "URL" field.
-	4. Save the bookmark. If your bookmarks toolbar is not already visible, make it visible now.
-
-Now that your dev environment is set up, clicking the bookmarklet will call PME. To test it, go to http://scholar.google.com , run a search, 
-click your PME tester bookmark, and wait for results to appear.
-
-When you activate the PME tester, a light blue field will appear at the top of the current web document where you will see two reload buttons, 
-status messages, and scrape results.
-
-	--- The tester will first check to see if a scraper exists for the current website. If there isn't one, you'll see a message stating "This 
-			page is not supported yet".
-	--- If a scraper exists, PME will display the "Wait" status message while it calls the scraper and retrieves reference metadata from the 
-			current website. The results of the scrape will appear at the top of the browser window.
-
-The scrape results will tell you the number of references found and display the metadata for each reference as a list of keys and values 
-(e.g. "creators", "title", "publicationTitle", "volume", "url", etc.). You can use the two reload buttons to show only the first reference or 
-reload all references.
-
-
+single(doc,url,item)
+item: A javascript object containing all metadata found by the translator. It is in Zotero format.
 
 # AGPL v3 License
 
-Publication Metadata Extraction – extracts metadata from online publication pages.
+Publication Metadata Extraction
 Copyright (C) 2013-2014 ProQuest LLC
 
 Based on the Zotero Web Translators - https://github.com/zotero/translators
