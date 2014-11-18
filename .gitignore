@@ -8,4 +8,3 @@ test/tape/
 connectors/build/chrome.pem
 
 connectors/build/safari_extension.cer
-config.js
