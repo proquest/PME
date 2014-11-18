@@ -4,11 +4,12 @@ var stack = require('./stack');
 var archiver = require('archiver');
 var c = require('./common'),
 	_zoteroFilesLocation,
+	_translatorsLocation,
 	_pmeLocation,
 	_buildLocation,
 	_builderConfigFilesLocation,
-	_archiveInfo = []
-_translatorsIndex = [];
+	_archiveInfo = [],
+	_translatorsIndex = [];
 
 function addZipInfo(from, st) {
 	st.push();
@@ -31,7 +32,7 @@ function addZipInfo(from, st) {
 }
 function addTranslatorToZip(st, root) {
 	st.push();
-	var translators = path.join(_zoteroFilesLocation, "translators"),
+	var translators = _translatorsLocation,
 		translatorsCount,
 		reID = /"translatorID":\s*"(.+)"/,
 		reLabel = /"label":\s*"(.+)"/,
@@ -104,6 +105,7 @@ function addTranslatorToIndex(objPath, count, st, file, last) {
 
 function setConfig(common) {
 	_zoteroFilesLocation = common.config.zoteroFilesLocation;
+	_translatorsLocation = common.config.translatorsLocation;
 	_pmeLocation = common.config.pmeFilesLocation;
 	_buildLocation = common.config.buildLocation;
 	_builderConfigFilesLocation = common.config.builderConfigFilesLocation;
