@@ -433,6 +433,11 @@ Components.utils.import("resource://gre/modules/Services.jsm");
 				return false;
 			}
 		}
+try {
+	PME.MIMETypeHandler.init();
+	PME.Proxies.init();
+
+}catch(e){PME.debug(e.message);}
 
 		// Register shutdown handler to call PME.shutdown()
 		var _shutdownObserver = {observe: function () {

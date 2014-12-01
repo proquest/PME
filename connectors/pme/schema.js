@@ -162,7 +162,7 @@ PME.Schema = new function(){
 		
 		if (!mode) {
 			var up1 = _updateBundledFilesCallback(installLocation, 'translators', true);
-			return up1 || up2;
+			return up1;
 		}
 		
 		var xpiZipReader, isUnpacked = installLocation.isDirectory();
@@ -1221,7 +1221,8 @@ PME.Schema = new function(){
 			PME.DB.query("CREATE TABLE translatorCache (\n	leafName TEXT PRIMARY KEY,\n	translatorJSON TEXT,\n	code TEXT,\n	lastModifiedTime INT\n)");
 			PME.DB.query("DROP TABLE IF EXISTS version");
 			PME.DB.query("CREATE TABLE version (schema TEXT PRIMARY KEY,version INT NOT NULL); CREATE INDEX schema ON version(schema);");
-
+			PME.DB.query("DROP TABLE IF EXISTS proxies");
+			PME.DB.query("CREATE TABLE proxies (proxyID INTEGER PRIMARY KEY,multiHost INT,autoAssociate INT,scheme TEXT);");
 			_updateDBVersion("schema", "1");
 			PME.DB.commitTransaction();
 		}
