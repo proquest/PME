@@ -264,14 +264,16 @@ function updateDocument(doc, url, item, id) {
 		progressDialog(doc, 0.2);
 		if(item.attachments && item.attach) {
 			//take pdf over html
-			for(var i = 0; i < item.attachments.length; i++)
-				if(item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("pdf") >= 0)
+			for(var i = 0; i < item.attachments.length; i++) {
+				if (item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("pdf") >= 0)
 					attachment = {url: item.attachments[i].url, mimeType: item.attachments[i].mimeType};
+			}
 
 			if(!attachment)
-				for(var i = 0; i < item.attachments.length; i++)
-					if(item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("html") >= 0)
+				for(var i = 0; i < item.attachments.length; i++) {
+					if (item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("html") >= 0)
 						attachment = {url: item.attachments[i].url, mimeType: item.attachments[i].mimeType};
+				}
 
 		}
 		if(!attachment && item.attach) {//types other than pdf?
@@ -284,7 +286,6 @@ function updateDocument(doc, url, item, id) {
 		ZU.HTTP.doPost(FLOW_SERVER + '/edit/' + id + '/?project=all',
 			JSON.stringify(item),
 			function(data_edit) {
-				//    Z.debug(data_edit)
 				try {
 					if(attachment) {
 						progressDialog(doc, 0.5);
@@ -305,7 +306,6 @@ function updateDocument(doc, url, item, id) {
 }
 
 function completeProgress(doc) {
-	Z.debug("completeProgress")
 	var stf = doc.getElementById("stf_capture"),
 			done = parseInt(stf.getAttribute("data-saving-done"));
 	stf.setAttribute("data-saving-done", (isNaN(done) ? 1 : done + 1));
@@ -333,6 +333,7 @@ function getAttachment(doc, attachment, id) {
 					}
 				}
 			});
+
 	}
 	catch(e) {
 		attachmentFailed(doc)
@@ -694,7 +695,7 @@ function singleHeader(doc, refType, attachments) {
 			error(doc, e);
 		}
 		if(pdf || html) {
-			output.push("<img src='" + FLOW_SERVER + "/public/img/" + (html ? "web" : "pdf") + ".png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We found the article, want to save it?</span></label></span>");
+			output.push("<img src='" + FLOW_SERVER + "/public/img/" + (pdf ? "pdf" : "web") + ".png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We found the article, want to save it?</span></label></span>");
 		}
 		else if(containerClass.indexOf("listView") == -1 || html) {
 			output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' class='stf_attach'> <span>Save the content of this web page</span></label></span>");
@@ -1143,8 +1144,6 @@ var conversion = (function() {
 				}
 			}
 		}
-
-		Z.debug(JSON.stringify(converted));
 		return converted;
 	}
 
