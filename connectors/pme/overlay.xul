@@ -41,7 +41,7 @@
     <script src="xpcom/db.js"/>
     <script src="xpcom/schema.js"/>
     <script src="xpcom/openurl.js"/>
-    <!--script src="xpcom/error.js"/-->
+    <script src="xpcom/mimeTypeHandler.js"/>
     <script src="xpcom/file.js"/>
     <script src="xpcom/http.js"/>
     <script src="xpcom/proxy.js"/>

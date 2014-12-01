@@ -141,7 +141,7 @@ module.exports = function (debug) {
 			});
 			common.copyCode(_pmeLocation, path.join(root, "defaults/preferences"), ["pme_prefs.js"]);
 			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js", "pme_ui.js", "overlay.xul", "browser.js"]);
-			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["debug.js","schema.js"]);
+			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["debug.js","schema.js","proxy.js"]);
 			common.copyCode(path.join(_zoteroFilesLocation, "translators"), root, ["deleted.txt"]);
 			common.copyCode(_pmeLocation, root, ["install.rdf", "update.rdf"]);
 			common.copyCode(_builderConfigFilesLocation, root, ['chrome.manifest'])
@@ -164,7 +164,7 @@ module.exports = function (debug) {
 			common.stackInst.push();
 			fs.mkdir(root, function () {
 				common.copyCode(_zoteroFilesLocation, root, ["xregexp.js", "q.js", "file.js", "date.js", "db.js", "zotero.css",
-					"proxy.js","openurl.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
+					"mimeTypeHandler.js","openurl.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
 					"init.js","uri.js","term.js","identity.js","match.js","n3parser.js","serialize.js",
 					"http.js", "utilities.js", "utilities_internal.js", "utilities_translate.js", "cachedTypes.js",
 					"repotime.txt"], ["!", "translators"], [
@@ -197,7 +197,7 @@ module.exports = function (debug) {
 					},
 					{
 						fileName: ["schema.js","date.js","debug.js","db.js","error.js","file.js","http.js","mimeTypeHandler.js",
-							"openurl.js","ipc.js","proxy.js","translate.js","translate_firefox.js","translate_item.js","translator.js","tlds.js",
+							"openurl.js","ipc.js","translate.js","translate_firefox.js","translate_item.js","translator.js","tlds.js",
 							"utilities.js","utilities_internal.js","utilities_translate.js","browser.js","notifier.js","cachedTypes.js",
 							"init.js", "uri.js", "term.js", "identity.js", "match.js", "n3parser.js", "serialize.js"],
 						pattern: /Zotero\./g,
