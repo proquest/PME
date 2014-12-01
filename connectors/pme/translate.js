@@ -51,7 +51,6 @@ PME.Translate.Base.prototype["_saveItems"] = function (items) {
 
 	function transferObject(obj) {
 		if(PME.isFx) {
-			PME.debug("attachments.length: "+obj.attachments.length)
 			if(obj.attachments && Array.isArray(obj.attachments)) {
 				var attachments = obj.attachments.filter(function(att) {
 					if(att.document)
