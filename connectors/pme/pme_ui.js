@@ -216,6 +216,7 @@ function save(item, doc, url) {
 		doc.getElementById("stf_container").style.display = "none";
 		doc.getElementById("stf_progress").style.display = "block";
 
+		//move this check up to the save event so it only needs to happen once.
 		ZU.HTTP.doGet(FLOW_SERVER + '/login/session/', function(data_login) {//check for logged in
 			try {
 				if(JSON.parse(data_login).result == "success")
@@ -464,6 +465,10 @@ function selection(doc, url, items, callback) {
 	try {
 		//callback should complete items, so we'll basically want to use it when we want to see of save an item.
 		var container = doc.getElementById("stf_ui_itemlist"), stf = doc.getElementById("stf_capture"), ix = 1;
+		if(container.getElementsByClassName("stf_ui_item").length > 0) {
+			Z.debug("selection called after already loaded.");
+			return;
+		}
 		stf.className = "listView";
 		//list view is too fast? need a delay
 		ZU.setTimeout(function() {
@@ -575,7 +580,10 @@ function selection(doc, url, items, callback) {
 							if(savedReferences[item_id]) {
 								if(savedReferences[item_id].modifiedFields)
 									modified.push(savedReferences[item_id].modifiedFields)
-								save(savedReferences[item_id], doc, url);
+
+								var reference = conversion.convert(savedReferences[item_id])
+								reference.attachments = savedReferences[item_id].attachments;
+								save(reference, doc, url);
 							}
 							else {
 								var thisItem = {};
@@ -826,7 +834,7 @@ function saveReference(doc, url, item, useItem) {
 		var reference = useItem ? item : getModified(doc);
 		reference = conversion.convert(reference);//convert to deep flow model
 		reference.attachments = item.attachments;
-		reference.attach = useItem ? true : doc.getElementById("stf_attach").checked;
+		reference.attach = useItem ? item.attachments.length : doc.getElementById("stf_attach").checked;
 		save(reference, doc, url);
 		return reference;
 	}
