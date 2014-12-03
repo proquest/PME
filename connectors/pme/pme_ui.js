@@ -182,21 +182,23 @@ function debug(doc, str) {
 
 function error(doc, e) {
 	//severity levels?
-	var errorObj = {
-		name: e.name,
-		message: e.message,
-		func: arguments.callee.caller.name,
-		lineNumber: e.lineNumber//,
-		//url:url
+	try {
+		var errorObj = {
+			name: e.name,
+			message: e.message,
+			func: arguments.callee && arguments.callee.caller ? arguments.callee.caller.name : "",
+			lineNumber: e.lineNumber//,
+			//url:url
+		}
+		if (MODE == "debug") {
+			debug(doc, JSON.stringify(errorObj));
+		}
+		else
+			ZU.HTTP.doPost("http://ec2-54-80-213-189.compute-1.amazonaws.com:8080/stferror", JSON.stringify(errorObj), function () {
+			}, {"Content-Type": "application/json"});//send to server to be logged
 	}
-	if(MODE == "debug") {
-		debug(doc, JSON.stringify(errorObj));
-	}
-	else
-		ZU.HTTP.doPost("http://ec2-54-80-213-189.compute-1.amazonaws.com:8080/stferror", JSON.stringify(errorObj), function() {
-		}, {"Content-Type": "application/json"});//send to server to be logged
+	catch(e){}
 }
-
 function tracking(doc, tracking) {
 	try {
 		doc.getElementById("stf_track_found").value = tracking.found;
