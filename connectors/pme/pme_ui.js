@@ -182,21 +182,23 @@ function debug(doc, str) {
 
 function error(doc, e) {
 	//severity levels?
-	var errorObj = {
-		name: e.name,
-		message: e.message,
-		func: arguments.callee.caller.name,
-		lineNumber: e.lineNumber//,
-		//url:url
+	try {
+		var errorObj = {
+			name: e.name,
+			message: e.message,
+			func: arguments.callee && arguments.callee.caller ? arguments.callee.caller.name : "",
+			lineNumber: e.lineNumber//,
+			//url:url
+		}
+		if (MODE == "debug") {
+			debug(doc, JSON.stringify(errorObj));
+		}
+		else
+			ZU.HTTP.doPost("http://ec2-54-80-213-189.compute-1.amazonaws.com:8080/stferror", JSON.stringify(errorObj), function () {
+			}, {"Content-Type": "application/json"});//send to server to be logged
 	}
-	if(MODE == "debug") {
-		debug(doc, JSON.stringify(errorObj));
-	}
-	else
-		ZU.HTTP.doPost("http://ec2-54-80-213-189.compute-1.amazonaws.com:8080/stferror", JSON.stringify(errorObj), function() {
-		}, {"Content-Type": "application/json"});//send to server to be logged
+	catch(e){}
 }
-
 function tracking(doc, tracking) {
 	try {
 		doc.getElementById("stf_track_found").value = tracking.found;
@@ -216,6 +218,7 @@ function save(item, doc, url) {
 		doc.getElementById("stf_container").style.display = "none";
 		doc.getElementById("stf_progress").style.display = "block";
 
+		//move this check up to the save event so it only needs to happen once.
 		ZU.HTTP.doGet(FLOW_SERVER + '/login/session/', function(data_login) {//check for logged in
 			try {
 				if(JSON.parse(data_login).result == "success")
@@ -264,14 +267,16 @@ function updateDocument(doc, url, item, id) {
 		progressDialog(doc, 0.2);
 		if(item.attachments && item.attach) {
 			//take pdf over html
-			for(var i = 0; i < item.attachments.length; i++)
-				if(item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("pdf") >= 0)
+			for(var i = 0; i < item.attachments.length; i++) {
+				if (item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("pdf") >= 0)
 					attachment = {url: item.attachments[i].url, mimeType: item.attachments[i].mimeType};
+			}
 
 			if(!attachment)
-				for(var i = 0; i < item.attachments.length; i++)
-					if(item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("html") >= 0)
+				for(var i = 0; i < item.attachments.length; i++) {
+					if (item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("html") >= 0)
 						attachment = {url: item.attachments[i].url, mimeType: item.attachments[i].mimeType};
+				}
 
 		}
 		if(!attachment && item.attach) {//types other than pdf?
@@ -284,7 +289,6 @@ function updateDocument(doc, url, item, id) {
 		ZU.HTTP.doPost(FLOW_SERVER + '/edit/' + id + '/?project=all',
 			JSON.stringify(item),
 			function(data_edit) {
-				//    Z.debug(data_edit)
 				try {
 					if(attachment) {
 						progressDialog(doc, 0.5);
@@ -305,7 +309,6 @@ function updateDocument(doc, url, item, id) {
 }
 
 function completeProgress(doc) {
-	Z.debug("completeProgress")
 	var stf = doc.getElementById("stf_capture"),
 			done = parseInt(stf.getAttribute("data-saving-done"));
 	stf.setAttribute("data-saving-done", (isNaN(done) ? 1 : done + 1));
@@ -333,6 +336,7 @@ function getAttachment(doc, attachment, id) {
 					}
 				}
 			});
+
 	}
 	catch(e) {
 		attachmentFailed(doc)
@@ -463,6 +467,10 @@ function selection(doc, url, items, callback) {
 	try {
 		//callback should complete items, so we'll basically want to use it when we want to see of save an item.
 		var container = doc.getElementById("stf_ui_itemlist"), stf = doc.getElementById("stf_capture"), ix = 1;
+		if(container.getElementsByClassName("stf_ui_item").length > 0) {
+			Z.debug("selection called after already loaded.");
+			return;
+		}
 		stf.className = "listView";
 		//list view is too fast? need a delay
 		ZU.setTimeout(function() {
@@ -574,7 +582,10 @@ function selection(doc, url, items, callback) {
 							if(savedReferences[item_id]) {
 								if(savedReferences[item_id].modifiedFields)
 									modified.push(savedReferences[item_id].modifiedFields)
-								save(savedReferences[item_id], doc, url);
+
+								var reference = conversion.convert(savedReferences[item_id])
+								reference.attachments = savedReferences[item_id].attachments;
+								save(reference, doc, url);
 							}
 							else {
 								var thisItem = {};
@@ -694,7 +705,7 @@ function singleHeader(doc, refType, attachments) {
 			error(doc, e);
 		}
 		if(pdf || html) {
-			output.push("<img src='" + FLOW_SERVER + "/public/img/" + (html ? "web" : "pdf") + ".png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We found the article, want to save it?</span></label></span>");
+			output.push("<img src='" + FLOW_SERVER + "/public/img/" + (pdf ? "pdf" : "web") + ".png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We found the article, want to save it?</span></label></span>");
 		}
 		else if(containerClass.indexOf("listView") == -1 || html) {
 			output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='stf_lbl'/><span class='input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' class='stf_attach'> <span>Save the content of this web page</span></label></span>");
@@ -825,7 +836,7 @@ function saveReference(doc, url, item, useItem) {
 		var reference = useItem ? item : getModified(doc);
 		reference = conversion.convert(reference);//convert to deep flow model
 		reference.attachments = item.attachments;
-		reference.attach = useItem ? true : doc.getElementById("stf_attach").checked;
+		reference.attach = useItem ? item.attachments.length : doc.getElementById("stf_attach").checked;
 		save(reference, doc, url);
 		return reference;
 	}
@@ -1143,8 +1154,6 @@ var conversion = (function() {
 				}
 			}
 		}
-
-		Z.debug(JSON.stringify(converted));
 		return converted;
 	}
 
