@@ -617,6 +617,9 @@ function move(doc, url, callback, items, offset, savedReferences) {
 	for(var i = 0; i < cbx.length; i++) {
 		try {
 			if(cbx[i].id == "stf_cbx_" + id) {
+				if(i+offset < 0 || i+offset >= cbx.length)
+					return;
+				stf.className += " toggle";
 				var thisItem = {}, thisItemId = cbx[i + offset].id.replace("stf_cbx_", "");
 				stf.setAttribute("data-id", thisItemId);
 				stf.setAttribute("data-ix", i + (1 + offset));
