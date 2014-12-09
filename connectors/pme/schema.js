@@ -89,6 +89,56 @@ PME.Schema = new function(){
 
 	}
 	
+	this.updateCustomTables = function (skipDelete, skipSystem) {
+		PME.debug("Updating custom tables");
+
+		if (!skipDelete) {
+			PME.DB.query("DELETE FROM itemTypesCombined");
+			PME.DB.query("DELETE FROM fieldsCombined");
+			PME.DB.query("DELETE FROM itemTypeFieldsCombined");
+			PME.DB.query("DELETE FROM baseFieldMappingsCombined");
+		}
+		var offset = PME.ItemTypes.customIDOffset;
+		PME.DB.query(
+			"INSERT INTO itemTypesCombined "
+				+ (
+					skipSystem
+					? ""
+					: "SELECT itemTypeID, typeName, display, 0 AS custom FROM itemTypes UNION "
+				)
+				+ "SELECT customItemTypeID + " + offset + " AS itemTypeID, typeName, display, 1 AS custom FROM customItemTypes"
+		);
+		PME.DB.query(
+			"INSERT INTO fieldsCombined "
+				+ (
+					skipSystem
+					? ""
+					: "SELECT fieldID, fieldName, NULL AS label, fieldFormatID, 0 AS custom FROM fields UNION "
+				)
+				+ "SELECT customFieldID + " + offset + " AS fieldID, fieldName, label, NULL, 1 AS custom FROM customFields"
+		);
+		PME.DB.query(
+			"INSERT INTO itemTypeFieldsCombined "
+				+ (
+					skipSystem
+					? ""
+					: "SELECT itemTypeID, fieldID, hide, orderIndex FROM itemTypeFields UNION "
+				)
+				+ "SELECT customItemTypeID + " + offset + " AS itemTypeID, "
+					+ "COALESCE(fieldID, customFieldID + " + offset + ") AS fieldID, hide, orderIndex FROM customItemTypeFields"
+		);
+		PME.DB.query(
+			"INSERT INTO baseFieldMappingsCombined "
+				+ (
+					skipSystem
+					? ""
+					: "SELECT itemTypeID, baseFieldID, fieldID FROM baseFieldMappings UNION "
+				)
+				+ "SELECT customItemTypeID + " + offset + " AS itemTypeID, baseFieldID, "
+					+ "customFieldID + " + offset + " AS fieldID FROM customBaseFieldMappings"
+		);
+	}
+
 	/**
 	 * Update styles and translators in data directory with versions from
 	 * ZIP file (XPI) or directory (source) in extension directory
@@ -940,7 +990,7 @@ PME.Schema = new function(){
 		if (!schema){
 			throw ('Schema type not provided to _getSchemaSQL()');
 		}
-		
+
 		return PME.File.getContentsFromURL("resource://pme/schema/"+schema+".sql");
 	}
 	
@@ -976,6 +1026,12 @@ PME.Schema = new function(){
 			PME.DB.query("PRAGMA page_size = 4096");
 			PME.DB.query("PRAGMA encoding = 'UTF-8'");
 			PME.DB.query("PRAGMA auto_vacuum = 1");
+
+			PME.DB.query(_getSchemaSQL('system'));
+			PME.DB.query(_getSchemaSQL('userdata'));
+			PME.DB.query(_getSchemaSQL('triggers'));
+			PME.Schema.updateCustomTables(true);
+
 			_migrateUserDataSchema();
 			PME.DB.commitTransaction();
 			self.dbInitialized = true;

@@ -167,7 +167,7 @@ module.exports = function (debug) {
 					"mimeTypeHandler.js","openurl.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
 					"init.js","uri.js","term.js","identity.js","match.js","n3parser.js","serialize.js",
 					"http.js", "utilities.js", "utilities_internal.js", "utilities_translate.js", "cachedTypes.js",
-					"repotime.txt"], ["!", "translators"], [
+					"repotime.txt", "system.sql", "triggers.sql", "userdata.sql"], ["!", "translators"], [
 					{
 						fileName: 'all',
 						pattern: /(?:((?:(?:chrome)|(?:resource)):\/\/)zotero((?:-platform)?\/))|(?:(\.append\(')zotero('\)))/g,
