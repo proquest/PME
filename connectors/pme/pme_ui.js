@@ -739,8 +739,12 @@ function single(doc, url, item, noneFound) {
 			return;
 		}
 
-		if(noneFound)
-			doc.getElementById("stf_webref").style.display = "block";
+		if(noneFound) {
+			if(url.indexOf(".pdf") > -1)
+				item.attachments.push({title: 'Full Text PDF', url: url, mimeType: 'application/pdf'});
+			else
+				doc.getElementById("stf_webref").style.display = "block";
+		}
 
 		var output = singleHeader(doc, item.refType, item.attachments)
 			.concat(createFields(doc, item));
