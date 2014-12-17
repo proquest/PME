@@ -5,6 +5,11 @@ function entry(doc, url) {
 	if(doc && !doc.getElementById("stf_capture")) {
 		style(doc);
 		container(doc);
+
+		ZU.setTimeout(function () {
+			var className = doc.getElementById("stf_capture").className;
+			doc.getElementById("stf_capture").className = (className ? className+" ":"") + "show";
+		}, 100);
 	}
 	return "Save to Flow Loaded"
 }
@@ -29,8 +34,9 @@ function style(doc) {
 		style.push("#stf_capture .stf_download .stf_download_progress {position:absolute;height:12px;width:10px;background:rgb(0,154,211);border-radius:4px;}");
 		style.push("#stf_capture #stf_container {z-index:1;background:#454a53;position:absolute;top:0;bottom:0;width:360px;}");
 		style.push("#stf_capture #stf_container #stf_processing {padding:0 20px;font-size:14px;text-align:center;z-index:2;position:absolute;top:81px;}");
-		style.push("#stf_capture.listView #stf_container #stf_processing {display:none;}");
-		style.push("#stf_capture.singleView #stf_container #stf_processing {display:none;}");
+		style.push("#stf_capture.listView:not(.toggle) #stf_container #stf_processing {display:none;}");
+		style.push("#stf_capture.listView.singleView.toggle #stf_container #stf_processing {display:block;top:91px;}");
+		style.push("#stf_capture.singleView:not(.toggle) #stf_container #stf_processing {display:none;}");
 		style.push("#stf_capture .warn {display:none;color:#d1d2d5;margin:10px 20px 20px 20px;padding:6px 10px;background:#585c65;border-radius:3px;box-shadow:inset 2px 3px 3px rgba(0,0,0,0.07);width:320px;}");
 		style.push("#stf_capture .stf_ui_logo_wrapper {width:360px;height:81px;background:#454a53;padding-top:10px;position:absolute;top:0px;right:0px;z-index:100;text-align:center;}");
 		style.push("#stf_capture.listView .stf_ui_logo_wrapper {border-bottom:1px solid #585c65}");
@@ -62,7 +68,7 @@ function style(doc) {
 		style.push("#stf_capture .stf_ui_itemlist .stf_ui_item img.pdf {float:left;margin-right:5px;}");
 		style.push("#stf_capture .stf_ui_itemlist .stf_ui_item img.detail {position:absolute;right:0px;top:5px;cursor:pointer}");
 		style.push("#stf_capture #stf_ui_main {display:none;background:#454a53;position:absolute;top:81px;bottom:81px;width:360px;overflow-y:auto;padding:20px 0px;overflow-y:auto;overflow-x:hidden;}");
-		style.push("#stf_capture.singleView #stf_ui_main {display:block;}");
+		style.push("#stf_capture.singleView:not(.toggle) #stf_ui_main {display:block;}");
 		style.push("#stf_capture.singleView:not(.listView) #stf_ui_main {top:51px;}");
 		style.push("#stf_capture #stf_ui_main .textposition {position:relative}");
 		style.push("#stf_capture #stf_ui_main span.empty {color:#686d76;position:absolute;left:31px;top:7px;line-height:16px;}");
@@ -199,6 +205,7 @@ function error(doc, e) {
 	}
 	catch(e){}
 }
+
 function tracking(doc, tracking) {
 	try {
 		doc.getElementById("stf_track_found").value = tracking.found;
@@ -215,9 +222,6 @@ function tracking(doc, tracking) {
 
 function save(item, doc, url) {
 	try {
-		doc.getElementById("stf_container").style.display = "none";
-		doc.getElementById("stf_progress").style.display = "block";
-
 		//move this check up to the save event so it only needs to happen once.
 		ZU.HTTP.doGet(FLOW_SERVER + '/login/session/', function(data_login) {//check for logged in
 			try {
@@ -471,17 +475,7 @@ function selection(doc, url, items, callback) {
 			Z.debug("selection called after already loaded.");
 			return;
 		}
-		stf.className = "listView";
-		//list view is too fast? need a delay
-		ZU.setTimeout(function() {
-			try {
-				if(doc.getElementById("stf_capture").className.indexOf("show") < 0)
-					doc.getElementById("stf_capture").className += " show";
-			}
-			catch(e) {
-				error(doc, e);
-			}
-		}, 100);
+		stf.className += " listView";
 		for(itemId in items) {
 			try {
 				var item = doc.createElement("div");
@@ -491,6 +485,8 @@ function selection(doc, url, items, callback) {
 				item.addEventListener("click", function(e) {
 					try {
 						if(e.target.className == "detail") {//go to reference
+							stf.className += " singleView toggle";
+							doc.getElementById("stf_processing").innerHTML = "Loading reference";
 							var thisItemId = this.getAttribute("data-id");
 							stf.setAttribute("data-id", thisItemId);
 							stf.setAttribute("data-ix", this.getAttribute("data-ix"));
@@ -572,6 +568,8 @@ function selection(doc, url, items, callback) {
 				else if(stf.className.indexOf("listView") >= 0) {
 					stf.setAttribute("data-saving", "true");
 					stf.setAttribute("data-saving-count", 1);
+					doc.getElementById("stf_container").style.display = "none";
+					doc.getElementById("stf_progress").style.display = "block";
 					var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
 							count = 0,
 							modified = [];
@@ -619,6 +617,9 @@ function move(doc, url, callback, items, offset, savedReferences) {
 	for(var i = 0; i < cbx.length; i++) {
 		try {
 			if(cbx[i].id == "stf_cbx_" + id) {
+				if(i+offset < 0 || i+offset >= cbx.length)
+					return;
+				stf.className += " toggle";
 				var thisItem = {}, thisItemId = cbx[i + offset].id.replace("stf_cbx_", "");
 				stf.setAttribute("data-id", thisItemId);
 				stf.setAttribute("data-ix", i + (1 + offset));
@@ -667,12 +668,12 @@ function singleHeader(doc, refType, attachments) {
 		var stf = doc.getElementById("stf_capture"),
 				containerClass = stf.className,
 				output = [];
+
+		containerClass = containerClass.replace(" toggle","");
 		if(containerClass.indexOf("singleView") < 0)
-			stf.className = (containerClass ? containerClass + " " : "") + "singleView";
-			ZU.setTimeout(function() {
-				if(containerClass.indexOf("show") < 0)
-					doc.getElementById("stf_capture").className += " show";
-			}, 100);
+			stf.className = containerClass + " singleView";
+		else
+			stf.className = containerClass;
 		if(containerClass.indexOf("listView") >= 0) {
 			var ix = parseInt(stf.getAttribute("data-ix")),
 					count = parseInt(stf.getAttribute("data-count"));
@@ -775,6 +776,8 @@ function single(doc, url, item, noneFound) {
 			if(stf.className.indexOf("singleView") >= 0 && stf.className.indexOf("listView") == -1) {
 				doc.getElementById("stf_save_button").addEventListener("click", function(e) {
 					try {
+						doc.getElementById("stf_container").style.display = "none";
+						doc.getElementById("stf_progress").style.display = "block";
 						item = saveReference(doc, url, item, false);
 						var found = 1,
 								selected = 1,
