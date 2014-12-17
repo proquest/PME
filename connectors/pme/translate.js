@@ -122,11 +122,11 @@ PME.Translate.Sandbox.Web._itemDone = function (translate, item) {
 
 PME.Translate.Web.prototype.Sandbox = PME.Translate.Sandbox._inheritFromBase(PME.Translate.Sandbox.Web);
 
-PME.Translate.Search.prototype._getParameters = function(getDocument) {
-	if(getDocument)
+PME.Translate.Search.prototype._getParameters = function (getDocument) {
+	if (getDocument)
 		return [this._parentTranslator.document, this._parentTranslator.location];
-	if(PME.isFx) {
-		return [this._sandboxManager._copyObject(this.search)];
+	if (PME.isFx) {
+		return this._sandboxManager._copyObject ? [this._sandboxManager._copyObject(this.search)] : [this._sandboxManager.copyObject(this.search)];
 	}
 	return [this.search];
 }
