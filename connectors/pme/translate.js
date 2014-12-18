@@ -1,6 +1,5 @@
 PME.Translate.Base.prototype["_translateTranslatorLoadedOld"] = PME.Translate.Base.prototype._translateTranslatorLoaded;
 PME.Translate.Base.prototype["completeOld"] = PME.Translate.Base.prototype.complete;
-PME.Translate.Sandbox.Base["_itemDoneOld"] = PME.Translate.Sandbox.Base._itemDone;
 
 PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
 	try {
@@ -10,7 +9,7 @@ PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
 		xmlhttp.open('GET', "chrome://pme/content/pme_ui.js", true);
 		xmlhttp.onreadystatechange = function () {
 			if (xmlhttp.readyState == 4) {
-				_this._sandboxManager.eval(xmlhttp.responseText, ["entry", "selection", "single"], (_this._currentTranslator.file ? _this._currentTranslator.file.path : _this._currentTranslator.label));
+				_this._sandboxManager.eval(xmlhttp.responseText, ["entry", "selection", "single", "saveItems"], (_this._currentTranslator.file ? _this._currentTranslator.file.path : _this._currentTranslator.label));
 				PME.debug(_this._sandboxManager.sandbox["entry"].apply(null, _this._getParameters(true)));
 				_this._translateTranslatorLoadedOld();
 				_this.setHandler("error", function () {
@@ -30,32 +29,43 @@ PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
 
 PME.Translate.Base.prototype["complete"] = function (returnValue, error) {
 	try {
-		this.completeOld(returnValue, error);
+		if(error) {
+			PME.debug("Translation using " +
+				(this.translator && this.translator[0] && this.translator[0].label ? this.translator[0].label : "no translator") +
+				" failed: \n" + this._generateErrorString(error), 2);
+
+			PME.debug(this._sandboxManager.sandbox["single"].apply(null, this._getParameters(true).concat([undefined, true])))
+		}
+		else
+			this.completeOld(returnValue, error);
 	}
 	catch(e) {
 		PME.debug("Error complete: " + e.message);
 	}
 }
 
-PME.Translate.Sandbox.Base["_itemDone"] = function (translate, item) {
-	this._itemDoneOld(translate, item);
-	translate.saveQueue = [];
-	translate._saveItems([item]);
-}
-
 PME.Translate.Base.prototype["_saveItems"] = function (items) {
 	var _this = this;
 
 	function transferObject(obj) {
-		if (PME.isFx) {
-			if (obj.attachments && Array.isArray(obj.attachments)) {
-				var attachments = obj.attachments.filter(function (att) {
-					if (att.document)
-						return false;
-					return true;
-				});
-				obj.attachments = attachments;
+		if(PME.isFx) {
+			if(Object.prototype.toString.call(obj) === "[object Array]") {
+				var itemsObj = {};
+				for(var i = 0; i < obj.length; i++) {
+					itemsObj['item_' + i] = obj[i];
+
+					if(obj[i].attachments && Array.isArray(obj[i].attachments)) {
+						var attachments = obj[i].attachments.filter(function(att) {
+							if(att.document)
+								return false;
+							return true;
+						});
+						itemsObj['item_' + i].attachments = attachments;
+					}
+				}
+				obj = itemsObj;
 			}
+
 			return _this._sandboxManager.sandbox.JSON.wrappedJSObject ?
 				_this._sandboxManager.sandbox.JSON.wrappedJSObject.parse(JSON.stringify(obj)) :
 				_this._sandboxManager.sandbox.JSON.parse(JSON.stringify(obj));
@@ -64,12 +74,12 @@ PME.Translate.Base.prototype["_saveItems"] = function (items) {
 	}
 
 	try {
-		if (Object.prototype.toString.call(items) === "[object Array]")
-			items = items[0];
+//		if (Object.prototype.toString.call(items) === "[object Array]")
+//			items = items[0];
 
 		if (!this._parentTranslator) {
 			var params = this._getParameters(true).concat([transferObject(items), this.translator[0].translatorID == "8cb314cf-2628-40cd-9713-4e773b8ed5d4"]);
-			PME.debug(this._sandboxManager.sandbox["single"].apply(null, params));
+			PME.debug(this._sandboxManager.sandbox["saveItems"].apply(null, params));
 		}
 	}
 	catch (e) {
