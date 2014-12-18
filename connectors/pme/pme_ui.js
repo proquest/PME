@@ -686,7 +686,7 @@ var SaveToFlow = (function() {
 				doc.getElementById("stf_save_button").innerHTML = "Done editing";
 			}
 			else
-				output.push("<div class='stf_lbl header'>Save As</div>");
+				output.push("<div class='stf_lbl stf_header'>Save As</div>");
 
 			output.push("<select id='reference_type' class='stf_dropdown'>");
 			for (var index in labels.referenceTypes) {
