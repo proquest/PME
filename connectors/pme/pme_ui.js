@@ -1,13 +1,13 @@
 var SaveToFlow = (function() {
 	var FLOW_SERVER = "https://flow.proquest.com",
-		MODE = "DEBUG";
+			MODE = "DEBUG";
 
 	function entry(doc, url) {
-		if (doc && !doc.getElementById("stf_capture")) {
+		if(doc && !doc.getElementById("stf_capture")) {
 			style(doc);
 			container(doc);
 
-			ZU.setTimeout(function () {
+			ZU.setTimeout(function() {
 				var className = doc.getElementById("stf_capture").className;
 				doc.getElementById("stf_capture").className = (className ? className + " " : "") + "stf_show";
 			}, 100);
@@ -93,1130 +93,1133 @@ var SaveToFlow = (function() {
 			styleElement.innerHTML = style.join("");
 			doc.head.appendChild(styleElement);
 		}
-		catch (e) {
+		catch(e) {
 			error(doc, e);
 		}
 	}
 
-function container(doc) {
-	try {
-		var container = doc.createElement("div");
-		container.id = "stf_capture";
-		container.className = "notranslate";
-		container.innerHTML =
-			'<iframe frameborder="0" id="stf_tracking_iframe" name="stf_tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
-			'<form method="post" action="' + FLOW_SERVER + '/savetoflow/tracking/" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" target="stf_tracking_iframe" name="stf_tracking_form" id="stf_tracking_form">' +
-			'<input type="hidden" name="found" id="stf_track_found">' +
-			'<input type="hidden" name="selected" id="stf_track_selected">' +
-			'<input type="hidden" name="url" id="stf_track_url">' +
-			'<input type="hidden" name="modified" id="stf_track_modified">' +
-			'<input type="hidden" name="citation" id="stf_track_citation">' +
-			'</form>' +
-			'<div class="stf_status" id="stf_status"></div>' +
-			'<div class="stf_error" id="stf_error"></div>' +
-			'<div class="stf_download" id="stf_progress">' +
-			'<div class="stf_download_info">Saving to Flow</div>' +
-			'<div class="stf_download_bar"><div class="stf_download_progress" id="stf_download_progress"></div></div>' +
-			'</div>' +
-			'<div id="stf_container">' +
-			'<div class="stf_ui_logo_wrapper">' +
-			'<img src="' + FLOW_SERVER + '/public/img/PQ-StF.png"/><img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_cancel"/>' +
-			'<p class="stf_selected_header stf_left" id="stf_header_text">Select articles</p>' +
-			'<a class="stf_ui_pick_all all stf_right" href="javascript:void(0);" id="stf_select_all">Select All</a>' +
-			'<span class="stf_right single_nav">' +
-			'<img src="' + FLOW_SERVER + '/public/img/arrow-up.png" class="prev" id="stf_single_prev"/>' +
-			'<img src="' + FLOW_SERVER + '/public/img/arrow-down.png" class="next" id="stf_single_next"/>' +
-			'</span>' +
-			'</div>' +
-			'<div id="stf_processing">Finding references</div>' +
-			'<div id="stf_ui_main">' +
-			'<div class="stf_webref stf_warn" id="stf_webref">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
-			'<div class="stf_meta" id="stf_meta"></div>' +
-			'</div>' +
-			'<div class="stf_ui_itemlist" id="stf_ui_itemlist"></div>' +
-			'<div class="stf_button_pane"><button class="stf_btn_save" disabled="disabled" id="stf_save_button">Save to Flow</button></div>' +
-			'</div>'
-		doc.body.appendChild(container);
-		attachCloseEvent(doc, "stf_cancel");
+	function container(doc) {
+		try {
+			var container = doc.createElement("div");
+			container.id = "stf_capture";
+			container.className = "notranslate";
+			container.innerHTML =
+				'<iframe frameborder="0" id="stf_tracking_iframe" name="stf_tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
+				'<form method="post" action="' + FLOW_SERVER + '/savetoflow/tracking/" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" target="stf_tracking_iframe" name="stf_tracking_form" id="stf_tracking_form">' +
+				'<input type="hidden" name="found" id="stf_track_found">' +
+				'<input type="hidden" name="selected" id="stf_track_selected">' +
+				'<input type="hidden" name="url" id="stf_track_url">' +
+				'<input type="hidden" name="modified" id="stf_track_modified">' +
+				'<input type="hidden" name="citation" id="stf_track_citation">' +
+				'</form>' +
+				'<div class="stf_status" id="stf_status"></div>' +
+				'<div class="stf_error" id="stf_error"></div>' +
+				'<div class="stf_download" id="stf_progress">' +
+				'<div class="stf_download_info">Saving to Flow</div>' +
+				'<div class="stf_download_bar"><div class="stf_download_progress" id="stf_download_progress"></div></div>' +
+				'</div>' +
+				'<div id="stf_container">' +
+				'<div class="stf_ui_logo_wrapper">' +
+				'<img src="' + FLOW_SERVER + '/public/img/PQ-StF.png"/><img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_cancel"/>' +
+				'<p class="stf_selected_header stf_left" id="stf_header_text">Select articles</p>' +
+				'<a class="stf_ui_pick_all all stf_right" href="javascript:void(0);" id="stf_select_all">Select All</a>' +
+				'<span class="stf_right single_nav">' +
+				'<img src="' + FLOW_SERVER + '/public/img/arrow-up.png" class="prev" id="stf_single_prev"/>' +
+				'<img src="' + FLOW_SERVER + '/public/img/arrow-down.png" class="next" id="stf_single_next"/>' +
+				'</span>' +
+				'</div>' +
+				'<div id="stf_processing">Finding references</div>' +
+				'<div id="stf_ui_main">' +
+				'<div class="stf_webref stf_warn" id="stf_webref">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
+				'<div class="stf_meta" id="stf_meta"></div>' +
+				'</div>' +
+				'<div class="stf_ui_itemlist" id="stf_ui_itemlist"></div>' +
+				'<div class="stf_button_pane"><button class="stf_btn_save" disabled="disabled" id="stf_save_button">Save to Flow</button></div>' +
+				'</div>'
+			doc.body.appendChild(container);
+			attachCloseEvent(doc, "stf_cancel");
+		}
+		catch(e) {
+			error(doc, e);
+		}
 	}
-	catch(e) {
-		error(doc, e);
+
+	function attachCloseEvent(doc, id) {
+		doc.getElementById(id).addEventListener("click", function(e) {
+			close(doc);
+		}, true);
 	}
-}
 
-function attachCloseEvent(doc, id) {
-	doc.getElementById(id).addEventListener("click", function(e) {
-		close(doc);
-	}, true);
-}
-
-function close(doc) {
-	try {
-		var elem = doc.getElementById("stf_capture");
-		if(elem) {
-			var className = elem.className;
-			elem.className = className.replace("stf_show", "");
-			ZU.setTimeout(function() {
-				try {
-					//need to recheck if the element still there, it could've been removed by now
-					var elem = doc.getElementById("stf_capture");
-					if(elem) {
-						doc.body.removeChild(elem);
-						doc.head.removeChild(doc.getElementById("stf_style"));
-						Z.done();
+	function close(doc) {
+		try {
+			var elem = doc.getElementById("stf_capture");
+			if(elem) {
+				var className = elem.className;
+				elem.className = className.replace("stf_show", "");
+				ZU.setTimeout(function() {
+					try {
+						//need to recheck if the element still there, it could've been removed by now
+						var elem = doc.getElementById("stf_capture");
+						if(elem) {
+							doc.body.removeChild(elem);
+							doc.head.removeChild(doc.getElementById("stf_style"));
+							Z.done();
+						}
 					}
+					catch(e) {
+						error(doc, e);
+					}
+				}, 1000);
+			}
+		}
+		catch(e) {
+			error(doc, e);
+		}
+	}
+
+	function debug(doc, str) {
+		var debug = doc.getElementById("stf_debug")
+		if(!debug) {
+			doc.body.innerHTML += '<div id="stf_debug"></div>';
+			debug = doc.getElementById("stf_debug")
+		}
+		debug.innerHTML += "<div>" + str + "</div>";
+
+	}
+
+	function error(doc, e) {
+		//severity levels?
+		try {
+			var errorObj = {
+				name: e.name,
+				message: e.message,
+				func: arguments.callee && arguments.callee.caller ? arguments.callee.caller.name : "",
+				lineNumber: e.lineNumber//,
+				//url:url
+			}
+			if(MODE == "debug") {
+				debug(doc, JSON.stringify(errorObj));
+			}
+			else
+				ZU.HTTP.doPost("http://ec2-54-80-213-189.compute-1.amazonaws.com:8080/stferror", JSON.stringify(errorObj), function() {
+				}, {"Content-Type": "application/json"});//send to server to be logged
+		}
+		catch(e) {
+		}
+	}
+
+	function tracking(doc, tracking) {
+		try {
+			doc.getElementById("stf_track_found").value = tracking.found;
+			doc.getElementById("stf_track_selected").value = tracking.selected;
+			doc.getElementById("stf_track_url").value = tracking.url;
+			doc.getElementById("stf_track_citation").value = tracking.citation;
+			doc.getElementById("stf_track_modified").value = JSON.stringify(tracking.modified);
+			//doc.getElementById("stf_tracking_form").submit();
+		}
+		catch(e) {
+			error(doc, e);
+		}
+	}
+
+	function save(item, doc, url) {
+		try {
+			doc.getElementById("stf_container").style.display = "none";
+			doc.getElementById("stf_progress").style.display = "block";
+			//move this check up to the save event so it only needs to happen once.
+			ZU.HTTP.doGet(FLOW_SERVER + '/login/session/', function(data_login) {//check for logged in
+				try {
+					if(JSON.parse(data_login).result == "success")
+						newDocument(doc, url, item);
+					else
+						loginDialog(doc);
 				}
 				catch(e) {
+					saveFailed(doc);
 					error(doc, e);
 				}
-			}, 1000);
+			});
+		}
+		catch(e) {
+			saveFailed(doc);
+			error(doc, e);
 		}
 	}
-	catch(e) {
-		error(doc, e);
-	}
-}
 
-function debug(doc, str) {
-	var debug = doc.getElementById("stf_debug")
-	if(!debug) {
-		doc.body.innerHTML += '<div id="stf_debug"></div>';
-		debug = doc.getElementById("stf_debug")
-	}
-	debug.innerHTML += "<div>" + str + "</div>";
-
-}
-
-function error(doc, e) {
-	//severity levels?
-	try {
-		var errorObj = {
-			name: e.name,
-			message: e.message,
-			func: arguments.callee && arguments.callee.caller ? arguments.callee.caller.name : "",
-			lineNumber: e.lineNumber//,
-			//url:url
-		}
-		if (MODE == "debug") {
-			debug(doc, JSON.stringify(errorObj));
-		}
-		else
-			ZU.HTTP.doPost("http://ec2-54-80-213-189.compute-1.amazonaws.com:8080/stferror", JSON.stringify(errorObj), function () {
-			}, {"Content-Type": "application/json"});//send to server to be logged
-	}
-	catch(e){}
-}
-function tracking(doc, tracking) {
-	try {
-		doc.getElementById("stf_track_found").value = tracking.found;
-		doc.getElementById("stf_track_selected").value = tracking.selected;
-		doc.getElementById("stf_track_url").value = tracking.url;
-		doc.getElementById("stf_track_citation").value = tracking.citation;
-		doc.getElementById("stf_track_modified").value = JSON.stringify(tracking.modified);
-		//doc.getElementById("stf_tracking_form").submit();
-	}
-	catch(e) {
-		error(doc, e);
-	}
-}
-
-function save(item, doc, url) {
-	try {
-		doc.getElementById("stf_container").style.display = "none";
-		doc.getElementById("stf_progress").style.display = "block";
-		//move this check up to the save event so it only needs to happen once.
-		ZU.HTTP.doGet(FLOW_SERVER + '/login/session/', function(data_login) {//check for logged in
-			try {
-				if(JSON.parse(data_login).result == "success")
-					newDocument(doc, url, item);
-				else
-					loginDialog(doc);
-			}
-			catch(e) {
-				saveFailed(doc);
-				error(doc, e);
-			}
-		});
-	}
-	catch(e) {
-		saveFailed(doc);
-		error(doc, e);
-	}
-}
-
-function newDocument(doc, url, item) {
-	try {
-		ZU.HTTP.doGet(FLOW_SERVER + '/api/1/doc/newid/', function(data_id) {
-			try {
-				var resp = JSON.parse(data_id), id = resp.data;
-				//no id = failure
-				if(id)
-					updateDocument(doc, url, item, id);
-				else
+	function newDocument(doc, url, item) {
+		try {
+			ZU.HTTP.doGet(FLOW_SERVER + '/api/1/doc/newid/', function(data_id) {
+				try {
+					var resp = JSON.parse(data_id), id = resp.data;
+					//no id = failure
+					if(id)
+						updateDocument(doc, url, item, id);
+					else
+						saveFailed(doc);
+				}
+				catch(e) {
 					saveFailed(doc);
-			}
-			catch(e) {
-				saveFailed(doc);
-				error(doc, e);
-			}
-		});
+					error(doc, e);
+				}
+			});
+		}
+		catch(e) {
+			saveFailed(doc);
+			error(doc, e);
+		}
 	}
-	catch(e) {
-		saveFailed(doc);
-		error(doc, e);
-	}
-}
 
-function updateDocument(doc, url, item, id) {
-	try {
-		var attachment;
-		progressDialog(doc, 0.2);
-		if(item.attachments && item.attach) {
-			//take pdf over html
-			for(var i = 0; i < item.attachments.length; i++) {
-				if (item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("pdf") >= 0)
-					attachment = {url: item.attachments[i].url, mimeType: item.attachments[i].mimeType};
-			}
-
-			if(!attachment)
+	function updateDocument(doc, url, item, id) {
+		try {
+			var attachment;
+			progressDialog(doc, 0.2);
+			if(item.attachments && item.attach) {
+				//take pdf over html
 				for(var i = 0; i < item.attachments.length; i++) {
-					if (item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("html") >= 0)
+					if(item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("pdf") >= 0)
 						attachment = {url: item.attachments[i].url, mimeType: item.attachments[i].mimeType};
 				}
 
-		}
-		if(!attachment && item.attach) {//types other than pdf?
-			attachment = {html: doc.documentElement.outerHTML || (new XMLSerializer().serializeToString(doc)), url: url};
-		}
+				if(!attachment)
+					for(var i = 0; i < item.attachments.length; i++) {
+						if(item.attachments[i].mimeType && item.attachments[i].mimeType.indexOf("html") >= 0)
+							attachment = {url: item.attachments[i].url, mimeType: item.attachments[i].mimeType};
+					}
 
-		delete item.attachments;
-		delete item.attach;
-		delete item.modifiedFields;
-		ZU.HTTP.doPost(FLOW_SERVER + '/edit/' + id + '/?project=all',
-			JSON.stringify(item),
-			function(data_edit) {
-				try {
-					if(attachment) {
-						progressDialog(doc, 0.5);
-						getAttachment(doc, attachment, id);
+			}
+			if(!attachment && item.attach) {//types other than pdf?
+				attachment = {html: doc.documentElement.outerHTML || (new XMLSerializer().serializeToString(doc)), url: url};
+			}
+
+			delete item.attachments;
+			delete item.attach;
+			delete item.modifiedFields;
+			ZU.HTTP.doPost(FLOW_SERVER + '/edit/' + id + '/?project=all',
+				JSON.stringify(item),
+				function(data_edit) {
+					try {
+						if(attachment) {
+							progressDialog(doc, 0.5);
+							getAttachment(doc, attachment, id);
+						}
+						else {
+							completeProgress(doc);
+						}
+					}
+					catch(e) {
+						error(doc, e);
+					}
+				}, {"Content-Type": "application/json"});
+		}
+		catch(e) {
+			error(doc, e);
+		}
+	}
+
+	function completeProgress(doc) {
+		var stf = doc.getElementById("stf_capture"),
+				done = parseInt(stf.getAttribute("data-saving-done"));
+		stf.setAttribute("data-saving-done", (isNaN(done) ? 1 : done + 1));
+		progressDialog(doc, 0.5);
+	}
+
+	function getAttachment(doc, attachment, id) {
+		try {
+			if(attachment.html)
+				saveAttachment(doc, id, attachment.html, "text/html", attachment.url);
+			else
+				ZU.HTTP.promise("GET", attachment.url, {responseType: "blob", headers: {"Content-Type": attachment.mimeType}}, function(blob) {
+					if(!blob) {
+						attachmentFailed(doc);
+						//error(doc, e);
 					}
 					else {
+						try {
+							progressDialog(doc, 0.7);
+							saveAttachment(doc, id, blob, attachment.mimeType, attachment.url);
+						}
+						catch(e) {
+							attachmentFailed(doc)
+							error(doc, e);
+						}
+					}
+				});
+
+		}
+		catch(e) {
+			attachmentFailed(doc)
+			error(doc, e);
+		}
+	}
+
+	function saveAttachment(doc, id, body, mimeType, attachUrl) {
+		try {
+			var url = mimeType.indexOf("html") > 0 ?
+				FLOW_SERVER + "/edit/" + id + "/html/?url=" + encodeURIComponent(attachUrl) :
+				FLOW_SERVER + "/savetoflow/attachment/" + id + "/";
+			ZU.HTTP.promise("POST", url, {debug: true, headers: {"Content-Type": mimeType}, body: body}, function(blob) {
+				try {
+					if(!blob)
+						attachmentFailed(doc);
+					else
 						completeProgress(doc);
+				}
+				catch(e) {
+					attachmentFailed(doc);
+					error(doc, e);
+				}
+			});
+		}
+		catch(e) {
+			attachmentFailed(doc);
+			error(doc, e);
+		}
+	}
+
+	function saveFailed(doc) {
+		progressDialog(doc, 1);//allow completion
+		try {
+			var errorDialog = doc.getElementById("stf_error");
+			doc.getElementById("stf_progress").style.display = "none";
+			errorDialog.style.display = "block";
+			errorDialog.innerHTML = "We're sorry, we were unable to save to Flow. We tried, but came up empty.";
+		}
+		catch(e) {
+			error(doc, e);
+		}
+	}
+
+	function attachmentFailed(doc) {
+		progressDialog(doc, 1);//allow completion
+		try {
+			var errorDialog = doc.getElementById("stf_error");
+			errorDialog.style.display = "block";
+			errorDialog.style.top = '85px';
+			errorDialog.innerHTML = "We're sorry, we were unable to get some of the full-text. We tried, but came up empty.";
+			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_err_cancel"/>We\'re sorry, we were unable to get some of the full-text. We tried, but came up empty.';
+			attachCloseEvent(doc, "stf_err_cancel");
+		}
+		catch(e) {
+			error(doc, e);
+		}
+		completeProgress(doc);
+	}
+
+	function progressDialog(doc, ratio) {
+		var stf = doc.getElementById("stf_capture"),
+				count = stf.getAttribute("data-saving-count"),
+				done = stf.getAttribute("data-saving-done");
+		if(count) {
+			count = parseInt(count), done = parseInt(done);
+			if(isNaN(done))
+				done = 0;
+			ratio = done / count;
+		}
+		if(!count && parseInt(done) == 1)
+			ratio = 1;
+
+		doc.getElementById("stf_download_progress").style.width = Math.round(ratio * 315) + "px";
+		if(ratio == 1)
+			completeDialog(doc);
+	}
+
+	function completeDialog(doc) {
+		try {
+			var count = doc.getElementById("stf_capture").getAttribute("data-saving-count"),
+					status = doc.getElementById("stf_status"),
+					countText = count ? count + " articles saved." : "1 article saved.";
+
+			doc.getElementById("stf_progress").style.display = "none";
+			status.style.display = "block";
+			status.innerHTML = countText + '<form method="get" action="' + FLOW_SERVER + '/library/recent/" target="ProQuestFlow"><button id="stf_view_button" type="submit">View in Flow</button></form>';
+
+			ZU.setTimeout(function() {
+				try {
+					status.style.display = "none";
+					close(doc)
+					Z.done();
+				}
+				catch(e) {
+					error(doc, e);
+				}
+			}, 8000);
+		}
+		catch(e) {
+			error(doc, e);
+		}
+	}
+
+	function loginDialog(doc) {
+		try {
+			var status = doc.getElementById("stf_status");
+			doc.getElementById("stf_progress").style.display = "none";
+			status.style.display = "block";
+			status.innerHTML = 'You must be logged in. <form method="get" action="' + FLOW_SERVER + '" target="ProQuestFlow"><button id="stf_view_button" type="submit">Log in now</button></form>';
+
+			ZU.setTimeout(function() {
+				try {
+					status.style.display = "none";
+					doc.getElementById("stf_container").style.display = "block";
+				}
+				catch(e) {
+					error(doc, e);
+				}
+			}, 4000);
+		}
+		catch(e) {
+			error(doc, e);
+		}
+	}
+
+	function selection(doc, url, items, callback) {
+		try {
+			//callback should complete items, so we'll basically want to use it when we want to see of save an item.
+			var container = doc.getElementById("stf_ui_itemlist"), stf = doc.getElementById("stf_capture"), ix = 1;
+			if(container.getElementsByClassName("stf_ui_item").length > 0) {
+				Z.debug("selection called after already loaded.");
+				return;
+			}
+			stf.className = " stf_listView";
+			for(itemId in items) {
+				try {
+					var item = doc.createElement("div");
+					item.className = "stf_ui_item";
+					item.setAttribute("data-id", itemId);
+					item.setAttribute("data-ix", ix++);
+					item.addEventListener("click", function(e) {
+						try {
+							if(e.target.className == "stf_detail") {//go to reference
+								stf.className += " stf_singleView stf_toggle";
+								doc.getElementById("stf_processing").innerHTML = "Loading reference";
+								var thisItemId = this.getAttribute("data-id");
+								stf.setAttribute("data-id", thisItemId);
+								stf.setAttribute("data-ix", this.getAttribute("data-ix"));
+								if(savedReferences[thisItemId]) {
+									single(doc, url, savedReferences[thisItemId]);
+								}
+								else {
+									var thisItem = {};
+									thisItem[thisItemId] = items[thisItemId];
+									callback(thisItem);
+								}
+							}
+							else {//update count of selected. enable button if > 0
+								setListButton(doc);
+							}
+						}
+						catch(e) {
+							error(doc, e);
+						}
+					}, true);
+					item.innerHTML = '<p><input type="checkbox" id="stf_cbx_' + itemId + '"/><label for="stf_cbx_' + itemId + '">' + items[itemId] + '</label></p>'
+						+ '<img src="' + FLOW_SERVER + '/public/img/oval-arrow-grey.png" class="stf_detail"/>';
+					container.appendChild(item);
+				}
+				catch(e) {
+					error(doc, e);
+				}
+			}
+			stf.setAttribute("data-count", ix - 1);
+			var savedReferences = {};
+
+			doc.getElementById("stf_select_all").addEventListener("click", function(e) {
+				try {
+					if(this.getAttribute("unselect") == "true") {
+						this.innerHTML = "Select All";
+						this.setAttribute("unselect", "false");
+						setListButton(doc, false);
+					}
+					else {
+						this.innerHTML = "Unselect All";
+						this.setAttribute("unselect", "true");
+						setListButton(doc, true);
 					}
 				}
 				catch(e) {
 					error(doc, e);
 				}
-			}, {"Content-Type": "application/json"});
-	}
-	catch(e) {
-		error(doc, e);
-	}
-}
-
-function completeProgress(doc) {
-	var stf = doc.getElementById("stf_capture"),
-			done = parseInt(stf.getAttribute("data-saving-done"));
-	stf.setAttribute("data-saving-done", (isNaN(done) ? 1 : done + 1));
-	progressDialog(doc, 0.5);
-}
-
-function getAttachment(doc, attachment, id) {
-	try {
-		if(attachment.html)
-			saveAttachment(doc, id, attachment.html, "text/html", attachment.url);
-		else
-			ZU.HTTP.promise("GET", attachment.url, {responseType: "blob", headers: {"Content-Type": attachment.mimeType}}, function(blob) {
-				if(!blob) {
-					attachmentFailed(doc);
-					//error(doc, e);
-				}
-				else {
-					try {
-						progressDialog(doc, 0.7);
-						saveAttachment(doc, id, blob, attachment.mimeType, attachment.url);
-					}
-					catch(e) {
-						attachmentFailed(doc)
-						error(doc, e);
-					}
-				}
-			});
-
-	}
-	catch(e) {
-		attachmentFailed(doc)
-		error(doc, e);
-	}
-}
-
-function saveAttachment(doc, id, body, mimeType, attachUrl) {
-	try {
-		var url = mimeType.indexOf("html") > 0 ?
-			FLOW_SERVER + "/edit/" + id + "/html/?url=" + encodeURIComponent(attachUrl) :
-			FLOW_SERVER + "/savetoflow/attachment/" + id + "/";
-		ZU.HTTP.promise("POST", url, {debug: true, headers: {"Content-Type": mimeType}, body: body}, function(blob) {
-			try {
-				if(!blob)
-					attachmentFailed(doc);
-				else
-					completeProgress(doc);
-			}
-			catch(e) {
-				attachmentFailed(doc);
-				error(doc, e);
-			}
-		});
-	}
-	catch(e) {
-		attachmentFailed(doc);
-		error(doc, e);
-	}
-}
-
-function saveFailed(doc) {
-	progressDialog(doc, 1);//allow completion
-	try {
-		var errorDialog = doc.getElementById("stf_error");
-		doc.getElementById("stf_progress").style.display = "none";
-		errorDialog.style.display = "block";
-		errorDialog.innerHTML = "We're sorry, we were unable to save to Flow. We tried, but came up empty.";
-	}
-	catch(e) {
-		error(doc, e);
-	}
-}
-
-function attachmentFailed(doc) {
-	progressDialog(doc, 1);//allow completion
-	try {
-		var errorDialog = doc.getElementById("stf_error");
-		errorDialog.style.display = "block";
-		errorDialog.style.top = '85px';
-		errorDialog.innerHTML = "We're sorry, we were unable to get some of the full-text. We tried, but came up empty.";
-		errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_err_cancel"/>We\'re sorry, we were unable to get some of the full-text. We tried, but came up empty.';
-		attachCloseEvent(doc, "stf_err_cancel");
-	}
-	catch(e) {
-		error(doc, e);
-	}
-	completeProgress(doc);
-}
-
-function progressDialog(doc, ratio) {
-	var stf = doc.getElementById("stf_capture"),
-			count = stf.getAttribute("data-saving-count"),
-			done = stf.getAttribute("data-saving-done");
-	if(count) {
-		count = parseInt(count), done = parseInt(done);
-		if(isNaN(done))
-			done = 0;
-		ratio = done / count;
-	}
-	if(!count && parseInt(done) == 1)
-		ratio = 1;
-
-	doc.getElementById("stf_download_progress").style.width = Math.round(ratio * 315) + "px";
-	if(ratio == 1)
-		completeDialog(doc);
-}
-
-function completeDialog(doc) {
-	try {
-		var count = doc.getElementById("stf_capture").getAttribute("data-saving-count"),
-				status = doc.getElementById("stf_status"),
-				countText = count ? count + " articles saved." : "1 article saved.";
-
-		doc.getElementById("stf_progress").style.display = "none";
-		status.style.display = "block";
-		status.innerHTML = countText + '<form method="get" action="' + FLOW_SERVER + '/library/recent/" target="ProQuestFlow"><button id="stf_view_button" type="submit">View in Flow</button></form>';
-
-		ZU.setTimeout(function() {
-			try {
-				status.style.display = "none";
-				close(doc)
-				Z.done();
-			}
-			catch(e) {
-				error(doc, e);
-			}
-		}, 8000);
-	}
-	catch(e) {
-		error(doc, e);
-	}
-}
-
-function loginDialog(doc) {
-	try {
-		var status = doc.getElementById("stf_status");
-		doc.getElementById("stf_progress").style.display = "none";
-		status.style.display = "block";
-		status.innerHTML = 'You must be logged in. <form method="get" action="' + FLOW_SERVER + '" target="ProQuestFlow"><button id="stf_view_button" type="submit">Log in now</button></form>';
-
-		ZU.setTimeout(function() {
-			try {
-				status.style.display = "none";
-				doc.getElementById("stf_container").style.display = "block";
-			}
-			catch(e) {
-				error(doc, e);
-			}
-		}, 4000);
-	}
-	catch(e) {
-		error(doc, e);
-	}
-}
-
-function selection(doc, url, items, callback) {
-	try {
-		//callback should complete items, so we'll basically want to use it when we want to see of save an item.
-		var container = doc.getElementById("stf_ui_itemlist"), stf = doc.getElementById("stf_capture"), ix = 1;
-		if(container.getElementsByClassName("stf_ui_item").length > 0) {
-			Z.debug("selection called after already loaded.");
-			return;
-		}
-		stf.className = " stf_listView";
-		for(itemId in items) {
-			try {
-				var item = doc.createElement("div");
-				item.className = "stf_ui_item";
-				item.setAttribute("data-id", itemId);
-				item.setAttribute("data-ix", ix++);
-				item.addEventListener("click", function(e) {
-					try {
-						if(e.target.className == "stf_detail") {//go to reference
-								stf.className += " stf_singleView stf_toggle";
-								doc.getElementById("stf_processing").innerHTML = "Loading reference";
-							var thisItemId = this.getAttribute("data-id");
-							stf.setAttribute("data-id", thisItemId);
-							stf.setAttribute("data-ix", this.getAttribute("data-ix"));
-							if(savedReferences[thisItemId]) {
-								single(doc, url, savedReferences[thisItemId]);
-							}
-							else {
-								var thisItem = {};
-								thisItem[thisItemId] = items[thisItemId];
-								callback(thisItem);
-							}
-						}
-						else {//update count of selected. enable button if > 0
-							setListButton(doc);
-						}
-					}
-					catch(e) {
-						error(doc, e);
-					}
-				}, true);
-				item.innerHTML = '<p><input type="checkbox" id="stf_cbx_' + itemId + '"/><label for="stf_cbx_' + itemId + '">' + items[itemId] + '</label></p>'
-					+ '<img src="' + FLOW_SERVER + '/public/img/oval-arrow-grey.png" class="stf_detail"/>';
-				container.appendChild(item);
-			}
-			catch(e) {
-				error(doc, e);
-			}
-		}
-		stf.setAttribute("data-count", ix - 1);
-		var savedReferences = {};
-
-		doc.getElementById("stf_select_all").addEventListener("click", function(e) {
-			try {
-				if(this.getAttribute("unselect") == "true") {
-					this.innerHTML = "Select All";
-					this.setAttribute("unselect", "false");
-					setListButton(doc, false);
-				}
-				else {
-					this.innerHTML = "Unselect All";
-					this.setAttribute("unselect", "true");
-					setListButton(doc, true);
-				}
-			}
-			catch(e) {
-				error(doc, e);
-			}
-		}, true);
-		doc.getElementById("stf_single_next").addEventListener("click", function(e) {
-			try {
-				var item_id = stf.getAttribute("data-id");
-				savedReferences[item_id] = getModified(doc);
-				move(doc, url, callback, items, 1, savedReferences);
-			}
-			catch(e) {
-				error(doc, e);
-			}
-		}, true);
-		doc.getElementById("stf_single_prev").addEventListener("click", function(e) {
-			try {
-				var item_id = stf.getAttribute("data-id");
-				savedReferences[item_id] = getModified(doc);
-				move(doc, url, callback, items, -1, savedReferences);
-			}
-			catch(e) {
-				error(doc, e);
-			}
-		}, true);
-		doc.getElementById("stf_save_button").addEventListener("click", function(e) {
-			try {
-				var stf = doc.getElementById("stf_capture");
-				if(stf.className.indexOf("stf_listView") >= 0 && stf.className.indexOf("singleView") >= 0) {
+			}, true);
+			doc.getElementById("stf_single_next").addEventListener("click", function(e) {
+				try {
 					var item_id = stf.getAttribute("data-id");
 					savedReferences[item_id] = getModified(doc);
-					stf.className = "stf_listView stf_show";//save and back to list
-					doc.getElementById("stf_header_text").innerHTML = "Select articles";
-					setListButton(doc);
+					move(doc, url, callback, items, 1, savedReferences);
 				}
-				else if(stf.className.indexOf("stf_listView") >= 0) {
-					stf.setAttribute("data-saving", "true");
-					stf.setAttribute("data-saving-count", 1);
+				catch(e) {
+					error(doc, e);
+				}
+			}, true);
+			doc.getElementById("stf_single_prev").addEventListener("click", function(e) {
+				try {
+					var item_id = stf.getAttribute("data-id");
+					savedReferences[item_id] = getModified(doc);
+					move(doc, url, callback, items, -1, savedReferences);
+				}
+				catch(e) {
+					error(doc, e);
+				}
+			}, true);
+			doc.getElementById("stf_save_button").addEventListener("click", function(e) {
+				try {
+					var stf = doc.getElementById("stf_capture");
+					if(stf.className.indexOf("stf_listView") >= 0 && stf.className.indexOf("singleView") >= 0) {
+						var item_id = stf.getAttribute("data-id");
+						savedReferences[item_id] = getModified(doc);
+						stf.className = "stf_listView stf_show";//save and back to list
+						doc.getElementById("stf_header_text").innerHTML = "Select articles";
+						setListButton(doc);
+					}
+					else if(stf.className.indexOf("stf_listView") >= 0) {
+						stf.setAttribute("data-saving", "true");
+						stf.setAttribute("data-saving-count", 1);
 						doc.getElementById("stf_container").style.display = "none";
 						doc.getElementById("stf_progress").style.display = "block";
-					var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
-							count = 0,
-							modified = [];
-					for(var i = 0; i < cbx.length; i++) {
-						if(cbx[i].checked) {
-							count++;
-							var item_id = cbx[i].id.replace("stf_cbx_", "");
-							if(savedReferences[item_id]) {
-								if(savedReferences[item_id].modifiedFields)
-									modified.push(savedReferences[item_id].modifiedFields)
+						var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
+								count = 0,
+								modified = [];
+						for(var i = 0; i < cbx.length; i++) {
+							if(cbx[i].checked) {
+								count++;
+								var item_id = cbx[i].id.replace("stf_cbx_", "");
+								if(savedReferences[item_id]) {
+									if(savedReferences[item_id].modifiedFields)
+										modified.push(savedReferences[item_id].modifiedFields)
 
-								var reference = conversion.convert(savedReferences[item_id])
-								reference.attachments = savedReferences[item_id].attachments;
-								save(reference, doc, url);
-							}
-							else {
-								var thisItem = {};
-								thisItem[item_id] = items[item_id];
-								callback(thisItem);
+									var reference = conversion.convert(savedReferences[item_id])
+									reference.attachments = savedReferences[item_id].attachments;
+									save(reference, doc, url);
+								}
+								else {
+									var thisItem = {};
+									thisItem[item_id] = items[item_id];
+									callback(thisItem);
+								}
 							}
 						}
+						stf.setAttribute("data-saving-count", count);
+						var found = stf.getAttribute("data-count"),
+								selected = count;
+						tracking(doc, {"url": url, "found": found, "selected": selected, "citation": "regular", "modified": modified});
+						//Zotero.done();
 					}
-					stf.setAttribute("data-saving-count", count);
-					var found = stf.getAttribute("data-count"),
-							selected = count;
-					tracking(doc, {"url": url, "found": found, "selected": selected, "citation": "regular", "modified": modified});
-					//Zotero.done();
+				}
+				catch(e) {
+					error(doc, e);
+				}
+			}, true);
+		}
+		catch(e) {
+			error(doc, e);
+		}
+		return "Translator results displayed";
+	}
+
+	function move(doc, url, callback, items, offset, savedReferences) {
+		var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
+				stf = doc.getElementById("stf_capture"),
+				id = stf.getAttribute("data-id");
+		for(var i = 0; i < cbx.length; i++) {
+			try {
+				if(cbx[i].id == "stf_cbx_" + id) {
+					if(i + offset < 0 || i + offset >= cbx.length)
+						return;
+					stf.className += " stf_toggle";
+					var thisItem = {}, thisItemId = cbx[i + offset].id.replace("stf_cbx_", "");
+					stf.setAttribute("data-id", thisItemId);
+					stf.setAttribute("data-ix", i + (1 + offset));
+					if(savedReferences[thisItemId]) {
+						single(doc, url, savedReferences[thisItemId]);
+					}
+					else {
+						thisItem[thisItemId] = items[thisItemId];
+						callback(thisItem);
+					}
 				}
 			}
 			catch(e) {
 				error(doc, e);
 			}
-		}, true);
+		}
 	}
-	catch(e) {
-		error(doc, e);
-	}
-	return "Translator results displayed";
-}
 
-function move(doc, url, callback, items, offset, savedReferences) {
-	var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
-			stf = doc.getElementById("stf_capture"),
-			id = stf.getAttribute("data-id");
-	for(var i = 0; i < cbx.length; i++) {
+	function setListButton(doc, check) {
 		try {
-			if(cbx[i].id == "stf_cbx_" + id) {
-					if (i + offset < 0 || i + offset >= cbx.length)
-						return;
-					stf.className += " stf_toggle";
-				var thisItem = {}, thisItemId = cbx[i + offset].id.replace("stf_cbx_", "");
-				stf.setAttribute("data-id", thisItemId);
-				stf.setAttribute("data-ix", i + (1 + offset));
-				if(savedReferences[thisItemId]) {
-					single(doc, url, savedReferences[thisItemId]);
-				}
-				else {
-					thisItem[thisItemId] = items[thisItemId];
-					callback(thisItem);
-				}
+			var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"), count = 0;
+			for(var i = 0; i < cbx.length; i++) {
+				if(check !== undefined)
+					cbx[i].checked = check;
+				if(cbx[i].checked)
+					count++;
 			}
+			var button = doc.getElementById("stf_save_button");
+			if(count > 0) {
+				button.disabled = false;
+				button.className = "stf_btn_save stf_enable";
+			}
+			else {
+				button.disabled = true;
+				button.className = "stf_btn_save";
+			}
+			button.innerHTML = "Save to Flow (" + count + ")";
 		}
 		catch(e) {
 			error(doc, e);
 		}
 	}
-}
 
-function setListButton(doc, check) {
-	try {
-		var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"), count = 0;
-		for(var i = 0; i < cbx.length; i++) {
-			if(check !== undefined)
-				cbx[i].checked = check;
-			if(cbx[i].checked)
-				count++;
-		}
-		var button = doc.getElementById("stf_save_button");
-		if(count > 0) {
-			button.disabled = false;
-			button.className = "stf_btn_save stf_enable";
-		}
-		else {
-			button.disabled = true;
-			button.className = "stf_btn_save";
-		}
-		button.innerHTML = "Save to Flow (" + count + ")";
-	}
-	catch(e) {
-		error(doc, e);
-	}
-}
-
-function singleHeader(doc, refType, attachments) {
-	try {
-		var stf = doc.getElementById("stf_capture"),
-				containerClass = stf.className,
-				output = [];
+	function singleHeader(doc, refType, attachments) {
+		try {
+			var stf = doc.getElementById("stf_capture"),
+					containerClass = stf.className,
+					output = [];
 			containerClass = containerClass.replace(" stf_toggle", "");
-			if (containerClass.indexOf("stf_singleView") < 0)
+			if(containerClass.indexOf("stf_singleView") < 0)
 				stf.className = containerClass + " stf_singleView";
 			else
 				stf.className = containerClass;
-		if(containerClass.indexOf("stf_listView") >= 0) {
-			var ix = parseInt(stf.getAttribute("data-ix")),
-					count = parseInt(stf.getAttribute("data-count"));
-			doc.getElementById("stf_header_text").innerHTML = "Article details - " + ix + " of " + count;
-			doc.getElementById("stf_single_prev").className = "stf_prev" + (ix <= 1 ? " stf_disabled" : "");
-			doc.getElementById("stf_single_next").className = "stf_next" + (ix >= count ? " stf_disabled" : "");
-			doc.getElementById("stf_save_button").innerHTML = "Done editing";
-		}
-		else
-			output.push("<div class='stf_lbl header'>Save As</div>");
+			if(containerClass.indexOf("stf_listView") >= 0) {
+				var ix = parseInt(stf.getAttribute("data-ix")),
+						count = parseInt(stf.getAttribute("data-count"));
+				doc.getElementById("stf_header_text").innerHTML = "Article details - " + ix + " of " + count;
+				doc.getElementById("stf_single_prev").className = "stf_prev" + (ix <= 1 ? " stf_disabled" : "");
+				doc.getElementById("stf_single_next").className = "stf_next" + (ix >= count ? " stf_disabled" : "");
+				doc.getElementById("stf_save_button").innerHTML = "Done editing";
+			}
+			else
+				output.push("<div class='stf_lbl header'>Save As</div>");
 
-		output.push("<select id='reference_type' class='stf_dropdown'>");
-		for(var index in labels.referenceTypes) {
-			var value = labels.referenceTypes[index];
-			var selected = refType == index ? " selected='selected'" : "";
-			output.push("<option value='" + index + "'" + selected + ">" + value.label + "</option>");
-		}
-		output.push("</select>");
-		var pdf = false, html = false;
-		try {
-			if(attachments)
-				for(var i = 0; i < attachments.length; i++) {
-					if(attachments[i] && attachments[i].mimeType && attachments[i].mimeType.indexOf("pdf") >= 0)
-						pdf = true;
-					if(attachments[i] && attachments[i].mimeType && attachments[i].mimeType.indexOf("html") >= 0)
-						html = true;
-				}
+			output.push("<select id='reference_type' class='stf_dropdown'>");
+			for(var index in labels.referenceTypes) {
+				var value = labels.referenceTypes[index];
+				var selected = refType == index ? " selected='selected'" : "";
+				output.push("<option value='" + index + "'" + selected + ">" + value.label + "</option>");
+			}
+			output.push("</select>");
+			var pdf = false, html = false;
+			try {
+				if(attachments)
+					for(var i = 0; i < attachments.length; i++) {
+						if(attachments[i] && attachments[i].mimeType && attachments[i].mimeType.indexOf("pdf") >= 0)
+							pdf = true;
+						if(attachments[i] && attachments[i].mimeType && attachments[i].mimeType.indexOf("html") >= 0)
+							html = true;
+					}
+			}
+			catch(e) {
+				error(doc, e);
+			}
+			if(pdf || html) {
+				output.push("<img src='" + FLOW_SERVER + "/public/img/" + (pdf ? "pdf" : "web") + ".png' class='stf_lbl'/><span class='stf_input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We found the article, want to save it?</span></label></span>");
+			}
+			else if(containerClass.indexOf("stf_listView") == -1 || html) {
+				output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='stf_lbl'/><span class='stf_input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' class='stf_attach'> <span>Save the content of this web page</span></label></span>");
+			}
+
+			output.push("<div id='stf_ref_type_spec' class='stf_clear'>");
+			return output;
 		}
 		catch(e) {
 			error(doc, e);
 		}
-		if(pdf || html) {
-			output.push("<img src='" + FLOW_SERVER + "/public/img/" + (pdf ? "pdf" : "web") + ".png' class='stf_lbl'/><span class='stf_input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We found the article, want to save it?</span></label></span>");
-		}
-		else if(containerClass.indexOf("stf_listView") == -1 || html) {
-			output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='stf_lbl'/><span class='stf_input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' class='stf_attach'> <span>Save the content of this web page</span></label></span>");
-		}
-
-		output.push("<div id='stf_ref_type_spec' class='stf_clear'>");
-		return output;
 	}
-	catch(e) {
-		error(doc, e);
-	}
-}
 
-function saveItems(doc, url, items, noneFound) {
-	Z.debug('saveItems: '+items)
-	for(i in items)
-		single(doc, url, items[i],  noneFound);
-}
-	
-function single(doc, url, item, noneFound) {
-	try {
-		if(!item) {
-			item = {};
-			item.refType = "GENERIC_REF";
-			item.retrievedDate = new Date();
-			item.URL = url;
-		}
-		var container = doc.getElementById("stf_meta"),
-				stf = doc.getElementById("stf_capture");
-		if(!item.refType) {//this function can be called with zotero format or flow format (first view, and there-after)
-			if(!item.retrievedDate)
+	function saveItems(doc, url, items, noneFound) {
+		Z.debug('saveItems: ' + items)
+		for(i in items)
+			single(doc, url, items[i], noneFound);
+	}
+
+	function single(doc, url, item, noneFound) {
+		try {
+			if(!item) {
+				item = {};
+				item.refType = "GENERIC_REF";
 				item.retrievedDate = new Date();
-			if(!item.URL)
 				item.URL = url;
-			var attachments = item.attachments;
-			item = conversion.convert(item);
-			item.attachments = attachments;
-		}
-		if(stf.getAttribute("data-saving") == "true") {
-			saveReference(doc, url, item, true);
-			return;
-		}
+			}
+			var container = doc.getElementById("stf_meta"),
+					stf = doc.getElementById("stf_capture");
+			if(!item.refType) {//this function can be called with zotero format or flow format (first view, and there-after)
+				if(!item.retrievedDate)
+					item.retrievedDate = new Date();
+				if(!item.URL)
+					item.URL = url;
+				var attachments = item.attachments;
+				item = conversion.convert(item);
+				item.attachments = attachments;
+			}
+			if(stf.getAttribute("data-saving") == "true") {
+				saveReference(doc, url, item, true);
+				return;
+			}
 
-		if(noneFound) {
-			if(url.indexOf(".pdf") > -1)
-				item.attachments.push({title: 'Full Text PDF', url: url, mimeType: 'application/pdf'});
-			else
-				doc.getElementById("stf_webref").style.display = "block";
-		}
+			if(noneFound) {
+				if(url.indexOf(".pdf") > -1)
+					item.attachments.push({title: 'Full Text PDF', url: url, mimeType: 'application/pdf'});
+				else
+					doc.getElementById("stf_webref").style.display = "block";
+			}
 
-		var output = singleHeader(doc, item.refType, item.attachments)
-			.concat(createFields(doc, item));
-		output.push("</div>");
+			var output = singleHeader(doc, item.refType, item.attachments)
+				.concat(createFields(doc, item));
+			output.push("</div>");
 
-		autoSize.removeEvents(doc);
+			autoSize.removeEvents(doc);
 
-		container.innerHTML = output.join('');
+			container.innerHTML = output.join('');
 
-		doc.getElementById("stf_save_button").disabled = false;
+			doc.getElementById("stf_save_button").disabled = false;
 
-		autoSize.addEvents(doc);
+			autoSize.addEvents(doc);
 
-		if(doc.getElementById("stf_capture").getAttribute("events_attached") != "true") {
-			doc.getElementById("reference_type").addEventListener("change", function(e) {
-				try {
-					//get current field values (may be editted)
-					autoSize.removeEvents(doc);
-					item = getModified(doc);
-					doc.getElementById("stf_ref_type_spec").innerHTML = createFields(doc, item).join('');
-					autoSize.addEvents(doc);
-				}
-				catch(ex) {
-					error(doc, ex);
-				}
-			}, true);
-
-			if(stf.className.indexOf("stf_singleView") >= 0 && stf.className.indexOf("stf_listView") == -1) {
-				doc.getElementById("stf_save_button").addEventListener("click", function(e) {
+			if(doc.getElementById("stf_capture").getAttribute("events_attached") != "true") {
+				doc.getElementById("reference_type").addEventListener("change", function(e) {
 					try {
-							doc.getElementById("stf_container").style.display = "none";
-							doc.getElementById("stf_progress").style.display = "block";
-						item = saveReference(doc, url, item, false);
-						var found = 1,
-								selected = 1,
-								citation = noneFound ? "web" : "regular";
-						tracking(doc, {"url": url, "found": found, "selected": selected, "citation": citation, "modified": [item.modifiedFields]});
+						//get current field values (may be editted)
+						autoSize.removeEvents(doc);
+						item = getModified(doc);
+						doc.getElementById("stf_ref_type_spec").innerHTML = createFields(doc, item).join('');
+						autoSize.addEvents(doc);
 					}
-					catch(e) {
-						error(doc, e);
+					catch(ex) {
+						error(doc, ex);
 					}
 				}, true);
-			}
-			doc.getElementById("stf_capture").setAttribute("events_attached", "true")
-		}
-	}
-	catch(e) {
-		error(doc, e);
-	}
-	return "Item Displayed";
-}
 
-function getModified(doc) {
-	var reference = {}, item = {};
-	try {
-		item = JSON.parse(doc.getElementById("stf_reference_json").innerHTML);
-	}
-	catch(e) {
-		error(doc, e);
-	}
-	try {
-		reference.refType = doc.getElementById("reference_type").value;
-		reference.modifiedFields = item.modifiedFields ? item.modifiedFields : [];
-		for(var index = 0; index < labels.order.length; index++) {
-			try {
-				var elem = doc.getElementById("stf_" + labels.order[index]);
-				if(elem) {
-					var val = elem.value;
-					if(labels.order[index] == "authors")
-						val = authorNameList(val, "\n");
-					if(val) {
-						reference[labels.order[index]] = val;
-						if(reference[labels.order[index]] != item[labels.order[index]] && reference.modifiedFields.indexOf(conversion.tracking(labels.order[index])) == -1)
-							reference.modifiedFields.push(conversion.tracking(labels.order[index]));
-					}
+				if(stf.className.indexOf("stf_singleView") >= 0 && stf.className.indexOf("stf_listView") == -1) {
+					doc.getElementById("stf_save_button").addEventListener("click", function(e) {
+						try {
+							doc.getElementById("stf_container").style.display = "none";
+							doc.getElementById("stf_progress").style.display = "block";
+							item = saveReference(doc, url, item, false);
+							var found = 1,
+									selected = 1,
+									citation = noneFound ? "web" : "regular";
+							tracking(doc, {"url": url, "found": found, "selected": selected, "citation": citation, "modified": [item.modifiedFields]});
+						}
+						catch(e) {
+							error(doc, e);
+						}
+					}, true);
 				}
-				else if(item[labels.order[index]])
-					reference[labels.order[index]] = item[labels.order[index]];
-			}
-			catch(e) {
-				error(doc, e);
+				doc.getElementById("stf_capture").setAttribute("events_attached", "true")
 			}
 		}
-		reference.attachments = item.attachments;
-		reference.attach = doc.getElementById("stf_attach") && doc.getElementById("stf_attach").checked;
-	}
-	catch(e) {
-		error(doc, e);
-	}
-	return reference;
-}
-
-function saveReference(doc, url, item, useItem) {
-	try {
-		var reference = useItem ? item : getModified(doc);
-		reference = conversion.convert(reference);//convert to deep flow model
-		reference.attachments = item.attachments;
-		reference.attach = useItem ? item.attachments.length : doc.getElementById("stf_attach").checked;
-		save(reference, doc, url);
-		return reference;
-	}
-	catch(e) {
-		error(doc, e);
-	}
-}
-
-function createFields(doc, item) {
-	try {
-		var fieldMapping = labels.referenceTypes[item.refType].defaultFields,
-				output = [];
-		for(var index = 0; index < labels.order.length; index++) {
-			try {
-				var field = labels.order[index];
-				if(fieldMapping.indexOf(field) >= 0) {
-					var override = labels.referenceTypes[item.refType].fieldLabelOverides[field], label = override ? override : labels.fields[field].label;
-					var value = field == "authors" ? authorNameList(item[field], "\n") : item[field];
-					if(value) {
-						if(label.toLowerCase() == 'isbn')
-							value = value.split(',')[0];
-						output.push("<div class='stf_lbl'>" + label + "</div>" + (field == "authors" ? "<div class='stf_textposition'><span class='stf_author'>Last name, First names</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'>" + value + "</textarea>" + (field == "authors" ? "</div>" : ""));
-					}
-					else {
-						output.push("<div class='stf_lbl'>" + label + "</div><div class='textposition'><span class='empty'>Please enter metadata...</span>" + (field == "authors" ? "<span class='author'>Last name, First names (each on a new line)</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'></textarea></div>");
-					}
-				}
-			}
-			catch(e) {
-				error(doc, e);
-			}
+		catch(e) {
+			error(doc, e);
 		}
-		output.push("<div id='stf_reference_json'>" + JSON.stringify(item) + "</div>");
-		return output;
+		return "Item Displayed";
 	}
-	catch(e) {
-		error(doc, e);
-	}
-}
 
-var autoSize = (function() {
-	function autoSize(text) {
-		var textHeight = 102;
-		if(text.scrollHeight < textHeight || text.id == "stf_authors") {
-			text.style.height = 'auto';
-			var height = (text.scrollHeight + (text.id == "stf_authors" ? 18 : 0))
-			text.style.height = (height > 32 ? height : 32) + 'px';//minimum, one line
-			text.style.overflow = 'hidden';
+	function getModified(doc) {
+		var reference = {}, item = {};
+		try {
+			item = JSON.parse(doc.getElementById("stf_reference_json").innerHTML);
 		}
-		else {
-			text.style.height = textHeight + 'px';
-			text.style.overflowY = 'auto';
+		catch(e) {
+			error(doc, e);
 		}
-	}
-
-	function focusEvent() {
-		//var parent = this.parentNode;
-		//parent.getElementsByClassName("empty").style.display = 'none';
-		this.addEventListener("keypress", keyEvent);
-	}
-
-	function blurEvent() {
-		this.removeEventListener("keypress", keyEvent);
-	}
-
-	function keyEvent() {
-		var that = this;
-		ZU.setTimeout(function() {
-			autoSize(that)
-		}, 0);
-	}
-
-	function removeEvents(doc) {
-		for(var index = 0; index < labels.order.length; index++) {
-			var value = labels.order[index];
-			var text = doc.getElementById("stf_" + value);
-			if(text) {
-				text.removeEventListener("focus", focusEvent);
-				text.removeEventListener("blur", blurEvent);
-			}
-		}
-	}
-
-	function addEvents(doc) {
-		for(var index = 0; index < labels.order.length; index++) {
-			var value = labels.order[index];
-			var text = doc.getElementById("stf_" + value);
-			if(text) {
-				autoSize(text);
-				text.addEventListener("focus", focusEvent);
-				text.addEventListener("blur", blurEvent);
-			}
-		}
-	}
-
-	return {addEvents: addEvents, removeEvents: removeEvents};
-})();
-
-var labels = (function() {
-	var fields = {
-				abstract: { label: "Abstract"},
-				alternateTitle: {label: "Alternate Title"},
-				authors: { label: "Authors"},
-				arXivId: { label: "ArXiv ID" },
-				availability: { label: "Availability" },
-				classification: { label: "Classification"},
-				compilers: { label: "Compilers"  },
-				department: { label: "Department" },
-				doi: { label: "DOI"},
-				edition: { label: "Edition"},
-				editors: { label: "Editors"},
-				eventName: { label: "Event" },
-				eventLocation: { label: "Event Location" },
-				eventDate: { label: "Event Date" },
-				extraData: { label: "Extra Data"},
-				isbn: { label: "ISBN"},
-				isElectronic: { label: "Is Electronic?" },
-				issn: { label: "ISSN"},
-				issue: { label: "Issue"},
-				journalAbbrev: { label: "Journal Abbrev"},
-				language: { label: "Language"},
-				locCallNumber: { label: "LC Call #"},
-				location: { label: "Place of Publication"},
-				pages: { label: "Pages"},
-				pmcid: { label: "PMCID"},
-				pmid: { label: "PMID"},
-				publication: { label: "Publication"},
-				publicationEditors: { label: "Publication Editors" },
-				publicationDate: { label: "Date"},
-				publisher: { label: "Publisher"},
-				republishedDate: { label: "Republished Date"},
-				retrievedDate: { label: "Date Retrieved"},
-				shortTitle: { label: "Short Title"},
-				seriesEditors: { label: "Series Editors"},
-				seriesTitle: { label: "Series Title"},
-				sourceName: { label: "Source Name"},
-				sourceDatabase: { label: "Source DB"},
-				sourceLibrary: { label: "Source Library"},
-				sourceLocation: { label: "Source Location"},
-				sourceAccession: { label: "Source Accession"},
-				title: { label: "Title"},
-				translators: { label: "Translators"},
-				type: { label: "Type" },
-				url: { label: "Retrieved From"},
-				userNotes: { label: "Notes" },
-				version: { label: "Version" },
-				volume: { label: "Volume"}
-			},
-			referenceTypes = {
-				JOURNAL_ARTICLE_REF: {
-					label: 'Journal Article',
-					defaultFields: [ 'abstract', 'authors', 'issue', 'pages', 'publication', 'publicationDate', 'title', 'url', 'userNotes', 'volume', 'doi', 'issn' ],
-					optionalFields: [ 'arXivId', 'alternateTitle', 'retrievedDate', 'edition', 'extraData', 'isElectronic', 'journalAbbrev', 'language', 'pmcid', 'pmid', 'republishedDate', 'seriesEditors', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
-					fieldLabelOverides: { publication: 'Journal' }
-				},
-				BOOK_REF: {
-					label: "Book",
-					defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'publicationDate', 'seriesTitle', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
-					optionalFields: [ 'alternateTitle', 'compilers', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'translators', 'url'],
-					fieldLabelOverides: { }
-				},
-				BOOK_SECTION_REF: {
-					label: "Book section",
-					defaultFields: [ 'abstract', 'authors', 'editors', 'location', 'pages', 'publicationDate', 'publication', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
-					optionalFields: [ 'alternateTitle', 'compilers', 'edition', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'seriesEditors', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
-					fieldLabelOverides: { publication: 'Book title', title: 'Section title' }
-				},
-				GENERIC_REF: {
-					label: "Generic",
-					defaultFields: [ 'abstract', 'authors', 'location', 'publication', 'publicationDate', 'publisher', 'title', 'url', 'userNotes', 'doi', 'isbn', 'issn' ],
-					optionalFields: [ 'availability', 'alternateTitle', 'arXivId', 'classification', 'compilers', 'department', 'doi', 'edition', 'editors', 'eventName', 'eventLocation', 'eventDate', 'extraData', 'isbn', 'isElectronic', 'issn', 'issue', 'journalAbbrev', 'language', 'lcCallNumber', 'pages', 'pmcid', 'pmid', 'publicationEditors', 'republishedDate', 'retrievedDate', 'seriesEditors', 'seriesTitle', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'type', 'version', 'volume' ],
-					fieldLabelOverides: { }
-				},
-				WEB_REF: {
-					label: "Web page",
-					defaultFields: [ 'abstract', 'authors', 'publication', 'publicationDate', 'retrievedDate', 'title', 'url', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'extraData', 'language', 'publicationEditors', 'version' ],
-					fieldLabelOverides: { publication: 'Website', url: 'URL' }
-				},
-				REPORT_REF: {
-					label: "Report",
-					defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'retrievedDate', 'edition', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
-					fieldLabelOverides: { publication: 'Institution' }
-				},
-				CONF_REF: {
-					label: "Conference proceeding",
-					defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'retrievedDate', 'editors', 'eventName', 'eventDate', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
-					fieldLabelOverides: { eventName: 'Conference', eventDate: 'Conference Date', publication: 'Proceedings Title' }
-				},
-				NEWS_REF: {
-					label: "Newspaper article",
-					defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'pages', 'publication', 'publicationDate', 'retrievedDate', 'title', 'userNotes', 'url', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'editors', 'extraData', 'isElectronic', 'language', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
-					fieldLabelOverides: { }
-				},
-				THESIS_REF: {
-					label: "Thesis",
-					defaultFields: [ 'abstract', 'authors', 'department', 'pages', 'publicationDate', 'publisher', 'title', 'type', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'location', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'url' ],
-					fieldLabelOverides: { publisher: 'University', location: 'Location' }
-				},
-				MAG_REF: {
-					label: "Magazine article",
-					defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'url', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'extraData', 'editors', 'isElectronic', 'language', 'lcCallNumber', 'retrievedDate', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'translators'],
-					fieldLabelOverides: { }
-				}
-			},
-			order = ['title', 'authors', 'editors', 'publication', 'publicationDate', 'seriesTitle', 'publisher', 'department', 'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'];
-
-	return {order: order, fields: fields, referenceTypes: referenceTypes};
-})();
-
-var conversion = (function() {
-	var zotero = {
-		itemType: {
-			book: "BOOK_REF",
-			bookSection: "BOOK_SECTION_REF",
-			conferencePaper: "CONF_REF",
-			journalArticle: "JOURNAL_ARTICLE_REF",
-			magazineArticle: "MAG_REF",
-			newspaperArticle: "NEWS_REF",
-			report: "REPORT_REF",
-			thesis: "THESIS_REF",
-			webpage: "WEB_REF"
-		},
-		fields: {
-			abstractNote: "abstract",
-			bookTitle: "publication",
-			creators: "authors",
-			DOI: "doi",
-			edition: "edition",
-			editors: "editors",//creator+type=editors
-			ISBN: "isbn",
-			ISSN: "issn",
-			issue: "issue",
-			journalAbbreviation: "journalAbbrev",
-			language: "language",
-			place: "location",
-			pages: "pages",
-			PMCID: "pmcid",
-			PMID: "pmid",
-			publicationTitle: "publication",
-			date: "publicationDate",
-			publisher: "publisher",
-			retrievedDate: "retrievedDate",
-			title: "title",
-			translator: "translator",//creator+type=translator
-			URL: "url",
-			volume: "volume"
-		}
-	}
-	var flow = {
-		fields: {
-			"abstract": "abstr",
-			"authors": {"key": "authors", "fn": handleAuthor},
-			"doi": "docIds.doi",
-			"PMCID": "docIds.pmcid",
-			"PMID": "docIds.pmid",
-			"edition": "series.edition",
-			"editors": {"key": "contributors.editors", "fn": handleAuthor},
-			"isbn": "publication.isbn",
-			"issn": "publication.issn",
-			"journalAbbrev": "publication.abbrev",
-			"language": "language",
-			"publicationDate": "publicationDate.rawDate",
-			"publication": "publication.title",
-			"volume": "series.volume",
-			"issue": "series.issue",
-			"pages": "pages.rawPages",
-			"publisher": "publisher.name",
-			"location": "publisher.location",
-			"translator": {"key": "contributors.translator", "fn": handleAuthor},
-			"title": "title",
-			"retrievedDate": "retrievedDate.rawDate",
-			"url": "url",
-			"modifiedFields": "modifiedFields"
-		}
-	}
-
-	function convert(item) {
-		var converted = {}
-		if(item.itemType) {//zotero
-			converted.refType = zotero.itemType[item.itemType];
-			if(!converted.refType)
-				converted.refType = "GENERIC_REF";
-			for(var field in item) {
-				if(zotero.fields[field])
-					converted[zotero.fields[field]] = item[field];
-			}
-		}
-		else if(item.refType) {//flow
-			converted.refType = item.refType;
-			for(var field in item) {
-				if(flow.fields[field]) {
-					var key = flow.fields[field].key ? flow.fields[field].key : flow.fields[field],
-							value = flow.fields[field].fn ? flow.fields[field].fn(item[field]) : item[field];
-					if(key.indexOf(".") > 0) {//object
-						var obj = key.split("."),
-								tmp = converted;
-						for(var i = 0; i < obj.length; i++) {
-							if(!tmp[obj[i]])
-								tmp[obj[i]] = {};
-							if(i == obj.length - 1)
-								tmp[obj[i]] = value;
-							else
-								tmp = tmp[obj[i]];
+		try {
+			reference.refType = doc.getElementById("reference_type").value;
+			reference.modifiedFields = item.modifiedFields ? item.modifiedFields : [];
+			for(var index = 0; index < labels.order.length; index++) {
+				try {
+					var elem = doc.getElementById("stf_" + labels.order[index]);
+					if(elem) {
+						var val = elem.value;
+						if(labels.order[index] == "authors")
+							val = authorNameList(val, "\n");
+						if(val) {
+							reference[labels.order[index]] = val;
+							if(reference[labels.order[index]] != item[labels.order[index]] && reference.modifiedFields.indexOf(conversion.tracking(labels.order[index])) == -1)
+								reference.modifiedFields.push(conversion.tracking(labels.order[index]));
 						}
 					}
-					else {
-						converted[key] = value;
+					else if(item[labels.order[index]])
+						reference[labels.order[index]] = item[labels.order[index]];
+				}
+				catch(e) {
+					error(doc, e);
+				}
+			}
+			reference.attachments = item.attachments;
+			reference.attach = doc.getElementById("stf_attach") && doc.getElementById("stf_attach").checked;
+		}
+		catch(e) {
+			error(doc, e);
+		}
+		return reference;
+	}
+
+	function saveReference(doc, url, item, useItem) {
+		try {
+			var reference = useItem ? item : getModified(doc);
+			reference = conversion.convert(reference);//convert to deep flow model
+			reference.attachments = item.attachments;
+			reference.attach = useItem ? item.attachments.length : doc.getElementById("stf_attach").checked;
+			save(reference, doc, url);
+			return reference;
+		}
+		catch(e) {
+			error(doc, e);
+		}
+	}
+
+	function createFields(doc, item) {
+		try {
+			var fieldMapping = labels.referenceTypes[item.refType].defaultFields,
+					output = [];
+			for(var index = 0; index < labels.order.length; index++) {
+				try {
+					var field = labels.order[index];
+					if(fieldMapping.indexOf(field) >= 0) {
+						var override = labels.referenceTypes[item.refType].fieldLabelOverides[field], label = override ? override : labels.fields[field].label;
+						var value = field == "authors" ? authorNameList(item[field], "\n") : item[field];
+						if(value) {
+							if(label.toLowerCase() == 'isbn')
+								value = value.split(',')[0];
+							output.push("<div class='stf_lbl'>" + label + "</div>" + (field == "authors" ? "<div class='stf_textposition'><span class='stf_author'>Last name, First names</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'>" + value + "</textarea>" + (field == "authors" ? "</div>" : ""));
+						}
+						else {
+							output.push("<div class='stf_lbl'>" + label + "</div><div class='textposition'><span class='empty'>Please enter metadata...</span>" + (field == "authors" ? "<span class='author'>Last name, First names (each on a new line)</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'></textarea></div>");
+						}
 					}
+				}
+				catch(e) {
+					error(doc, e);
+				}
+			}
+			output.push("<div id='stf_reference_json'>" + JSON.stringify(item) + "</div>");
+			return output;
+		}
+		catch(e) {
+			error(doc, e);
+		}
+	}
+
+	var autoSize = (function() {
+		function autoSize(text) {
+			var textHeight = 102;
+			if(text.scrollHeight < textHeight || text.id == "stf_authors") {
+				text.style.height = 'auto';
+				var height = (text.scrollHeight + (text.id == "stf_authors" ? 18 : 0))
+				text.style.height = (height > 32 ? height : 32) + 'px';//minimum, one line
+				text.style.overflow = 'hidden';
+			}
+			else {
+				text.style.height = textHeight + 'px';
+				text.style.overflowY = 'auto';
+			}
+		}
+
+		function focusEvent() {
+			//var parent = this.parentNode;
+			//parent.getElementsByClassName("empty").style.display = 'none';
+			this.addEventListener("keypress", keyEvent);
+		}
+
+		function blurEvent() {
+			this.removeEventListener("keypress", keyEvent);
+		}
+
+		function keyEvent() {
+			var that = this;
+			ZU.setTimeout(function() {
+				autoSize(that)
+			}, 0);
+		}
+
+		function removeEvents(doc) {
+			for(var index = 0; index < labels.order.length; index++) {
+				var value = labels.order[index];
+				var text = doc.getElementById("stf_" + value);
+				if(text) {
+					text.removeEventListener("focus", focusEvent);
+					text.removeEventListener("blur", blurEvent);
 				}
 			}
 		}
-		return converted;
+
+		function addEvents(doc) {
+			for(var index = 0; index < labels.order.length; index++) {
+				var value = labels.order[index];
+				var text = doc.getElementById("stf_" + value);
+				if(text) {
+					autoSize(text);
+					text.addEventListener("focus", focusEvent);
+					text.addEventListener("blur", blurEvent);
+				}
+			}
+		}
+
+		return {addEvents: addEvents, removeEvents: removeEvents};
+	})();
+
+	var labels = (function() {
+		var fields = {
+					abstract: { label: "Abstract"},
+					alternateTitle: {label: "Alternate Title"},
+					authors: { label: "Authors"},
+					arXivId: { label: "ArXiv ID" },
+					availability: { label: "Availability" },
+					classification: { label: "Classification"},
+					compilers: { label: "Compilers"  },
+					department: { label: "Department" },
+					doi: { label: "DOI"},
+					edition: { label: "Edition"},
+					editors: { label: "Editors"},
+					eventName: { label: "Event" },
+					eventLocation: { label: "Event Location" },
+					eventDate: { label: "Event Date" },
+					extraData: { label: "Extra Data"},
+					isbn: { label: "ISBN"},
+					isElectronic: { label: "Is Electronic?" },
+					issn: { label: "ISSN"},
+					issue: { label: "Issue"},
+					journalAbbrev: { label: "Journal Abbrev"},
+					language: { label: "Language"},
+					locCallNumber: { label: "LC Call #"},
+					location: { label: "Place of Publication"},
+					pages: { label: "Pages"},
+					pmcid: { label: "PMCID"},
+					pmid: { label: "PMID"},
+					publication: { label: "Publication"},
+					publicationEditors: { label: "Publication Editors" },
+					publicationDate: { label: "Date"},
+					publisher: { label: "Publisher"},
+					republishedDate: { label: "Republished Date"},
+					retrievedDate: { label: "Date Retrieved"},
+					shortTitle: { label: "Short Title"},
+					seriesEditors: { label: "Series Editors"},
+					seriesTitle: { label: "Series Title"},
+					sourceName: { label: "Source Name"},
+					sourceDatabase: { label: "Source DB"},
+					sourceLibrary: { label: "Source Library"},
+					sourceLocation: { label: "Source Location"},
+					sourceAccession: { label: "Source Accession"},
+					title: { label: "Title"},
+					translators: { label: "Translators"},
+					type: { label: "Type" },
+					url: { label: "Retrieved From"},
+					userNotes: { label: "Notes" },
+					version: { label: "Version" },
+					volume: { label: "Volume"}
+				},
+				referenceTypes = {
+					JOURNAL_ARTICLE_REF: {
+						label: 'Journal Article',
+						defaultFields: [ 'abstract', 'authors', 'issue', 'pages', 'publication', 'publicationDate', 'title', 'url', 'userNotes', 'volume', 'doi', 'issn' ],
+						optionalFields: [ 'arXivId', 'alternateTitle', 'retrievedDate', 'edition', 'extraData', 'isElectronic', 'journalAbbrev', 'language', 'pmcid', 'pmid', 'republishedDate', 'seriesEditors', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
+						fieldLabelOverides: { publication: 'Journal' }
+					},
+					BOOK_REF: {
+						label: "Book",
+						defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'publicationDate', 'seriesTitle', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
+						optionalFields: [ 'alternateTitle', 'compilers', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'translators', 'url'],
+						fieldLabelOverides: { }
+					},
+					BOOK_SECTION_REF: {
+						label: "Book section",
+						defaultFields: [ 'abstract', 'authors', 'editors', 'location', 'pages', 'publicationDate', 'publication', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
+						optionalFields: [ 'alternateTitle', 'compilers', 'edition', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'seriesEditors', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
+						fieldLabelOverides: { publication: 'Book title', title: 'Section title' }
+					},
+					GENERIC_REF: {
+						label: "Generic",
+						defaultFields: [ 'abstract', 'authors', 'location', 'publication', 'publicationDate', 'publisher', 'title', 'url', 'userNotes', 'doi', 'isbn', 'issn' ],
+						optionalFields: [ 'availability', 'alternateTitle', 'arXivId', 'classification', 'compilers', 'department', 'doi', 'edition', 'editors', 'eventName', 'eventLocation', 'eventDate', 'extraData', 'isbn', 'isElectronic', 'issn', 'issue', 'journalAbbrev', 'language', 'lcCallNumber', 'pages', 'pmcid', 'pmid', 'publicationEditors', 'republishedDate', 'retrievedDate', 'seriesEditors', 'seriesTitle', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'type', 'version', 'volume' ],
+						fieldLabelOverides: { }
+					},
+					WEB_REF: {
+						label: "Web page",
+						defaultFields: [ 'abstract', 'authors', 'publication', 'publicationDate', 'retrievedDate', 'title', 'url', 'userNotes', 'doi' ],
+						optionalFields: [ 'alternateTitle', 'extraData', 'language', 'publicationEditors', 'version' ],
+						fieldLabelOverides: { publication: 'Website', url: 'URL' }
+					},
+					REPORT_REF: {
+						label: "Report",
+						defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
+						optionalFields: [ 'alternateTitle', 'retrievedDate', 'edition', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
+						fieldLabelOverides: { publication: 'Institution' }
+					},
+					CONF_REF: {
+						label: "Conference proceeding",
+						defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
+						optionalFields: [ 'alternateTitle', 'retrievedDate', 'editors', 'eventName', 'eventDate', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
+						fieldLabelOverides: { eventName: 'Conference', eventDate: 'Conference Date', publication: 'Proceedings Title' }
+					},
+					NEWS_REF: {
+						label: "Newspaper article",
+						defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'pages', 'publication', 'publicationDate', 'retrievedDate', 'title', 'userNotes', 'url', 'doi' ],
+						optionalFields: [ 'alternateTitle', 'editors', 'extraData', 'isElectronic', 'language', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
+						fieldLabelOverides: { }
+					},
+					THESIS_REF: {
+						label: "Thesis",
+						defaultFields: [ 'abstract', 'authors', 'department', 'pages', 'publicationDate', 'publisher', 'title', 'type', 'userNotes', 'doi' ],
+						optionalFields: [ 'alternateTitle', 'location', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'url' ],
+						fieldLabelOverides: { publisher: 'University', location: 'Location' }
+					},
+					MAG_REF: {
+						label: "Magazine article",
+						defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'url', 'doi' ],
+						optionalFields: [ 'alternateTitle', 'extraData', 'editors', 'isElectronic', 'language', 'lcCallNumber', 'retrievedDate', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'translators'],
+						fieldLabelOverides: { }
+					}
+				},
+				order = ['title', 'authors', 'editors', 'publication', 'publicationDate', 'seriesTitle', 'publisher', 'department', 'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'];
+
+		return {order: order, fields: fields, referenceTypes: referenceTypes};
+	})();
+
+	var conversion = (function() {
+		var zotero = {
+			itemType: {
+				book: "BOOK_REF",
+				bookSection: "BOOK_SECTION_REF",
+				conferencePaper: "CONF_REF",
+				journalArticle: "JOURNAL_ARTICLE_REF",
+				magazineArticle: "MAG_REF",
+				newspaperArticle: "NEWS_REF",
+				report: "REPORT_REF",
+				thesis: "THESIS_REF",
+				webpage: "WEB_REF"
+			},
+			fields: {
+				abstractNote: "abstract",
+				bookTitle: "publication",
+				creators: "authors",
+				DOI: "doi",
+				edition: "edition",
+				editors: "editors",//creator+type=editors
+				ISBN: "isbn",
+				ISSN: "issn",
+				issue: "issue",
+				journalAbbreviation: "journalAbbrev",
+				language: "language",
+				place: "location",
+				pages: "pages",
+				PMCID: "pmcid",
+				PMID: "pmid",
+				publicationTitle: "publication",
+				date: "publicationDate",
+				publisher: "publisher",
+				retrievedDate: "retrievedDate",
+				title: "title",
+				translator: "translator",//creator+type=translator
+				URL: "url",
+				volume: "volume"
+			}
+		}
+		var flow = {
+			fields: {
+				"abstract": "abstr",
+				"authors": {"key": "authors", "fn": handleAuthor},
+				"doi": "docIds.doi",
+				"PMCID": "docIds.pmcid",
+				"PMID": "docIds.pmid",
+				"edition": "series.edition",
+				"editors": {"key": "contributors.editors", "fn": handleAuthor},
+				"isbn": "publication.isbn",
+				"issn": "publication.issn",
+				"journalAbbrev": "publication.abbrev",
+				"language": "language",
+				"publicationDate": "publicationDate.rawDate",
+				"publication": "publication.title",
+				"volume": "series.volume",
+				"issue": "series.issue",
+				"pages": "pages.rawPages",
+				"publisher": "publisher.name",
+				"location": "publisher.location",
+				"translator": {"key": "contributors.translator", "fn": handleAuthor},
+				"title": "title",
+				"retrievedDate": "retrievedDate.rawDate",
+				"url": "url",
+				"modifiedFields": "modifiedFields"
+			}
+		}
+
+		function convert(item) {
+			var converted = {}
+			if(item.itemType) {//zotero
+				converted.refType = zotero.itemType[item.itemType];
+				if(!converted.refType)
+					converted.refType = "GENERIC_REF";
+				for(var field in item) {
+					if(zotero.fields[field])
+						converted[zotero.fields[field]] = item[field];
+				}
+			}
+			else if(item.refType) {//flow
+				converted.refType = item.refType;
+				for(var field in item) {
+					if(flow.fields[field]) {
+						var key = flow.fields[field].key ? flow.fields[field].key : flow.fields[field],
+								value = flow.fields[field].fn ? flow.fields[field].fn(item[field]) : item[field];
+						if(key.indexOf(".") > 0) {//object
+							var obj = key.split("."),
+									tmp = converted;
+							for(var i = 0; i < obj.length; i++) {
+								if(!tmp[obj[i]])
+									tmp[obj[i]] = {};
+								if(i == obj.length - 1)
+									tmp[obj[i]] = value;
+								else
+									tmp = tmp[obj[i]];
+							}
+						}
+						else {
+							converted[key] = value;
+						}
+					}
+				}
+			}
+			return converted;
+		}
+
+		function tracking(field) {
+			return flow.fields[field] ? flow.fields[field].key ? flow.fields[field].key : flow.fields[field] : "";
+		}
+
+		return {convert: convert, tracking: tracking};
+	})();
+
+	function handleAuthor(author) {
+		return parseAuthor(authorNameList(author, "\n"));
 	}
 
-	function tracking(field) {
-		return flow.fields[field] ? flow.fields[field].key ? flow.fields[field].key : flow.fields[field] : "";
+	function authorNameList(item, delimiter) {
+		delimiter = delimiter || "; ";
+		var authors = item ? (item.join ? item : [item]) : null;
+		if(authors)
+			authors = authors.map(function(a) {
+				if(a.firstNames && a.lastName)
+					return a.lastName.trim() + ", " + a.firstNames.join(' ').trim();
+				else if(a.firstName && a.lastName)
+					return a.lastName.trim() + ", " + a.firstName.trim();
+				else if(a.lastName)
+					return a.lastName.trim();
+				else if(a.firstName)
+					return a.firstName.trim();
+				else if(a.firstNames)
+					return a.firstNames.join(' ').trim();
+				else if(a.rawName)
+					return a.rawName.trim();
+				else if(typeof(a) == "string")
+					return a.trim();
+			}).join(delimiter);
+		return authors || "";
 	}
-
-	return {convert: convert, tracking: tracking};
-})();
-
-function handleAuthor(author) {
-	return parseAuthor(authorNameList(author, "\n"));
-}
-
-function authorNameList(item, delimiter) {
-	delimiter = delimiter || "; ";
-	var authors = item ? (item.join ? item : [item]) : null;
-	if(authors)
-		authors = authors.map(function(a) {
-			if(a.firstNames && a.lastName)
-				return a.lastName.trim() + ", " + a.firstNames.join(' ').trim();
-			else if(a.firstName && a.lastName)
-				return a.lastName.trim() + ", " + a.firstName.trim();
-			else if(a.lastName)
-				return a.lastName.trim();
-			else if(a.firstName)
-				return a.firstName.trim();
-			else if(a.firstNames)
-				return a.firstNames.join(' ').trim();
-			else if(a.rawName)
-				return a.rawName.trim();
-			else if(typeof(a) == "string")
-				return a.trim();
-		}).join(delimiter);
-	return authors || "";
-}
 
 	function parseAuthor(value) {
-		if (value && value.split)
-			return value.split(/\n/).map(function (item) {
+		if(value && value.split)
+			return value.split(/\n/).map(function(item) {
 				return {rawName: item};
 			});
 	}
+
 	return {
-		entry:entry,
+		entry: entry,
 		selection: selection,
 		single: single,
 		saveItems: saveItems
