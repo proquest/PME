@@ -729,13 +729,18 @@ var SaveToFlow = (function() {
 			single(doc, url, items[i], noneFound);
 	}
 
-	function single(doc, url, item, noneFound) {
+	function single(doc, url, item, noneFound, error) {
 		try {
+			if(noneFound && error) {
+				saveFailed(doc)
+				return;
+			}
 			if (!item) {
 				item = {};
 				item.refType = "GENERIC_REF";
 				item.retrievedDate = new Date();
 				item.URL = url;
+				item.attachments = [];
 			}
 			var container = doc.getElementById("stf_meta"),
 				stf = doc.getElementById("stf_capture");

@@ -34,7 +34,7 @@ PME.Translate.Base.prototype["complete"] = function (returnValue, error) {
 				(this.translator && this.translator[0] && this.translator[0].label ? this.translator[0].label : "no translator") +
 				" failed: \n" + this._generateErrorString(error), 2);
 
-			PME.debug(this._sandboxManager.sandbox["single"].apply(null, this._getParameters(true).concat([undefined, true])))
+			PME.debug(this._sandboxManager.sandbox["single"].apply(null, this._getParameters(true).concat([undefined, true, true])))
 		}
 		else
 			this.completeOld(returnValue, error);
@@ -139,4 +139,11 @@ PME.Translate.Search.prototype._getParameters = function (getDocument) {
 		return this._sandboxManager._copyObject ? [this._sandboxManager._copyObject(this.search)] : [this._sandboxManager.copyObject(this.search)];
 	}
 	return [this.search];
+}
+
+PME.Translate.Base.prototype._getParameters = function (getDocument) {
+	PME.debug("getDocument: "+getDocument+";"+this._parentTranslator.document)
+	if(getDocument)
+		return [this._parentTranslator.document, this._parentTranslator.location];
+	return [];
 }
