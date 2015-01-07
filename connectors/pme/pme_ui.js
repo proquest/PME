@@ -576,7 +576,8 @@ var SaveToFlow = (function() {
 						doc.getElementById("stf_progress").style.display = "block";
 						var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
 							count = 0,
-							modified = [];
+							modified = [],
+							list = {};
 						for (var i = 0; i < cbx.length; i++) {
 							if (cbx[i].checked) {
 								count++;
@@ -590,12 +591,11 @@ var SaveToFlow = (function() {
 									save(reference, doc, url);
 								}
 								else {
-									var thisItem = {};
-									thisItem[item_id] = items[item_id];
-									callback(thisItem);
+									list[item_id] = items[item_id];
 								}
 							}
 						}
+						callback(list);
 						stf.setAttribute("data-saving-count", count);
 						var found = stf.getAttribute("data-count"),
 							selected = count;
