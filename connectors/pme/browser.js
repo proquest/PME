@@ -151,8 +151,8 @@ var PME_Browser = new function() {
 			}
 
 			//ignore script/style files
-			if (doc.location.href.indexOf(doc.location.href.length - 4, ".js") != -1
-				|| doc.location.href.indexOf(doc.location.href.length - 5, ".css") != -1) {
+			if (doc.location.href.indexOf(".js", doc.location.href.length - 4) != -1
+				|| doc.location.href.indexOf(".css", doc.location.href.length - 5) != -1) {
 				return;
 			}
 		}
