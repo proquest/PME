@@ -1,6 +1,7 @@
 var SaveToFlow = (function() {
 	var FLOW_SERVER = "https://flow.proquest.com",
-		MODE = "DEBUG";
+		MODE = "DEBUG",
+		saveTimeout = undefined;
 
 	function entry(doc, url) {
 		if (doc && !doc.getElementById("stf_capture")) {
@@ -224,8 +225,7 @@ var SaveToFlow = (function() {
 
 	function save(item, doc, url) {
 		try {
-			doc.getElementById("stf_container").style.display = "none";
-			doc.getElementById("stf_progress").style.display = "block";
+			startProgress(doc);
 			//move this check up to the save event so it only needs to happen once.
 			ZU.HTTP.doGet(FLOW_SERVER + '/login/session/', function (data_login) {//check for logged in
 				try {
@@ -316,6 +316,16 @@ var SaveToFlow = (function() {
 		}
 	}
 
+	function startProgress(doc) {
+		saveTimeout = ZU.setTimeout(function() {
+			if(saveTimeout) {
+				saveFailed(doc);
+			}
+		},60000);//1 minute
+		doc.getElementById("stf_container").style.display = "none";
+		doc.getElementById("stf_progress").style.display = "block";
+	}
+
 	function completeProgress(doc) {
 		var stf = doc.getElementById("stf_capture"),
 			done = parseInt(stf.getAttribute("data-saving-done"));
@@ -382,7 +392,8 @@ var SaveToFlow = (function() {
 			var errorDialog = doc.getElementById("stf_error");
 			doc.getElementById("stf_progress").style.display = "none";
 			errorDialog.style.display = "block";
-			errorDialog.innerHTML = "We're sorry, we were unable to save to Flow. We tried, but came up empty.";
+			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_err_cancel"/>We\'re sorry, we were unable to save to Flow. We tried, but came up empty.';
+			attachCloseEvent(doc, "stf_err_cancel");
 		}
 		catch (e) {
 			error(doc, e);
@@ -572,8 +583,7 @@ var SaveToFlow = (function() {
 					else if (stf.className.indexOf("stf_listView") >= 0) {
 						stf.setAttribute("data-saving", "true");
 						stf.setAttribute("data-saving-count", 1);
-						doc.getElementById("stf_container").style.display = "none";
-						doc.getElementById("stf_progress").style.display = "block";
+						startProgress(doc);
 						var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
 							count = 0,
 							modified = [],
@@ -730,6 +740,8 @@ var SaveToFlow = (function() {
 	}
 
 	function single(doc, url, item, noneFound, error) {
+		Z.debug("in single")
+		saveTimeout = undefined;
 		try {
 			if(noneFound && error) {
 				saveFailed(doc)
@@ -794,8 +806,7 @@ var SaveToFlow = (function() {
 				if (stf.className.indexOf("stf_singleView") >= 0 && stf.className.indexOf("stf_listView") == -1) {
 					doc.getElementById("stf_save_button").addEventListener("click", function (e) {
 						try {
-							doc.getElementById("stf_container").style.display = "none";
-							doc.getElementById("stf_progress").style.display = "block";
+							startProgress(doc);
 							item = saveReference(doc, url, item, false);
 							var found = 1,
 								selected = 1,

@@ -1,5 +1,5 @@
 PME.Utilities.Translate.prototype.setTimeout = function (f, d) {
-	setTimeout(f, d);
+	return setTimeout(f, d);
 };
 
 PME.Utilities.Translate.prototype.promise = function (method, url, options, callback) {
