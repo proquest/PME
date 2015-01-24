@@ -2,6 +2,8 @@ PME.Translate.Base.prototype["_translateTranslatorLoadedOld"] = PME.Translate.Ba
 PME.Translate.Base.prototype["completeOld"] = PME.Translate.Base.prototype.complete;
 
 PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
+	if (this._parentTranslator)
+		this._translateTranslatorLoadedOld();
 	try {
 		var _this = this,
 			xmlhttp = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
@@ -32,9 +34,9 @@ PME.Translate.Base.prototype["complete"] = function (returnValue, error) {
 		if(error) {
 			PME.debug("Translation using " +
 				(this.translator && this.translator[0] && this.translator[0].label ? this.translator[0].label : "no translator") +
-				" failed: \n" + this._generateErrorString(error), 2);
-
-			PME.debug(this._sandboxManager.sandbox["single"].apply(null, this._getParameters(true).concat([undefined, true, true])))
+				" failed: \n" + this._generateErrorString(error), 11);
+			if(!this._parentTranslator)
+				PME.debug(this._sandboxManager.sandbox["single"].apply(null, this._getParameters(true).concat([undefined, true, true])))
 		}
 		else
 			this.completeOld(returnValue, error);
@@ -72,11 +74,7 @@ PME.Translate.Base.prototype["_saveItems"] = function (items) {
 		}
 		return obj;
 	}
-
 	try {
-//		if (Object.prototype.toString.call(items) === "[object Array]")
-//			items = items[0];
-
 		if (!this._parentTranslator) {
 			var params = this._getParameters(true).concat([transferObject(items), this.translator[0].translatorID == "8cb314cf-2628-40cd-9713-4e773b8ed5d4"]);
 			PME.debug(this._sandboxManager.sandbox["saveItems"].apply(null, params));
@@ -142,8 +140,9 @@ PME.Translate.Search.prototype._getParameters = function (getDocument) {
 }
 
 PME.Translate.Base.prototype._getParameters = function (getDocument) {
-	PME.debug("getDocument: "+getDocument+";"+this._parentTranslator.document)
-	if(getDocument)
+	if(getDocument && this._parentTranslator)
 		return [this._parentTranslator.document, this._parentTranslator.location];
+	else if(getDocument)
+		return [this.document, this.location];
 	return [];
 }

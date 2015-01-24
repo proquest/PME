@@ -167,7 +167,7 @@ module.exports = function (debug) {
 					"mimeTypeHandler.js","openurl.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
 					"init.js","uri.js","term.js","identity.js","match.js","n3parser.js","serialize.js",
 					"http.js", "utilities.js", "utilities_internal.js", "utilities_translate.js", "cachedTypes.js",
-					"repotime.txt", "system.sql", "triggers.sql", "userdata.sql"], ["!", "translators"], [
+					"repotime.txt", "system.sql", "triggers.sql", "userdata.sql","itemFields.js"], ["!", "translators"], [
 					{
 						fileName: 'all',
 						pattern: /(?:((?:(?:chrome)|(?:resource)):\/\/)zotero((?:-platform)?\/))|(?:(\.append\(')zotero('\)))/g,
@@ -199,7 +199,7 @@ module.exports = function (debug) {
 						fileName: ["schema.js","date.js","debug.js","db.js","error.js","file.js","http.js","mimeTypeHandler.js",
 							"openurl.js","ipc.js","translate.js","translate_firefox.js","translate_item.js","translator.js","tlds.js",
 							"utilities.js","utilities_internal.js","utilities_translate.js","browser.js","notifier.js","cachedTypes.js",
-							"init.js", "uri.js", "term.js", "identity.js", "match.js", "n3parser.js", "serialize.js"],
+							"init.js", "uri.js", "term.js", "identity.js", "match.js", "n3parser.js", "serialize.js", "itemFields.js"],
 						pattern: /Zotero\./g,
 						replacement: "PME."
 					},

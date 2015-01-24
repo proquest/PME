@@ -337,7 +337,11 @@ var SaveToFlow = (function() {
 		try {
 			if (attachment.html)
 				saveAttachment(doc, id, attachment.html, "text/html", attachment.url);
-			else
+			else {
+				//for those insane relative paths...
+				var a = doc.createElement('a');
+				a.href = attachment.url;
+				attachment.url = a.href;
 				ZU.HTTP.promise("GET", attachment.url, {responseType: "blob", headers: {"Content-Type": attachment.mimeType}}, function (blob) {
 					if (!blob) {
 						attachmentFailed(doc);
@@ -354,7 +358,7 @@ var SaveToFlow = (function() {
 						}
 					}
 				});
-
+			}
 		}
 		catch (e) {
 			attachmentFailed(doc)
@@ -711,8 +715,10 @@ var SaveToFlow = (function() {
 					for (var i = 0; i < attachments.length; i++) {
 						if (attachments[i] && attachments[i].mimeType && attachments[i].mimeType.indexOf("pdf") >= 0)
 							pdf = true;
-						if (attachments[i] && attachments[i].mimeType && attachments[i].mimeType.indexOf("html") >= 0)
+						if (attachments[i] && attachments[i].mimeType && attachments[i].mimeType.indexOf("html") >= 0) {
 							html = true;
+							Z.debug(attachments[i]);
+						}
 					}
 			}
 			catch (e) {
@@ -721,7 +727,7 @@ var SaveToFlow = (function() {
 			if (pdf || html) {
 				output.push("<img src='" + FLOW_SERVER + "/public/img/" + (pdf ? "pdf" : "web") + ".png' class='stf_lbl'/><span class='stf_input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We found the article, want to save it?</span></label></span>");
 			}
-			else if (containerClass.indexOf("stf_listView") == -1 || html) {
+			else if (containerClass.indexOf("stf_listView") == -1) {
 				output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='stf_lbl'/><span class='stf_input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' class='stf_attach'> <span>Save the content of this web page</span></label></span>");
 			}
 
