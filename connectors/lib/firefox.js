@@ -140,12 +140,12 @@ module.exports = function (debug) {
 					console.log("Firefox complete. No extension file")
 			});
 			common.copyCode(_pmeLocation, path.join(root, "defaults/preferences"), ["pme_prefs.js"]);
-			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js", "pme_ui.js", "overlay.xul", "browser.js"]);
+			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js", "pme_ui.js", "overlay.xul", "overlay.js", "browser.js"]);
 			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["debug.js","schema.js","proxy.js"]);
 			common.copyCode(path.join(_zoteroFilesLocation, "translators"), root, ["deleted.txt"]);
 			common.copyCode(_pmeLocation, root, ["install.rdf", "update.rdf"]);
 			common.copyCode(_builderConfigFilesLocation, root, ['chrome.manifest'])
-			common.copyCode(_builderConfigFilesLocation, path.join(root, 'chrome/skin/default/zotero'), ['zotero-new-z-48px.png', 'zotero-new-z-16px.png', 'zotero-z-16px-australis.svg', 'zotero-z-32px-australis.svg']);
+			common.copyCode(_builderConfigFilesLocation, path.join(root, 'chrome/skin/default/zotero'), ['zotero-new-z-48px.png', 'zotero-z-16px-australis.svg', 'zotero-z-32px-australis.svg']);
 			common.appendCode([
 				path.join(_pmeLocation, 'translate.js')
 			], path.join(root, 'chrome/content/zotero/xpcom/translation/translate.js'), null, false);
