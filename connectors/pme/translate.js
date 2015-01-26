@@ -48,17 +48,16 @@ PME.Translate.Base.prototype["complete"] = function (returnValue, error) {
 
 PME.Translate.Base.prototype["_saveItems"] = function (items) {
 	var _this = this;
-
 	function transferObject(obj) {
-		if(PME.isFx) {
-			if(Object.prototype.toString.call(obj) === "[object Array]") {
+		if (PME.isFx) {
+			if (Object.prototype.toString.call(obj) === "[object Array]") {
 				var itemsObj = {};
-				for(var i = 0; i < obj.length; i++) {
+				for (var i = 0; i < obj.length; i++) {
 					itemsObj['item_' + i] = obj[i];
 
-					if(obj[i].attachments && Array.isArray(obj[i].attachments)) {
-						var attachments = obj[i].attachments.filter(function(att) {
-							if(att.document)
+					if (obj[i].attachments && Array.isArray(obj[i].attachments)) {
+						var attachments = obj[i].attachments.filter(function (att) {
+							if (att.document)
 								return false;
 							return true;
 						});
@@ -74,14 +73,16 @@ PME.Translate.Base.prototype["_saveItems"] = function (items) {
 		}
 		return obj;
 	}
-	try {
-		if (!this._parentTranslator) {
+
+	if (this.needsToSave && !this._parentTranslator) {
+		this.needsToSave = false;
+		try {
 			var params = this._getParameters(true).concat([transferObject(items), this.translator[0].translatorID == "8cb314cf-2628-40cd-9713-4e773b8ed5d4"]);
 			PME.debug(this._sandboxManager.sandbox["saveItems"].apply(null, params));
 		}
-	}
-	catch (e) {
-		PME.debug("Error _saveItems: " + e.message);
+		catch (e) {
+			PME.debug("Error _saveItems: " + e.message);
+		}
 	}
 }
 
@@ -124,8 +125,19 @@ PME.Translate.Sandbox.Web.selectItems = function (translate, items, callback) {
 }
 
 PME.Translate.Sandbox.Web._itemDone = function (translate, item) {
+	translate.needsToSave = true;
 	translate._aborted = false;
 	PME.Translate.Sandbox.Base._itemDone(translate, item);
+}
+
+PME.Translate.Sandbox.Base.done = function(translate, returnValue)
+{
+	if (translate._currentState === "detect") {
+		translate._returnValue = returnValue;
+	}
+	else {
+		translate._saveItems(translate.saveQueue);
+	}
 }
 
 PME.Translate.Web.prototype.Sandbox = PME.Translate.Sandbox._inheritFromBase(PME.Translate.Sandbox.Web);
