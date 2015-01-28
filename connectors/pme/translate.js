@@ -116,7 +116,9 @@ PME.Translate.Sandbox.Web.selectItems = function (translate, items, callback) {
 	translate._aborted = true;
 	if(!translate._parentTranslator) {
 		var params = translate._getParameters(true).concat([items, function (selectedItems) {
+			translate.incrementAsyncProcesses("Zotero.selectItems()");
 			callback(transferObject(selectedItems));
+			translate.decrementAsyncProcesses("Zotero.selectItems()");
 		}]);
 		PME.debug(translate._sandboxManager.sandbox["selection"].apply(null, params));
 	}

@@ -509,6 +509,14 @@ var SaveToFlow = (function() {
 								var thisItemId = this.getAttribute("data-id");
 								stf.setAttribute("data-id", thisItemId);
 								stf.setAttribute("data-ix", this.getAttribute("data-ix"));
+								//set a timeout to wait for single, if single never shows, show error.
+								saveTimeout = ZU.setTimeout(function () {
+									if (saveTimeout) {
+										doc.getElementById("stf_container").style.display = "none";
+										doc.getElementById("stf_progress").style.display = "block";
+										saveFailed(doc);
+									}
+								}, 10000);
 								if (savedReferences[thisItemId]) {
 									single(doc, url, savedReferences[thisItemId]);
 								}
@@ -746,7 +754,6 @@ var SaveToFlow = (function() {
 	}
 
 	function single(doc, url, item, noneFound, error) {
-		Z.debug("in single")
 		saveTimeout = undefined;
 		try {
 			if(noneFound && error) {
