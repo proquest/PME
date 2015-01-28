@@ -2,21 +2,21 @@
 <RDF:RDF xmlns:NS1="http://www.mozilla.org/2004/em-rdf#"
          xmlns:NC="http://home.netscape.com/NC-rdf#"
          xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-  <RDF:Seq RDF:about="rdf:#$cBPkn1">
-    <RDF:li RDF:resource="rdf:#$dBPkn1"/>
-  </RDF:Seq>
-  <RDF:Description RDF:about="urn:mozilla:extension:flow@proquest.com"
-                   NS1:signature="MIGTMA0GCSqGSIb3DQEBDQUAA4GBAHtMguFqlob46bVuARgphZZ5ONAuG58EAic0GFOtkeLN76myKeTh+eihQP6Rs0rkqAma/Opae4Y3V8beNFUDfozwjfD6fa6XEjuGaBz9BsUwaIpwRGClirofHT/yv3eO7N2bLyuIrH5KkhLJu2babIqtSuFYfqFC1zS+vS5UKISL">
-    <NS1:updates RDF:resource="rdf:#$cBPkn1"/>
-  </RDF:Description>
-  <RDF:Description RDF:about="rdf:#$dBPkn1"
-                   NS1:version="0.6.1">
-    <NS1:targetApplication RDF:resource="rdf:#$gBPkn1"/>
-  </RDF:Description>
   <RDF:Description RDF:about="rdf:#$gBPkn1"
                    NS1:id="{ec8030f7-c20a-464f-9b0e-13a3a9e97384}"
                    NS1:minVersion="31.0"
                    NS1:maxVersion="35.*"
                    NS1:updateLink="http://pme.proquest.com/s2f.xpi"
-                   NS1:updateHash="sha1:c2a763ec98812f1d17a6aadb8f7bf96edbce9272" />
+                   NS1:updateHash="sha1:f33a056e6bab1a74974f26d74bf898506b74e77c" />
+  <RDF:Description RDF:about="urn:mozilla:extension:flow@proquest.com"
+                   NS1:signature="MIGTMA0GCSqGSIb3DQEBDQUAA4GBADaNDJ66Ilt6/zKJBsXqTJTozATcyUnS0vtA7G1l9U4F7HxW4Jo1NGCD7dfoSWgQyCiCjyAeHwu/TywW3JDAxq0Cl6w1R5XAs1AFWUgV49QZ91z6QQVvoX339T/QdrRiTWyuH260BhscfzxcUNlaM+DMYumboOqIYQ4IkQe97S4W">
+    <NS1:updates RDF:resource="rdf:#$cBPkn1"/>
+  </RDF:Description>
+  <RDF:Seq RDF:about="rdf:#$cBPkn1">
+    <RDF:li RDF:resource="rdf:#$dBPkn1"/>
+  </RDF:Seq>
+  <RDF:Description RDF:about="rdf:#$dBPkn1"
+                   NS1:version="0.6.2">
+    <NS1:targetApplication RDF:resource="rdf:#$gBPkn1"/>
+  </RDF:Description>
 </RDF:RDF>
