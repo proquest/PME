@@ -61,7 +61,9 @@
     <script src="xpcom/translation/translator.js"/>
     <script src="xpcom/translation/tlds.js"/>
     <script src="xpcom/data/cachedTypes.js"/>
+    <script src="xpcom/data/itemFields.js"/>
     <script src="browser.js" type="application/javascript;version=1.8"/>
+    <script src="overlay.js"/>
 
 	<toolbarpalette id="BrowserToolbarPalette">
 		<toolbarbutton id="pme-toolbar-button" class="toolbarbutton-1"

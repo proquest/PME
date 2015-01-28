@@ -60,7 +60,9 @@ var PME_Browser = new function() {
 		"atdmt.com",
 		"aggregateknowledge.com",
 		"ad.yieldmanager.com",
-		"addthis.com"
+		"addthis.com",
+		"ssl-images-amazon.com",
+		"images-amazon.com"
 	];
 	
 	var _locationBlacklist = [
@@ -90,7 +92,8 @@ var PME_Browser = new function() {
 	 * Scrapes a page (called when the capture icon is clicked
 	 * @return	void
 	 */
-	function scrapeThisPage(translator) {
+	function scrapeThisPage(translator)
+	{
 		// Perform translation
 		var tab = _getTabObject(PME_Browser.tabbrowser.selectedBrowser);
 		if(tab.page.translators && tab.page.translators.length) {
@@ -128,7 +131,7 @@ var PME_Browser = new function() {
 				if(doc.domain) {
 					for each(var blacklistedURL in _blacklist) {
 						if(doc.domain.substr(doc.domain.length-blacklistedURL.length) == blacklistedURL) {
-							PME.debug("Ignoring blacklisted URL "+doc.location);
+							//PME.debug("Ignoring blacklisted URL "+doc.location);
 							return;
 						}
 					}
@@ -144,6 +147,12 @@ var PME_Browser = new function() {
 			
 			// Ignore TinyMCE popups
 			if (!doc.location.host && doc.location.href.indexOf("tinymce/") != -1) {
+				return;
+			}
+
+			//ignore script/style files
+			if (doc.location.href.indexOf(".js", doc.location.href.length - 4) != -1
+				|| doc.location.href.indexOf(".css", doc.location.href.length - 5) != -1) {
 				return;
 			}
 		}
