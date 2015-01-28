@@ -2,8 +2,11 @@
 <RDF:RDF xmlns:NS1="http://www.mozilla.org/2004/em-rdf#"
          xmlns:NC="http://home.netscape.com/NC-rdf#"
          xmlns:RDF="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+  <RDF:Seq RDF:about="rdf:#$cBPkn1">
+    <RDF:li RDF:resource="rdf:#$dBPkn1"/>
+  </RDF:Seq>
   <RDF:Description RDF:about="urn:mozilla:extension:flow@proquest.com"
-                   NS1:signature="MIGTMA0GCSqGSIb3DQEBDQUAA4GBAOMwFQ78N9t2vVjKQgp4XO8vf1hG69l5XM3M+kFAOOCT/MpS0gz6qJKDZHIvmXHcHDWFEMJy0wIVuiqF3eHi14vBYKGGju+3fegnbGkN1GuomMC6FQAqeVCzoYXj4EkZL/O1HiVcQS8UB/80i5O2oxAOR1jUHEvtg/UGEPWoAbyt">
+                   NS1:signature="MIGTMA0GCSqGSIb3DQEBDQUAA4GBAHtMguFqlob46bVuARgphZZ5ONAuG58EAic0GFOtkeLN76myKeTh+eihQP6Rs0rkqAma/Opae4Y3V8beNFUDfozwjfD6fa6XEjuGaBz9BsUwaIpwRGClirofHT/yv3eO7N2bLyuIrH5KkhLJu2babIqtSuFYfqFC1zS+vS5UKISL">
     <NS1:updates RDF:resource="rdf:#$cBPkn1"/>
   </RDF:Description>
   <RDF:Description RDF:about="rdf:#$dBPkn1"
@@ -15,8 +18,5 @@
                    NS1:minVersion="31.0"
                    NS1:maxVersion="35.*"
                    NS1:updateLink="http://pme.proquest.com/s2f.xpi"
-                   NS1:updateHash="sha1:35a4c80a0ebd4d77c4c565ee8147275bc7a76487" />
-  <RDF:Seq RDF:about="rdf:#$cBPkn1">
-    <RDF:li RDF:resource="rdf:#$dBPkn1"/>
-  </RDF:Seq>
+                   NS1:updateHash="sha1:c2a763ec98812f1d17a6aadb8f7bf96edbce9272" />
 </RDF:RDF>
