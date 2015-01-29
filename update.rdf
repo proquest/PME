@@ -9,7 +9,7 @@
                    NS1:updateLink="http://pme.proquest.com/s2f.xpi"
                    NS1:updateHash="sha1:544e933392fe30e8584db34205353c5f146d4a19" />
   <RDF:Description RDF:about="urn:mozilla:extension:flow@proquest.com"
-                   NS1:signature="MIGTMA0GCSqGSIb3DQEBDQUAA4GBADaNDJ66Ilt6/zKJBsXqTJTozATcyUnS0vtA7G1l9U4F7HxW4Jo1NGCD7dfoSWgQyCiCjyAeHwu/TywW3JDAxq0Cl6w1R5XAs1AFWUgV49QZ91z6QQVvoX339T/QdrRiTWyuH260BhscfzxcUNlaM+DMYumboOqIYQ4IkQe97S4W">
+                   NS1:signature="MIGTMA0GCSqGSIb3DQEBDQUAA4GBANy/IlitiPGmOvEePs8KDkrZ/rPvWcCdle3jGswk7fFy6Hxrse1d+jsqnOI2VLKVuXMzMRLV7AD5frcDg7G/ElU0NNbWEajQoJR3mmN/TXDj/0a0HcB2dwkT3meUKeC3yHzKrkHaqoqh54pqk640MhygDnXttLQAKZuiVVM5ZMUC">
     <NS1:updates RDF:resource="rdf:#$cBPkn1"/>
   </RDF:Description>
   <RDF:Seq RDF:about="rdf:#$cBPkn1">
