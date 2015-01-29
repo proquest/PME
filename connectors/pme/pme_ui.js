@@ -486,6 +486,7 @@ var SaveToFlow = (function() {
 
 	function loginDialog(doc) {
 		try {
+			setSaveTimeout(doc,-1);
 			var status = doc.getElementById("stf_status");
 			doc.getElementById("stf_progress").style.display = "none";
 			status.style.display = "block";

@@ -10,7 +10,7 @@
                    em:id="flow@proquest.com"
                    em:name="ProQuest Flow"
                    em:description="Tame your workflow"
-                   em:version="0.6.3"
+                   em:version="0.6.4"
                    em:creator="ProQuest"
                    em:homepageURL="http://flow.proquest.com"
                    em:iconURL="chrome://pme/skin/zotero-new-z-48px.png"
