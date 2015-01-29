@@ -1,7 +1,29 @@
 var SaveToFlow = (function() {
 	var FLOW_SERVER = "https://flow.proquest.com",
-		MODE = "DEBUG",
-		saveTimeout = undefined;
+		MODE = "DEBUG";
+
+	function setSaveTimeout(doc,delay){
+		delay = delay || 10000;
+		if(delay == -1)
+			doc.getElementById("stf_container").setAttribute("not_loaded", "false");
+		else
+			doc.getElementById("stf_container").setAttribute("not_loaded","true");
+		ZU.setTimeout(function () {
+			var notLoaded = doc.getElementById("stf_container").getAttribute("not_loaded");
+			if (notLoaded == "true") {
+				//got stuck at done, has items, just something prevented the complete.
+				Zotero.done();
+				ZU.setTimeout(function () {
+					notLoaded = doc.getElementById("stf_container").getAttribute("not_loaded");
+					if (notLoaded == "true") {
+						doc.getElementById("stf_container").style.display = "none";
+						doc.getElementById("stf_progress").style.display = "block";
+						saveFailed(doc);
+					}
+				}, 2000);
+			}
+		}, delay);
+	}
 
 	function entry(doc, url) {
 		if (doc && !doc.getElementById("stf_capture")) {
@@ -12,6 +34,8 @@ var SaveToFlow = (function() {
 				var className = doc.getElementById("stf_capture").className;
 				doc.getElementById("stf_capture").className = (className ? className + " " : "") + "stf_show";
 			}, 100);
+
+			setSaveTimeout(doc);
 		}
 		return "Save to Flow Loaded"
 	}
@@ -317,11 +341,7 @@ var SaveToFlow = (function() {
 	}
 
 	function startProgress(doc) {
-		saveTimeout = ZU.setTimeout(function() {
-			if(saveTimeout) {
-				saveFailed(doc);
-			}
-		},60000);//1 minute
+		setSaveTimeout(doc,60000);
 		doc.getElementById("stf_container").style.display = "none";
 		doc.getElementById("stf_progress").style.display = "block";
 	}
@@ -487,6 +507,7 @@ var SaveToFlow = (function() {
 	}
 
 	function selection(doc, url, items, callback) {
+		setSaveTimeout(doc,-1);
 		try {
 			//callback should complete items, so we'll basically want to use it when we want to see of save an item.
 			var container = doc.getElementById("stf_ui_itemlist"), stf = doc.getElementById("stf_capture"), ix = 1;
@@ -510,13 +531,7 @@ var SaveToFlow = (function() {
 								stf.setAttribute("data-id", thisItemId);
 								stf.setAttribute("data-ix", this.getAttribute("data-ix"));
 								//set a timeout to wait for single, if single never shows, show error.
-								saveTimeout = ZU.setTimeout(function () {
-									if (saveTimeout) {
-										doc.getElementById("stf_container").style.display = "none";
-										doc.getElementById("stf_progress").style.display = "block";
-										saveFailed(doc);
-									}
-								}, 10000);
+								setSaveTimeout(doc);
 								if (savedReferences[thisItemId]) {
 									single(doc, url, savedReferences[thisItemId]);
 								}
@@ -748,13 +763,12 @@ var SaveToFlow = (function() {
 	}
 
 	function saveItems(doc, url, items, noneFound) {
-		Z.debug('saveItems: ' + items)
 		for (i in items)
 			single(doc, url, items[i], noneFound);
 	}
 
 	function single(doc, url, item, noneFound, error) {
-		saveTimeout = undefined;
+		setSaveTimeout(doc, -1);
 		try {
 			if(noneFound && error) {
 				saveFailed(doc)

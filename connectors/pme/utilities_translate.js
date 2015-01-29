@@ -2,6 +2,9 @@ PME.Utilities.Translate.prototype.setTimeout = function (f, d) {
 	return setTimeout(f, d);
 };
 
+PME.Utilities.Translate.prototype.clearTimeout = function (f) {
+	clearTimeout(f);
+};
 PME.Utilities.Translate.prototype.promise = function (method, url, options, callback) {
 	try {
 		var xmlhttp = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
@@ -48,6 +51,6 @@ PME.Utilities.Translate.prototype.promise = function (method, url, options, call
 		xmlhttp.send((options && options.body) || null);
 	}catch(e){PME.debug(e,11);}
 }
-
+PME.Utilities.Translate.prototype.__exposedProps__["clearTimeout"] = "r";
 PME.Utilities.Translate.prototype.__exposedProps__["setTimeout"] = "r";
 PME.Utilities.Translate.prototype.__exposedProps__["promise"] = "r";
