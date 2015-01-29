@@ -1,3 +1,7 @@
+///// DO NOT EDIT this comment or anything above it. (The build script looks for the '/////' string and ignores anything above it)
+// The sharedRefData object is located in the Flow codebase and gets copied into PME. If this object must be changed,
+// update the file ref-type-fields.js in Flow and those changes will propagate to PME.
+
 var FLOW_SERVER = "https://flow.proquest.com",
 		MODE = "DEBUG";
 
