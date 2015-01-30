@@ -7,16 +7,16 @@
                    NS1:minVersion="31.0"
                    NS1:maxVersion="35.*"
                    NS1:updateLink="http://pme.proquest.com/s2f.xpi"
-                   NS1:updateHash="sha1:544e933392fe30e8584db34205353c5f146d4a19" />
+                   NS1:updateHash="sha1:b29b3099e38333d13dc9e7b58ac77cd58f554a93" />
   <RDF:Description RDF:about="urn:mozilla:extension:flow@proquest.com"
-                   NS1:signature="MIGTMA0GCSqGSIb3DQEBDQUAA4GBANy/IlitiPGmOvEePs8KDkrZ/rPvWcCdle3jGswk7fFy6Hxrse1d+jsqnOI2VLKVuXMzMRLV7AD5frcDg7G/ElU0NNbWEajQoJR3mmN/TXDj/0a0HcB2dwkT3meUKeC3yHzKrkHaqoqh54pqk640MhygDnXttLQAKZuiVVM5ZMUC">
+                   NS1:signature="MIGTMA0GCSqGSIb3DQEBDQUAA4GBACl69dcq41uGLyuPF64LA0cZI22n/9k7X7Bp0Mf8vM627k+cZSOpnabtEOX2ak3NngLI1M74lbDk0MGrjyO1Qr/Nx1zOhw8Lsq5fDq9GEQy+9oV8WKv8ZDMcHPKLgumOk6o89FJzKuw9mZaNeGqeYBqdo/5mGbkWpY9ku4u8fY8d">
     <NS1:updates RDF:resource="rdf:#$cBPkn1"/>
   </RDF:Description>
   <RDF:Seq RDF:about="rdf:#$cBPkn1">
     <RDF:li RDF:resource="rdf:#$dBPkn1"/>
   </RDF:Seq>
   <RDF:Description RDF:about="rdf:#$dBPkn1"
-                   NS1:version="0.6.4">
+                   NS1:version="0.6.5">
     <NS1:targetApplication RDF:resource="rdf:#$gBPkn1"/>
   </RDF:Description>
 </RDF:RDF>

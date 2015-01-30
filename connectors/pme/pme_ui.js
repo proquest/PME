@@ -4,23 +4,26 @@ var SaveToFlow = (function() {
 
 	function setSaveTimeout(doc,delay){
 		delay = delay || 10000;
-		if(delay == -1)
+		if(delay == -1) {
 			doc.getElementById("stf_container").setAttribute("not_loaded", "false");
-		else
-			doc.getElementById("stf_container").setAttribute("not_loaded","true");
+			return;
+		}
+		else {
+			doc.getElementById("stf_container").setAttribute("not_loaded", "true");
+		}
 		ZU.setTimeout(function () {
 			var notLoaded = doc.getElementById("stf_container").getAttribute("not_loaded");
 			if (notLoaded == "true") {
 				//got stuck at done, has items, just something prevented the complete.
 				Zotero.done();
 				ZU.setTimeout(function () {
-					notLoaded = doc.getElementById("stf_container").getAttribute("not_loaded");
+					var notLoaded = doc.getElementById("stf_container").getAttribute("not_loaded");
 					if (notLoaded == "true") {
 						doc.getElementById("stf_container").style.display = "none";
 						doc.getElementById("stf_progress").style.display = "block";
 						saveFailed(doc);
 					}
-				}, 2000);
+				}, 10000);
 			}
 		}, delay);
 	}
