@@ -1,8 +1,9 @@
 PME.Translate.Base.prototype["_translateTranslatorLoadedOld"] = PME.Translate.Base.prototype._translateTranslatorLoaded;
 PME.Translate.Base.prototype["completeOld"] = PME.Translate.Base.prototype.complete;
-PME.Translate.Sandbox.Base["_itemDoneOld"] = PME.Translate.Sandbox.Base._itemDone;
 
 PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
+	if (this._parentTranslator)
+		this._translateTranslatorLoadedOld();
 	try {
 		var _this = this,
 			xmlhttp = Components.classes["@mozilla.org/xmlextras/xmlhttprequest;1"].createInstance();
@@ -10,7 +11,7 @@ PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
 		xmlhttp.open('GET', "chrome://pme/content/pme_ui.js", true);
 		xmlhttp.onreadystatechange = function () {
 			if (xmlhttp.readyState == 4) {
-				_this._sandboxManager.eval(xmlhttp.responseText, ["entry", "selection", "single"], (_this._currentTranslator.file ? _this._currentTranslator.file.path : _this._currentTranslator.label));
+				_this._sandboxManager.eval(xmlhttp.responseText, ["entry", "selection", "single", "saveItems"], (_this._currentTranslator.file ? _this._currentTranslator.file.path : _this._currentTranslator.label));
 				PME.debug(_this._sandboxManager.sandbox["entry"].apply(null, _this._getParameters(true)));
 				_this._translateTranslatorLoadedOld();
 				_this.setHandler("error", function () {
@@ -30,32 +31,42 @@ PME.Translate.Base.prototype["_translateTranslatorLoaded"] = function () {
 
 PME.Translate.Base.prototype["complete"] = function (returnValue, error) {
 	try {
-		this.completeOld(returnValue, error);
+		if(error) {
+			PME.debug("Translation using " +
+				(this.translator && this.translator[0] && this.translator[0].label ? this.translator[0].label : "no translator") +
+				" failed: \n" + this._generateErrorString(error), 11);
+			if(!this._parentTranslator)
+				PME.debug(this._sandboxManager.sandbox["single"].apply(null, this._getParameters(true).concat([undefined, true, true])))
+		}
+		else
+			this.completeOld(returnValue, error);
 	}
 	catch(e) {
 		PME.debug("Error complete: " + e.message);
 	}
 }
 
-PME.Translate.Sandbox.Base["_itemDone"] = function (translate, item) {
-	this._itemDoneOld(translate, item);
-	translate.saveQueue = [];
-	translate._saveItems([item]);
-}
-
 PME.Translate.Base.prototype["_saveItems"] = function (items) {
 	var _this = this;
-
 	function transferObject(obj) {
 		if (PME.isFx) {
-			if (obj.attachments && Array.isArray(obj.attachments)) {
-				var attachments = obj.attachments.filter(function (att) {
-					if (att.document)
-						return false;
-					return true;
-				});
-				obj.attachments = attachments;
+			if (Object.prototype.toString.call(obj) === "[object Array]") {
+				var itemsObj = {};
+				for (var i = 0; i < obj.length; i++) {
+					itemsObj['item_' + i] = obj[i];
+
+					if (obj[i].attachments && Array.isArray(obj[i].attachments)) {
+						var attachments = obj[i].attachments.filter(function (att) {
+							if (att.document)
+								return false;
+							return true;
+						});
+						itemsObj['item_' + i].attachments = attachments;
+					}
+				}
+				obj = itemsObj;
 			}
+
 			return _this._sandboxManager.sandbox.JSON.wrappedJSObject ?
 				_this._sandboxManager.sandbox.JSON.wrappedJSObject.parse(JSON.stringify(obj)) :
 				_this._sandboxManager.sandbox.JSON.parse(JSON.stringify(obj));
@@ -63,17 +74,15 @@ PME.Translate.Base.prototype["_saveItems"] = function (items) {
 		return obj;
 	}
 
-	try {
-		if (Object.prototype.toString.call(items) === "[object Array]")
-			items = items[0];
-
-		if (!this._parentTranslator) {
+	if (this.needsToSave && !this._parentTranslator) {
+		this.needsToSave = false;
+		try {
 			var params = this._getParameters(true).concat([transferObject(items), this.translator[0].translatorID == "8cb314cf-2628-40cd-9713-4e773b8ed5d4"]);
-			PME.debug(this._sandboxManager.sandbox["single"].apply(null, params));
+			PME.debug(this._sandboxManager.sandbox["saveItems"].apply(null, params));
 		}
-	}
-	catch (e) {
-		PME.debug("Error _saveItems: " + e.message);
+		catch (e) {
+			PME.debug("Error _saveItems: " + e.message);
+		}
 	}
 }
 
@@ -107,7 +116,9 @@ PME.Translate.Sandbox.Web.selectItems = function (translate, items, callback) {
 	translate._aborted = true;
 	if(!translate._parentTranslator) {
 		var params = translate._getParameters(true).concat([items, function (selectedItems) {
+			translate.incrementAsyncProcesses("Zotero.selectItems()");
 			callback(transferObject(selectedItems));
+			translate.decrementAsyncProcesses("Zotero.selectItems()");
 		}]);
 		PME.debug(translate._sandboxManager.sandbox["selection"].apply(null, params));
 	}
@@ -116,17 +127,36 @@ PME.Translate.Sandbox.Web.selectItems = function (translate, items, callback) {
 }
 
 PME.Translate.Sandbox.Web._itemDone = function (translate, item) {
+	translate.needsToSave = true;
 	translate._aborted = false;
 	PME.Translate.Sandbox.Base._itemDone(translate, item);
 }
 
+PME.Translate.Sandbox.Base.done = function(translate, returnValue)
+{
+	if (translate._currentState === "detect") {
+		translate._returnValue = returnValue;
+	}
+	else {
+		translate._saveItems(translate.saveQueue);
+	}
+}
+
 PME.Translate.Web.prototype.Sandbox = PME.Translate.Sandbox._inheritFromBase(PME.Translate.Sandbox.Web);
 
-PME.Translate.Search.prototype._getParameters = function(getDocument) {
-	if(getDocument)
+PME.Translate.Search.prototype._getParameters = function (getDocument) {
+	if (getDocument)
 		return [this._parentTranslator.document, this._parentTranslator.location];
-	if(PME.isFx) {
-		return [this._sandboxManager._copyObject(this.search)];
+	if (PME.isFx) {
+		return this._sandboxManager._copyObject ? [this._sandboxManager._copyObject(this.search)] : [this._sandboxManager.copyObject(this.search)];
 	}
 	return [this.search];
+}
+
+PME.Translate.Base.prototype._getParameters = function (getDocument) {
+	if(getDocument && this._parentTranslator)
+		return [this._parentTranslator.document, this._parentTranslator.location];
+	else if(getDocument)
+		return [this.document, this.location];
+	return [];
 }

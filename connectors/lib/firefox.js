@@ -140,12 +140,12 @@ module.exports = function (debug) {
 					console.log("Firefox complete. No extension file")
 			});
 			common.copyCode(_pmeLocation, path.join(root, "defaults/preferences"), ["pme_prefs.js"]);
-			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js", "pme_ui.js", "overlay.xul", "browser.js"]);
+			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero"), ["include.js", "pme_ui.js", "overlay.xul", "overlay.js", "browser.js"]);
 			common.copyCode(_pmeLocation, path.join(root, "chrome/content/zotero/xpcom"), ["debug.js","schema.js","proxy.js"]);
 			common.copyCode(path.join(_zoteroFilesLocation, "translators"), root, ["deleted.txt"]);
 			common.copyCode(_pmeLocation, root, ["install.rdf", "update.rdf"]);
 			common.copyCode(_builderConfigFilesLocation, root, ['chrome.manifest'])
-			common.copyCode(_builderConfigFilesLocation, path.join(root, 'chrome/skin/default/zotero'), ['zotero-new-z-48px.png', 'zotero-new-z-16px.png', 'zotero-z-16px-australis.svg', 'zotero-z-32px-australis.svg']);
+			common.copyCode(_builderConfigFilesLocation, path.join(root, 'chrome/skin/default/zotero'), ['zotero-new-z-48px.png', 'zotero-z-16px-australis.svg', 'zotero-z-32px-australis.svg']);
 			common.appendCode([
 				path.join(_pmeLocation, 'translate.js')
 			], path.join(root, 'chrome/content/zotero/xpcom/translation/translate.js'), null, false);
@@ -167,7 +167,7 @@ module.exports = function (debug) {
 					"mimeTypeHandler.js","openurl.js", "translate.js", "translate_firefox.js", "translate_item.js", "translator.js", "tlds.js",
 					"init.js","uri.js","term.js","identity.js","match.js","n3parser.js","serialize.js",
 					"http.js", "utilities.js", "utilities_internal.js", "utilities_translate.js", "cachedTypes.js",
-					"repotime.txt", "system.sql", "triggers.sql", "userdata.sql"], ["!", "translators"], [
+					"repotime.txt", "system.sql", "triggers.sql", "userdata.sql","itemFields.js"], ["!", "translators"], [
 					{
 						fileName: 'all',
 						pattern: /(?:((?:(?:chrome)|(?:resource)):\/\/)zotero((?:-platform)?\/))|(?:(\.append\(')zotero('\)))/g,
@@ -199,7 +199,7 @@ module.exports = function (debug) {
 						fileName: ["schema.js","date.js","debug.js","db.js","error.js","file.js","http.js","mimeTypeHandler.js",
 							"openurl.js","ipc.js","translate.js","translate_firefox.js","translate_item.js","translator.js","tlds.js",
 							"utilities.js","utilities_internal.js","utilities_translate.js","browser.js","notifier.js","cachedTypes.js",
-							"init.js", "uri.js", "term.js", "identity.js", "match.js", "n3parser.js", "serialize.js"],
+							"init.js", "uri.js", "term.js", "identity.js", "match.js", "n3parser.js", "serialize.js", "itemFields.js"],
 						pattern: /Zotero\./g,
 						replacement: "PME."
 					},
