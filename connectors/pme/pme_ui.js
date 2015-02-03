@@ -1061,7 +1061,7 @@ var SaveToFlow = (function() {
 				date: "publicationDate",
 				publisher: "publisher",
 				retrievedDate: "retrievedDate",
-				"recipient": "recipient",
+				recipient: "recipient",
 				title: "title",
 				translator: "translator",//creator+type=translator
 				URL: "url",
@@ -1098,7 +1098,7 @@ var SaveToFlow = (function() {
 				"url": "url",
 				"modifiedFields": "modifiedFields",
 				"patentNumber": "docIds.patentNumber",
-				"recipient": "creators.recipients"
+				"recipient": { "key": "creators.recipients", "fn": handleAuthor }
 			}
 		}
 
