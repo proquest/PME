@@ -1010,9 +1010,10 @@ var SaveToFlow = (function() {
 		var fields = sharedRefData.fields,
 			referenceTypes = sharedRefData.refTypes,
 			order = [
-				'title', 'authors', 'editors', 'publication', 'publicationDate', 'seriesTitle', 'publisher', 'department',
-				'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate',
-				'abstract'
+				'title', 'authors', 'editors', 'compilers', 'assignees', 'translators', 'recipients', 'publication',
+				'publicationDate', 'publicationEditors', 'seriesTitle', 'seriesEditors', 'publisher', 'department', 'location',
+				'edition', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'patentNumber', 'applicationNumber', 'type',
+				'url', 'sourceDatabase', 'retrievedDate', 'abstract'
 			];
 
 		return {order: order, fields: fields, referenceTypes: referenceTypes};
