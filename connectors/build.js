@@ -18,7 +18,7 @@ if (!fs) {
 }
 
 var UIcode = fs.readFileSync('./pme/pme_ui.js', {encoding: 'utf8'});
-var req = http.get("http://localhost:8080/public/js/ref-type-fields.js", function(res) {
+var req = http.get("https://flow.proquest.com/public/js/ref-type-fields.js", function(res) {
 	res.on('data', function(data) {
 		fs.writeFileSync('./pme/pme_ui.js', data);
 		fs.appendFileSync('./pme/pme_ui.js', UIcode.slice(UIcode.indexOf('/////')));
