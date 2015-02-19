@@ -922,14 +922,17 @@ var SaveToFlow = (function() {
 					if (fieldMapping.indexOf(field) >= 0) {
 						var override = labels.referenceTypes[item.refType].fieldLabelOverides[field], label = override ? override : labels.fields[field].label;
 						var value = field == "authors" ? authorNameList(item[field], "\n") : item[field];
-						if (value) {
-							if (label.toLowerCase() == 'isbn')
-								value = value.split(',')[0];
-							output.push("<div class='stf_lbl'>" + label + "</div>" + (field == "authors" ? "<div class='stf_textposition'><span class='stf_author'>Last name, First names</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'>" + value + "</textarea>" + (field == "authors" ? "</div>" : ""));
-						}
-						else {
-							output.push("<div class='stf_lbl'>" + label + "</div><div class='stf_textposition'><span class='stf_empty'>Please enter metadata...</span>" + (field == "authors" ? "<span class='stf_author'>Last name, First names (each on a new line)</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'></textarea></div>");
-						}
+						if (label.toLowerCase() == 'isbn')
+							value = value.split(',')[0];
+						output.push(
+							"<div class='stf_lbl'>" +
+								label +
+							"</div>" +
+							"<textarea class='stf_val' id='stf_" + field + "' rows='1' placeholder='" +
+							(field == "authors" ? "Last name, First names (each on a new line)" : "Please enter metadata...") +
+							"'>" +
+							(value ? value : "") +
+							"</textarea>" + (field == "authors" ? "</div>" : ""));
 					}
 				}
 				catch (e) {
