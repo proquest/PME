@@ -927,9 +927,10 @@ var SaveToFlow = (function() {
 						output.push(
 							"<div class='stf_lbl'>" +
 								label +
+								(field == "authors" ? ' ("Last name, First names" each on new line)' : '') +
 							"</div>" +
 							"<textarea class='stf_val' id='stf_" + field + "' rows='1' placeholder='" +
-							(field == "authors" ? "Last name, First names (each on a new line)" : "Please enter metadata...") +
+							(field == "authors" ? "Please enter authors..." : "Please enter metadata...") +
 							"'>" +
 							(value ? value : "") +
 							"</textarea>" + (field == "authors" ? "</div>" : ""));
