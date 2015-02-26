@@ -922,8 +922,9 @@ var SaveToFlow = (function() {
 					if (fieldMapping.indexOf(field) >= 0) {
 						var override = labels.referenceTypes[item.refType].fieldLabelOverides[field], label = override ? override : labels.fields[field].label;
 						var value = field == "authors" ? authorNameList(item[field], "\n") : item[field];
-						if (label.toLowerCase() == 'isbn')
-							value = value.split(',')[0];
+
+						if (value && label.toLowerCase() == 'isbn') value = value.split(',')[0];
+
 						output.push(
 							"<div class='stf_lbl'>" +
 								label +
@@ -933,7 +934,7 @@ var SaveToFlow = (function() {
 							(field == "authors" ? "Please enter authors..." : "Please enter metadata...") +
 							"'>" +
 							(value ? value : "") +
-							"</textarea>" + (field == "authors" ? "</div>" : ""));
+							"</textarea>");
 					}
 				}
 				catch (e) {
