@@ -1,3 +1,9 @@
+var sharedRefData={fields:{abstract:{label:"Abstract"},alternateTitle:{label:"Alternate Title"},authors:{label:"Authors"},arXivId:{label:"ArXiv ID"},availability:{label:"Availability"},classification:{label:"Classification"},compilers:{label:"Compilers"},department:{label:"Department"},doi:{label:"DOI"},edition:{label:"Edition"},editors:{label:"Editors"},eventName:{label:"Event"},eventLocation:{label:"Event Location"},eventDate:{label:"Event Date"},extraData:{label:"Extra Data"},isbn:{label:"ISBN"},isElectronic:{label:"Is Electronic?"},issn:{label:"ISSN"},issue:{label:"Issue"},journalAbbrev:{label:"Journal Abbrev"},language:{label:"Language"},locCallNumber:{label:"LC Call #"},location:{label:"Place of Publication"},pages:{label:"Pages"},pmcid:{label:"PMCID"},pmid:{label:"PMID"},publication:{label:"Publication"},publicationEditors:{label:"Publication Editors"},publicationDate:{label:"Publish Date"},'publicationDate-rawDate':{label:"Raw Date"},'publicationDate-year':{label:"Year"},publisher:{label:"Publisher"},republishedDate:{label:"Republished Date"},retrievedDate:{label:"Date Retrieved"},shortTitle:{label:"Short Title"},seriesEditors:{label:"Series Editors"},seriesTitle:{label:"Series Title"},sourceName:{label:"Source Name"},sourceDatabase:{label:"Source DB"},sourceLibrary:{label:"Source Library"},sourceLocation:{label:"Source Location"},sourceAccession:{label:"Source Accession"},title:{label:"Title"},translators:{label:"Translators"},type:{label:"Type"},url:{label:"Retrieved From"},userNotes:{label:"Notes"},version:{label:"Version"},volume:{label:"Volume"},medium:{label:'Medium'},producers:{label:'Producer'},performers:{label:'Performers'},conductors:{label:'Conductor'},recipients:{label:'Recipients'},assignees:{label:'Assignees'},patentNumber:{label:"Patent Number"},registryNumber:{label:"Registry Number"},applicationNumber:{label:"Application Number"},classCodeNatl:{label:"Class Code, National"},classCodeIntl:{label:"Class Code, International"}},refTypes:{JOURNAL_ARTICLE_REF:{label:'Journal Article',defaultFields:['abstract','authors','issue','pages','publication','publicationDate','title','url','userNotes','volume'],optionalFields:['arXivId','alternateTitle','retrievedDate','edition','extraData','doi','isElectronic','issn','journalAbbrev','language','pmcid','pmid','republishedDate','seriesEditors','shortTitle','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators'],fieldLabelOverides:{publication:'Journal'}},BOOK_REF:{label:"Book",defaultFields:['abstract','authors','location','edition','publicationDate','seriesTitle','publisher','title','userNotes'],optionalFields:['alternateTitle','compilers','doi','editors','extraData','isbn','isElectronic','language','locCallNumber','translators','url'],fieldLabelOverides:{}},BOOK_SECTION_REF:{label:"Book section",defaultFields:['abstract','authors','editors','location','pages','publicationDate','publication','publisher','title','userNotes'],optionalFields:['alternateTitle','compilers','doi','edition','extraData','isbn','isElectronic','language','locCallNumber','seriesEditors','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators','url'],fieldLabelOverides:{publication:'Book title',title:'Section title'}},GENERIC_REF:{label:"Generic",defaultFields:['abstract','authors','location','publication','publicationDate','publisher','title','url','userNotes'],optionalFields:['availability','alternateTitle','arXivId','classification','compilers','department','doi','edition','editors','eventName','eventLocation','eventDate','extraData','isbn','isElectronic','issn','issue','journalAbbrev','language','locCallNumber','pages','pmcid','pmid','publicationEditors','republishedDate','retrievedDate','seriesEditors','seriesTitle','shortTitle','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators','type','version','volume'],fieldLabelOverides:{}},WEB_REF:{label:"Web page",defaultFields:['abstract','authors','publication','publicationDate','retrievedDate','title','url','userNotes'],optionalFields:['alternateTitle','doi','extraData','language','publicationEditors','version'],fieldLabelOverides:{publication:'Website',url:'URL'}},REPORT_REF:{label:"Report",defaultFields:['abstract','authors','location','pages','publication','publicationDate','publisher','title','userNotes'],optionalFields:['alternateTitle','retrievedDate','doi','edition','editors','extraData','isElectronic','language','locCallNumber','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators','url'],fieldLabelOverides:{publication:'Institution'}},CONF_REF:{label:"Conference proceeding",defaultFields:['abstract','authors','location','pages','publication','publicationDate','publisher','title','userNotes'],optionalFields:['alternateTitle','retrievedDate','doi','editors','eventName','eventDate','extraData','isElectronic','language','locCallNumber','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators','url'],fieldLabelOverides:{eventName:'Conference',eventDate:'Conference Date',publication:'Proceedings Title'}},NEWS_REF:{label:"Newspaper article",defaultFields:['abstract','authors','location','edition','pages','publication','publicationDate','retrievedDate','title','userNotes','url'],optionalFields:['alternateTitle','doi','editors','extraData','isElectronic','language','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators'],fieldLabelOverides:{}},THESIS_REF:{label:"Thesis",defaultFields:['abstract','authors','department','pages','publicationDate','publisher','title','type','userNotes'],optionalFields:['alternateTitle','location','doi','extraData','isElectronic','language','locCallNumber','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','url'],fieldLabelOverides:{publisher:'University',location:'Location'}},MAG_REF:{label:"Magazine article",defaultFields:['abstract','authors','location','pages','publication','publicationDate','publisher','title','userNotes','url'],optionalFields:['alternateTitle','doi','extraData','editors','isElectronic','language','locCallNumber','retrievedDate','sourceName','sourceDatabase','sourceLibrary','sourceLocation','translators'],fieldLabelOverides:{}},FILM_REF:{label:'Film',defaultFields:['title','authors','publicationDate','publisher','location','userNotes','performers','producers','medium'],optionalFields:['language','extraData'],fieldLabelOverides:{authors:'Director',publicationDate:'Year of Release',publisher:'Studio / Distributor',location:'Studio Location'}},ART_REF:{label:'Artwork',defaultFields:['title','authors','publicationDate','publisher','location','isElectronic','userNotes','medium'],optionalFields:['url','extraData'],fieldLabelOverides:{authors:'Artist',publicationDate:'Year',publisher:'Institution',location:'Institution Location'}},AUDIO_REF:{label:'Audio',defaultFields:['title','authors','publicationDate','performers','publisher','location','userNotes','medium','conductors'],optionalFields:['editors','volume','url','extraData'],fieldLabelOverides:{authors:'Writers',publicationDate:'Date',publisher:'Production Company',location:'Production Location','performers':'Performers / Artist'}},ABSTRACT_REF:{label:'Abstract',defaultFields:['abstract','authors','issue','pages','publication','publicationDate','title','url','userNotes','volume'],optionalFields:['alternateTitle','arXivId','department','doi','edition','editors','eventDate','eventLocation','eventName','extraData','isElectronic','issn','journalAbbrev','language','location','locCallNumber','pmcid','pmid','publisher','republishedDate','retrievedDate','seriesEditors','shortTitle','sourceAccession','sourceDatabase','sourceLibrary','sourceLocation','sourceName','translators','type'],fieldLabelOverides:{}},MONOGRAPH_REF:{label:'Monograph',defaultFields:['authors','edition','location','pages','publicationDate','publisher','seriesEditors','seriesTitle','title','userNotes','volume'],optionalFields:['abstract','alternateTitle','compilers','doi','editors','extraData','isbn','isElectronic','language','locCallNumber','publicationEditors','retrievedDate','sourceDatabase','sourceLibrary','sourceLocation','translators','url'],fieldLabelOverides:{pages:'Total Pages'}},UNPUBLISHED_REF:{label:'Unpublished material',defaultFields:['authors','location','pages','seriesTitle','title','type','url','userNotes'],optionalFields:['abstract','alternateTitle','arXivId','compilers','doi','editors','extraData','isElectronic','language','locCallNumber','publisher','retrievedDate','shortTitle','sourceName','sourceDatabase','sourceLibrary','sourceLocation','translators'],fieldLabelOverides:{type:'Type of Work',seriesTitle:'Collection Name'}},PATENT_REF:{label:'Patent',defaultFields:['abstract','applicationNumber','assignees','authors','location','pages','patentNumber','publicationDate','title','url','userNotes'],optionalFields:['alternateTitle','classCodeNatl','classCodeIntl','doi','extraData','isElectronic','language','locCallNumber','publisher','registryNumber','republishedDate','retrievedDate','sourceDatabase','sourceLibrary','sourceLocation','sourceName','translators'],fieldLabelOverides:{authors:'Inventors',location:'Issuing Country',publicationDate:'Issue Date',publisher:"Issuer"}},PERSONAL_COMM_REF:{label:'Personal communication',defaultFields:['authors','publicationDate','recipients','title','type','userNotes'],optionalFields:['extraData','isElectronic','language','pages','translators','url'],fieldLabelOverides:{publicationDate:"Communication Date"}}}};
+
+///// DO NOT EDIT this comment or anything above it. (The build script looks for the '/////' string and ignores anything above it)
+// The sharedRefData object is located in the Flow codebase and gets copied into PME. If this object must be changed,
+// update the file ref-type-fields.js in Flow and those changes will propagate to PME.
+
 var SaveToFlow = (function() {
 	var FLOW_SERVER = "https://flow.proquest.com",
 		MODE = "DEBUG";
@@ -778,6 +784,8 @@ var SaveToFlow = (function() {
 				saveFailed(doc)
 				return;
 			}
+			Z.debug("*******");
+			Z.debug(item);
 			if (!item) {
 				item = {};
 				item.refType = "GENERIC_REF";
@@ -795,6 +803,8 @@ var SaveToFlow = (function() {
 				var attachments = item.attachments;
 				item = conversion.convert(item);
 				item.attachments = attachments;
+				Z.debug("Item conversion: ");
+				Z.debug(item);
 			}
 			if (stf.getAttribute("data-saving") == "true") {
 				saveReference(doc, url, item, true);
@@ -1008,118 +1018,13 @@ var SaveToFlow = (function() {
 	})();
 
 	var labels = (function () {
-		var fields = {
-				abstract: { label: "Abstract"},
-				alternateTitle: {label: "Alternate Title"},
-				authors: { label: "Authors"},
-				arXivId: { label: "ArXiv ID" },
-				availability: { label: "Availability" },
-				classification: { label: "Classification"},
-				compilers: { label: "Compilers"  },
-				department: { label: "Department" },
-				doi: { label: "DOI"},
-				edition: { label: "Edition"},
-				editors: { label: "Editors"},
-				eventName: { label: "Event" },
-				eventLocation: { label: "Event Location" },
-				eventDate: { label: "Event Date" },
-				extraData: { label: "Extra Data"},
-				isbn: { label: "ISBN"},
-				isElectronic: { label: "Is Electronic?" },
-				issn: { label: "ISSN"},
-				issue: { label: "Issue"},
-				journalAbbrev: { label: "Journal Abbrev"},
-				language: { label: "Language"},
-				locCallNumber: { label: "LC Call #"},
-				location: { label: "Place of Publication"},
-				pages: { label: "Pages"},
-				pmcid: { label: "PMCID"},
-				pmid: { label: "PMID"},
-				publication: { label: "Publication"},
-				publicationEditors: { label: "Publication Editors" },
-				publicationDate: { label: "Date"},
-				publisher: { label: "Publisher"},
-				republishedDate: { label: "Republished Date"},
-				retrievedDate: { label: "Date Retrieved"},
-				shortTitle: { label: "Short Title"},
-				seriesEditors: { label: "Series Editors"},
-				seriesTitle: { label: "Series Title"},
-				sourceName: { label: "Source Name"},
-				sourceDatabase: { label: "Source DB"},
-				sourceLibrary: { label: "Source Library"},
-				sourceLocation: { label: "Source Location"},
-				sourceAccession: { label: "Source Accession"},
-				title: { label: "Title"},
-				translators: { label: "Translators"},
-				type: { label: "Type" },
-				url: { label: "Retrieved From"},
-				userNotes: { label: "Notes" },
-				version: { label: "Version" },
-				volume: { label: "Volume"}
-			},
-			referenceTypes = {
-				JOURNAL_ARTICLE_REF: {
-					label: 'Journal Article',
-					defaultFields: [ 'abstract', 'authors', 'issue', 'pages', 'publication', 'publicationDate', 'title', 'url', 'userNotes', 'volume', 'doi', 'issn' ],
-					optionalFields: [ 'arXivId', 'alternateTitle', 'retrievedDate', 'edition', 'extraData', 'isElectronic', 'journalAbbrev', 'language', 'pmcid', 'pmid', 'republishedDate', 'seriesEditors', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
-					fieldLabelOverides: { publication: 'Journal' }
-				},
-				BOOK_REF: {
-					label: "Book",
-					defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'publicationDate', 'seriesTitle', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
-					optionalFields: [ 'alternateTitle', 'compilers', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'translators', 'url'],
-					fieldLabelOverides: { }
-				},
-				BOOK_SECTION_REF: {
-					label: "Book section",
-					defaultFields: [ 'abstract', 'authors', 'editors', 'location', 'pages', 'publicationDate', 'publication', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
-					optionalFields: [ 'alternateTitle', 'compilers', 'edition', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'seriesEditors', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
-					fieldLabelOverides: { publication: 'Book title', title: 'Section title' }
-				},
-				GENERIC_REF: {
-					label: "Generic",
-					defaultFields: [ 'abstract', 'authors', 'location', 'publication', 'publicationDate', 'publisher', 'title', 'url', 'userNotes', 'doi', 'isbn', 'issn' ],
-					optionalFields: [ 'availability', 'alternateTitle', 'arXivId', 'classification', 'compilers', 'department', 'doi', 'edition', 'editors', 'eventName', 'eventLocation', 'eventDate', 'extraData', 'isbn', 'isElectronic', 'issn', 'issue', 'journalAbbrev', 'language', 'lcCallNumber', 'pages', 'pmcid', 'pmid', 'publicationEditors', 'republishedDate', 'retrievedDate', 'seriesEditors', 'seriesTitle', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'type', 'version', 'volume' ],
-					fieldLabelOverides: { }
-				},
-				WEB_REF: {
-					label: "Web page",
-					defaultFields: [ 'abstract', 'authors', 'publication', 'publicationDate', 'retrievedDate', 'title', 'url', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'extraData', 'language', 'publicationEditors', 'version' ],
-					fieldLabelOverides: { publication: 'Website', url: 'URL' }
-				},
-				REPORT_REF: {
-					label: "Report",
-					defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'retrievedDate', 'edition', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
-					fieldLabelOverides: { publication: 'Institution' }
-				},
-				CONF_REF: {
-					label: "Conference proceeding",
-					defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'retrievedDate', 'editors', 'eventName', 'eventDate', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
-					fieldLabelOverides: { eventName: 'Conference', eventDate: 'Conference Date', publication: 'Proceedings Title' }
-				},
-				NEWS_REF: {
-					label: "Newspaper article",
-					defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'pages', 'publication', 'publicationDate', 'retrievedDate', 'title', 'userNotes', 'url', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'editors', 'extraData', 'isElectronic', 'language', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
-					fieldLabelOverides: { }
-				},
-				THESIS_REF: {
-					label: "Thesis",
-					defaultFields: [ 'abstract', 'authors', 'department', 'pages', 'publicationDate', 'publisher', 'title', 'type', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'location', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'url' ],
-					fieldLabelOverides: { publisher: 'University', location: 'Location' }
-				},
-				MAG_REF: {
-					label: "Magazine article",
-					defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'url', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'extraData', 'editors', 'isElectronic', 'language', 'lcCallNumber', 'retrievedDate', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'translators'],
-					fieldLabelOverides: { }
-				}
-			},
-			order = ['title', 'authors', 'editors', 'publication', 'publicationDate', 'seriesTitle', 'publisher', 'department', 'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'];
+		var fields = sharedRefData.fields,
+			referenceTypes = sharedRefData.refTypes,
+			order = [
+				'title', 'authors', 'editors', 'publication', 'publicationDate', 'seriesTitle', 'seriesEditors', 'publisher',
+				'department', 'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url',
+				'retrievedDate', 'abstract'
+			];
 
 		return {order: order, fields: fields, referenceTypes: referenceTypes};
 	})();
@@ -1135,11 +1040,19 @@ var SaveToFlow = (function() {
 				newspaperArticle: "NEWS_REF",
 				report: "REPORT_REF",
 				thesis: "THESIS_REF",
-				webpage: "WEB_REF"
+				webpage: "WEB_REF",
+				patent: "PATENT_REF",
+				email: "PERSONAL_COMM_REF",
+				instantMessage: "PERSONAL_COMM_REF",
+				letter: "PERSONAL_COMM_REF",
+				manuscript: "UNPUBLISHED_REF"
 			},
 			fields: {
 				abstractNote: "abstract",
+				applicationNumber: "applicationNumber",
+				assignee: "assignee",
 				bookTitle: "publication",
+				country: "country",
 				creators: "authors",
 				DOI: "doi",
 				edition: "edition",
@@ -1147,16 +1060,21 @@ var SaveToFlow = (function() {
 				ISBN: "isbn",
 				ISSN: "issn",
 				issue: "issue",
+				issuingAuthority: "issuer",
 				journalAbbreviation: "journalAbbrev",
 				language: "language",
+				number: "patentNumber",
 				place: "location",
 				pages: "pages",
 				PMCID: "pmcid",
 				PMID: "pmid",
 				publicationTitle: "publication",
 				date: "publicationDate",
+				recipient: "recipient",
 				publisher: "publisher",
 				retrievedDate: "retrievedDate",
+				seriesTitle: "seriesTitle",
+				seriesEditors: "seriesEditors",
 				title: "title",
 				translator: "translator",//creator+type=translator
 				URL: "url",
@@ -1166,7 +1084,10 @@ var SaveToFlow = (function() {
 		var flow = {
 			fields: {
 				"abstract": "abstr",
+				"applicationNumber": "docIds.applicationNumber",
+				"assignee": "creators.assignees",
 				"authors": {"key": "authors", "fn": handleAuthor},
+				"country": "publisher.location", // only Patent type has this, and Patent doesn't have Zotero's location field
 				"doi": "docIds.doi",
 				"PMCID": "docIds.pmcid",
 				"PMID": "docIds.pmid",
@@ -1174,6 +1095,7 @@ var SaveToFlow = (function() {
 				"editors": {"key": "contributors.editors", "fn": handleAuthor},
 				"isbn": "publication.isbn",
 				"issn": "publication.issn",
+				"issuer": "publisher", // Patent has issuingAuthority, not publisher
 				"journalAbbrev": "publication.abbrev",
 				"language": "language",
 				"publicationDate": "publicationDate.rawDate",
@@ -1185,9 +1107,13 @@ var SaveToFlow = (function() {
 				"location": "publisher.location",
 				"translator": {"key": "contributors.translator", "fn": handleAuthor},
 				"title": "title",
+				"seriesTitle": "series.title",
+				"seriesEditors": {"key": "series.editors", "fn": handleAuthor},
 				"retrievedDate": "retrievedDate.rawDate",
 				"url": "url",
-				"modifiedFields": "modifiedFields"
+				"modifiedFields": "modifiedFields",
+				"patentNumber": "docIds.patentNumber",
+				"recipient": {"key": "creators.recipients", "fn": handleAuthor}
 			}
 		}
 
