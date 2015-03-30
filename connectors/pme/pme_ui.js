@@ -1021,9 +1021,9 @@ var SaveToFlow = (function() {
 		var fields = sharedRefData.fields,
 			referenceTypes = sharedRefData.refTypes,
 			order = [
-				'title', 'authors', 'editors', 'publication', 'publicationDate', 'seriesTitle', 'seriesEditors', 'publisher',
-				'department', 'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url',
-				'retrievedDate', 'abstract'
+				'title', 'authors', 'editors', 'assignees', 'recipients', 'publication', 'publicationDate', 'seriesTitle',
+				'seriesEditors', 'publisher', 'department', 'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn',
+				'isbn', 'type', 'url', 'retrievedDate', 'abstract'
 			];
 
 		return {order: order, fields: fields, referenceTypes: referenceTypes};
@@ -1050,7 +1050,7 @@ var SaveToFlow = (function() {
 			fields: {
 				abstractNote: "abstract",
 				applicationNumber: "applicationNumber",
-				assignee: "assignee",
+				assignee: "assignees",
 				bookTitle: "publication",
 				country: "country",
 				creators: "authors",
@@ -1070,13 +1070,14 @@ var SaveToFlow = (function() {
 				PMID: "pmid",
 				publicationTitle: "publication",
 				date: "publicationDate",
-				recipient: "recipient",
+				recipient: "recipients",
 				publisher: "publisher",
 				retrievedDate: "retrievedDate",
 				seriesTitle: "seriesTitle",
 				seriesEditors: "seriesEditors",
 				title: "title",
 				translator: "translator",//creator+type=translator
+				type: "type",
 				URL: "url",
 				volume: "volume"
 			}
@@ -1085,7 +1086,7 @@ var SaveToFlow = (function() {
 			fields: {
 				"abstract": "abstr",
 				"applicationNumber": "docIds.applicationNumber",
-				"assignee": "creators.assignees",
+				"assignees": {"key": "contributors.assignees", "fn": handleAuthor},
 				"authors": {"key": "authors", "fn": handleAuthor},
 				"country": "publisher.location", // only Patent type has this, and Patent doesn't have Zotero's location field
 				"doi": "docIds.doi",
@@ -1113,7 +1114,8 @@ var SaveToFlow = (function() {
 				"url": "url",
 				"modifiedFields": "modifiedFields",
 				"patentNumber": "docIds.patentNumber",
-				"recipient": {"key": "creators.recipients", "fn": handleAuthor}
+				"recipients": {"key": "contributors.recipients", "fn": handleAuthor},
+				"type": "subType"
 			}
 		}
 
