@@ -1040,18 +1040,22 @@ var SaveToFlow = (function() {
 				email: "PERSONAL_COMM_REF",
 				instantMessage: "PERSONAL_COMM_REF",
 				letter: "PERSONAL_COMM_REF",
-				manuscript: "UNPUBLISHED_REF"
+				manuscript: "UNPUBLISHED_REF",
+				blogPost: "FORUM_REF",
+				forumPost: "FORUM_REF"
 			},
 			fields: {
 				abstractNote: "abstract",
 				applicationNumber: "applicationNumber",
 				assignee: "assignees",
+				blogTitle: "publication",
 				bookTitle: "publication",
 				country: "country",
 				creators: "authors",
 				DOI: "doi",
 				edition: "edition",
 				editors: "editors",//creator+type=editors
+				forumTitle: "publication",
 				ISBN: "isbn",
 				ISSN: "issn",
 				issue: "issue",
