@@ -1016,10 +1016,10 @@ var SaveToFlow = (function() {
 		var fields = sharedRefData.fields,
 			referenceTypes = sharedRefData.refTypes,
 			order = [
-				'title', 'historicalTitle', 'authors', 'editors', 'assignees', 'recipients', 'legislativeBody',
-				'legislativeSession', 'jurisdiction', 'docNumber', 'sectionNumber', 'subsection', 'publication', 'publicationDate',
-				'seriesTitle', 'seriesEditors', 'publisher', 'department', 'location', 'edition', 'volume', 'issue', 'pages',
-				'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'
+				'title', 'historicalTitle', 'authors', 'editors', 'assignees', 'recipients', 'legislativeBody', 'committee',
+				'subcommittee', 'legislativeSession', 'jurisdiction', 'docNumber', 'sectionNumber', 'subsection', 'publication',
+				'publicationDate', 'seriesTitle', 'seriesEditors', 'publisher', 'department', 'location', 'edition',
+				'sequenceNumber', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'
 			];
 
 		return {order: order, fields: fields, referenceTypes: referenceTypes};
@@ -1045,7 +1045,8 @@ var SaveToFlow = (function() {
 				blogPost: "FORUM_REF",
 				forumPost: "FORUM_REF",
 				bill: "BILL_REF",
-				statute: "LAW_REF"
+				statute: "LAW_REF",
+				hearing: "HEARING_REF"
 			},
 			fields: {
 				abstractNote: "abstract",
@@ -1058,12 +1059,14 @@ var SaveToFlow = (function() {
 				codeNumber: "volume",
 				codePages: "pages",
 				codeVolume: "volume",
+				committee: "committee",
 				contributor: "authors",
 				cosponsor: "authors",
 				country: "country",
 				creators: "authors",
 				date: "publicationDate",
 				dateEnacted: "publicationDate",
+				documentNumber: "docNumber",
 				DOI: "doi",
 				edition: "edition",
 				editors: "editors",//creator+type=editors
@@ -1089,10 +1092,12 @@ var SaveToFlow = (function() {
 				recipient: "recipients",
 				retrievedDate: "retrievedDate",
 				section: "sectionNumber",
+				sequenceNumber: "sequenceNumber",
 				seriesEditors: "seriesEditors",
 				seriesTitle: "seriesTitle",
 				session: "legislativeSession",
 				sponsor: "authors",
+				subcommittee: "subcommittee",
 				title: "title",
 				translator: "translator",//creator+type=translator
 				type: "type",
@@ -1106,6 +1111,7 @@ var SaveToFlow = (function() {
 				"applicationNumber": "docIds.applicationNumber",
 				"assignees": {"key": "contributors.assignees", "fn": handleAuthor},
 				"authors": {"key": "authors", "fn": handleAuthor},
+				"committee": "legal.committee",
 				"docNumber": "legal.docNumber",
 				"country": "publisher.location", // only Patent type has this, and Patent doesn't have Zotero's location field
 				"doi": "docIds.doi",
@@ -1120,6 +1126,7 @@ var SaveToFlow = (function() {
 				"jurisdiction": "legal.jurisdiction",
 				"language": "language",
 				"legislativeBody": "legal.legislativeBody",
+				"legislativeSession": "legal.legislativeSession",
 				"location": "publisher.location",
 				"modifiedFields": "modifiedFields",
 				"pages": "pages.rawPages",
@@ -1132,9 +1139,10 @@ var SaveToFlow = (function() {
 				"recipients": {"key": "contributors.recipients", "fn": handleAuthor},
 				"retrievedDate": "retrievedDate.rawDate",
 				"sectionNumber": "legal.sectionNumber",
+				"sequenceNumber": "legal.sequenceNumber",
 				"seriesEditors": {"key": "series.editors", "fn": handleAuthor},
 				"seriesTitle": "series.title",
-				"legislativeSession": "legal.legislativeSession",
+				"subcommittee": "legal.subcommittee",
 				"title": "title",
 				"translator": {"key": "contributors.translator", "fn": handleAuthor},
 				"type": "subType",
