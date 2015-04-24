@@ -1017,7 +1017,7 @@ var SaveToFlow = (function() {
 			referenceTypes = sharedRefData.refTypes,
 			order = [
 				'title', 'historicalTitle', 'authors', 'editors', 'assignees', 'recipients', 'legislativeBody',
-				'legislativeSession', 'docNumber', 'sectionNumber', 'subsection', 'publication', 'publicationDate',
+				'legislativeSession', 'jurisdiction', 'docNumber', 'sectionNumber', 'subsection', 'publication', 'publicationDate',
 				'seriesTitle', 'seriesEditors', 'publisher', 'department', 'location', 'edition', 'volume', 'issue', 'pages',
 				'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'
 			];
@@ -1044,7 +1044,8 @@ var SaveToFlow = (function() {
 				manuscript: "UNPUBLISHED_REF",
 				blogPost: "FORUM_REF",
 				forumPost: "FORUM_REF",
-				bill: "BILL_REF"
+				bill: "BILL_REF",
+				statute: "LAW_REF"
 			},
 			fields: {
 				abstractNote: "abstract",
@@ -1054,6 +1055,7 @@ var SaveToFlow = (function() {
 				blogTitle: "publication",
 				bookTitle: "publication",
 				code: "seriesTitle",
+				codeNumber: "volume",
 				codePages: "pages",
 				codeVolume: "volume",
 				contributor: "authors",
@@ -1061,6 +1063,7 @@ var SaveToFlow = (function() {
 				country: "country",
 				creators: "authors",
 				date: "publicationDate",
+				dateEnacted: "publicationDate",
 				DOI: "doi",
 				edition: "edition",
 				editors: "editors",//creator+type=editors
@@ -1071,18 +1074,21 @@ var SaveToFlow = (function() {
 				issue: "issue",
 				issuingAuthority: "issuer",
 				journalAbbreviation: "journalAbbrev",
+				jurisdiction: "jurisdiction",
 				language: "language",
 				legislativeBody: "legislativeBody",
+				nameOfAct: "title",
 				number: "patentNumber",
 				pages: "pages",
 				place: "location",
 				PMCID: "pmcid",
 				PMID: "pmid",
 				publicationTitle: "publication",
+				publicLawNumber: "docNumber",
 				publisher: "publisher",
 				recipient: "recipients",
 				retrievedDate: "retrievedDate",
-				section: "section",
+				section: "sectionNumber",
 				seriesEditors: "seriesEditors",
 				seriesTitle: "seriesTitle",
 				session: "legislativeSession",
@@ -1111,6 +1117,7 @@ var SaveToFlow = (function() {
 				"issue": "series.issue",
 				"issuer": "publisher", // Patent has issuingAuthority, not publisher
 				"journalAbbrev": "publication.abbrev",
+				"jurisdiction": "legal.jurisdiction",
 				"language": "language",
 				"legislativeBody": "legal.legislativeBody",
 				"location": "publisher.location",
@@ -1124,7 +1131,7 @@ var SaveToFlow = (function() {
 				"publisher": "publisher.name",
 				"recipients": {"key": "contributors.recipients", "fn": handleAuthor},
 				"retrievedDate": "retrievedDate.rawDate",
-				"section": "legal.sectionNumber",
+				"sectionNumber": "legal.sectionNumber",
 				"seriesEditors": {"key": "series.editors", "fn": handleAuthor},
 				"seriesTitle": "series.title",
 				"legislativeSession": "legal.legislativeSession",
