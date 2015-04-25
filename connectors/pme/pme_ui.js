@@ -1016,7 +1016,7 @@ var SaveToFlow = (function() {
 		var fields = sharedRefData.fields,
 			referenceTypes = sharedRefData.refTypes,
 			order = [
-				'title', 'historicalTitle', 'authors', 'editors', 'assignees', 'recipients', 'legislativeBody', 'committee',
+				'title', 'historicalTitle', 'authors', 'editors', 'assignees', 'recipients', 'reporters', 'legislativeBody', 'committee',
 				'subcommittee', 'legislativeSession', 'jurisdiction', 'docNumber', 'sectionNumber', 'subsection', 'publication',
 				'publicationDate', 'seriesTitle', 'seriesEditors', 'publisher', 'department', 'location', 'edition',
 				'sequenceNumber', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'
@@ -1046,7 +1046,8 @@ var SaveToFlow = (function() {
 				forumPost: "FORUM_REF",
 				bill: "BILL_REF",
 				statute: "LAW_REF",
-				hearing: "HEARING_REF"
+				hearing: "HEARING_REF",
+				'case': "COURT_REF"
 			},
 			fields: {
 				abstractNote: "abstract",
@@ -1055,6 +1056,7 @@ var SaveToFlow = (function() {
 				billNumber: "docNumber",
 				blogTitle: "publication",
 				bookTitle: "publication",
+				caseName: "title",
 				code: "seriesTitle",
 				codeNumber: "volume",
 				codePages: "pages",
@@ -1062,14 +1064,18 @@ var SaveToFlow = (function() {
 				committee: "committee",
 				contributor: "authors",
 				cosponsor: "authors",
+				counsel: "authors",
 				country: "country",
+				court: "publisher",
 				creators: "authors",
 				date: "publicationDate",
 				dateEnacted: "publicationDate",
 				documentNumber: "docNumber",
+				docketNumber: "docNumber",
 				DOI: "doi",
 				edition: "edition",
 				editors: "editors",//creator+type=editors
+				firstPage: "pages",
 				forumTitle: "publication",
 				history: "historicalTitle",
 				ISBN: "isbn",
@@ -1090,6 +1096,8 @@ var SaveToFlow = (function() {
 				publicLawNumber: "docNumber",
 				publisher: "publisher",
 				recipient: "recipients",
+				reporter: "reporters",
+				reporterVolume: "volume",
 				retrievedDate: "retrievedDate",
 				section: "sectionNumber",
 				sequenceNumber: "sequenceNumber",
@@ -1137,6 +1145,7 @@ var SaveToFlow = (function() {
 				"publication": "publication.title",
 				"publisher": "publisher.name",
 				"recipients": {"key": "contributors.recipients", "fn": handleAuthor},
+				"reporters": {"key": "contributors.reporters", "fn": handleAuthor},
 				"retrievedDate": "retrievedDate.rawDate",
 				"sectionNumber": "legal.sectionNumber",
 				"sequenceNumber": "legal.sequenceNumber",
