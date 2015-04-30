@@ -227,14 +227,15 @@ var SaveToFlow = (function() {
 				name: e.name,
 				message: e.message,
 				func: arguments.callee && arguments.callee.caller ? arguments.callee.caller.name : "",
-				lineNumber: e.lineNumber//,
+				lineNumber: e.lineNumber,
+				severity: "error"//,
 				//url:url
 			}
 			if (MODE == "debug") {
 				debug(doc, JSON.stringify(errorObj));
 			}
 			else
-				ZU.HTTP.doPost("http://ec2-54-80-213-189.compute-1.amazonaws.com:8080/stferror", JSON.stringify(errorObj), function () {
+				ZU.HTTP.doPost("https://flow.proquest.com/api/2/logservice/", JSON.stringify(errorObj), function () {
 				}, {"Content-Type": "application/json"});//send to server to be logged
 		}
 		catch (e) {
