@@ -211,13 +211,12 @@ var SaveToFlow = (function() {
 	}
 
 	function debug(doc, str) {
-		var debug = doc.getElementById("stf_debug")
+		var debug = doc.getElementById("stf_debug");
 		if (!debug) {
 			doc.body.innerHTML += '<div id="stf_debug"></div>';
 			debug = doc.getElementById("stf_debug")
 		}
 		debug.innerHTML += "<div>" + str + "</div>";
-
 	}
 
 	function error(doc, e) {
@@ -1019,7 +1018,7 @@ var SaveToFlow = (function() {
 			order = [
 				'title', 'authors', 'editors', 'assignees', 'recipients', 'publication', 'publicationDate', 'seriesTitle',
 				'seriesEditors', 'publisher', 'department', 'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn',
-				'isbn', 'type', 'url', 'retrievedDate', 'abstract'
+				'isbn', 'type', 'url', 'retrievedDate', 'abstract', 'geographicLocation', 'scale'
 			];
 
 		return {order: order, fields: fields, referenceTypes: referenceTypes};
@@ -1041,7 +1040,13 @@ var SaveToFlow = (function() {
 				email: "PERSONAL_COMM_REF",
 				instantMessage: "PERSONAL_COMM_REF",
 				letter: "PERSONAL_COMM_REF",
-				manuscript: "UNPUBLISHED_REF"
+				manuscript: "UNPUBLISHED_REF",
+				map: "MAP_REF",
+				film: "FILM_REF",
+				videoRecording: "FILM_REF",
+				audioRecording: "MUSIC_REF",
+				computerProgram: "PROGRAM_REF"
+
 			},
 			fields: {
 				abstractNote: "abstract",
@@ -1075,7 +1080,8 @@ var SaveToFlow = (function() {
 				translator: "translator",//creator+type=translator
 				type: "type",
 				URL: "url",
-				volume: "volume"
+				volume: "volume",
+				scale: "scale"
 			}
 		}
 		var flow = {
@@ -1111,7 +1117,9 @@ var SaveToFlow = (function() {
 				"modifiedFields": "modifiedFields",
 				"patentNumber": "docIds.patentNumber",
 				"recipients": {"key": "contributors.recipients", "fn": handleAuthor},
-				"type": "subType"
+				"type": "subType",
+				"scale": "publication.scale",
+				"geographicLocation": "publication.geographicLocation"
 			}
 		}
 
