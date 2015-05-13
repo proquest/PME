@@ -1017,7 +1017,7 @@ var SaveToFlow = (function() {
 			referenceTypes = sharedRefData.refTypes,
 			order = [
 				'title', 'historicalTitle', 'authors', 'editors', 'assignees', 'recipients', 'reporters', 'legislativeBody', 'committee',
-				'subcommittee', 'legislativeSession', 'jurisdiction', 'docNumber', 'sectionNumber', 'subsection', 'publication',
+				'subcommittee', 'legislativeSession', 'jurisdiction', 'lawType', 'docNumber', 'sectionNumber', 'subsection', 'publication',
 				'publicationDate', 'seriesTitle', 'seriesEditors', 'publisher', 'department', 'location', 'edition',
 				'sequenceNumber', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'
 			];
