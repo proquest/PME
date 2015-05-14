@@ -211,13 +211,12 @@ var SaveToFlow = (function() {
 	}
 
 	function debug(doc, str) {
-		var debug = doc.getElementById("stf_debug")
+		var debug = doc.getElementById("stf_debug");
 		if (!debug) {
 			doc.body.innerHTML += '<div id="stf_debug"></div>';
 			debug = doc.getElementById("stf_debug")
 		}
 		debug.innerHTML += "<div>" + str + "</div>";
-
 	}
 
 	function error(doc, e) {
@@ -227,14 +226,15 @@ var SaveToFlow = (function() {
 				name: e.name,
 				message: e.message,
 				func: arguments.callee && arguments.callee.caller ? arguments.callee.caller.name : "",
-				lineNumber: e.lineNumber//,
+				lineNumber: e.lineNumber,
+				severity: "error"//,
 				//url:url
 			}
 			if (MODE == "debug") {
 				debug(doc, JSON.stringify(errorObj));
 			}
 			else
-				ZU.HTTP.doPost("http://ec2-54-80-213-189.compute-1.amazonaws.com:8080/stferror", JSON.stringify(errorObj), function () {
+				ZU.HTTP.doPost("https://flow.proquest.com/api/2/logservice/", JSON.stringify(errorObj), function () {
 				}, {"Content-Type": "application/json"});//send to server to be logged
 		}
 		catch (e) {
@@ -1016,10 +1016,11 @@ var SaveToFlow = (function() {
 		var fields = sharedRefData.fields,
 			referenceTypes = sharedRefData.refTypes,
 			order = [
-				'title', 'historicalTitle', 'authors', 'editors', 'assignees', 'recipients', 'reporters', 'legislativeBody', 'committee',
-				'subcommittee', 'legislativeSession', 'jurisdiction', 'lawType', 'docNumber', 'sectionNumber', 'subsection', 'publication',
-				'publicationDate', 'seriesTitle', 'seriesEditors', 'publisher', 'department', 'location', 'edition',
-				'sequenceNumber', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'
+				'title', 'historicalTitle', 'authors', 'editors', 'assignees', 'recipients', 'legislativeBody', 'committee',
+				'subcommittee', 'legislativeSession', 'jurisdiction', 'lawType', 'docNumber', 'sectionNumber', 'subsection',
+				'publication', 'publicationDate', 'seriesTitle', 'seriesEditors', 'publisher', 'department', 'location',
+				'edition', 'sequenceNumber', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate',
+				'abstract', 'geographicLocation', 'scale'
 			];
 
 		return {order: order, fields: fields, referenceTypes: referenceTypes};
@@ -1048,6 +1049,11 @@ var SaveToFlow = (function() {
 				statute: "LAW_REF",
 				hearing: "HEARING_REF",
 				'case': "COURT_REF"
+				map: "MAP_REF",
+				film: "FILM_REF",
+				videoRecording: "FILM_REF",
+				audioRecording: "MUSIC_REF",
+				computerProgram: "PROGRAM_REF"
 			},
 			fields: {
 				abstractNote: "abstract",
@@ -1110,7 +1116,8 @@ var SaveToFlow = (function() {
 				translator: "translator",//creator+type=translator
 				type: "type",
 				URL: "url",
-				volume: "volume"
+				volume: "volume",
+				scale: "scale"
 			}
 		}
 		var flow = {
@@ -1125,6 +1132,7 @@ var SaveToFlow = (function() {
 				"doi": "docIds.doi",
 				"edition": "series.edition",
 				"editors": {"key": "contributors.editors", "fn": handleAuthor},
+				"geographicLocation": "publication.geographicLocation",
 				"historicalTitle": "legal.historicalTitle",
 				"isbn": "publication.isbn",
 				"issn": "publication.issn",
@@ -1147,6 +1155,7 @@ var SaveToFlow = (function() {
 				"recipients": {"key": "contributors.recipients", "fn": handleAuthor},
 				"reporters": {"key": "contributors.reporters", "fn": handleAuthor},
 				"retrievedDate": "retrievedDate.rawDate",
+				"scale": "publication.scale",
 				"sectionNumber": "legal.sectionNumber",
 				"sequenceNumber": "legal.sequenceNumber",
 				"seriesEditors": {"key": "series.editors", "fn": handleAuthor},
