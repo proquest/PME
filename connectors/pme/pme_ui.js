@@ -1,4 +1,5 @@
 
+
 ///// DO NOT EDIT this comment or anything above it. (The build script looks for the '/////' string and ignores anything above it)
 // The sharedRefData object is located in the Flow codebase and gets copied into PME. If this object must be changed,
 // update the file ref-type-fields.js in Flow and those changes will propagate to PME.
@@ -1048,7 +1049,7 @@ var SaveToFlow = (function() {
 				bill: "BILL_REF",
 				statute: "LAW_REF",
 				hearing: "HEARING_REF",
-				'case': "COURT_REF"
+				'case': "COURT_REF",
 				map: "MAP_REF",
 				film: "FILM_REF",
 				videoRecording: "FILM_REF",
@@ -1102,7 +1103,7 @@ var SaveToFlow = (function() {
 				publicLawNumber: "docNumber",
 				publisher: "publisher",
 				recipient: "recipients",
-				reporter: "reporters",
+				reporter: "publication",
 				reporterVolume: "volume",
 				retrievedDate: "retrievedDate",
 				section: "sectionNumber",
@@ -1153,7 +1154,6 @@ var SaveToFlow = (function() {
 				"publication": "publication.title",
 				"publisher": "publisher.name",
 				"recipients": {"key": "contributors.recipients", "fn": handleAuthor},
-				"reporters": {"key": "contributors.reporters", "fn": handleAuthor},
 				"retrievedDate": "retrievedDate.rawDate",
 				"scale": "publication.scale",
 				"sectionNumber": "legal.sectionNumber",
@@ -1163,7 +1163,7 @@ var SaveToFlow = (function() {
 				"subcommittee": "legal.subcommittee",
 				"title": "title",
 				"translator": {"key": "contributors.translator", "fn": handleAuthor},
-				"type": "subType",
+				"type": "publisher.degreeType",
 				"url": "url",
 				"volume": "series.volume"
 			}
