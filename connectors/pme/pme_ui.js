@@ -875,6 +875,7 @@ var SaveToFlow = (function() {
 		try {
 			reference.refType = doc.getElementById("reference_type").value;
 			reference.modifiedFields = item.modifiedFields ? item.modifiedFields : [];
+			reference.tags = item.tags ? item.tags : [];
 			for (var index = 0; index < labels.order.length; index++) {
 				try {
 					var elem = doc.getElementById("stf_" + labels.order[index]);
@@ -1113,6 +1114,7 @@ var SaveToFlow = (function() {
 				session: "legislativeSession",
 				sponsor: "authors",
 				subcommittee: "subcommittee",
+				tags: "tags",
 				title: "title",
 				translator: "translator",//creator+type=translator
 				type: "type",
@@ -1161,6 +1163,7 @@ var SaveToFlow = (function() {
 				"seriesEditors": {"key": "series.editors", "fn": handleAuthor},
 				"seriesTitle": "series.title",
 				"subcommittee": "legal.subcommittee",
+				"tags": "tags",
 				"title": "title",
 				"translator": {"key": "contributors.translator", "fn": handleAuthor},
 				"type": "publisher.degreeType",
