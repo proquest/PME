@@ -1,10 +1,11 @@
 
-
 ///// DO NOT EDIT this comment or anything above it. (The build script looks for the '/////' string and ignores anything above it)
 // The sharedRefData object is located in the Flow codebase and gets copied into PME. If this object must be changed,
 // update the file ref-type-fields.js in Flow and those changes will propagate to PME.
 
+
 var SaveToFlow = (function() {
+
 	var FLOW_SERVER = "https://flow.proquest.com",
 		MODE = "DEBUG";
 
@@ -51,81 +52,11 @@ var SaveToFlow = (function() {
 
 	function style(doc) {
 		try {
-			var style = [];
-			style.push("@import url(//fonts.googleapis.com/css?family=Open+Sans:600,600italic,400,400italic,300,300italic);");
-			style.push("#stf_capture {z-index:1000000000000009;box-sizing:border-box;position:fixed;right:-360px;top:0;bottom:0;width:360px;display:block;border:none;overflow:hidden;transition: all 1s ease;-webkit-transition: all 1s ease;-moz-transition: all 1s ease;}");
-			style.push("#stf_capture.stf_show {right: 0px;}");
-			style.push("#stf_capture * {-moz-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0;background:transparent;font-family:'Open Sans',Arial,Verdana,Helvetica,sans-serif;font-size:12px;line-height:18px;font-style:normal;font-weight:normal;text-align:left; color:#f1f2f5}");
-			style.push("#stf_capture img {display:inline;}");
-			style.push("#stf_capture a {text-decoration:none;color:#73b9ff;}");
-			style.push("#stf_capture .stf_clear {clear:both;margin-bottom:10px;}");
-			style.push("#stf_capture .stf_status,#stf_capture .stf_download,#stf_capture .stf_error {height:72px;width:355px;background:#454a53;border-radius:4px;padding:20px;position:absolute;top:5px;right:5px;display:none;}");
-			style.push("#stf_capture .stf_status,#stf_capture .stf_error {font-size:14px;font-weight:300;line-height:20px;}");
-			style.push("#stf_capture .stf_status a {font-size:14px;font-weight:300;}");
-			style.push("#stf_capture .stf_status button {position:absolute;top:0;right:0;font-size:13px;color:#fff;font-weight:300;text-align:center;color:#fff;width:auto;padding-left:20px;padding-right:20px;}");
-			style.push("#stf_capture .stf_download {display:none;position:relative;right:0px;}");
-			style.push("#stf_capture .stf_download .stf_download_info {text-align:left;margin:0 0 10px 2px;font-size:14px;font-weight:300;color:#fff;}");
-			style.push("#stf_capture .stf_download .stf_download_bar {position:relative;width:315px;height:12px;background:rgb(0,115,161);border-radius:4px;}");
-			style.push("#stf_capture .stf_download .stf_download_progress {position:absolute;height:12px;width:10px;background:rgb(0,154,211);border-radius:4px;}");
-			style.push("#stf_capture #stf_container {z-index:1;background:#454a53;position:absolute;top:0;bottom:0;width:360px;}");
-			style.push("#stf_capture #stf_container #stf_processing {padding:0 20px;font-size:14px;text-align:center;z-index:2;position:absolute;top:81px;}");
-			style.push("#stf_capture.stf_listView:not(.toggle) #stf_container #stf_processing {display:none;}");
-			style.push("#stf_capture.stf_listView.stf_singleView.stf_toggle #stf_container #stf_processing {display:block;top:91px;}");
-			style.push("#stf_capture.stf_singleView:not(.stf_toggle) #stf_container #stf_processing {display:none;}");
-			style.push("#stf_capture .stf_warn {display:none;color:#d1d2d5;margin:10px 20px 20px 20px;padding:6px 10px;background:#585c65;border-radius:3px;box-shadow:inset 2px 3px 3px rgba(0,0,0,0.07);width:320px;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper {width:360px;height:81px;background:#454a53;padding-top:10px;position:absolute;top:0px;right:0px;z-index:100;text-align:center;}");
-			style.push("#stf_capture.stf_listView .stf_ui_logo_wrapper {border-bottom:1px solid #585c65}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_selected_header {color:#999;font-size:14px;}");
-			style.push("#stf_capture.stf_listView .stf_ui_logo_wrapper .stf_selected_header {display:inline;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_left {display:none;position:absolute;left:18px;top:51px;margin:0;line-height:20px;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_right {display:none;position:absolute;right:18px;top:51px;margin:0;line-height:20px;font-size:13px;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_cancel,#stf_capture .stf_error .stf_cancel {position:absolute;right:10px;top:0px;cursor:pointer;opacity:0.65;padding:10px;}");
-			style.push("#stf_capture.stf_listView:not(.stf_singleView) .stf_ui_logo_wrapper #stf_select_all {display:inline;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_single_nav img {cursor:pointer;padding:10px;opacity:0.65;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_single_nav img.stf_disabled {cursor:default;opacity:0.2;}");
-			style.push("#stf_capture.stf_listView.stf_singleView .stf_ui_logo_wrapper .stf_single_nav {display:inline;}");
-			style.push("#stf_capture.stf_singleView:not(.stf_listView) .stf_ui_logo_wrapper {height:30px}");
-			style.push("#stf_capture .stf_button_pane {width:360px;height:81px;position:absolute;bottom:0px;right:0px;background:#454a53;}");
-			style.push("#stf_capture .stf_button_pane button {display:none;}");
-			style.push("#stf_capture.stf_listView .stf_button_pane button {display:inline;opacity:0.6;}");
-			style.push("#stf_capture.stf_listView .stf_button_pane button.stf_enable {opacity:1.0;}");
-			style.push("#stf_capture.stf_singleView.stf_listView .stf_button_pane button {background:rgb(85,91,103);border:1px solid rgb(109,115,127);}");
-			style.push("#stf_capture.stf_singleView .stf_button_pane button {display:inline;opacity:1.0;}");
-			style.push("#stf_capture button {color:#fff;background:#0091c5;border:none;width:180px;height:32px;font-size:14px;margin:20px;margin-left:85px;text-align:center;font-weight:normal;cursor:pointer;border-radius:3px}");
-			style.push("#stf_capture #stf_ui_main::-webkit-scrollbar,#stf_capture .stf_ui_itemlist::-webkit-scrollbar,#stf_capture #stf_ui_main .stf_val::-webkit-scrollbar {background:transparent;width:8px;}");
-			style.push("#stf_capture #stf_ui_main::-webkit-scrollbar-thumb,#stf_capture .stf_ui_itemlist::-webkit-scrollbar-thumb,#stf_capture #stf_ui_main .stf_val::-webkit-scrollbar-thumb {background:#96989e;border-radius:5px;}");
-			style.push("#stf_capture .stf_ui_itemlist {display:none;position:absolute;top:81px;bottom:81px;padding:20px 18px;background:#454a53;width:360px;overflow-y:auto;}");
-			style.push("#stf_capture.stf_listView:not(.stf_singleView) .stf_ui_itemlist {display:block;}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item {position:relative;margin-bottom:5px;}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item .stf_item_authorlist {color:#999;padding:2px 30px 4px 23px;line-height:16px;}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item label {cursor:pointer;padding:2px 30px 0 23px;display:inline-block}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item input[type=checkbox] {position:absolute;left:0;top:5px}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item img.stf_pdf {float:left;margin-right:5px;}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item img.stf_detail {position:absolute;right:0px;top:5px;cursor:pointer}");
-			style.push("#stf_capture #stf_ui_main {display:none;background:#454a53;position:absolute;top:81px;bottom:81px;width:360px;overflow-y:auto;padding:20px 0px;overflow-y:auto;overflow-x:hidden;}");
-			style.push("#stf_capture.stf_singleView:not(.stf_toggle) #stf_ui_main {display:block;}");
-			style.push("#stf_capture.stf_singleView:not(.stf_listView) #stf_ui_main {top:51px;}");
-			style.push("#stf_capture #stf_ui_main .stf_textposition {position:relative}");
-			style.push("#stf_capture #stf_ui_main span.stf_empty {color:#686d76;position:absolute;left:31px;top:7px;line-height:16px;}");
-			style.push("#stf_capture #stf_ui_main span.stf_author {color:#686d76;position:absolute;left:31px;bottom:7px;line-height:16px;display:none;}");
-			style.push("#stf_capture #stf_ui_main .stf_lbl {color:#999;margin:10px 20px 0px 30px;}");
-			style.push("#stf_capture #stf_ui_main .stf_val {box-sizing:border-box;overflow-x:hidden;color:#d1d2d5;margin:0px 20px;padding:6px 10px;background:#383e46;border:1px solid #565b64;width:320px;border-radius:3px;box-shadow:inset 2px 3px 3px rgba(0,0,0,0.07);overflow:hidden;outline:none;resize:none;}");
-			style.push("#stf_capture #stf_ui_main img.stf_lbl {margin-top:0px;margin-left:25px;float:left;margin-bottom:20px;}");
-			style.push("#stf_capture #stf_ui_main .stf_attach {margin-top:0px;vertical-align:middle;}");
-			style.push("#stf_capture #stf_ui_main .stf_input_container {display:inline-block;width:265px;display:inline;zoom:1;}");
-			style.push("#stf_capture #stf_ui_main .stf_details {border-bottom:1px solid #666;margin-bottom:20px;margin-left:20px;margin-right:20px;padding:10px;}");
-			style.push("#stf_capture #stf_ui_main .stf_header {font-size:14px;margin-top:0;}");
-			style.push("#stf_capture #stf_ui_main .stf_dropdown {margin:10px 20px 20px 20px;width:320px;height:28px;background:#f1f2f5;border:1px solid #565b64;color:#333;}");
-			style.push("#stf_capture #stf_ui_main .stf_dropdown option {background:#f1f2f5;color:#333;}");
-			style.push("#stf_capture #stf_ui_main .stf_webref {display:none;}");
-			style.push("#stf_capture #stf_reference_json {display:none;}");
-			style.push("#stf_debug {z-index:1000000000000009;position:absolute;top:0;left:0;width:400px;min-height:100%;border:1px solid #333;background:#fff;}");
-			style.push("#stf_debug div {margin:10px; border-bottom:1px solid #ccc;}");
-
-			var styleElement = doc.createElement("style");
-			styleElement.id = "stf_style";
-			styleElement.innerHTML = style.join("");
-			doc.head.appendChild(styleElement);
+			var linkedStyle = doc.createElement("link");
+			linkedStyle.type = "text/css";
+			linkedStyle.rel = "stylesheet";
+			linkedStyle.href = "resource://pme/style.css";
+			doc.head.appendChild(linkedStyle);
 		}
 		catch (e) {
 			error(doc, e);
@@ -137,8 +68,7 @@ var SaveToFlow = (function() {
 			var container = doc.createElement("div");
 			container.id = "stf_capture";
 			container.className = "notranslate";
-			container.innerHTML =
-				'<iframe frameborder="0" id="stf_tracking_iframe" name="stf_tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
+			container.innerHTML = '<iframe frameborder="0" id="stf_tracking_iframe" name="stf_tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
 				'<form method="post" action="' + FLOW_SERVER + '/savetoflow/tracking/" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" target="stf_tracking_iframe" name="stf_tracking_form" id="stf_tracking_form">' +
 				'<input type="hidden" name="found" id="stf_track_found">' +
 				'<input type="hidden" name="selected" id="stf_track_selected">' +
@@ -169,7 +99,7 @@ var SaveToFlow = (function() {
 				'</div>' +
 				'<div class="stf_ui_itemlist" id="stf_ui_itemlist"></div>' +
 				'<div class="stf_button_pane"><button class="stf_btn_save" disabled="disabled" id="stf_save_button">Save to Flow</button></div>' +
-				'</div>'
+				'</div>';
 			doc.body.appendChild(container);
 			attachCloseEvent(doc, "stf_cancel");
 		}

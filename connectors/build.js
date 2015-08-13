@@ -6,23 +6,22 @@ var extensions = require('./lib/extensions'),
 ///// The following block grabs the common file ref-type-fields.js from Flow and recreates the PME UI with its contents.
 //    This allows us to commonize the reference editor form fields across Flow and PME.
 
-var https = require('https');
+var request = require('request');
 var fs = require('fs');
 
-if (!https)
-	console.log('http module is missing');
+if (!request)
+	console.log('request module is missing');
 
 if (!fs)
 	console.log('fs module is missing');
 
-var req = https.get("https://flow.proquest.com/public/js/ref-type-fields.js", function(res) {
-	res.on('data', function(data) {
+request("https://flow.proquest.com/public/js/ref-type-fields.js",
+	function(error,response,body){
 		var UIcode = fs.readFileSync('./pme/pme_ui.js', {encoding: 'utf8'});
-		fs.writeFileSync('./pme/pme_ui.js', data.toString());
+		fs.writeFileSync('./pme/pme_ui.js', body);
 		fs.appendFileSync('./pme/pme_ui.js', "\n\n");
 		fs.appendFileSync('./pme/pme_ui.js', UIcode.slice(UIcode.indexOf('/////')));
 	});
-});
 
 ///// Proceed with building the add-on
 
