@@ -8,3 +8,5 @@ test/tape/
 connectors/build/chrome.pem
 
 connectors/build/safari_extension.cer
+connectors/pme/pme_ui.js
+connectors/pme/style.css
