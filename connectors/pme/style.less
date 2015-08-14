@@ -79,6 +79,7 @@
 #s2r-capture {
 
   // Normalize all browsers, reset some (not necessarily all) css applied by the hosting page css
+  @import "lesshat.less";
   @import "normalize.less";
 
   //Size/Position
@@ -107,7 +108,8 @@
   text-align: left;
   color: @text-color;
 
-
+  background-color: #FFF;
+  .box-shadow(0 0 10px @gray-darker);
   &.s2r-show {
     right: 0px;
   }
