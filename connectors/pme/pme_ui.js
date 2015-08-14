@@ -12,22 +12,22 @@ var SaveToFlow = (function() {
 	function setSaveTimeout(doc,delay){
 		delay = delay || 10000;
 		if(delay == -1) {
-			doc.getElementById("stf_container").setAttribute("not_loaded", "false");
+			doc.getElementById("s2r-container").setAttribute("not_loaded", "false");
 			return;
 		}
 		else {
-			doc.getElementById("stf_container").setAttribute("not_loaded", "true");
+			doc.getElementById("s2r-container").setAttribute("not_loaded", "true");
 		}
 		ZU.setTimeout(function () {
-			var notLoaded = doc.getElementById("stf_container").getAttribute("not_loaded");
+			var notLoaded = doc.getElementById("s2r-container").getAttribute("not_loaded");
 			if (notLoaded == "true") {
 				//got stuck at done, has items, just something prevented the complete.
 				Zotero.done();
 				ZU.setTimeout(function () {
-					var notLoaded = doc.getElementById("stf_container").getAttribute("not_loaded");
+					var notLoaded = doc.getElementById("s2r-container").getAttribute("not_loaded");
 					if (notLoaded == "true") {
-						doc.getElementById("stf_container").style.display = "none";
-						doc.getElementById("stf_progress").style.display = "block";
+						doc.getElementById("s2r-container").style.display = "none";
+						doc.getElementById("s2r-progress").style.display = "block";
 						saveFailed(doc);
 					}
 				}, 10000);
@@ -36,13 +36,13 @@ var SaveToFlow = (function() {
 	}
 
 	function entry(doc, url) {
-		if (doc && !doc.getElementById("stf_capture")) {
+		if (doc && !doc.getElementById("s2r-capture")) {
 			style(doc);
 			container(doc);
 
 			ZU.setTimeout(function () {
-				var className = doc.getElementById("stf_capture").className;
-				doc.getElementById("stf_capture").className = (className ? className + " " : "") + "stf_show";
+				var className = doc.getElementById("s2r-capture").className;
+				doc.getElementById("s2r-capture").className = (className ? className + " " : "") + "s2r-show";
 			}, 100);
 
 			setSaveTimeout(doc);
@@ -66,42 +66,42 @@ var SaveToFlow = (function() {
 	function container(doc) {
 		try {
 			var container = doc.createElement("div");
-			container.id = "stf_capture";
+			container.id = "s2r-capture";
 			container.className = "notranslate";
-			container.innerHTML = '<iframe frameborder="0" id="stf_tracking_iframe" name="stf_tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
-				'<form method="post" action="' + FLOW_SERVER + '/savetoflow/tracking/" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" target="stf_tracking_iframe" name="stf_tracking_form" id="stf_tracking_form">' +
-				'<input type="hidden" name="found" id="stf_track_found">' +
-				'<input type="hidden" name="selected" id="stf_track_selected">' +
-				'<input type="hidden" name="url" id="stf_track_url">' +
-				'<input type="hidden" name="modified" id="stf_track_modified">' +
-				'<input type="hidden" name="citation" id="stf_track_citation">' +
+			container.innerHTML = '<iframe frameborder="0" id="s2r-tracking_iframe" name="s2r-tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
+				'<form method="post" action="' + FLOW_SERVER + '/savetoflow/tracking/" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" target="s2r-tracking_iframe" name="s2r-tracking_form" id="s2r-tracking_form">' +
+				'<input type="hidden" name="found" id="s2r-track_found">' +
+				'<input type="hidden" name="selected" id="s2r-track_selected">' +
+				'<input type="hidden" name="url" id="s2r-track_url">' +
+				'<input type="hidden" name="modified" id="s2r-track_modified">' +
+				'<input type="hidden" name="citation" id="s2r-track_citation">' +
 				'</form>' +
-				'<div class="stf_status" id="stf_status"></div>' +
-				'<div class="stf_error" id="stf_error"></div>' +
-				'<div class="stf_download" id="stf_progress">' +
-				'<div class="stf_download_info">Saving to Flow</div>' +
-				'<div class="stf_download_bar"><div class="stf_download_progress" id="stf_download_progress"></div></div>' +
+				'<div class="s2r-status" id="s2r-status"></div>' +
+				'<div class="s2r-error" id="s2r-error"></div>' +
+				'<div class="s2r-download" id="s2r-progress">' +
+				'<div class="s2r-download_info">Saving to Flow</div>' +
+				'<div class="s2r-download_bar"><div class="s2r-download_progress" id="s2r-download_progress"></div></div>' +
 				'</div>' +
-				'<div id="stf_container">' +
-				'<div class="stf_ui_logo_wrapper">' +
-				'<img src="' + FLOW_SERVER + '/public/img/PQ-StF.png"/><img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_cancel"/>' +
-				'<p class="stf_selected_header stf_left" id="stf_header_text">Select articles</p>' +
-				'<a class="stf_ui_pick_all all stf_right" href="javascript:void(0);" id="stf_select_all">Select All</a>' +
-				'<span class="stf_right stf_single_nav">' +
-				'<img src="' + FLOW_SERVER + '/public/img/arrow-up.png" class="prev" id="stf_single_prev"/>' +
-				'<img src="' + FLOW_SERVER + '/public/img/arrow-down.png" class="next" id="stf_single_next"/>' +
+				'<div id="s2r-container">' +
+				'<div class="s2r-ui_logo_wrapper">' +
+				'<img src="' + FLOW_SERVER + '/public/img/PQ-StF.png"/><img src="' + FLOW_SERVER + '/public/img/close.png" class="s2r-cancel" id="s2r-cancel"/>' +
+				'<p class="s2r-selected_header s2r-left" id="s2r-header_text">Select articles</p>' +
+				'<a class="s2r-ui_pick_all all s2r-right" href="javascript:void(0);" id="s2r-select_all">Select All</a>' +
+				'<span class="s2r-right s2r-single_nav">' +
+				'<img src="' + FLOW_SERVER + '/public/img/arrow-up.png" class="prev" id="s2r-single_prev"/>' +
+				'<img src="' + FLOW_SERVER + '/public/img/arrow-down.png" class="next" id="s2r-single_next"/>' +
 				'</span>' +
 				'</div>' +
-				'<div id="stf_processing">Finding references</div>' +
-				'<div id="stf_ui_main">' +
-				'<div class="stf_webref stf_warn" id="stf_webref">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
-				'<div class="stf_meta" id="stf_meta"></div>' +
+				'<div id="s2r-processing">Finding references</div>' +
+				'<div id="s2r-ui_main">' +
+				'<div class="s2r-webref s2r-warn" id="s2r-webref">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
+				'<div class="s2r-meta" id="s2r-meta"></div>' +
 				'</div>' +
-				'<div class="stf_ui_itemlist" id="stf_ui_itemlist"></div>' +
-				'<div class="stf_button_pane"><button class="stf_btn_save" disabled="disabled" id="stf_save_button">Save to Flow</button></div>' +
+				'<div class="s2r-ui_itemlist" id="s2r-ui_itemlist"></div>' +
+				'<div class="s2r-button_pane"><button class="s2r-btn_save" disabled="disabled" id="s2r-save_button">Save to Flow</button></div>' +
 				'</div>';
 			doc.body.appendChild(container);
-			attachCloseEvent(doc, "stf_cancel");
+			attachCloseEvent(doc, "s2r-cancel");
 		}
 		catch (e) {
 			error(doc, e);
@@ -116,17 +116,17 @@ var SaveToFlow = (function() {
 
 	function close(doc) {
 		try {
-			var elem = doc.getElementById("stf_capture");
+			var elem = doc.getElementById("s2r-capture");
 			if (elem) {
 				var className = elem.className;
-				elem.className = className.replace("stf_show", "");
+				elem.className = className.replace("s2r-show", "");
 				ZU.setTimeout(function () {
 					try {
 						//need to recheck if the element still there, it could've been removed by now
-						var elem = doc.getElementById("stf_capture");
+						var elem = doc.getElementById("s2r-capture");
 						if (elem) {
 							doc.body.removeChild(elem);
-							doc.head.removeChild(doc.getElementById("stf_style"));
+							doc.head.removeChild(doc.getElementById("s2r-style"));
 							Z.done();
 						}
 					}
@@ -142,10 +142,10 @@ var SaveToFlow = (function() {
 	}
 
 	function debug(doc, str) {
-		var debug = doc.getElementById("stf_debug");
+		var debug = doc.getElementById("s2r-debug");
 		if (!debug) {
-			doc.body.innerHTML += '<div id="stf_debug"></div>';
-			debug = doc.getElementById("stf_debug")
+			doc.body.innerHTML += '<div id="s2r-debug"></div>';
+			debug = doc.getElementById("s2r-debug")
 		}
 		debug.innerHTML += "<div>" + str + "</div>";
 	}
@@ -174,12 +174,12 @@ var SaveToFlow = (function() {
 
 	function tracking(doc, tracking) {
 		try {
-			doc.getElementById("stf_track_found").value = tracking.found;
-			doc.getElementById("stf_track_selected").value = tracking.selected;
-			doc.getElementById("stf_track_url").value = tracking.url;
-			doc.getElementById("stf_track_citation").value = tracking.citation;
-			doc.getElementById("stf_track_modified").value = JSON.stringify(tracking.modified);
-			//doc.getElementById("stf_tracking_form").submit();
+			doc.getElementById("s2r-track_found").value = tracking.found;
+			doc.getElementById("s2r-track_selected").value = tracking.selected;
+			doc.getElementById("s2r-track_url").value = tracking.url;
+			doc.getElementById("s2r-track_citation").value = tracking.citation;
+			doc.getElementById("s2r-track_modified").value = JSON.stringify(tracking.modified);
+			//doc.getElementById("s2r-tracking_form").submit();
 		}
 		catch (e) {
 			error(doc, e);
@@ -281,12 +281,12 @@ var SaveToFlow = (function() {
 
 	function startProgress(doc) {
 		setSaveTimeout(doc,60000);
-		doc.getElementById("stf_container").style.display = "none";
-		doc.getElementById("stf_progress").style.display = "block";
+		doc.getElementById("s2r-container").style.display = "none";
+		doc.getElementById("s2r-progress").style.display = "block";
 	}
 
 	function completeProgress(doc) {
-		var stf = doc.getElementById("stf_capture"),
+		var stf = doc.getElementById("s2r-capture"),
 			done = parseInt(stf.getAttribute("data-saving-done"));
 		stf.setAttribute("data-saving-done", (isNaN(done) ? 1 : done + 1));
 		progressDialog(doc, 0.5);
@@ -352,11 +352,11 @@ var SaveToFlow = (function() {
 	function saveFailed(doc) {
 		progressDialog(doc, 1);//allow completion
 		try {
-			var errorDialog = doc.getElementById("stf_error");
-			doc.getElementById("stf_progress").style.display = "none";
+			var errorDialog = doc.getElementById("s2r-error");
+			doc.getElementById("s2r-progress").style.display = "none";
 			errorDialog.style.display = "block";
-			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_err_cancel"/>We\'re sorry, we were unable to save to Flow. We tried, but came up empty.';
-			attachCloseEvent(doc, "stf_err_cancel");
+			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="s2r-cancel" id="s2r-err_cancel"/>We\'re sorry, we were unable to save to Flow. We tried, but came up empty.';
+			attachCloseEvent(doc, "s2r-err_cancel");
 		}
 		catch (e) {
 			error(doc, e);
@@ -366,12 +366,12 @@ var SaveToFlow = (function() {
 	function attachmentFailed(doc) {
 		progressDialog(doc, 1);//allow completion
 		try {
-			var errorDialog = doc.getElementById("stf_error");
+			var errorDialog = doc.getElementById("s2r-error");
 			errorDialog.style.display = "block";
 			errorDialog.style.top = '85px';
 			errorDialog.innerHTML = "We're sorry, we were unable to get some of the full-text. We tried, but came up empty.";
-			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_err_cancel"/>We\'re sorry, we were unable to get some of the full-text. We tried, but came up empty.';
-			attachCloseEvent(doc, "stf_err_cancel");
+			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="s2r-cancel" id="s2r-err_cancel"/>We\'re sorry, we were unable to get some of the full-text. We tried, but came up empty.';
+			attachCloseEvent(doc, "s2r-err_cancel");
 		}
 		catch (e) {
 			error(doc, e);
@@ -380,7 +380,7 @@ var SaveToFlow = (function() {
 	}
 
 	function progressDialog(doc, ratio) {
-		var stf = doc.getElementById("stf_capture"),
+		var stf = doc.getElementById("s2r-capture"),
 			count = stf.getAttribute("data-saving-count"),
 			done = stf.getAttribute("data-saving-done");
 		if (count) {
@@ -392,20 +392,20 @@ var SaveToFlow = (function() {
 		if (!count && parseInt(done) == 1)
 			ratio = 1;
 
-		doc.getElementById("stf_download_progress").style.width = Math.round(ratio * 315) + "px";
+		doc.getElementById("s2r-download_progress").style.width = Math.round(ratio * 315) + "px";
 		if (ratio == 1)
 			completeDialog(doc);
 	}
 
 	function completeDialog(doc) {
 		try {
-			var count = doc.getElementById("stf_capture").getAttribute("data-saving-count"),
-				status = doc.getElementById("stf_status"),
+			var count = doc.getElementById("s2r-capture").getAttribute("data-saving-count"),
+				status = doc.getElementById("s2r-status"),
 				countText = count ? count + " articles saved." : "1 article saved.";
 
-			doc.getElementById("stf_progress").style.display = "none";
+			doc.getElementById("s2r-progress").style.display = "none";
 			status.style.display = "block";
-			status.innerHTML = countText + '<form method="get" action="' + FLOW_SERVER + '/library/recent/" target="ProQuestFlow"><button id="stf_view_button" type="submit">View in Flow</button></form>';
+			status.innerHTML = countText + '<form method="get" action="' + FLOW_SERVER + '/library/recent/" target="ProQuestFlow"><button id="s2r-view_button" type="submit">View in Flow</button></form>';
 
 			ZU.setTimeout(function () {
 				try {
@@ -426,15 +426,15 @@ var SaveToFlow = (function() {
 	function loginDialog(doc) {
 		try {
 			setSaveTimeout(doc,-1);
-			var status = doc.getElementById("stf_status");
-			doc.getElementById("stf_progress").style.display = "none";
+			var status = doc.getElementById("s2r-status");
+			doc.getElementById("s2r-progress").style.display = "none";
 			status.style.display = "block";
-			status.innerHTML = 'You must be logged in. <form method="get" action="' + FLOW_SERVER + '" target="ProQuestFlow"><button id="stf_view_button" type="submit">Log in now</button></form>';
+			status.innerHTML = 'You must be logged in. <form method="get" action="' + FLOW_SERVER + '" target="ProQuestFlow"><button id="s2r-view_button" type="submit">Log in now</button></form>';
 
 			ZU.setTimeout(function () {
 				try {
 					status.style.display = "none";
-					doc.getElementById("stf_container").style.display = "block";
+					doc.getElementById("s2r-container").style.display = "block";
 				}
 				catch (e) {
 					error(doc, e);
@@ -450,23 +450,23 @@ var SaveToFlow = (function() {
 		setSaveTimeout(doc,-1);
 		try {
 			//callback should complete items, so we'll basically want to use it when we want to see of save an item.
-			var container = doc.getElementById("stf_ui_itemlist"), stf = doc.getElementById("stf_capture"), ix = 1;
-			if (container.getElementsByClassName("stf_ui_item").length > 0) {
+			var container = doc.getElementById("s2r-ui_itemlist"), stf = doc.getElementById("s2r-capture"), ix = 1;
+			if (container.getElementsByClassName("s2r-ui_item").length > 0) {
 				Z.debug("selection called after already loaded.");
 				return;
 			}
-			stf.className = " stf_listView";
+			stf.className = " s2r-listView";
 			for (itemId in items) {
 				try {
 					var item = doc.createElement("div");
-					item.className = "stf_ui_item";
+					item.className = "s2r-ui_item";
 					item.setAttribute("data-id", itemId);
 					item.setAttribute("data-ix", ix++);
 					item.addEventListener("click", function (e) {
 						try {
-							if (e.target.className == "stf_detail") {//go to reference
-								stf.className += " stf_singleView stf_toggle";
-								doc.getElementById("stf_processing").innerHTML = "Loading reference";
+							if (e.target.className == "s2r-detail") {//go to reference
+								stf.className += " s2r-singleView s2r-toggle";
+								doc.getElementById("s2r-processing").innerHTML = "Loading reference";
 								var thisItemId = this.getAttribute("data-id");
 								stf.setAttribute("data-id", thisItemId);
 								stf.setAttribute("data-ix", this.getAttribute("data-ix"));
@@ -489,8 +489,8 @@ var SaveToFlow = (function() {
 							error(doc, e);
 						}
 					}, true);
-					item.innerHTML = '<p><input type="checkbox" id="stf_cbx_' + itemId + '"/><label for="stf_cbx_' + itemId + '">' + items[itemId] + '</label></p>'
-						+ '<img src="' + FLOW_SERVER + '/public/img/oval-arrow-grey.png" class="stf_detail"/>';
+					item.innerHTML = '<p><input type="checkbox" id="s2r-cbx_' + itemId + '"/><label for="s2r-cbx_' + itemId + '">' + items[itemId] + '</label></p>'
+						+ '<img src="' + FLOW_SERVER + '/public/img/oval-arrow-grey.png" class="s2r-detail"/>';
 					container.appendChild(item);
 				}
 				catch (e) {
@@ -500,7 +500,7 @@ var SaveToFlow = (function() {
 			stf.setAttribute("data-count", ix - 1);
 			var savedReferences = {};
 
-			doc.getElementById("stf_select_all").addEventListener("click", function (e) {
+			doc.getElementById("s2r-select_all").addEventListener("click", function (e) {
 				try {
 					if (this.getAttribute("unselect") == "true") {
 						this.innerHTML = "Select All";
@@ -517,7 +517,7 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}, true);
-			doc.getElementById("stf_single_next").addEventListener("click", function (e) {
+			doc.getElementById("s2r-single_next").addEventListener("click", function (e) {
 				try {
 					var item_id = stf.getAttribute("data-id");
 					savedReferences[item_id] = getModified(doc);
@@ -527,7 +527,7 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}, true);
-			doc.getElementById("stf_single_prev").addEventListener("click", function (e) {
+			doc.getElementById("s2r-single_prev").addEventListener("click", function (e) {
 				try {
 					var item_id = stf.getAttribute("data-id");
 					savedReferences[item_id] = getModified(doc);
@@ -537,28 +537,28 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}, true);
-			doc.getElementById("stf_save_button").addEventListener("click", function (e) {
+			doc.getElementById("s2r-save_button").addEventListener("click", function (e) {
 				try {
-					var stf = doc.getElementById("stf_capture");
-					if (stf.className.indexOf("stf_listView") >= 0 && stf.className.indexOf("singleView") >= 0) {
+					var stf = doc.getElementById("s2r-capture");
+					if (stf.className.indexOf("s2r-listView") >= 0 && stf.className.indexOf("singleView") >= 0) {
 						var item_id = stf.getAttribute("data-id");
 						savedReferences[item_id] = getModified(doc);
-						stf.className = "stf_listView stf_show";//save and back to list
-						doc.getElementById("stf_header_text").innerHTML = "Select articles";
+						stf.className = "s2r-listView s2r-show";//save and back to list
+						doc.getElementById("s2r-header_text").innerHTML = "Select articles";
 						setListButton(doc);
 					}
-					else if (stf.className.indexOf("stf_listView") >= 0) {
+					else if (stf.className.indexOf("s2r-listView") >= 0) {
 						stf.setAttribute("data-saving", "true");
 						stf.setAttribute("data-saving-count", 1);
 						startProgress(doc);
-						var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
+						var cbx = doc.getElementById("s2r-ui_itemlist").getElementsByTagName("input"),
 							count = 0,
 							modified = [],
 							list = {};
 						for (var i = 0; i < cbx.length; i++) {
 							if (cbx[i].checked) {
 								count++;
-								var item_id = cbx[i].id.replace("stf_cbx_", "");
+								var item_id = cbx[i].id.replace("s2r-cbx_", "");
 								if (savedReferences[item_id]) {
 									if (savedReferences[item_id].modifiedFields)
 										modified.push(savedReferences[item_id].modifiedFields)
@@ -592,16 +592,16 @@ var SaveToFlow = (function() {
 	}
 
 	function move(doc, url, callback, items, offset, savedReferences) {
-		var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
-			stf = doc.getElementById("stf_capture"),
+		var cbx = doc.getElementById("s2r-ui_itemlist").getElementsByTagName("input"),
+			stf = doc.getElementById("s2r-capture"),
 			id = stf.getAttribute("data-id");
 		for (var i = 0; i < cbx.length; i++) {
 			try {
-				if (cbx[i].id == "stf_cbx_" + id) {
+				if (cbx[i].id == "s2r-cbx_" + id) {
 					if (i + offset < 0 || i + offset >= cbx.length)
 						return;
-					stf.className += " stf_toggle";
-					var thisItem = {}, thisItemId = cbx[i + offset].id.replace("stf_cbx_", "");
+					stf.className += " s2r-toggle";
+					var thisItem = {}, thisItemId = cbx[i + offset].id.replace("s2r-cbx_", "");
 					stf.setAttribute("data-id", thisItemId);
 					stf.setAttribute("data-ix", i + (1 + offset));
 					if (savedReferences[thisItemId]) {
@@ -621,21 +621,21 @@ var SaveToFlow = (function() {
 
 	function setListButton(doc, check) {
 		try {
-			var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"), count = 0;
+			var cbx = doc.getElementById("s2r-ui_itemlist").getElementsByTagName("input"), count = 0;
 			for (var i = 0; i < cbx.length; i++) {
 				if (check !== undefined)
 					cbx[i].checked = check;
 				if (cbx[i].checked)
 					count++;
 			}
-			var button = doc.getElementById("stf_save_button");
+			var button = doc.getElementById("s2r-save_button");
 			if (count > 0) {
 				button.disabled = false;
-				button.className = "stf_btn_save stf_enable";
+				button.className = "s2r-btn_save s2r-enable";
 			}
 			else {
 				button.disabled = true;
-				button.className = "stf_btn_save";
+				button.className = "s2r-btn_save";
 			}
 			button.innerHTML = "Save to Flow (" + count + ")";
 		}
@@ -646,26 +646,26 @@ var SaveToFlow = (function() {
 
 	function singleHeader(doc, refType, attachments) {
 		try {
-			var stf = doc.getElementById("stf_capture"),
+			var stf = doc.getElementById("s2r-capture"),
 				containerClass = stf.className,
 				output = [];
-			containerClass = containerClass.replace(" stf_toggle", "");
-			if (containerClass.indexOf("stf_singleView") < 0)
-				stf.className = containerClass + " stf_singleView";
+			containerClass = containerClass.replace(" s2r-toggle", "");
+			if (containerClass.indexOf("s2r-singleView") < 0)
+				stf.className = containerClass + " s2r-singleView";
 			else
 				stf.className = containerClass;
-			if (containerClass.indexOf("stf_listView") >= 0) {
+			if (containerClass.indexOf("s2r-listView") >= 0) {
 				var ix = parseInt(stf.getAttribute("data-ix")),
 					count = parseInt(stf.getAttribute("data-count"));
-				doc.getElementById("stf_header_text").innerHTML = "Article details - " + ix + " of " + count;
-				doc.getElementById("stf_single_prev").className = "stf_prev" + (ix <= 1 ? " stf_disabled" : "");
-				doc.getElementById("stf_single_next").className = "stf_next" + (ix >= count ? " stf_disabled" : "");
-				doc.getElementById("stf_save_button").innerHTML = "Done editing";
+				doc.getElementById("s2r-header_text").innerHTML = "Article details - " + ix + " of " + count;
+				doc.getElementById("s2r-single_prev").className = "s2r-prev" + (ix <= 1 ? " s2r-disabled" : "");
+				doc.getElementById("s2r-single_next").className = "s2r-next" + (ix >= count ? " s2r-disabled" : "");
+				doc.getElementById("s2r-save_button").innerHTML = "Done editing";
 			}
 			else
-				output.push("<div class='stf_lbl stf_header'>Save As</div>");
+				output.push("<div class='s2r-lbl s2r-header'>Save As</div>");
 
-			output.push("<select id='reference_type' class='stf_dropdown'>");
+			output.push("<select id='reference_type' class='s2r-dropdown'>");
 			for (var index in labels.referenceTypes) {
 				var value = labels.referenceTypes[index];
 				var selected = refType == index ? " selected='selected'" : "";
@@ -688,13 +688,13 @@ var SaveToFlow = (function() {
 				error(doc, e);
 			}
 			if (pdf || html) {
-				output.push("<img src='" + FLOW_SERVER + "/public/img/" + (pdf ? "pdf" : "web") + ".png' class='stf_lbl'/><span class='stf_input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We found the article, want to save it?</span></label></span>");
+				output.push("<img src='" + FLOW_SERVER + "/public/img/" + (pdf ? "pdf" : "web") + ".png' class='s2r-lbl'/><span class='s2r-input_container'><label for='s2r-attach_web' class='s2r-attach'><input type='checkbox' id='s2r-attach' checked='checked' class='s2r-attach'> <span>We found the article, want to save it?</span></label></span>");
 			}
-			else if (containerClass.indexOf("stf_listView") == -1) {
-				output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='stf_lbl'/><span class='stf_input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' class='stf_attach'> <span>Save the content of this web page</span></label></span>");
+			else if (containerClass.indexOf("s2r-listView") == -1) {
+				output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='s2r-lbl'/><span class='s2r-input_container'><label for='s2r-attach_web' class='s2r-attach'><input type='checkbox' id='s2r-attach' class='s2r-attach'> <span>Save the content of this web page</span></label></span>");
 			}
 
-			output.push("<div id='stf_ref_type_spec' class='stf_clear'>");
+			output.push("<div id='s2r-ref_type_spec' class='s2r-clear'>");
 			return output;
 		}
 		catch (e) {
@@ -721,8 +721,8 @@ var SaveToFlow = (function() {
 				item.URL = url;
 				item.attachments = [];
 			}
-			var container = doc.getElementById("stf_meta"),
-				stf = doc.getElementById("stf_capture");
+			var container = doc.getElementById("s2r-meta"),
+				stf = doc.getElementById("s2r-capture");
 			if (!item.refType) {//this function can be called with zotero format or flow format (first view, and there-after)
 				if (!item.retrievedDate)
 					item.retrievedDate = new Date();
@@ -741,7 +741,7 @@ var SaveToFlow = (function() {
 				if (url.indexOf(".pdf") > -1)
 					item.attachments.push({title: 'Full Text PDF', url: url, mimeType: 'application/pdf'});
 				else
-					doc.getElementById("stf_webref").style.display = "block";
+					doc.getElementById("s2r-webref").style.display = "block";
 			}
 
 			var output = singleHeader(doc, item.refType, item.attachments)
@@ -752,17 +752,17 @@ var SaveToFlow = (function() {
 
 			container.innerHTML = output.join('');
 
-			doc.getElementById("stf_save_button").disabled = false;
+			doc.getElementById("s2r-save_button").disabled = false;
 
 			autoSize.addEvents(doc);
 
-			if (doc.getElementById("stf_capture").getAttribute("events_attached") != "true") {
+			if (doc.getElementById("s2r-capture").getAttribute("events_attached") != "true") {
 				doc.getElementById("reference_type").addEventListener("change", function (e) {
 					try {
 						//get current field values (may be editted)
 						autoSize.removeEvents(doc);
 						item = getModified(doc);
-						doc.getElementById("stf_ref_type_spec").innerHTML = createFields(doc, item).join('');
+						doc.getElementById("s2r-ref_type_spec").innerHTML = createFields(doc, item).join('');
 						autoSize.addEvents(doc);
 					}
 					catch (ex) {
@@ -770,8 +770,8 @@ var SaveToFlow = (function() {
 					}
 				}, true);
 
-				if (stf.className.indexOf("stf_singleView") >= 0 && stf.className.indexOf("stf_listView") == -1) {
-					doc.getElementById("stf_save_button").addEventListener("click", function (e) {
+				if (stf.className.indexOf("s2r-singleView") >= 0 && stf.className.indexOf("s2r-listView") == -1) {
+					doc.getElementById("s2r-save_button").addEventListener("click", function (e) {
 						try {
 							startProgress(doc);
 							item = saveReference(doc, url, item, false);
@@ -785,7 +785,7 @@ var SaveToFlow = (function() {
 						}
 					}, true);
 				}
-				doc.getElementById("stf_capture").setAttribute("events_attached", "true")
+				doc.getElementById("s2r-capture").setAttribute("events_attached", "true")
 			}
 		}
 		catch (e) {
@@ -797,7 +797,7 @@ var SaveToFlow = (function() {
 	function getModified(doc) {
 		var reference = {}, item = {};
 		try {
-			item = JSON.parse(doc.getElementById("stf_reference_json").innerHTML);
+			item = JSON.parse(doc.getElementById("s2r-reference_json").innerHTML);
 		}
 		catch (e) {
 			error(doc, e);
@@ -808,7 +808,7 @@ var SaveToFlow = (function() {
 			reference.tags = item.tags ? item.tags : [];
 			for (var index = 0; index < labels.order.length; index++) {
 				try {
-					var elem = doc.getElementById("stf_" + labels.order[index]);
+					var elem = doc.getElementById("s2r-" + labels.order[index]);
 					if (elem) {
 						var val = elem.value;
 						if (labels.order[index] == "authors")
@@ -827,7 +827,7 @@ var SaveToFlow = (function() {
 				}
 			}
 			reference.attachments = item.attachments;
-			reference.attach = doc.getElementById("stf_attach") && doc.getElementById("stf_attach").checked;
+			reference.attach = doc.getElementById("s2r-attach") && doc.getElementById("s2r-attach").checked;
 		}
 		catch (e) {
 			error(doc, e);
@@ -840,7 +840,7 @@ var SaveToFlow = (function() {
 			var reference = useItem ? item : getModified(doc);
 			reference = conversion.convert(reference);//convert to deep flow model
 			reference.attachments = item.attachments;
-			reference.attach = useItem ? item.attachments.length : doc.getElementById("stf_attach").checked;
+			reference.attach = useItem ? item.attachments.length : doc.getElementById("s2r-attach").checked;
 			save(reference, doc, url);
 			return reference;
 		}
@@ -863,11 +863,11 @@ var SaveToFlow = (function() {
 						if (value && label.toLowerCase() == 'isbn') value = value.split(',')[0];
 
 						output.push(
-							"<div class='stf_lbl'>" +
+							"<div class='s2r-lbl'>" +
 								label +
 								(field == "authors" ? ' ("Last name, First names" each on new line)' : '') +
 							"</div>" +
-							"<textarea class='stf_val' id='stf_" + field + "' rows='1' placeholder='" +
+							"<textarea class='s2r-val' id='s2r-" + field + "' rows='1' placeholder='" +
 							(field == "authors" ? "Please enter authors..." : "Please enter metadata...") +
 							"'>" +
 							(value ? value : "") +
@@ -878,7 +878,7 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}
-			output.push("<div id='stf_reference_json'>" + JSON.stringify(item) + "</div>");
+			output.push("<div id='s2r-reference_json'>" + JSON.stringify(item) + "</div>");
 			return output;
 		}
 		catch (e) {
@@ -889,9 +889,9 @@ var SaveToFlow = (function() {
 	var autoSize = (function () {
 		function autoSize(text) {
 			var textHeight = 102;
-			if (text.scrollHeight < textHeight || text.id == "stf_authors") {
+			if (text.scrollHeight < textHeight || text.id == "s2r-authors") {
 				text.style.height = 'auto';
-				var height = (text.scrollHeight + (text.id == "stf_authors" ? 18 : 0))
+				var height = (text.scrollHeight + (text.id == "s2r-authors" ? 18 : 0))
 				text.style.height = (height > 32 ? height : 32) + 'px';//minimum, one line
 				text.style.overflow = 'hidden';
 			}
@@ -921,7 +921,7 @@ var SaveToFlow = (function() {
 		function removeEvents(doc) {
 			for (var index = 0; index < labels.order.length; index++) {
 				var value = labels.order[index];
-				var text = doc.getElementById("stf_" + value);
+				var text = doc.getElementById("s2r-" + value);
 				if (text) {
 					text.removeEventListener("focus", focusEvent);
 					text.removeEventListener("blur", blurEvent);
@@ -932,7 +932,7 @@ var SaveToFlow = (function() {
 		function addEvents(doc) {
 			for (var index = 0; index < labels.order.length; index++) {
 				var value = labels.order[index];
-				var text = doc.getElementById("stf_" + value);
+				var text = doc.getElementById("s2r-" + value);
 				if (text) {
 					autoSize(text);
 					text.addEventListener("focus", focusEvent);

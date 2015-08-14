@@ -76,12 +76,13 @@
 
 @link-color: #00A0DF;
 
-#stf_capture {
+#s2r-capture {
 
+  // Normalize all browsers, reset some (not necessarily all) css applied by the hosting page css
   @import "normalize.less";
 
+  //Size/Position
   z-index: 1000000000000009;
-  box-sizing: border-box;
   position: fixed;
   right: -360px;
   top: 0;
@@ -90,10 +91,14 @@
   display: block;
   border: none;
   overflow: hidden;
+  box-sizing: border-box;
+  
+  // Transition
   transition: all 1s ease;
   -webkit-transition: all 1s ease;
   -moz-transition: all 1s ease;
 
+  // Base font
   font-family: 'Open Sans', Arial, Verdana, Helvetica, sans-serif;
   font-size: 12px;
   line-height: 18px;
@@ -103,18 +108,18 @@
   color: @text-color;
 
 
-  &.stf_show {
+  &.s2r-show {
     right: 0px;
   }
 
-  .stf_clear {
+  .s2r-clear {
     clear: both;
     margin-bottom: 10px;
   }
 
-  .stf_status,
-  .stf_download,
-  .stf_error {
+  .s2r-status,
+  .s2r-download,
+  .s2r-error {
     height: 72px;
     width: 355px;
     padding: 20px;
@@ -124,14 +129,14 @@
     display: none;
   }
 
-  .stf_status,
-  .stf_error {
+  .s2r-status,
+  .s2r-error {
     font-size: 14px;
     font-weight: 300;
     line-height: 20px;
   }
 
-  .stf_status {
+  .s2r-status {
     a {
       font-size: 14px;
       font-weight: 300;
@@ -149,36 +154,36 @@
     }
   }
 
-  .stf_download {
+  .s2r-download {
     display: none;
     position: relative;
     right: 0px;
 
-    .stf_download_info {
+    .s2r-download_info {
       margin: 0 0 10px 2px;
     }
 
-    .stf_download_bar {
+    .s2r-download_bar {
       position: relative;
       width: 315px;
       height: 12px;
     }
 
-    .stf_download_progress {
+    .s2r-download_progress {
       position: absolute;
       height: 12px;
       width: 10px;
     }
   }
 
-  #stf_container {
+  #s2r-container {
     z-index: 1;
     position: absolute;
     top: 0;
     bottom: 0;
     width: 360px;
 
-    #stf_processing {
+    #s2r-processing {
       padding: 0 20px;
       font-size: 14px;
       text-align: center;
@@ -188,26 +193,26 @@
     }
   }
 
-  &.stf_listView:not(.toggle) #stf_container #stf_processing {
+  &.s2r-listView:not(.toggle) #s2r-container #s2r-processing {
     display: none;
   }
 
-  &.stf_listView.stf_singleView.stf_toggle #stf_container #stf_processing {
+  &.s2r-listView.s2r-singleView.s2r-toggle #s2r-container #s2r-processing {
     display: block;
     top: 91px;
   }
 
-  &.stf_singleView:not(.stf_toggle) #stf_container #stf_processing {
+  &.s2r-singleView:not(.s2r-toggle) #s2r-container #s2r-processing {
     display: none;
   }
 
-  .stf_warn {
+  .s2r-warn {
     display: none;
     margin: 10px 20px 20px 20px;
     width: 320px;
   }
 
-  .stf_ui_logo_wrapper {
+  .s2r-ui_logo_wrapper {
     width: 360px;
     height: 81px;
     position: absolute;
@@ -216,7 +221,7 @@
     z-index: 100;
     text-align: center;
 
-    .stf_left {
+    .s2r-left {
       display: none;
       position: absolute;
       left: 18px;
@@ -225,7 +230,7 @@
       line-height: 20px;
     }
 
-    .stf_right {
+    .s2r-right {
       display: none;
       position: absolute;
       right: 18px;
@@ -235,31 +240,31 @@
       font-size: 13px;
     }
 
-    .stf_selected_header {
+    .s2r-selected_header {
       color: #999;
       font-size: 14px;
     }
 
-    .stf_single_nav img {
+    .s2r-single_nav img {
       cursor: pointer;
       padding: 10px;
       opacity: 0.65;
-      &.stf_disabled {
+      &.s2r-disabled {
         cursor: default;
         opacity: 0.2;
       }
     }
   }
 
-  &.stf_listView .stf_ui_logo_wrapper {
+  &.s2r-listView .s2r-ui_logo_wrapper {
   }
 
-  &.stf_listView .stf_ui_logo_wrapper .stf_selected_header {
+  &.s2r-listView .s2r-ui_logo_wrapper .s2r-selected_header {
     display: inline;
   }
 
-  .stf_ui_logo_wrapper .stf_cancel,
-  .stf_error .stf_cancel {
+  .s2r-ui_logo_wrapper .s2r-cancel,
+  .s2r-error .s2r-cancel {
     position: absolute;
     right: 10px;
     top: 0px;
@@ -268,19 +273,19 @@
     padding: 10px;
   }
 
-  &.stf_listView:not(.stf_singleView) .stf_ui_logo_wrapper #stf_select_all {
+  &.s2r-listView:not(.s2r-singleView) .s2r-ui_logo_wrapper #s2r-select_all {
     display: inline;
   }
 
-  &.stf_listView.stf_singleView .stf_ui_logo_wrapper .stf_single_nav {
+  &.s2r-listView.s2r-singleView .s2r-ui_logo_wrapper .s2r-single_nav {
     display: inline;
   }
 
-  &.stf_singleView:not(.stf_listView) .stf_ui_logo_wrapper {
+  &.s2r-singleView:not(.s2r-listView) .s2r-ui_logo_wrapper {
     height: 30px
   }
 
-  .stf_button_pane {
+  .s2r-button_pane {
     width: 360px;
     height: 81px;
     position: absolute;
@@ -292,19 +297,19 @@
     }
   }
 
-  &.stf_listView .stf_button_pane button {
+  &.s2r-listView .s2r-button_pane button {
     display: inline;
     opacity: 0.6;
   }
 
-  &.stf_listView .stf_button_pane button.stf_enable {
+  &.s2r-listView .s2r-button_pane button.s2r-enable {
     opacity: 1.0;
   }
 
-  &.stf_singleView.stf_listView .stf_button_pane button {
+  &.s2r-singleView.s2r-listView .s2r-button_pane button {
   }
 
-  &.stf_singleView .stf_button_pane button {
+  &.s2r-singleView .s2r-button_pane button {
     display: inline;
     opacity: 1.0;
   }
@@ -317,21 +322,21 @@
     cursor: pointer;
   }
 
-  #stf_ui_main::-webkit-scrollbar,
-  .stf_ui_itemlist::-webkit-scrollbar,
-  #stf_ui_main .stf_val::-webkit-scrollbar {
+  #s2r-ui_main::-webkit-scrollbar,
+  .s2r-ui_itemlist::-webkit-scrollbar,
+  #s2r-ui_main .s2r-val::-webkit-scrollbar {
     background: transparent;
     width: 8px;
   }
 
-  #stf_ui_main::-webkit-scrollbar-thumb,
-  .stf_ui_itemlist::-webkit-scrollbar-thumb,
-  #stf_ui_main .stf_val::-webkit-scrollbar-thumb {
+  #s2r-ui_main::-webkit-scrollbar-thumb,
+  .s2r-ui_itemlist::-webkit-scrollbar-thumb,
+  #s2r-ui_main .s2r-val::-webkit-scrollbar-thumb {
     background: #96989e;
     border-radius: 5px;
   }
 
-  .stf_ui_itemlist {
+  .s2r-ui_itemlist {
     display: none;
     position: absolute;
     top: 81px;
@@ -340,42 +345,42 @@
     overflow-y: auto;
   }
 
-  &.stf_listView:not(.stf_singleView) .stf_ui_itemlist {
+  &.s2r-listView:not(.s2r-singleView) .s2r-ui_itemlist {
     display: block;
   }
 
-  .stf_ui_itemlist .stf_ui_item {
+  .s2r-ui_itemlist .s2r-ui_item {
     position: relative;
     margin-bottom: 5px;
   }
 
-  .stf_ui_itemlist .stf_ui_item .stf_item_authorlist {
+  .s2r-ui_itemlist .s2r-ui_item .s2r-item_authorlist {
   }
 
-  .stf_ui_itemlist .stf_ui_item label {
+  .s2r-ui_itemlist .s2r-ui_item label {
     cursor: pointer;
     display: inline-block;
   }
 
-  .stf_ui_itemlist .stf_ui_item input[type=checkbox] {
+  .s2r-ui_itemlist .s2r-ui_item input[type=checkbox] {
     position: absolute;
     left: 0;
     top: 5px
   }
 
-  .stf_ui_itemlist .stf_ui_item img.stf_pdf {
+  .s2r-ui_itemlist .s2r-ui_item img.s2r-pdf {
     float: left;
     margin-right: 5px;
   }
 
-  .stf_ui_itemlist .stf_ui_item img.stf_detail {
+  .s2r-ui_itemlist .s2r-ui_item img.s2r-detail {
     position: absolute;
     right: 0px;
     top: 5px;
     cursor: pointer
   }
 
-  #stf_ui_main {
+  #s2r-ui_main {
     display: none;
     position: absolute;
     top: 81px;
@@ -385,29 +390,29 @@
     overflow-y: auto;
     overflow-x: hidden;
 
-    .stf_textposition {
+    .s2r-textposition {
       position: relative
     }
 
-    span.stf_empty {
+    span.s2r-empty {
       position: absolute;
       left: 31px;
       top: 7px;
       line-height: 16px;
     }
 
-    span.stf_author {
+    span.s2r-author {
       position: absolute;
       left: 31px;
       bottom: 7px;
       display: none;
     }
 
-    .stf_lbl {
+    .s2r-lbl {
       margin: 10px 20px 0px 30px;
     }
 
-    .stf_val {
+    .s2r-val {
       overflow-x: hidden;
       margin: 0px 20px;
       width: 320px;
@@ -415,36 +420,36 @@
       resize: none;
     }
 
-    img.stf_lbl {
+    img.s2r-lbl {
       margin-top: 0px;
       margin-left: 25px;
       float: left;
       margin-bottom: 20px;
     }
 
-    .stf_attach {
+    .s2r-attach {
       margin-top: 0px;
       vertical-align: middle;
     }
 
-    .stf_input_container {
+    .s2r-input_container {
       display: inline-block;
       width: 265px;
       display: inline;
       zoom: 1;
     }
 
-    .stf_details {
+    .s2r-details {
       margin-bottom: 20px;
       margin-left: 20px;
       margin-right: 20px;
     }
 
-    .stf_header {
+    .s2r-header {
       margin-top: 0;
     }
 
-    .stf_dropdown {
+    .s2r-dropdown {
       margin: 10px 20px 20px 20px;
       width: 320px;
       height: 28px;
@@ -454,27 +459,27 @@
       }
     }
 
-    .stf_webref {
+    .s2r-webref {
       display: none;
     }
 
 
   }
 
-  &.stf_singleView:not(.stf_toggle) #stf_ui_main {
+  &.s2r-singleView:not(.s2r-toggle) #s2r-ui_main {
     display: block;
   }
 
-  &.stf_singleView:not(.stf_listView) #stf_ui_main {
+  &.s2r-singleView:not(.s2r-listView) #s2r-ui_main {
     top: 51px;
   }
 
-  #stf_reference_json {
+  #s2r-reference_json {
     display: none;
   }
 }
 
-#stf_debug {
+#s2r-debug {
   z-index:1000000000000009;
   position:absolute;
   top:0;
