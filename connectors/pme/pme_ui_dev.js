@@ -3,48 +3,13 @@
 // The sharedRefData object is located in the Flow codebase and gets copied into PME. If this object must be changed,
 // update the file ref-type-fields.js in Flow and those changes will propagate to PME.
 
-var s2F = {};
+// Templates:
+// The template strings are located in pme/templates.js and added to this file during the build process.
+// var s2fTemplateStrings = {};
 
-s2F.templateStrings = {};
+var s2f = {};
 
-s2F.templateStrings.s2fContainer =
-	'<iframe frameborder="0" id="s2r-tracking_iframe" name="s2r-tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
-
-	'<form method="post" action="<%= flowServer %>/savetoflow/tracking/" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" target="s2r-tracking_iframe" name="s2r-tracking_form" id="s2r-tracking_form">' +
-		'<input type="hidden" name="found" id="s2r-track_found">' +
-		'<input type="hidden" name="selected" id="s2r-track_selected">' +
-		'<input type="hidden" name="url" id="s2r-track_url">' +
-		'<input type="hidden" name="modified" id="s2r-track_modified">' +
-		'<input type="hidden" name="citation" id="s2r-track_citation">' +
-	'</form>' +
-
-	'<div class="s2r-status" id="s2r-status"></div>' +
-	'<div class="s2r-error" id="s2r-error"></div>' +
-	'<div class="s2r-download" id="s2r-progress">' +
-		'<div class="s2r-download_info">Saving to Flow</div>' +
-		'<div class="s2r-download_bar"><div class="s2r-download_progress" id="s2r-download_progress"></div></div>' +
-	'</div>' +
-
-	'<div id="s2r-container">' +
-		'<div class="s2r-ui_logo_wrapper">' +
-			'<img src="<%= flowServer %>/public/img/PQ-StF.png"/><img src="<%= flowServer %>/public/img/close.png" class="s2r-cancel" id="s2r-cancel"/>' +
-			'<p class="s2r-selected_header s2r-left" id="s2r-header_text">Select articles</p>' +
-			'<a class="s2r-ui_pick_all all s2r-right" href="javascript:void(0);" id="s2r-select_all">Select All</a>' +
-			'<span class="s2r-right s2r-single_nav">' +
-				'<img src="<%= flowServer %>/public/img/arrow-up.png" class="prev" id="s2r-single_prev"/>' +
-				'<img src="<%= flowServer %>/public/img/arrow-down.png" class="next" id="s2r-single_next"/>' +
-			'</span>' +
-		'</div>' +
-		'<div id="s2r-processing">Finding references</div>' +
-		'<div id="s2r-ui_main">' +
-			'<div class="s2r-webref s2r-warn" id="s2r-webref">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
-			'<div class="s2r-meta" id="s2r-meta"></div>' +
-		'</div>' +
-		'<div class="s2r-ui_itemlist" id="s2r-ui_itemlist"></div>' +
-		'<div class="s2r-button_pane"><button class="s2r-btn_save" disabled="disabled" id="s2r-save_button">Save to Flow</button></div>' +
-	'</div>';
-
-s2F.Utils = {};
+s2f.Utils = {};
 
 /**
  * Compiles JavaScript templates into functions that can be evaluated for rendering.
@@ -62,7 +27,7 @@ s2F.Utils = {};
  * @param templateString A string to be evaluated for rendering.
  * @returns an executable function that will render the string with passed properties.
  */
-s2F.Utils.template = function(text) {
+s2f.Utils.template = function(text) {
 
 	// Certain characters need to be escaped so that they can be put into a
 	// string literal.
@@ -200,7 +165,7 @@ var SaveToFlow = (function() {
 			var container = doc.createElement("div");
 			container.id = "s2r-capture";
 			container.className = "notranslate";
-			container.innerHTML = s2F.Utils.template(s2F.templateStrings.s2fContainer)({flowServer: FLOW_SERVER});
+			container.innerHTML = s2f.Utils.template(s2fTemplateStrings.s2fContainer)({flowServer: FLOW_SERVER});
 			doc.body.appendChild(container);
 			attachCloseEvent(doc, "s2r-cancel");
 		}
@@ -493,7 +458,7 @@ var SaveToFlow = (function() {
 		if (!count && parseInt(done) == 1)
 			ratio = 1;
 
-		doc.getElementById("s2r-download_progress").style.width = Math.round(ratio * 315) + "px";
+		doc.getElementById("s2r-download-progress").style.width = Math.round(ratio * 315) + "px";
 		if (ratio == 1)
 			completeDialog(doc);
 	}
@@ -551,8 +516,8 @@ var SaveToFlow = (function() {
 		setSaveTimeout(doc,-1);
 		try {
 			//callback should complete items, so we'll basically want to use it when we want to see of save an item.
-			var container = doc.getElementById("s2r-ui_itemlist"), stf = doc.getElementById("s2r-capture"), ix = 1;
-			if (container.getElementsByClassName("s2r-ui_item").length > 0) {
+			var container = doc.getElementById("s2r-ui-itemlist"), stf = doc.getElementById("s2r-capture"), ix = 1;
+			if (container.getElementsByClassName("s2r-ui-item").length > 0) {
 				Z.debug("selection called after already loaded.");
 				return;
 			}
@@ -560,7 +525,7 @@ var SaveToFlow = (function() {
 			for (itemId in items) {
 				try {
 					var item = doc.createElement("div");
-					item.className = "s2r-ui_item";
+					item.className = "s2r-ui-item";
 					item.setAttribute("data-id", itemId);
 					item.setAttribute("data-ix", ix++);
 					item.addEventListener("click", function (e) {
@@ -601,7 +566,7 @@ var SaveToFlow = (function() {
 			stf.setAttribute("data-count", ix - 1);
 			var savedReferences = {};
 
-			doc.getElementById("s2r-select_all").addEventListener("click", function (e) {
+			doc.getElementById("s2r-select-all").addEventListener("click", function (e) {
 				try {
 					if (this.getAttribute("unselect") == "true") {
 						this.innerHTML = "Select All";
@@ -652,7 +617,7 @@ var SaveToFlow = (function() {
 						stf.setAttribute("data-saving", "true");
 						stf.setAttribute("data-saving-count", 1);
 						startProgress(doc);
-						var cbx = doc.getElementById("s2r-ui_itemlist").getElementsByTagName("input"),
+						var cbx = doc.getElementById("s2r-ui-itemlist").getElementsByTagName("input"),
 							count = 0,
 							modified = [],
 							list = {};
@@ -693,7 +658,7 @@ var SaveToFlow = (function() {
 	}
 
 	function move(doc, url, callback, items, offset, savedReferences) {
-		var cbx = doc.getElementById("s2r-ui_itemlist").getElementsByTagName("input"),
+		var cbx = doc.getElementById("s2r-ui-itemlist").getElementsByTagName("input"),
 			stf = doc.getElementById("s2r-capture"),
 			id = stf.getAttribute("data-id");
 		for (var i = 0; i < cbx.length; i++) {
@@ -722,7 +687,7 @@ var SaveToFlow = (function() {
 
 	function setListButton(doc, check) {
 		try {
-			var cbx = doc.getElementById("s2r-ui_itemlist").getElementsByTagName("input"), count = 0;
+			var cbx = doc.getElementById("s2r-ui-itemlist").getElementsByTagName("input"), count = 0;
 			for (var i = 0; i < cbx.length; i++) {
 				if (check !== undefined)
 					cbx[i].checked = check;
@@ -789,10 +754,10 @@ var SaveToFlow = (function() {
 				error(doc, e);
 			}
 			if (pdf || html) {
-				output.push("<img src='" + FLOW_SERVER + "/public/img/" + (pdf ? "pdf" : "web") + ".png' class='s2r-lbl'/><span class='s2r-input_container'><label for='s2r-attach_web' class='s2r-attach'><input type='checkbox' id='s2r-attach' checked='checked' class='s2r-attach'> <span>We found the article, want to save it?</span></label></span>");
+				output.push("<img src='" + FLOW_SERVER + "/public/img/" + (pdf ? "pdf" : "web") + ".png' class='s2r-lbl'/><span class='s2r-input-container'><label for='s2r-attach_web' class='s2r-attach'><input type='checkbox' id='s2r-attach' checked='checked' class='s2r-attach'> <span>We found the article, want to save it?</span></label></span>");
 			}
 			else if (containerClass.indexOf("s2r-listView") == -1) {
-				output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='s2r-lbl'/><span class='s2r-input_container'><label for='s2r-attach_web' class='s2r-attach'><input type='checkbox' id='s2r-attach' class='s2r-attach'> <span>Save the content of this web page</span></label></span>");
+				output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='s2r-lbl'/><span class='s2r-input-container'><label for='s2r-attach_web' class='s2r-attach'><input type='checkbox' id='s2r-attach' class='s2r-attach'> <span>Save the content of this web page</span></label></span>");
 			}
 
 			output.push("<div id='s2r-ref_type_spec' class='s2r-clear'>");
@@ -898,7 +863,7 @@ var SaveToFlow = (function() {
 	function getModified(doc) {
 		var reference = {}, item = {};
 		try {
-			item = JSON.parse(doc.getElementById("s2r-reference_json").innerHTML);
+			item = JSON.parse(doc.getElementById("s2r-reference-json").innerHTML);
 		}
 		catch (e) {
 			error(doc, e);
@@ -979,7 +944,7 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}
-			output.push("<div id='s2r-reference_json'>" + JSON.stringify(item) + "</div>");
+			output.push("<div id='s2r-reference-json'>" + JSON.stringify(item) + "</div>");
 			return output;
 		}
 		catch (e) {
