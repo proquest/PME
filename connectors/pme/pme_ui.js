@@ -1,8 +1,141 @@
+var sharedRefData={fields:{'abstract':{type:'3',label:'Abstract'},'alternateTitle':{type:'3',label:'Alternate Title'},'authors':{type:'4',label:'Authors'},'availability':{type:'2',label:'Availability'},'classification':{type:'2',label:'Classification'},'committee':{type:'2',label:'Committee'},'compilers':{type:'4',label:'Compilers'},'created':{type:'0',label:'Created'},'docNumber':{type:'2',label:"Document Number"},'doi':{type:'2',label:'DOI'},'edition':{type:'2',label:'Edition'},'editor':{type:'4',label:'Editor'},'editors':{type:'4',label:'Editors'},'historicalTitle':{type:'2',label:"Historical Title"},'geographicLocation':{type:'2',label:'Geographic Location'},'id':{type:'7',label:'Reference Identifier'},'issn':{type:'2',label:'ISSN'},'issue':{type:'2',label:'Issue'},'jurisdiction':{type:'2',label:"Jurisdiction"},'language':{type:'2',label:'Language'},'lawType':{type:'2',label:'Law Type'},'legislativeBody':{type:'2',label:"Legislative Body"},'legislativeSession':{type:'2',label:"Legislative Session"},'latLon':{type:'2',label:'Latitude & Longitude'},'location':{type:'2',label:'Place of Publication'},'modified':{type:'0',label:'Modified'},'pages':{type:'8',label:"Pages",children:['pages-other','pages-start']},'pages-other':{type:'8',label:'Pages (other)'},'pages-start':{type:'8',label:'Pages (start)'},'pmid':{type:'12',label:'PMID'},'pmcid':{type:'12',label:'PMCID'},'publication':{type:'6',label:'Publication'},'publicationDate':{type:'2',label:"Publish Date",children:['publicationDate-rawDate','publicationDate-year']},'publicationDate-rawDate':{type:'2',label:'Publish Date (Month Day)'},'publicationDate-year':{type:'2',label:'Publish Date (Year)'},'publisher':{type:'2',label:'Publisher'},'refType':{type:'1',label:'Ref Type'},'republishedDate':{type:'2',label:'Republished Date',children:['republishedDate-rawDate','republishedDate-year']},'retrievedDate':{type:'2',label:'Date Retrieved',children:['retrievedDate-rawDate','retrievedDate-year']},'sectionNumber':{type:'2',label:"Section"},'sequenceNumber':{type:'2',label:"Sequence Number"},'scale':{type:'2',label:'Scale'},'seriesEditors':{type:'4',label:'Series Editors'},'seriesTitle':{type:'3',label:'Series Title'},'shortTitle':{type:'3',label:'Short Title'},'sourceAccession':{type:'2',label:'Source Accession'},'sourceDatabase':{type:'2',label:'Source DB'},'sourceLibrary':{type:'2',label:'Source Library'},'sourceLocation':{type:'2',label:'Source Location'},'sourceName':{type:'2',label:'Source Name'},'subcommittee':{type:'2',label:'Subcommittee'},'tags':{type:'5',label:'Tags'},'title':{type:'3',label:'Title'},'translators':{type:'4',label:'Translators'},'url':{type:'2',label:'Retrieved From'},'userNotes':{type:'3',label:'Notes'},'version':{type:'2',label:'Version'},'volume':{type:'2',label:'Volume'},'addText':{type:'11',label:"Add Text"},'isElectronic':{type:'9',label:"Is Electronic?"},'extraData':{type:'2',label:"Extra Data"},'locCallNumber':{type:'2',label:"LC Call #"},'arXivId':{type:'2',label:"ArXiv ID"},'applicationNumber':{type:'2',label:"Application Number"},'assignees':{type:'4',label:"Assignees"},'classCodeIntl':{type:'2',label:"Class Code, International"},'classCodeNatl':{type:'2',label:"Class Code, National"},'conductors':{type:'4',label:"Conductor"},'department':{type:'2',label:"Department"},'eventDate':{type:'2',label:"Event Date"},'eventLocation':{type:'2',label:"Event Location"},'eventName':{type:'3',label:"Event"},'isbn':{label:"ISBN"},'journalAbbrev':{type:'6',label:"Journal Abbrev"},'medium':{type:'2',label:"Medium"},'patentNumber':{type:'2',label:"Patent Number"},'performers':{type:'4',label:"Performers"},'producers':{type:'4',label:"Producer"},'publicationEditors':{type:'4',label:"Publication Editors"},'recipients':{type:'4',label:"Recipients"},'registryNumber':{type:'2',label:"Registry Number"},'republishedDate-rawDate':{type:'2',label:"Republished (Month Day)"},'republishedDate-year':{type:'2',label:"Republished (Year)"},'retrievedDate-rawDate':{type:'2',label:"Retrieved (Month Day)"},'retrievedDate-year':{type:'2',label:"Retrieved (Year)"},'type':{type:'2',label:"Degree Type"}},refTypes:{JOURNAL_ARTICLE_REF:{label:'Journal Article',defaultFields:['abstract','authors','issue','pages','publication','publicationDate','title','url','userNotes','volume'],optionalFields:['arXivId','alternateTitle','retrievedDate','edition','extraData','doi','isElectronic','issn','journalAbbrev','language','pmcid','pmid','republishedDate','seriesEditors','shortTitle','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators'],fieldLabelOverides:{publication:'Journal'}},BOOK_REF:{label:"Book",defaultFields:['abstract','authors','location','edition','publicationDate','seriesTitle','publisher','title','userNotes'],optionalFields:['alternateTitle','retrievedDate','compilers','doi','editors','extraData','isbn','isElectronic','language','locCallNumber','sourceDatabase','translators','url'],fieldLabelOverides:{}},BOOK_EDITED_REF:{label:'Book, edited collection',defaultFields:['abstract','authors','location','edition','publicationDate','seriesEditors','seriesTitle','publisher','title','userNotes','volume'],optionalFields:['alternateTitle','retrievedDate','compilers','doi','extraData','isbn','isElectronic','language','locCallNumber','sourceDatabase','translators','url'],fieldLabelOverides:{authors:'Editors',title:'Book Title'}},BOOK_SECTION_REF:{label:"Book section",defaultFields:['abstract','authors','editors','location','pages','publicationDate','publication','publisher','title','userNotes'],optionalFields:['alternateTitle','retrievedDate','compilers','doi','edition','extraData','isbn','isElectronic','language','locCallNumber','seriesEditors','seriesTitle','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators','url'],fieldLabelOverides:{publication:'Book title',title:'Section title'}},GENERIC_REF:{label:"Generic",defaultFields:['abstract','authors','location','publication','publicationDate','publisher','title','url','userNotes'],optionalFields:['availability','alternateTitle','arXivId','classification','compilers','department','doi','edition','editors','extraData','isbn','isElectronic','issn','issue','journalAbbrev','language','locCallNumber','pages','pmcid','pmid','publicationEditors','republishedDate','retrievedDate','seriesEditors','seriesTitle','shortTitle','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators','type','version','volume'],fieldLabelOverides:{}},WEB_REF:{label:"Web page",defaultFields:['abstract','authors','publication','publicationDate','retrievedDate','title','url','userNotes'],optionalFields:['alternateTitle','doi','extraData','language','publicationEditors','republishedDate','version'],fieldLabelOverides:{publication:'Website',url:'URL'}},REPORT_REF:{label:"Report",defaultFields:['abstract','authors','location','pages','publication','publicationDate','publisher','title','userNotes'],optionalFields:['alternateTitle','retrievedDate','doi','edition','editors','extraData','isElectronic','language','locCallNumber','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators','url'],fieldLabelOverides:{publication:'Institution'}},CONF_REF:{label:"Conference proceeding",defaultFields:['abstract','authors','location','pages','publication','publicationDate','publisher','title','userNotes'],optionalFields:['alternateTitle','retrievedDate','doi','editors','eventName','eventDate','eventLocation','extraData','isElectronic','language','locCallNumber','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators','url','seriesTitle'],fieldLabelOverides:{eventName:'Conference',eventDate:'Conference Date',publication:'Proceedings Title'}},NEWS_REF:{label:"Newspaper article",defaultFields:['abstract','authors','location','edition','pages','publication','publicationDate','retrievedDate','title','userNotes','url'],optionalFields:['alternateTitle','doi','editors','extraData','isElectronic','language','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','translators'],fieldLabelOverides:{}},THESIS_REF:{label:"Thesis",defaultFields:['abstract','authors','department','pages','publicationDate','publisher','title','type','userNotes'],optionalFields:['alternateTitle','location','doi','extraData','isElectronic','language','locCallNumber','sourceName','sourceDatabase','sourceLibrary','sourceLocation','sourceAccession','url'],fieldLabelOverides:{publisher:'University',location:'Location'}},MAG_REF:{label:"Magazine article",defaultFields:['abstract','authors','location','pages','publication','publicationDate','publisher','title','userNotes','url'],optionalFields:['alternateTitle','doi','extraData','editors','isElectronic','language','locCallNumber','retrievedDate','sourceName','sourceDatabase','sourceLibrary','sourceLocation','translators'],fieldLabelOverides:{}},FILM_REF:{label:'Video',defaultFields:['title','authors','publicationDate','publisher','location','userNotes','performers','producers','medium'],optionalFields:['language','extraData','abstract','classification','sourceDatabase','doi','language','alternateTitle','translators','refType','retrievedDate','sourceLibrary','sourceLocation','isElectronic'],fieldLabelOverides:{authors:'Director',publicationDate:'Year of Release','publicationDate-year':'Release (Year)','publicationDate-rawDate':'Release (Month Day)',publisher:'Studio / Distributor',location:'Studio Location'}},ART_REF:{label:'Artwork',defaultFields:['title','authors','publicationDate','publisher','location','isElectronic','userNotes','medium'],optionalFields:['url','extraData'],fieldLabelOverides:{authors:'Artist',publicationDate:'Year','publicationDate-year':'Date (Year)','publicationDate-rawDate':'Date (Month Day)',publisher:'Institution',location:'Institution Location'}},AUDIO_REF:{label:'Audio',defaultFields:['title','authors','publicationDate','performers','publisher','location','userNotes','medium','conductors'],optionalFields:['editors','volume','url','extraData'],fieldLabelOverides:{authors:'Writers',publicationDate:'Date','publicationDate-year':'Date (Year)','publicationDate-rawDate':'Date (Month Day)',publisher:'Production Company',location:'Production Location','performers':'Performers / Artist'}},MUSIC_REF:{label:'Music Score',defaultFields:['location','authors','title','publicationDate','publisher','retrievedDate','volume','userNotes'],optionalFields:['abstract','classification','sourceDatabase','doi','language','alternateTitle','compilers','translators','refType','sourceLibrary','sourceLocation','isElectronic'],fieldLabelOverides:{authors:'Composers',publisher:'Production Company',location:'Production Location',volume:'Key'}},ABSTRACT_REF:{label:'Abstract',defaultFields:['abstract','authors','issue','pages','publication','publicationDate','title','url','userNotes','volume'],optionalFields:['alternateTitle','arXivId','department','doi','edition','editors','extraData','isElectronic','issn','journalAbbrev','language','location','locCallNumber','pmcid','pmid','publisher','republishedDate','retrievedDate','seriesEditors','seriesTitle','shortTitle','sourceAccession','sourceDatabase','sourceLibrary','sourceLocation','sourceName','translators','type'],fieldLabelOverides:{}},MONOGRAPH_REF:{label:'Monograph',defaultFields:['authors','edition','location','pages','publicationDate','publisher','seriesEditors','seriesTitle','title','userNotes','volume'],optionalFields:['abstract','alternateTitle','compilers','doi','editors','extraData','isbn','isElectronic','language','locCallNumber','publicationEditors','retrievedDate','sourceDatabase','sourceLibrary','sourceLocation','translators','url'],fieldLabelOverides:{pages:'Total Pages'}},UNPUBLISHED_REF:{label:'Unpublished material',defaultFields:['authors','location','pages','seriesTitle','title','type','url','userNotes'],optionalFields:['abstract','alternateTitle','arXivId','compilers','doi','editors','extraData','isElectronic','language','locCallNumber','publisher','retrievedDate','shortTitle','sourceName','sourceDatabase','sourceLibrary','sourceLocation','translators'],fieldLabelOverides:{type:'Type of Work',seriesTitle:'Collection Name'}},PATENT_REF:{label:'Patent',defaultFields:['abstract','applicationNumber','assignees','authors','location','pages','patentNumber','publicationDate','title','url','userNotes'],optionalFields:['alternateTitle','classCodeNatl','classCodeIntl','doi','extraData','isElectronic','language','locCallNumber','classification','registryNumber','republishedDate','retrievedDate','sourceDatabase','sourceLibrary','sourceLocation','sourceName','translators'],fieldLabelOverides:{authors:'Inventors',location:'Issuing Country',publicationDate:'Issue Date','publicationDate-year':'Issue Date (Year)','publicationDate-rawDate':'Issue Date (Month Day)',classification:"Issuer"}},PERSONAL_COMM_REF:{label:'Personal communication',defaultFields:['authors','publicationDate','recipients','title','userNotes'],optionalFields:['extraData','isElectronic','language','pages','translators','url'],fieldLabelOverides:{publicationDate:"Communication Date",'publicationDate-year':'Communication Date (Year)','publicationDate-rawDate':'Communication Date (Month Day)'}},FORUM_REF:{label:'Forum/blog discussion',defaultFields:['abstract','authors','publication','publicationDate','publisher','title','url','userNotes'],optionalFields:['alternateTitle','compilers','doi','editors','extraData','isElectronic','language','locCallNumber','pages','retrievedDate','sourceAccession','sourceName','sourceDatabase','sourceLibrary','sourceLocation','translators'],fieldLabelOverides:{publication:"Website Name",publicationDate:"Date of Post",'publicationDate-year':'Date of Post (Year)','publicationDate-rawDate':'Date of Post (Month Day)',title:"Post Title"}},BILL_REF:{label:'Bill/resolution',defaultFields:['abstract','authors','docNumber','legislativeBody','legislativeSession','publicationDate','sectionNumber','title','url','userNotes'],optionalFields:['alternateTitle','doi','edition','extraData','historicalTitle','isElectronic','language','location','locCallNumber','pages','publication','publisher','retrievedDate','shortTitle','sourceAccession','sourceName','sourceDatabase','sourceLibrary','sourceLocation','translators','volume'],fieldLabelOverides:{authors:"Sponsors",docNumber:"Bill Number",pages:"Subsections",'pages-other':"Subsections (other)",'pages-start':"Subsections (start)"}},LAW_REF:{label:"Law/statute",defaultFields:['abstract','authors','docNumber','jurisdiction','legislativeBody','legislativeSession','lawType','publicationDate','sectionNumber','seriesTitle','title','url','userNotes'],optionalFields:['alternateTitle','doi','extraData','isElectronic','historicalTitle','language','location','locCallNumber','pages','publication','retrievedDate','shortTitle','sourceAccession','sourceName','sourceDatabase','sourceLibrary','sourceLocation','translators'],fieldLabelOverides:{authors:"Sponsors",docNumber:"Statute Number",pages:"Subsections",'pages-other':"Subsections (other)",'pages-start':"Subsections (start)",seriesTitle:"Code"}},HEARING_REF:{label:"Hearing",defaultFields:['abstract','authors','committee','docNumber','legislativeBody','legislativeSession','pages','publicationDate','sequenceNumber','subcommittee','title','url','userNotes','volume'],optionalFields:['alternateTitle','doi','extraData','historicalTitle','isElectronic','language','location','locCallNumber','retrievedDate','shortTitle','sourceAccession','sourceName','sourceDatabase','sourceLibrary','sourceLocation','translators'],fieldLabelOverides:{legislativeSession:"Session Number",shortTitle:"Abbreviated Case Name"}},COURT_REF:{label:"Court case",defaultFields:['abstract','authors','jurisdiction','pages','publication','publicationDate','sequenceNumber','title','url','userNotes','volume'],optionalFields:['alternateTitle','availability','classification','doi','extraData','historicalTitle','isElectronic','issue','language','location','locCallNumber','retrievedDate','seriesEditors','seriesTitle','shortTitle','sourceAccession','sourceName','sourceDatabase','sourceLibrary','sourceLocation','translators'],fieldLabelOverides:{authors:"Counsel",publication:'Reporter',seriesTitle:"Reporter Series",shortTitle:"Abbreviated Case Name",volume:"Reporter Volume"}},PROGRAM_REF:{label:'Computer Program',defaultFields:['authors','title','volume','location','publicationDate','retrievedDate'],optionalFields:['abstract','classification','sourceDatabase','doi','language','alternateTitle','userNotes','refType','shortTitle','sourceLibrary','sourceLocation','pages','url','isElectronic'],fieldLabelOverides:{authors:'Developers',volume:'Version'}},MAP_REF:{label:'Map',defaultFields:['authors','title','edition','geographicLocation','scale','publicationDate','publisher','volume','pages'],optionalFields:['abstract','classification','sourceDatabase','doi','language','alternateTitle','userNotes','location','translators','refType','retrievedDate','sourceLibrary','sourceLocation','latLon','isElectronic'],fieldLabelOverides:{authors:'Cartographers',edition:'Report Series',volume:'Map Series',pages:'Sheets','pages-other':"Sheets (other)",'pages-start':"Sheets (start)"}}},languages:["Unknown","Acehnese","Afrikaans","Akan","Albanian","Amharic","Arabic","Armenian","Assamese","Azerbaijani","Balinese","Balochi","Batak","Belarusian","Bemba","Bengali","Bhili","Bhojpuri","Bikol","Buginese","Bulgarian","Burmese","Catalan","Cebuano","Chichewa (Nyanja)","Chinese (Simplified)","Chinese (Traditional)","Czech","Danish","Dutch","English","Ewe","Finnish","French","Fula","Galician","Gan","Georgian","German","Gikuyu","Gilaki","Greek","Guarani","Gujarati","Haitian Creole","Hakka","Hausa","Hebrew","Hiligaynon","Hindko","Hmong","Hungarian","Ibibio-Efik","Igbo","Ilokano","Indonesian","Italian","Jamaican Creole","Japanese","Javanese","Kannada","Kanuri","Kashmiri","Kazakh","Khmer","Kimbundu","Kinyarwanda","Kirundi","Kongo","Konkani","Korean","Kurdish","Kyrgyz","Lao","Latin","Lithuanian","Lombard","Luganda","Luo (Dholuo)","Lusoga","Luyia","Madurese","Maithili","Makhuwa","Malagasy","Malay","Malayalam","Maninka","Marathi","Mazanderani","Min","Minangkabau","Mongolian","More","Neapolitan","Nepali","Northern Sotho (sePedi)","Norwegian","Oriya","Oromo","Pashto","Persian/Farsi","Polish","Portuguese","Punjabi","Quechua","Qusqu-Qullaw","Romani","Romanian","Russian","Santali","Serbo-Croatian","Sesotho (southern)","Shan","Shona","Sindhi","Sinhalese","Slovak","Somali","South Bolivian Quechua","Southern Quechua","Spanish","Standard hindi","Sukuma","Sundanese","Swahili","Swedish","Tagalog","Tajik","Tamazight","Tamil","Telugu","Thai","Tibetan","Tigrinya","Tshiluba","Tsonga","Tswana","Turkish","Turkmen","Ukrainian","Umbundu","Urdu","Uyghur","Uzbek","Vietnamese","Waray-Waray","Wolof","Wu","Xhosa","Yi","Yiddish","Yoruba","Zhuang","Zulu"]};
 
 ///// DO NOT EDIT this comment or anything above it. (The build script looks for the '/////' string and ignores anything above it)
 // The sharedRefData object is located in the Flow codebase and gets copied into PME. If this object must be changed,
 // update the file ref-type-fields.js in Flow and those changes will propagate to PME.
 
+var s2F = {};
+
+s2F.templateStrings = {};
+
+s2F.templateStrings.s2fContainer =
+	'<iframe frameborder="0" id="s2r-tracking_iframe" name="s2r-tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
+
+	'<form method="post" action="<%= flowServer %>/savetoflow/tracking/" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" target="s2r-tracking_iframe" name="s2r-tracking_form" id="s2r-tracking_form">' +
+		'<input type="hidden" name="found" id="s2r-track_found">' +
+		'<input type="hidden" name="selected" id="s2r-track_selected">' +
+		'<input type="hidden" name="url" id="s2r-track_url">' +
+		'<input type="hidden" name="modified" id="s2r-track_modified">' +
+		'<input type="hidden" name="citation" id="s2r-track_citation">' +
+	'</form>' +
+
+	'<div class="s2r-status" id="s2r-status"></div>' +
+	'<div class="s2r-error" id="s2r-error"></div>' +
+	'<div class="s2r-download" id="s2r-progress">' +
+		'<div class="s2r-download_info">Saving to Flow</div>' +
+		'<div class="s2r-download_bar"><div class="s2r-download_progress" id="s2r-download_progress"></div></div>' +
+	'</div>' +
+
+	'<div id="s2r-container">' +
+		'<div class="s2r-ui_logo_wrapper">' +
+			'<img src="<%= flowServer %>/public/img/PQ-StF.png"/><img src="<%= flowServer %>/public/img/close.png" class="s2r-cancel" id="s2r-cancel"/>' +
+			'<p class="s2r-selected_header s2r-left" id="s2r-header_text">Select articles</p>' +
+			'<a class="s2r-ui_pick_all all s2r-right" href="javascript:void(0);" id="s2r-select_all">Select All</a>' +
+			'<span class="s2r-right s2r-single_nav">' +
+				'<img src="<%= flowServer %>/public/img/arrow-up.png" class="prev" id="s2r-single_prev"/>' +
+				'<img src="<%= flowServer %>/public/img/arrow-down.png" class="next" id="s2r-single_next"/>' +
+			'</span>' +
+		'</div>' +
+		'<div id="s2r-processing">Finding references</div>' +
+		'<div id="s2r-ui_main">' +
+			'<div class="s2r-webref s2r-warn" id="s2r-webref">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
+			'<div class="s2r-meta" id="s2r-meta"></div>' +
+		'</div>' +
+		'<div class="s2r-ui_itemlist" id="s2r-ui_itemlist"></div>' +
+		'<div class="s2r-button_pane"><button class="s2r-btn_save" disabled="disabled" id="s2r-save_button">Save to Flow</button></div>' +
+	'</div>';
+
+s2F.Utils = {};
+
+/**
+ * Compiles JavaScript templates into functions that can be evaluated for rendering.
+ * Useful for rendering complicated bits of HTML from JSON data sources. Template
+ * functions can interpolate values, using <%= … %>.
+ * When you evaluate a template function, pass in a data object that has properties
+ * corresponding to the template's free variables.
+ *
+ * A slightly modified version of Underscore templates.
+ *
+ * ex:
+ * var helloTemplate = Utils.template("hello: <%= name %>");
+ * var helloJessica = helloTemplate({name:"Jessica"});
+ *
+ * @param templateString A string to be evaluated for rendering.
+ * @returns an executable function that will render the string with passed properties.
+ */
+s2F.Utils.template = function(text) {
+
+	// Certain characters need to be escaped so that they can be put into a
+	// string literal.
+	var escapes = {
+		"'": "'",
+		'\\': '\\',
+		'\r': 'r',
+		'\n': 'n',
+		'\u2028': 'u2028',
+		'\u2029': 'u2029'
+	};
+
+	var escapeRegExp = /\\|'|\r|\n|\u2028|\u2029/g;
+
+	var escapeChar = function(match) {
+		return '\\' + escapes[match];
+	};
+
+	var settings = {
+		evaluate: /<%([\s\S]+?)%>/g,
+		interpolate: /<%=([\s\S]+?)%>/g
+	};
+
+	// Combine delimiters into one regular expression via alternation.
+	var matcher = RegExp([
+		(settings.interpolate || noMatch).source,
+		(settings.evaluate || noMatch).source
+	].join('|') + '|$', 'g');
+
+	// Compile the template source, escaping string literals appropriately.
+	var index = 0;
+	var source = "__p+='";
+	text.replace(matcher, function(match, interpolate, evaluate, offset) {
+		source += text.slice(index, offset).replace(escapeRegExp, escapeChar);
+		index = offset + match.length;
+
+		if (interpolate) {
+			source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
+		} else if (evaluate) {
+			source += "';\n" + evaluate + "\n__p+='";
+		}
+
+		// Adobe VMs need the match returned to produce the correct offset.
+		return match;
+	});
+	source += "';\n";
+
+	// If a variable is not specified, place data values in local scope.
+	if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
+
+	source = "var __t,__p='',__j=Array.prototype.join," +
+	"print=function(){__p+=__j.call(arguments,'');};\n" +
+	source + 'return __p;\n';
+
+	var render;
+	try {
+		render = new Function(settings.variable || 'obj', '_', source);
+	} catch (e) {
+		e.source = source;
+		throw e;
+	}
+
+	var template = function(data) {
+		return render.call(this, data);
+	};
+
+	// Provide the compiled source as a convenience for precompilation.
+	var argument = settings.variable || 'obj';
+	template.source = 'function(' + argument + '){\n' + source + '}';
+
+	return template;
+};
 
 var SaveToFlow = (function() {
 
@@ -68,38 +201,7 @@ var SaveToFlow = (function() {
 			var container = doc.createElement("div");
 			container.id = "s2r-capture";
 			container.className = "notranslate";
-			container.innerHTML = '<iframe frameborder="0" id="s2r-tracking_iframe" name="s2r-tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
-				'<form method="post" action="' + FLOW_SERVER + '/savetoflow/tracking/" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" target="s2r-tracking_iframe" name="s2r-tracking_form" id="s2r-tracking_form">' +
-				'<input type="hidden" name="found" id="s2r-track_found">' +
-				'<input type="hidden" name="selected" id="s2r-track_selected">' +
-				'<input type="hidden" name="url" id="s2r-track_url">' +
-				'<input type="hidden" name="modified" id="s2r-track_modified">' +
-				'<input type="hidden" name="citation" id="s2r-track_citation">' +
-				'</form>' +
-				'<div class="s2r-status" id="s2r-status"></div>' +
-				'<div class="s2r-error" id="s2r-error"></div>' +
-				'<div class="s2r-download" id="s2r-progress">' +
-				'<div class="s2r-download_info">Saving to Flow</div>' +
-				'<div class="s2r-download_bar"><div class="s2r-download_progress" id="s2r-download_progress"></div></div>' +
-				'</div>' +
-				'<div id="s2r-container">' +
-				'<div class="s2r-ui_logo_wrapper">' +
-				'<img src="' + FLOW_SERVER + '/public/img/PQ-StF.png"/><img src="' + FLOW_SERVER + '/public/img/close.png" class="s2r-cancel" id="s2r-cancel"/>' +
-				'<p class="s2r-selected_header s2r-left" id="s2r-header_text">Select articles</p>' +
-				'<a class="s2r-ui_pick_all all s2r-right" href="javascript:void(0);" id="s2r-select_all">Select All</a>' +
-				'<span class="s2r-right s2r-single_nav">' +
-				'<img src="' + FLOW_SERVER + '/public/img/arrow-up.png" class="prev" id="s2r-single_prev"/>' +
-				'<img src="' + FLOW_SERVER + '/public/img/arrow-down.png" class="next" id="s2r-single_next"/>' +
-				'</span>' +
-				'</div>' +
-				'<div id="s2r-processing">Finding references</div>' +
-				'<div id="s2r-ui_main">' +
-				'<div class="s2r-webref s2r-warn" id="s2r-webref">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
-				'<div class="s2r-meta" id="s2r-meta"></div>' +
-				'</div>' +
-				'<div class="s2r-ui_itemlist" id="s2r-ui_itemlist"></div>' +
-				'<div class="s2r-button_pane"><button class="s2r-btn_save" disabled="disabled" id="s2r-save_button">Save to Flow</button></div>' +
-				'</div>';
+			container.innerHTML = s2F.Utils.template(s2F.templateStrings.s2fContainer)({flowServer: FLOW_SERVER});
 			doc.body.appendChild(container);
 			attachCloseEvent(doc, "s2r-cancel");
 		}
