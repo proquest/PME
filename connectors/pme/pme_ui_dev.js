@@ -10,7 +10,7 @@
 
 var s2f = {};
 
-s2f.Utils = {};
+s2r.Utils = {};
 
 /**
  * Compiles JavaScript templates into functions that can be evaluated for rendering.
@@ -28,7 +28,7 @@ s2f.Utils = {};
  * @param templateString A string to be evaluated for rendering.
  * @returns an executable function that will render the string with passed properties.
  */
-s2f.Utils.template = function(text) {
+s2r.Utils.template = function(text) {
 
 	// Certain characters need to be escaped so that they can be put into a
 	// string literal.
@@ -166,7 +166,7 @@ var SaveToFlow = (function() {
 			var container = doc.createElement("div");
 			container.id = "s2r-capture";
 			container.className = "notranslate";
-			container.innerHTML = s2f.Utils.template(s2rTemplateStrings.s2fContainer)({flowServer: FLOW_SERVER});
+			container.innerHTML = s2r.Utils.template(s2rTemplateStrings.s2fContainer)({flowServer: FLOW_SERVER});
 			doc.body.appendChild(container);
 			attachCloseEvent(doc, "s2r-cancel");
 		}
@@ -472,7 +472,7 @@ var SaveToFlow = (function() {
 
 			doc.getElementById("s2r-progress").style.display = "none";
 			status.style.display = "block";
-			status.innerHTML = s2f.Utils.template(s2rTemplateStrings.savedMessage)({'countText': countText, 'flowServer':FLOW_SERVER});
+			status.innerHTML = s2r.Utils.template(s2rTemplateStrings.savedMessage)({'countText': countText, 'flowServer':FLOW_SERVER});
 
 			ZU.setTimeout(function () {
 				try {
@@ -496,7 +496,7 @@ var SaveToFlow = (function() {
 			var status = doc.getElementById("s2r-status");
 			doc.getElementById("s2r-progress").style.display = "none";
 			status.style.display = "block";
-			status.innerHTML = s2f.Utils.template(s2rTemplateStrings.loginMessage)({'flowServer':FLOW_SERVER});
+			status.innerHTML = s2r.Utils.template(s2rTemplateStrings.loginMessage)({'flowServer':FLOW_SERVER});
 
 			ZU.setTimeout(function () {
 				try {
@@ -529,7 +529,7 @@ var SaveToFlow = (function() {
 				return;
 			}
 			stf.className = " s2r-listView";
-			var listItemTemplate = s2f.Utils.template(s2rTemplateStrings.listItem);
+			var listItemTemplate = s2r.Utils.template(s2rTemplateStrings.listItem);
 			for (itemId in items) {
 				try {
 					var item = doc.createElement("div");
@@ -764,7 +764,7 @@ var SaveToFlow = (function() {
 			catch (e) {
 				error(doc, e);
 			}
-			var fullTextTemplate = s2f.Utils.template(s2rTemplateStrings.fullTextLine);
+			var fullTextTemplate = s2r.Utils.template(s2rTemplateStrings.fullTextLine);
 			if (pdf || html) {
 				output.push(fullTextTemplate({
 					flowServer: FLOW_SERVER,
