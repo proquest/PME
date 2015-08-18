@@ -2,10 +2,11 @@
 ///// DO NOT EDIT this comment or anything above it. (The build script looks for the '/////' string and ignores anything above it)
 // The sharedRefData object is located in the Flow codebase and gets copied into PME. If this object must be changed,
 // update the file ref-type-fields.js in Flow and those changes will propagate to PME.
+// var sharedRefData = {};
 
 // Templates:
 // The template strings are located in pme/templates.js and added to this file during the build process.
-// var s2fTemplateStrings = {};
+// var s2rTemplateStrings = {};
 
 var s2f = {};
 
@@ -165,7 +166,7 @@ var SaveToFlow = (function() {
 			var container = doc.createElement("div");
 			container.id = "s2r-capture";
 			container.className = "notranslate";
-			container.innerHTML = s2f.Utils.template(s2fTemplateStrings.s2fContainer)({flowServer: FLOW_SERVER});
+			container.innerHTML = s2f.Utils.template(s2rTemplateStrings.s2fContainer)({flowServer: FLOW_SERVER});
 			doc.body.appendChild(container);
 			attachCloseEvent(doc, "s2r-cancel");
 		}
@@ -512,6 +513,12 @@ var SaveToFlow = (function() {
 		}
 	}
 
+	function backToList(doc) {
+		var stf = doc.getElementById("s2r-capture");
+		stf.className = "s2r-listView s2r-show";//save and back to list
+		doc.getElementById("s2r-header-text").innerHTML = "";
+		setListButton(doc);
+	}
 	function selection(doc, url, items, callback) {
 		setSaveTimeout(doc,-1);
 		try {
@@ -532,7 +539,7 @@ var SaveToFlow = (function() {
 						try {
 							if (e.target.className == "s2r-detail") {//go to reference
 								stf.className += " s2r-singleView s2r-toggle";
-								doc.getElementById("s2r-processing").innerHTML = "Loading reference";
+								doc.getElementById("s2r-processing").innerHTML = "Loading reference...";
 								var thisItemId = this.getAttribute("data-id");
 								stf.setAttribute("data-id", thisItemId);
 								stf.setAttribute("data-ix", this.getAttribute("data-ix"));
@@ -555,8 +562,10 @@ var SaveToFlow = (function() {
 							error(doc, e);
 						}
 					}, true);
-					item.innerHTML = '<p><input type="checkbox" id="s2r-cbx_' + itemId + '"/><label for="s2r-cbx_' + itemId + '">' + items[itemId] + '</label></p>'
-						+ '<img src="' + FLOW_SERVER + '/public/img/oval-arrow-grey.png" class="s2r-detail"/>';
+					item.innerHTML =
+						'<input type="checkbox" id="s2r-cbx_' + itemId + '"/>' +
+						'<img src="resource://pme/arrow-right-black.png" class="s2r-detail"/>' +
+						'<label for="s2r-cbx_' + itemId + '">' + items[itemId] + '</label>';
 					container.appendChild(item);
 				}
 				catch (e) {
@@ -569,7 +578,7 @@ var SaveToFlow = (function() {
 			doc.getElementById("s2r-select-all").addEventListener("click", function (e) {
 				try {
 					if (this.getAttribute("unselect") == "true") {
-						this.innerHTML = "Select All";
+						this.innerHTML = "select all";
 						this.setAttribute("unselect", "false");
 						setListButton(doc, false);
 					}
@@ -583,7 +592,8 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}, true);
-			doc.getElementById("s2r-single_next").addEventListener("click", function (e) {
+
+			doc.getElementById("s2r-single-next").addEventListener("click", function (e) {
 				try {
 					var item_id = stf.getAttribute("data-id");
 					savedReferences[item_id] = getModified(doc);
@@ -593,7 +603,7 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}, true);
-			doc.getElementById("s2r-single_prev").addEventListener("click", function (e) {
+			doc.getElementById("s2r-single-prev").addEventListener("click", function (e) {
 				try {
 					var item_id = stf.getAttribute("data-id");
 					savedReferences[item_id] = getModified(doc);
@@ -603,15 +613,18 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}, true);
+
+			doc.getElementById("s2r-back-to-list").addEventListener("click", function(e){
+				backToList(doc);
+			});
+
 			doc.getElementById("s2r-save_button").addEventListener("click", function (e) {
 				try {
 					var stf = doc.getElementById("s2r-capture");
 					if (stf.className.indexOf("s2r-listView") >= 0 && stf.className.indexOf("singleView") >= 0) {
 						var item_id = stf.getAttribute("data-id");
 						savedReferences[item_id] = getModified(doc);
-						stf.className = "s2r-listView s2r-show";//save and back to list
-						doc.getElementById("s2r-header_text").innerHTML = "Select articles";
-						setListButton(doc);
+						backToList(doc);
 					}
 					else if (stf.className.indexOf("s2r-listView") >= 0) {
 						stf.setAttribute("data-saving", "true");
@@ -697,11 +710,11 @@ var SaveToFlow = (function() {
 			var button = doc.getElementById("s2r-save_button");
 			if (count > 0) {
 				button.disabled = false;
-				button.className = "s2r-btn_save s2r-enable";
+				button.className = "btn btn-primary s2r-btn_save s2r-enable";
 			}
 			else {
 				button.disabled = true;
-				button.className = "s2r-btn_save";
+				button.className = "btn btn-primary s2r-btn_save";
 			}
 			button.innerHTML = "Save to Flow (" + count + ")";
 		}
@@ -723,9 +736,9 @@ var SaveToFlow = (function() {
 			if (containerClass.indexOf("s2r-listView") >= 0) {
 				var ix = parseInt(stf.getAttribute("data-ix")),
 					count = parseInt(stf.getAttribute("data-count"));
-				doc.getElementById("s2r-header_text").innerHTML = "Article details - " + ix + " of " + count;
-				doc.getElementById("s2r-single_prev").className = "s2r-prev" + (ix <= 1 ? " s2r-disabled" : "");
-				doc.getElementById("s2r-single_next").className = "s2r-next" + (ix >= count ? " s2r-disabled" : "");
+				doc.getElementById("s2r-header-text").innerHTML = "Article details - " + ix + " of " + count;
+				doc.getElementById("s2r-single-prev").className = "s2r-prev" + (ix <= 1 ? " s2r-disabled" : "");
+				doc.getElementById("s2r-single-next").className = "s2r-next" + (ix >= count ? " s2r-disabled" : "");
 				doc.getElementById("s2r-save_button").innerHTML = "Done editing";
 			}
 			else
@@ -753,11 +766,22 @@ var SaveToFlow = (function() {
 			catch (e) {
 				error(doc, e);
 			}
+			var fullTextTemplate = s2f.Utils.template(s2rTemplateStrings.fullTextLine);
 			if (pdf || html) {
-				output.push("<img src='" + FLOW_SERVER + "/public/img/" + (pdf ? "pdf" : "web") + ".png' class='s2r-lbl'/><span class='s2r-input-container'><label for='s2r-attach_web' class='s2r-attach'><input type='checkbox' id='s2r-attach' checked='checked' class='s2r-attach'> <span>We found the article, want to save it?</span></label></span>");
+				output.push(fullTextTemplate({
+					flowServer: FLOW_SERVER,
+					type: (pdf ? 'PDF' : 'WEB'),
+					label: "We found the article, want to save it?",
+					checked: "checked"})
+				);
 			}
 			else if (containerClass.indexOf("s2r-listView") == -1) {
-				output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='s2r-lbl'/><span class='s2r-input-container'><label for='s2r-attach_web' class='s2r-attach'><input type='checkbox' id='s2r-attach' class='s2r-attach'> <span>Save the content of this web page</span></label></span>");
+				output.push(fullTextTemplate({
+						flowServer: FLOW_SERVER,
+						type: 'WEB',
+						label: "Save the content of this web page",
+						checked: ""})
+				);
 			}
 
 			output.push("<div id='s2r-ref_type_spec' class='s2r-clear'>");

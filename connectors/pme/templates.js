@@ -1,6 +1,6 @@
-var s2fTemplateStrings = {};
+var s2rTemplateStrings = {};
 
-s2fTemplateStrings.s2fContainer =
+s2rTemplateStrings.s2fContainer =
 	'<iframe frameborder="0" id="s2r-tracking_iframe" name="s2r-tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
 
 	'<form method="post" action="<%= flowServer %>/savetoflow/tracking/" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" target="s2r-tracking_iframe" name="s2r-tracking_form" id="s2r-tracking_form">' +
@@ -20,20 +20,38 @@ s2fTemplateStrings.s2fContainer =
 
 	'<div id="s2r-container">' +
 
-		'<div id="s2r-header"><img src="<%= flowServer %>/public/img/PQ-StF.png"/><img src="<%= flowServer %>/public/img/close.png" class="s2r-cancel" id="s2r-cancel"/></div>' +
-		'<div class="s2r-ui-logo-wrapper">' +
-			'<p class="s2r-selected-header s2r-left" id="s2r-header_text">Select articles</p>' +
-			'<a class="s2r-ui-pick_all all s2r-right" href="javascript:void(0);" id="s2r-select-all">Select All</a>' +
+		'<div class="s2r-header">' +
+			'<div class="s2r-logo s2r-diagonal"><img src="<%= flowServer %>/public/img/refworks3-icon.png" width="30" height="30" /></div>' +
+			'<div class="s2r-cancel-container"><img src="resource://pme/close-icon-white.png" class="s2r-cancel" id="s2r-cancel"/></div>' +
+			'<div class="s2r-brand">' +
+				'<div class="s2r-pq-logo"></div>' +
+				'<div class="s2r-refworks-name"></div>' +
+			'</div>' +
+		'</div>' +
+		'<div class="s2r-nav">' +
+			'<div id="s2r-select-all-checkbox"><input type="checkbox" name="s2r-select-all" class="s2r-left-col" id="s2r-select-all" /><label for="s2r-select-all"> select all</label></div>' +
+			'<div id="s2r-back-to-list" class="s2r-left s2r-single-nav"><img src="resource://pme/arrow-left-black.png" /> Return to list</div>' +
 			'<span class="s2r-right s2r-single-nav">' +
-				'<img src="<%= flowServer %>/public/img/arrow-up.png" class="prev" id="s2r-single_prev"/>' +
-				'<img src="<%= flowServer %>/public/img/arrow-down.png" class="next" id="s2r-single_next"/>' +
+				'<img src="resource://pme/arrow-left-black.png" class="prev" id="s2r-single-prev"/>' +
+				'<img src="resource://pme/arrow-right-black.png" class="next" id="s2r-single-next"/>' +
 			'</span>' +
 		'</div>' +
-		'<div id="s2r-processing">Finding references</div>' +
+		'<div id="s2r-processing">Finding references...</div>' +
 		'<div id="s2r-ui-main">' +
+			'<p class="s2r-selected-header" id="s2r-header-text"></p>' +
 			'<div class="s2r-webref s2r-warn" id="s2r-webref">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
 			'<div class="s2r-meta" id="s2r-meta"></div>' +
 		'</div>' +
 		'<div class="s2r-ui-itemlist" id="s2r-ui-itemlist"></div>' +
-		'<div class="s2r-button-pane"><button class="s2r-btn_save" disabled="disabled" id="s2r-save_button">Save to Flow</button></div>' +
+		'<div class="s2r-button-pane"><button class="btn btn-primary s2r-btn_save" disabled="disabled" id="s2r-save_button">Save to Flow</button></div>' +
+	'</div>';
+
+
+s2rTemplateStrings.fullTextLine =
+	'<h2 class="s2r-lbl">Save full text? <span class="s2r-full-text-icon"><%= type %></span></h2>' +
+	'<div class="s2r-input-container">' +
+		'<label for="s2r-attach">' +
+			'<input type="checkbox" name="s2r-attach" id="s2r-attach" checked="<%= type %>" class="s2r-attach"> ' +
+			'<%= label %>' +
+		'</label>' +
 	'</div>';

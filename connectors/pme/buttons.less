@@ -1,0 +1,502 @@
+// Button variants
+//
+// Easily pump out default styles, as well as :hover, :focus, :active,
+// and disabled options for all buttons
+
+.button-variant(@color; @background; @border) {
+  color: @color;
+  background-color: @background;
+  border-color: @border;
+
+  &:hover,
+  &:focus,
+  &.focus,
+  &:active,
+  &.active,
+  .open > .dropdown-toggle& {
+    color: @color;
+    background-color: darken(@background, 10%);
+    border-color: darken(@border, 12%);
+  }
+  &:active,
+  &.active,
+  .open > .dropdown-toggle& {
+    background-image: none;
+  }
+  &.disabled,
+  &[disabled],
+  fieldset[disabled] & {
+    &,
+    &:hover,
+    &:focus,
+    &.focus,
+    &:active,
+    &.active {
+      background-color: @background;
+      border-color: @border;
+    }
+  }
+
+  .badge {
+    color: @background;
+    background-color: @color;
+  }
+}
+
+// Button sizes
+.button-size(@padding-vertical; @padding-horizontal; @font-size; @line-height; @border-radius) {
+  padding: @padding-vertical @padding-horizontal;
+  font-size: @font-size;
+  line-height: @line-height;
+  border-radius: @border-radius;
+}
+
+
+.tab-focus() {
+  // Default
+  outline: thin dotted;
+  // WebKit
+  outline: 5px auto -webkit-focus-ring-color;
+  outline-offset: -2px;
+}
+
+
+//
+// Buttons
+// --------------------------------------------------
+
+
+// Base styles
+// --------------------------------------------------
+
+.btn {
+  display: inline-block;
+  margin-bottom: 0; // For input.btn
+  font-weight: @btn-font-weight;
+  text-align: center;
+  vertical-align: middle;
+  touch-action: manipulation;
+  cursor: pointer;
+  background-image: none; // Reset unusual Firefox-on-Android default style; see https://github.com/necolas/normalize.css/issues/214
+  border: 1px solid transparent;
+  white-space: nowrap;
+  .button-size(@padding-base-vertical; @padding-base-horizontal; @font-size-base; @line-height-base; @border-radius-base);
+  .user-select(none);
+
+  &,
+  &:active,
+  &.active {
+    &:focus,
+    &.focus {
+      .tab-focus();
+    }
+  }
+
+  &:hover,
+  &:focus,
+  &.focus {
+    color: @btn-default-color;
+    text-decoration: none;
+  }
+
+  &:active,
+  &.active {
+    outline: 0;
+    background-image: none;
+    .box-shadow(inset 0 3px 5px rgba(0,0,0,.125));
+  }
+
+  &.disabled,
+  &[disabled],
+  fieldset[disabled] & {
+    cursor: @cursor-disabled;
+    pointer-events: none; // Future-proof disabling of clicks
+    .opacity(.65);
+    .box-shadow(none);
+  }
+}
+
+
+// Alternate buttons
+// --------------------------------------------------
+
+.btn-default {
+  .button-variant(@btn-default-color; @btn-default-bg; @btn-default-border);
+}
+.btn-primary {
+  .button-variant(@btn-primary-color; @btn-primary-bg; @btn-primary-border);
+}
+// Success appears as green
+.btn-success {
+  .button-variant(@btn-success-color; @btn-success-bg; @btn-success-border);
+}
+// Info appears as blue-green
+.btn-info {
+  .button-variant(@btn-info-color; @btn-info-bg; @btn-info-border);
+}
+// Warning appears as orange
+.btn-warning {
+  .button-variant(@btn-warning-color; @btn-warning-bg; @btn-warning-border);
+}
+// Danger and error appear as red
+.btn-danger {
+  .button-variant(@btn-danger-color; @btn-danger-bg; @btn-danger-border);
+}
+
+
+// Link buttons
+// -------------------------
+
+// Make a button look and behave like a link
+.btn-link {
+  color: @link-color;
+  font-weight: normal;
+  border-radius: 0;
+
+  &,
+  &:active,
+  &.active,
+  &[disabled],
+  fieldset[disabled] & {
+    background-color: transparent;
+    .box-shadow(none);
+  }
+  &,
+  &:hover,
+  &:focus,
+  &:active {
+    border-color: transparent;
+  }
+  &:hover,
+  &:focus {
+    color: @link-hover-color;
+    text-decoration: @link-hover-decoration;
+    background-color: transparent;
+  }
+  &[disabled],
+  fieldset[disabled] & {
+    &:hover,
+    &:focus {
+      color: @btn-link-disabled-color;
+      text-decoration: none;
+    }
+  }
+}
+
+
+
+//
+// Buttons
+// --------------------------------------------------
+
+
+// Base styles
+// --------------------------------------------------
+
+.btn {
+
+  &:hover,
+  &:focus {
+    color: darken(@btn-default-color, 10%);
+  }
+
+  &:active,
+  &.active {
+    .box-shadow(inset 1px (@btn-lip-size - 1) 0 rgba(0,0,0,.125));
+    &:hover {
+      .box-shadow(inset 1px (@btn-lip-size - 1) 0 rgba(0,0,0,.125));
+    }
+  }
+
+  &.disabled,
+  &[disabled],
+  fieldset[disabled] & {
+    cursor: not-allowed;
+  }
+}
+
+
+// Alternate buttons
+// --------------------------------------------------
+
+.btn-default {
+  .button-variant(@btn-default-color; @btn-default-bg; @btn-default-border);
+  .box-shadow(inset 0 -@btn-lip-size 0 @btn-default-lip);
+  &:hover {
+    .box-shadow(inset 0 -@btn-lip-size 0 darken(@btn-default-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &:active, &:focus {
+    .box-shadow(inset 2px @btn-lip-size 0 darken(@btn-default-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &.btn-xs, &.btn-sm {
+    .box-shadow(inset 0 -(@btn-lip-size - 1) 0 @btn-default-lip);
+    &:hover {
+      .box-shadow(inset 0 -(@btn-lip-size - 1) 0 darken(@btn-default-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+    &:active, &:focus {
+      .box-shadow(inset 1px (@btn-lip-size - 1) 0 darken(@btn-default-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+  }
+}
+.btn-secondary {
+  .button-variant(@btn-secondary-color; @btn-secondary-bg; darken(@btn-secondary-border, 4%));
+  .box-shadow(inset 0 -@btn-lip-size 0 @btn-secondary-lip);
+  &:hover {
+    .box-shadow(inset 0 -@btn-lip-size 0 darken(@btn-secondary-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &:active, &:focus {
+    .box-shadow(inset 2px @btn-lip-size 0 darken(@btn-secondary-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &.btn-xs, &.btn-sm {
+    .box-shadow(inset 0 -(@btn-lip-size - 1) 0 @btn-secondary-lip);
+    &:hover {
+      .box-shadow(inset 0 -(@btn-lip-size - 1) 0 darken(@btn-secondary-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+    &:active, &:focus {
+      .box-shadow(inset 1px (@btn-lip-size - 1) 0 darken(@btn-secondary-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+  }
+}
+.btn-primary {
+  .button-variant(@btn-primary-color; @btn-primary-bg; @btn-primary-border);
+  .box-shadow(inset 0 -@btn-lip-size 0 @btn-primary-lip);
+  .transition(.08s);
+  &:hover {
+    .box-shadow(inset 0 -@btn-lip-size 0 darken(@btn-primary-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &:active, &:focus {
+    .box-shadow(inset 2px @btn-lip-size 0 darken(@btn-primary-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &.btn-xs, &.btn-sm {
+    .box-shadow(inset 0 -(@btn-lip-size - 1) 0 @btn-primary-lip);
+    &:hover {
+      .box-shadow(inset 0 -(@btn-lip-size - 1) 0 darken(@btn-primary-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+    &:active, &:focus {
+      .box-shadow(inset 1px (@btn-lip-size - 1) 0 darken(@btn-primary-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+  }
+}
+// Success appears as green
+.btn-success {
+  .button-variant(@btn-success-color; @btn-success-bg; @btn-success-border);
+  .box-shadow(inset 0 -@btn-lip-size 0 @btn-success-lip);
+  &:hover {
+    .box-shadow(inset 0 -@btn-lip-size 0 darken(@btn-success-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &:active, &:focus {
+    .box-shadow(inset 2px @btn-lip-size 0 darken(@btn-success-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &.btn-xs, &.btn-sm {
+    .box-shadow(inset 0 -(@btn-lip-size - 1) 0 @btn-success-lip);
+    &:hover {
+      .box-shadow(inset 0 -(@btn-lip-size - 1) 0 darken(@btn-success-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+    &:active, &:focus {
+      .box-shadow(inset 1px (@btn-lip-size - 1) 0 darken(@btn-success-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+  }
+}
+// Info appears as blue-green
+.btn-info {
+  .button-variant(@btn-info-color; @btn-info-bg; @btn-info-border);
+  .box-shadow(inset 0 -@btn-lip-size 0 @btn-info-lip);
+  &:hover {
+    .box-shadow(inset 0 -@btn-lip-size 0 darken(@btn-info-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &:active, &:focus {
+    .box-shadow(inset 2px @btn-lip-size 0 darken(@btn-info-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &.btn-xs, &.btn-sm {
+    .box-shadow(inset 0 -(@btn-lip-size - 1) 0 @btn-info-lip);
+    &:hover {
+      .box-shadow(inset 0 -(@btn-lip-size - 1) 0 darken(@btn-info-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+    &:active, &:focus {
+      .box-shadow(inset 1px (@btn-lip-size - 1) 0 darken(@btn-info-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+  }
+}
+// Warning appears as orange
+.btn-warning {
+  .button-variant(@btn-warning-color; @btn-warning-bg; @btn-warning-border);
+  .box-shadow(inset 0 -@btn-lip-size 0 @btn-warning-lip);
+  &:hover {
+    .box-shadow(inset 0 -@btn-lip-size 0 darken(@btn-warning-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &:active, &:focus {
+    .box-shadow(inset 2px @btn-lip-size 0 darken(@btn-warning-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &.btn-xs, &.btn-sm {
+    .box-shadow(inset 0 -(@btn-lip-size - 1) 0 @btn-warning-lip);
+    &:hover {
+      .box-shadow(inset 0 -(@btn-lip-size - 1) 0 darken(@btn-warning-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+    &:active, &:focus {
+      .box-shadow(inset 1px (@btn-lip-size - 1) 0 darken(@btn-warning-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+  }
+}
+// Danger and error appear as red
+.btn-danger {
+  .button-variant(@btn-danger-color; @btn-danger-bg; @btn-danger-border);
+  .box-shadow(inset 0 -@btn-lip-size 0 @btn-danger-lip);
+  &:hover {
+    .box-shadow(inset 0 -@btn-lip-size 0 darken(@btn-danger-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &:active, &:focus {
+    .box-shadow(inset 2px @btn-lip-size 0 darken(@btn-danger-lip, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &.btn-xs, &.btn-sm {
+    .box-shadow(inset 0 -(@btn-lip-size - 1) 0 @btn-danger-lip);
+    &:hover {
+      .box-shadow(inset 0 -(@btn-lip-size - 1) 0 darken(@btn-danger-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+    &:active, &:focus {
+      .box-shadow(inset 1px (@btn-lip-size - 1) 0 darken(@btn-danger-lip, 10%));
+      outline: none;
+      .transition(.08s);
+    }
+  }
+}
+// Outline button
+.btn-outline {
+  .button-variant(@btn-outline-color; @btn-outline-bg; @btn-outline-border);
+  border-width: 2px;
+  &:hover {
+    .button-variant(darken(@btn-outline-color, 10%); @btn-outline-bg; darken(@btn-outline-border, 10%));
+    outline: none;
+    .transition(.08s);
+  }
+  &:active, &:focus {
+    .button-variant(darken(@btn-outline-color, 20%); @btn-outline-bg; darken(@btn-outline-border, 20%));
+    outline: none;
+    .transition(.08s);
+  }
+  &.active {
+    .button-variant(darken(@btn-outline-color, 20%); @btn-outline-bg; darken(@btn-outline-border, 20%));
+    &:hover {
+      .button-variant(darken(@btn-outline-color, 20%); @btn-outline-bg; darken(@btn-outline-border, 20%));
+    }
+  }
+}
+
+
+// Link buttons
+// -------------------------
+
+// Make a button look and behave like a link
+.btn-link {
+  cursor: pointer;
+
+  &.active {
+    box-shadow: none;
+    color: @link-hover-color;
+    &:hover {
+      box-shadow: none;
+      text-decoration: none;
+      color: @link-hover-color;
+    }
+  }
+  &,
+  &:hover,
+  &:focus,
+  &:active {
+    box-shadow: none;
+    color: @link-hover-color;
+    &:hover {
+      box-shadow: none;
+      color: @link-hover-color;
+    }
+  }
+  &:hover,
+  &:focus {
+    text-decoration: underline;
+    box-shadow: none;
+  }
+  &[disabled],
+  fieldset[disabled] & {
+    &:hover,
+    &:focus {
+      box-shadow: none;
+    }
+  }
+}
+
+
+// Navbar Button
+
+.navbar.navbar-inverse {
+  .btn-default {
+    .button-variant(@btn-default-color; darken(@btn-default-bg, 10%); darken(@btn-default-border, 10%));
+    .box-shadow(inset 0 -@btn-lip-size 0 darken(@btn-default-lip, 10%));
+    &:hover {
+      .box-shadow(inset 0 -@btn-lip-size 0 darken(@btn-default-lip, 20%));
+    }
+    &:active, &:focus {
+      .box-shadow(inset 2px @btn-lip-size 0 darken(@btn-default-lip, 20%));
+    }
+    &.btn-xs, &.btn-sm {
+      &:hover {
+        .box-shadow(inset 0 -(@btn-lip-size - 1) 0 darken(@btn-default-lip, 20%));
+      }
+      &:active, &:focus {
+        .box-shadow(inset 1px (@btn-lip-size - 1) 0 darken(@btn-default-lip, 20%));
+      }
+    }
+  }
+}

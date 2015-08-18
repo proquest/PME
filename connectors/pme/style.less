@@ -1,4 +1,7 @@
-@import url(//fonts.googleapis.com/css?family=Open+Sans:600,600italic,400,400italic,300,300italic);
+@import url(http://fonts.googleapis.com/css?family=Roboto:400,400italic,300italic,300,500,500italic,700,700italic);
+
+// Variables
+@refworks-server: "https://flow.proquest.com";
 
 //
 // Colors
@@ -75,12 +78,91 @@
 
 
 @link-color: #00A0DF;
+//** Link hover color set via `darken()` function.
+@link-hover-color:      darken(@link-color, 15%);
+//** Link hover decoration.
+@link-hover-decoration: none;
+
+// Buttons
+// -------------------------
+
+@btn-font-weight:                normal;
+@btn-lip-size:                   1px;
+@btn-default-color:              @gray-dark;
+@btn-default-bg:                 @logo-gray-light;
+@btn-default-border:             @logo-gray-light;
+@btn-default-lip:                darken(@btn-default-bg, 10%);
+
+@btn-secondary-color:            @gray;
+@btn-secondary-bg:               @gray-lighter;
+@btn-secondary-border:           darken(@gray-lighter, 11%);
+@btn-secondary-lip:              darken(@gray-lighter, 6%);
+
+@btn-outline-color:              white;
+@btn-outline-bg:                 transparent;
+@btn-outline-border:             white;
+
+@btn-primary-color:              #fff;
+@btn-primary-bg:                 @proquest-brand;
+@btn-primary-border:             @proquest-brand;
+@btn-primary-lip:                darken(@proquest-brand, 5%);
+
+@btn-success-color:              #fff;
+@btn-success-bg:                 @brand-success;
+@btn-success-border:             darken(@btn-success-bg, 7%);
+@btn-success-lip:                darken(@btn-success-bg, 4%);
+
+@btn-info-color:                 #fff;
+@btn-info-bg:                    @brand-info;
+@btn-info-border:                darken(@btn-info-bg, 9%);
+@btn-info-lip:                   darken(@btn-info-bg, 5%);
+
+@btn-warning-color:              #fff;
+@btn-warning-bg:                 lighten(@brand-warning, 10%);
+@btn-warning-border:             darken(@btn-warning-bg, 9%);
+@btn-warning-lip:                darken(@btn-warning-bg, 5%);
+
+@btn-danger-color:               #fff;
+@btn-danger-bg:                  lighten(@brand-danger, 10%);
+@btn-danger-border:              darken(@btn-danger-bg, 9%);
+@btn-danger-lip:                 darken(@btn-danger-bg, 5%);
+
+@btn-link-disabled-color:        @gray-light;
+
+//== Components
+//
+//## Define common padding and border radius sizes and more.
+
+@padding-base-vertical:     6px;
+@padding-base-horizontal:   12px;
+
+@padding-large-vertical:    10px;
+@padding-large-horizontal:  16px;
+
+@padding-small-vertical:    5px;
+@padding-small-horizontal:  10px;
+
+@padding-xs-vertical:       1px;
+@padding-xs-horizontal:     5px;
+
+@font-size-base:          13px;
+@line-height-base:        1.1;
+@line-height-computed:    15px;
+
+@border-radius-base:        3px;
+@border-radius-large:       5px;
+@border-radius-small:       2px;
+
+//** Disabled cursor for form controls and buttons.
+@cursor-disabled:                not-allowed;
 
 #s2r-capture {
 
   // Normalize all browsers, reset some (not necessarily all) css applied by the hosting page css
   @import "lesshat.less";
   @import "normalize.less";
+
+  @import "buttons.less";
 
   //Size/Position
   z-index: 1000000000000009;
@@ -93,16 +175,16 @@
   border: none;
   overflow: hidden;
   box-sizing: border-box;
-  
+
   // Transition
   transition: all 1s ease;
   -webkit-transition: all 1s ease;
   -moz-transition: all 1s ease;
 
   // Base font
-  font-family: 'Open Sans', Arial, Verdana, Helvetica, sans-serif;
-  font-size: 12px;
-  line-height: 18px;
+  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+  font-size: @font-size-base;
+  line-height: @line-height-computed;
   font-style: normal;
   font-weight: normal;
   text-align: left;
@@ -110,6 +192,33 @@
 
   background-color: #FFF;
   .box-shadow(0 0 10px @gray-darker);
+
+  * {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  textarea {
+    .border-radius(@border-radius-base);
+    border: 1px solid @gray-light;
+    padding: 7px;
+  }
+
+  h2 {
+    color: @blue;
+    font-weight: bold;
+    font-size: 16px;
+  }
+
+  .s2r-full-text-icon {
+    display: inline;
+    background-color: @blue;
+    color: #FFF;
+    font-size: @font-size-base;
+    padding: 1px 4px;
+    border-radius: 2px;
+  }
+
   &.s2r-show {
     right: 0px;
   }
@@ -117,6 +226,16 @@
   .s2r-clear {
     clear: both;
     margin-bottom: 10px;
+  }
+
+  .s2r-diagonal {
+    background: shade(@proquest-brand, 28%); /* Old browsers */
+    background: -moz-linear-gradient(51deg, shade(@proquest-brand, 16%) 0%, shade(@proquest-brand, 16%) 50%, shade(@proquest-brand, 28%) 50%, shade(@proquest-brand, 28%) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left bottom, right top, color-stop(0%, shade(@proquest-brand, 16%)), color-stop(50%, shade(@proquest-brand, 16%)), color-stop(50%, shade(@proquest-brand, 28%)), color-stop(100%, shade(@proquest-brand, 28%))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(51deg, shade(@proquest-brand, 28%) 0%, shade(@proquest-brand, 28%) 50%, shade(@proquest-brand, 16%) 50%, shade(@proquest-brand, 16%) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(51deg, shade(@proquest-brand, 28%) 0%, shade(@proquest-brand, 28%) 50%, shade(@proquest-brand, 16%) 50%, shade(@proquest-brand, 16%) 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(51deg, shade(@proquest-brand, 28%) 0%, shade(@proquest-brand, 28%) 50%, shade(@proquest-brand, 16%) 50%, shade(@proquest-brand, 16%) 100%); /* IE10+ */
+    background: linear-gradient(51deg, shade(@proquest-brand, 28%) 0%, shade(@proquest-brand, 28%) 50%, shade(@proquest-brand, 16%) 50%, shade(@proquest-brand, 16%) 100%); /* W3C */
   }
 
   .s2r-status,
@@ -147,9 +266,6 @@
       position: absolute;
       top: 0;
       right: 0;
-      font-size: 13px;
-      font-weight: 300;
-      text-align: center;
       width: auto;
       padding-left: 20px;
       padding-right: 20px;
@@ -186,12 +302,11 @@
     width: 360px;
 
     #s2r-processing {
-      padding: 0 20px;
-      font-size: 14px;
       text-align: center;
       z-index: 2;
       position: absolute;
-      top: 81px;
+      margin-top: 30px;
+      width: 100%;
     }
   }
 
@@ -214,77 +329,119 @@
     width: 320px;
   }
 
-  .s2r-ui-logo-wrapper {
+  .s2r-header {
+    height: 60px;
+    color: #fff;
+    background-color: shade(@proquest-brand, 10%);
+
+    .s2r-logo {
+      width: 52px;
+      float: left;
+      padding: 15px 12px;
+    }
+    .s2r-brand {
+      width: auto;
+      overflow: hidden;
+      padding: 15px;
+
+      .s2r-pq-logo {
+        background-image: url('@{refworks-server}/public/img/pq-logo.svg'), none;
+        background-size: 53px 11px;
+        height: 11px;
+        width: 53px;
+      }
+      .s2r-refworks-name {
+        background-image: url('resource://pme/RefWorks-Aleo@2x.png'), none;
+        background-size: 101px 27px;
+        height: 27px;
+        width: 101px;
+      }
+    }
+    .s2r-cancel-container {
+      width: 32px;
+      float: right;
+      padding: 24px 0px;
+    }
+  }
+
+  .s2r-nav {
     width: 360px;
-    height: 81px;
-    position: absolute;
-    top: 0px;
-    right: 0px;
-    z-index: 100;
-    text-align: center;
+    height: 20px;
+    padding: 10px 0;
 
     .s2r-left {
       display: none;
-      position: absolute;
-      left: 18px;
-      top: 51px;
-      margin: 0;
-      line-height: 20px;
+      margin: 0px 0 0 20px;
+      float: left;
     }
 
     .s2r-right {
       display: none;
-      position: absolute;
-      right: 18px;
-      top: 51px;
-      margin: 0;
-      line-height: 20px;
-      font-size: 13px;
+      float: right;
+      margin: 0px 20px 0 0;
     }
 
-    .s2r-selected-header {
-      color: #999;
-      font-size: 14px;
-    }
-
-    .s2r-single-nav img {
+    #s2r-back-to-list {
       cursor: pointer;
-      padding: 10px;
-      opacity: 0.65;
-      &.s2r-disabled {
-        cursor: default;
-        opacity: 0.2;
+      img {
+        display: block;
+        float: left;
+        margin-right: 7px;
+      }
+    }
+
+    .s2r-single-nav {
+      img {
+        cursor: pointer;
+        opacity: 0.65;
+        height: 17px;
+        &.s2r-disabled {
+          cursor: default;
+          opacity: 0.2;
+        }
+        &.s2r-next {
+          margin-left: 30px;
+        }
       }
     }
   }
 
-  &.s2r-listView .s2r-ui-logo-wrapper {
+  input.s2r-left-col {
+    float: left;
+    width: 43px;
+    margin: 5px 0px 0px;
   }
 
-  &.s2r-listView .s2r-ui-logo-wrapper .s2r-selected-header {
-    display: inline;
+  .s2r-selected-header {
+    font-size: 16px;
+    margin: 10px 20px 0;
   }
 
-  .s2r-ui-logo-wrapper .s2r-cancel,
+  .s2r-header .s2r-cancel,
   .s2r-error .s2r-cancel {
-    position: absolute;
-    right: 10px;
-    top: 0px;
     cursor: pointer;
     opacity: 0.65;
-    padding: 10px;
+    width: 14px;
   }
 
-  &.s2r-listView:not(.s2r-singleView) .s2r-ui-logo-wrapper #s2r-select-all {
+  &.s2r-listView:not(.s2r-singleView) .s2r-nav #s2r-select-all {
     display: inline;
   }
 
-  &.s2r-listView.s2r-singleView .s2r-ui-logo-wrapper .s2r-single-nav {
-    display: inline;
+  &.s2r-listView.s2r-singleView {
+    .s2r-nav .s2r-single-nav {
+      display: inline;
+    }
+
+    #s2r-select-all-checkbox {
+      display: none;
+    }
   }
 
-  &.s2r-singleView:not(.s2r-listView) .s2r-ui-logo-wrapper {
-    height: 30px
+  &.s2r-singleView:not(.s2r-listView) {
+    .s2r-nav {
+      height: 30px;
+    }
   }
 
   .s2r-button-pane {
@@ -299,17 +456,22 @@
     }
   }
 
-  &.s2r-listView .s2r-button-pane button {
-    display: inline;
-    opacity: 0.6;
+  &.s2r-listView {
+
+    .s2r-nav .s2r-selected-header {
+      display: inline;
+    }
+
+    .s2r-button-pane button {
+      display: inline;
+      opacity: 0.6;
+      &.s2r-enable {
+        opacity: 1.0;
+      }
+    }
+
   }
 
-  &.s2r-listView .s2r-button-pane button.s2r-enable {
-    opacity: 1.0;
-  }
-
-  &.s2r-singleView.s2r-listView .s2r-button-pane button {
-  }
 
   &.s2r-singleView .s2r-button-pane button {
     display: inline;
@@ -341,7 +503,7 @@
   .s2r-ui-itemlist {
     display: none;
     position: absolute;
-    top: 81px;
+    top: 98px;
     bottom: 81px;
     width: 360px;
     overflow-y: auto;
@@ -356,33 +518,41 @@
     margin-bottom: 5px;
   }
 
-  .s2r-ui-itemlist .s2r-ui-item label {
-    cursor: pointer;
-    display: inline-block;
-  }
+  .s2r-ui-itemlist .s2r-ui-item {
+    margin: 0 0 40px 0;
 
-  .s2r-ui-itemlist .s2r-ui-item input[type=checkbox] {
-    position: absolute;
-    left: 0;
-    top: 5px
-  }
-
-  .s2r-ui-itemlist .s2r-ui-item img.s2r-pdf {
-    float: left;
-    margin-right: 5px;
-  }
-
-  .s2r-ui-itemlist .s2r-ui-item img.s2r-detail {
-    position: absolute;
-    right: 0px;
-    top: 5px;
-    cursor: pointer
+    label {
+      cursor: pointer;
+      width: auto;
+      overflow: hidden;
+      display: block;
+    }
+    input[type=checkbox] {
+      width: 43px;
+      float: left;
+      display: block;
+      margin: 4px 0px 0px;
+    }
+    img.s2r-pdf {
+      float: left;
+      margin-right: 5px;
+      width:20px;
+      display: block;
+    }
+    img.s2r-detail {
+      width: 10px;
+      float: right;
+      cursor: pointer;
+      display: block;
+      margin: 0px 20px 0 10px;
+      .opacity(.6);
+    }
   }
 
   #s2r-ui-main {
     display: none;
     position: absolute;
-    top: 81px;
+    top: 95px;
     bottom: 81px;
     width: 360px;
     overflow-y: auto;
@@ -408,7 +578,7 @@
     }
 
     .s2r-lbl {
-      margin: 10px 20px 0px 30px;
+      margin: 10px 0px 4px 20px;
     }
 
     .s2r-val {
@@ -432,10 +602,7 @@
     }
 
     .s2r-input-container {
-      display: inline-block;
-      width: 265px;
-      display: inline;
-      zoom: 1;
+      margin: 0px 0px 22px 20px;
     }
 
     .s2r-details {
