@@ -145,7 +145,7 @@ var SaveToFlow = (function() {
 
 			setSaveTimeout(doc);
 		}
-		return "Save to Flow Loaded"
+		return "Save to RefWorks Loaded"
 	}
 
 	function style(doc) {
@@ -422,7 +422,7 @@ var SaveToFlow = (function() {
 			var errorDialog = doc.getElementById("s2r-error");
 			doc.getElementById("s2r-progress").style.display = "none";
 			errorDialog.style.display = "block";
-			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="s2r-cancel" id="s2r-err_cancel"/>We\'re sorry, we were unable to save to Flow. We tried, but came up empty.';
+			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="s2r-cancel" id="s2r-err_cancel"/>We\'re sorry, we were unable to save to RefWorks. We tried, but came up empty.';
 			attachCloseEvent(doc, "s2r-err_cancel");
 		}
 		catch (e) {
@@ -468,11 +468,11 @@ var SaveToFlow = (function() {
 		try {
 			var count = doc.getElementById("s2r-capture").getAttribute("data-saving-count"),
 				status = doc.getElementById("s2r-status"),
-				countText = count ? count + " articles saved." : "1 article saved.";
+				countText = count > 1 ? count + " articles saved to RefWorks" : "1 article saved to RefWorks";
 
 			doc.getElementById("s2r-progress").style.display = "none";
 			status.style.display = "block";
-			status.innerHTML = countText + '<form method="get" action="' + FLOW_SERVER + '/library/recent/" target="ProQuestFlow"><button id="s2r-view_button" type="submit">View in Flow</button></form>';
+			status.innerHTML = s2f.Utils.template(s2rTemplateStrings.savedMessage)({'countText': countText, 'flowServer':FLOW_SERVER});
 
 			ZU.setTimeout(function () {
 				try {
@@ -496,7 +496,7 @@ var SaveToFlow = (function() {
 			var status = doc.getElementById("s2r-status");
 			doc.getElementById("s2r-progress").style.display = "none";
 			status.style.display = "block";
-			status.innerHTML = 'You must be logged in. <form method="get" action="' + FLOW_SERVER + '" target="ProQuestFlow"><button id="s2r-view_button" type="submit">Log in now</button></form>';
+			status.innerHTML = s2f.Utils.template(s2rTemplateStrings.loginMessage)({'flowServer':FLOW_SERVER});
 
 			ZU.setTimeout(function () {
 				try {
@@ -529,6 +529,7 @@ var SaveToFlow = (function() {
 				return;
 			}
 			stf.className = " s2r-listView";
+			var listItemTemplate = s2f.Utils.template(s2rTemplateStrings.listItem);
 			for (itemId in items) {
 				try {
 					var item = doc.createElement("div");
@@ -562,10 +563,7 @@ var SaveToFlow = (function() {
 							error(doc, e);
 						}
 					}, true);
-					item.innerHTML =
-						'<input type="checkbox" id="s2r-cbx_' + itemId + '"/>' +
-						'<img src="resource://pme/arrow-right-black.png" class="s2r-detail"/>' +
-						'<label for="s2r-cbx_' + itemId + '">' + items[itemId] + '</label>';
+					item.innerHTML = listItemTemplate({'itemId':itemId, 'itemDescription':items[itemId]});
 					container.appendChild(item);
 				}
 				catch (e) {
@@ -716,7 +714,7 @@ var SaveToFlow = (function() {
 				button.disabled = true;
 				button.className = "btn btn-primary s2r-btn_save";
 			}
-			button.innerHTML = "Save to Flow (" + count + ")";
+			button.innerHTML = "Save to RefWorks (" + count + ")";
 		}
 		catch (e) {
 			error(doc, e);
@@ -742,7 +740,7 @@ var SaveToFlow = (function() {
 				doc.getElementById("s2r-save_button").innerHTML = "Done editing";
 			}
 			else
-				output.push("<div class='s2r-lbl s2r-header'>Save As</div>");
+				output.push("<p class='s2r-selected-header'>Save As</p>");
 
 			output.push("<select id='reference_type' class='s2r-dropdown'>");
 			for (var index in labels.referenceTypes) {

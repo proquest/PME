@@ -210,6 +210,12 @@
     font-size: 16px;
   }
 
+  h3 {
+    font-size: 16px;
+    font-weight: normal;
+    color: @text-color;
+  }
+
   .s2r-full-text-icon {
     display: inline;
     background-color: @blue;
@@ -242,12 +248,23 @@
   .s2r-download,
   .s2r-error {
     height: 72px;
-    width: 355px;
+    width: 100%;
     padding: 20px;
     position: absolute;
-    top: 5px;
-    right: 5px;
+    top: 60px;
     display: none;
+    text-align:center;
+
+    h2 {
+      margin-bottom: 0;
+    }
+
+    h3 {
+      margin-top: 0;
+    }
+    button {
+      width: 90%;
+    }
   }
 
   .s2r-status,
@@ -261,14 +278,6 @@
     a {
       font-size: 14px;
       font-weight: 300;
-    }
-    button {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: auto;
-      padding-left: 20px;
-      padding-right: 20px;
     }
   }
 
@@ -297,7 +306,7 @@
   #s2r-container {
     z-index: 1;
     position: absolute;
-    top: 0;
+    top: 60px;
     bottom: 0;
     width: 360px;
 
@@ -333,6 +342,9 @@
     height: 60px;
     color: #fff;
     background-color: shade(@proquest-brand, 10%);
+    position: absolute;
+    top: 0;
+    width: 100%;
 
     .s2r-logo {
       width: 52px;
@@ -445,11 +457,13 @@
   }
 
   .s2r-button-pane {
-    width: 360px;
+    width: 100%;
     height: 81px;
     position: absolute;
     bottom: 0px;
     right: 0px;
+    text-align: center;
+    padding: 20px;
 
     button {
       display: none;
@@ -478,14 +492,6 @@
     opacity: 1.0;
   }
 
-  button {
-    width: 180px;
-    height: 32px;
-    margin: 20px;
-    margin-left: 85px;
-    cursor: pointer;
-  }
-
   #s2r-ui-main::-webkit-scrollbar,
   .s2r-ui-itemlist::-webkit-scrollbar,
   #s2r-ui-main .s2r-val::-webkit-scrollbar {
@@ -503,7 +509,7 @@
   .s2r-ui-itemlist {
     display: none;
     position: absolute;
-    top: 98px;
+    top: 40px;
     bottom: 81px;
     width: 360px;
     overflow-y: auto;
@@ -552,7 +558,7 @@
   #s2r-ui-main {
     display: none;
     position: absolute;
-    top: 95px;
+    top: 40px;
     bottom: 81px;
     width: 360px;
     overflow-y: auto;
@@ -636,9 +642,16 @@
     display: block;
   }
 
-  &.s2r-singleView:not(.s2r-listView) #s2r-ui-main {
-    top: 51px;
+  &.s2r-singleView:not(.s2r-listView) {
+    .s2r-nav {
+      display:none;
+    }
+
+    #s2r-ui-main {
+      top: 10px;
+    }
   }
+
 
   #s2r-reference-json {
     display: none;
