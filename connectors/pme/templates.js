@@ -55,7 +55,7 @@ s2rTemplateStrings.fullTextLine =
 	'<h2 class="s2r-lbl">Save full text? <span class="s2r-full-text-icon"><%= type %></span></h2>' +
 	'<div class="s2r-input-container">' +
 		'<label for="s2r-attach">' +
-			'<input type="checkbox" name="s2r-attach" id="s2r-attach" checked="<%= type %>" class="s2r-attach"> ' +
+			'<input type="checkbox" name="s2r-attach" id="s2r-attach" checked="<%= checked %>" class="s2r-attach"> ' +
 			'<%= label %>' +
 		'</label>' +
 	'</div>';
