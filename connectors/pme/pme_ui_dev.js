@@ -104,7 +104,7 @@ s2r.Utils.template = function(text) {
 
 var SaveToFlow = (function() {
 
-	var FLOW_SERVER = "https://flow.proquest.com",
+	var FLOW_SERVER = "https://refworks.proquest.com",
 		MODE = "DEBUG";
 
 	function setSaveTimeout(doc,delay){
@@ -232,7 +232,7 @@ var SaveToFlow = (function() {
 				debug(doc, JSON.stringify(errorObj));
 			}
 			else
-				ZU.HTTP.doPost("https://flow.proquest.com/api/2/logservice/", JSON.stringify(errorObj), function () {
+				ZU.HTTP.doPost("https://refworks.proquest.com/api/2/logservice/", JSON.stringify(errorObj), function () {
 				}, {"Content-Type": "application/json"});//send to server to be logged
 		}
 		catch (e) {
