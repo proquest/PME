@@ -8,7 +8,7 @@
 // The template strings are located in pme/templates.js and added to this file during the build process.
 // var s2rTemplateStrings = {};
 
-var s2f = {};
+var s2r = {};
 
 s2r.Utils = {};
 
