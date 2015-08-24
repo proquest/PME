@@ -67,7 +67,7 @@
 
 	<toolbarpalette id="BrowserToolbarPalette">
 		<toolbarbutton id="pme-toolbar-button" class="toolbarbutton-1"
-						label="ProQuest Flow"
+						label="ProQuest RefWorks"
 						oncommand="PME_Browser.scrapeThisPage()"/>
 	</toolbarpalette>
 

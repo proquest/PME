@@ -1,11 +1,11 @@
 {
-	"name": "Save to Flow",
+	"name": "Save to RefWorks",
 	"manifest_version": 2,
 	"version": "3.0.999",
-	"description": "Saves references to Flow account from Chrome and Opera",
+	"description": "Saves references to RefWorks account",
 	"page_action": {
 		"default_icon": "images/flow16.png",
-		"default_title": "Save to Flow"
+		"default_title": "Save to RefWorks"
 	},
 	"permissions": ["http://*/*", "https://*/*", "tabs", "contextMenus"],
 	"background": {
@@ -83,7 +83,7 @@
 		"images/flow48.png"
 	],
 	"content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
-	"homepage_url": "http://www.zotero.org/",
+	"homepage_url": "http://refworks.proquest.com/",
 	"icons": {
 		"16": "images/flow16.png",
 		"48": "images/flow48.png",

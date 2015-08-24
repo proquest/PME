@@ -8,11 +8,11 @@
                    em:maxVersion="35.*" />
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
                    em:id="flow@proquest.com"
-                   em:name="ProQuest Flow"
+                   em:name="ProQuest Refworks"
                    em:description="Tame your workflow"
                    em:version="0.6.5"
                    em:creator="ProQuest"
-                   em:homepageURL="http://flow.proquest.com"
+                   em:homepageURL="http://refworks.proquest.com"
                    em:iconURL="chrome://pme/skin/zotero-new-z-48px.png"
                    em:type="2"
                    em:updateURL="http://pme.proquest.com/update.rdf"
