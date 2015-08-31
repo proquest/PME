@@ -420,9 +420,11 @@ var SaveToFlow = (function() {
 		progressDialog(doc, 1);//allow completion
 		try {
 			var errorDialog = doc.getElementById("s2r-error");
+			doc.getElementById("s2r-container").style.display = "none";
 			doc.getElementById("s2r-progress").style.display = "none";
+			doc.getElementById("s2r-status").style.display = "none";
 			errorDialog.style.display = "block";
-			errorDialog.innerHTML = 'We\'re sorry, we were unable to save to RefWorks. We tried, but came up empty. Please try again in a little bit.';
+			errorDialog.innerHTML = 'We\'re sorry, we were unable to save to RefWorks. We tried, but came up empty.';
 			errorDialog.innerHTML += '<button class="btn btn-primary" id="s2r-err_cancel">Ok</button>';
 			attachCloseEvent(doc, "s2r-err_cancel");
 		}
@@ -435,6 +437,9 @@ var SaveToFlow = (function() {
 		progressDialog(doc, 1);//allow completion
 		try {
 			var errorDialog = doc.getElementById("s2r-error");
+			doc.getElementById("s2r-container").style.display = "none";
+			doc.getElementById("s2r-progress").style.display = "none";
+			doc.getElementById("s2r-status").style.display = "none";
 			errorDialog.style.display = "block";
 			errorDialog.style.top = '85px';
 			errorDialog.innerHTML = 'We\'re sorry, we were unable to get some of the full-text. We tried, but came up empty.';
