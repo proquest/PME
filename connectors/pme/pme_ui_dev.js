@@ -422,7 +422,8 @@ var SaveToFlow = (function() {
 			var errorDialog = doc.getElementById("s2r-error");
 			doc.getElementById("s2r-progress").style.display = "none";
 			errorDialog.style.display = "block";
-			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="s2r-cancel" id="s2r-err_cancel"/>We\'re sorry, we were unable to save to RefWorks. We tried, but came up empty.';
+			errorDialog.innerHTML = 'We\'re sorry, we were unable to save to RefWorks. We tried, but came up empty. Please try again in a little bit.';
+			errorDialog.innerHTML += '<button class="btn btn-primary" id="s2r-err_cancel">Ok</button>';
 			attachCloseEvent(doc, "s2r-err_cancel");
 		}
 		catch (e) {
@@ -436,8 +437,8 @@ var SaveToFlow = (function() {
 			var errorDialog = doc.getElementById("s2r-error");
 			errorDialog.style.display = "block";
 			errorDialog.style.top = '85px';
-			errorDialog.innerHTML = "We're sorry, we were unable to get some of the full-text. We tried, but came up empty.";
-			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="s2r-cancel" id="s2r-err_cancel"/>We\'re sorry, we were unable to get some of the full-text. We tried, but came up empty.';
+			errorDialog.innerHTML = 'We\'re sorry, we were unable to get some of the full-text. We tried, but came up empty.';
+			errorDialog.innerHTML += '<button class="btn btn-primary" id="s2r-err_cancel">Ok</button>';
 			attachCloseEvent(doc, "s2r-err_cancel");
 		}
 		catch (e) {
