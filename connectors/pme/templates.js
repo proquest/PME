@@ -29,7 +29,7 @@ s2rTemplateStrings.s2fContainer =
 
 	'<div id="s2r-container">' +
 		'<div class="s2r-nav">' +
-			'<div id="s2r-select-all-checkbox"><input type="checkbox" name="s2r-select-all" class="s2r-left-col" id="s2r-select-all" /><label for="s2r-select-all"> select all</label></div>' +
+			'<div id="s2r-select-all-checkbox"><input type="checkbox" name="s2r-select-all" class="s2r-left-col" id="s2r-select-all" /><label for="s2r-select-all"> Select all</label></div>' +
 			'<div id="s2r-back-to-list" class="s2r-left s2r-single-nav"><img src="resource://pme/arrow-left-black.png" /> Return to list</div>' +
 			'<span class="s2r-right s2r-single-nav">' +
 				'<img src="resource://pme/arrow-left-black.png" class="prev" id="s2r-single-prev"/>' +
