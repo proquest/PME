@@ -7,7 +7,7 @@
                    em:minVersion="31.0"
                    em:maxVersion="35.*" />
   <RDF:Description RDF:about="urn:mozilla:install-manifest"
-                   em:id="flow@proquest.com"
+                   em:id="refworks@proquest.com"
                    em:name="ProQuest Refworks"
                    em:description="Tame your workflow"
                    em:version="0.6.5"
