@@ -5,7 +5,7 @@
   <RDF:Seq RDF:about="rdf:#$cBPkn1">
     <RDF:li RDF:resource="rdf:#$dBPkn1"/>
   </RDF:Seq>
-  <RDF:Description RDF:about="urn:mozilla:extension:flow@proquest.com"
+  <RDF:Description RDF:about="urn:mozilla:extension:refworks@proquest.com"
                    NS1:signature="MIGTMA0GCSqGSIb3DQEBDQUAA4GBAHtMguFqlob46bVuARgphZZ5ONAuG58EAic0GFOtkeLN76myKeTh+eihQP6Rs0rkqAma/Opae4Y3V8beNFUDfozwjfD6fa6XEjuGaBz9BsUwaIpwRGClirofHT/yv3eO7N2bLyuIrH5KkhLJu2babIqtSuFYfqFC1zS+vS5UKISL">
     <NS1:updates RDF:resource="rdf:#$cBPkn1"/>
   </RDF:Description>

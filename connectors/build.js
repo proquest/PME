@@ -15,7 +15,7 @@ if (!request)
 if (!fs)
 	console.log('fs module is missing');
 
-request("https://flow.proquest.com/public/js/ref-type-fields.js",
+request("https://refworks.proquest.com/public/js/ref-type-fields.js",
 	function(error,response,body){
 		var UIcode = fs.readFileSync('./pme/pme_ui_dev.js', {encoding: 'utf8'});
 		var templates = fs.readFileSync('./pme/templates.js', {encoding: 'utf8'});

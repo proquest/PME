@@ -25,7 +25,7 @@ var PME = {};
  */
 
 const PME_CONFIG = {
-	GUID: 'flow@proquest.com',
+	GUID: 'refworks@proquest.com',
 	DB_REBUILD: false, // erase DB and recreate from schema
 	REPOSITORY_URL: 'https://repo.zotero.org/repo',
 	REPOSITORY_CHECK_INTERVAL: 86400, // 24 hours
@@ -33,8 +33,8 @@ const PME_CONFIG = {
 	BASE_URI: 'http://zotero.org/',
 	WWW_BASE_URL: 'http://www.zotero.org/',
 	PROXY_AUTH_URL: 'http://zotero.org.s3.amazonaws.com/proxy-auth',
-	SYNC_URL: 'http://flow.proquest.com',
-	API_URL: 'http://flow.proquest.com',
+	SYNC_URL: 'http://refworks.proquest.com',
+	API_URL: 'http://refworks.proquest.com',
 	API_VERSION: 2,
 	PREF_BRANCH: 'extensions.pme.',
 	BOOKMARKLET_ORIGIN: 'http://pme.proquest.com',
@@ -1177,7 +1177,7 @@ try {
 		)
 			{
 				switch (addon.id) {
-					case "flow@proquest.com":
+					case "refworks@proquest.com":
 					case "{972ce4c6-7e08-4474-a285-3208198ce6fd}": // Default theme
 						continue;
 				}
