@@ -1,5 +1,5 @@
 const ZOTERO_CONFIG = {
-	GUID: 'flow@proquest.com',
+	GUID: 'refworks@proquest.com',
 	DB_REBUILD: false, // erase DB and recreate from schema
 	REPOSITORY_URL: 'https://repo.zotero.org/repo',
 	REPOSITORY_CHECK_INTERVAL: 86400, // 24 hours

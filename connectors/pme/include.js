@@ -25,7 +25,7 @@ var PME = {};
  */
 
 const PME_CONFIG = {
-	GUID: 'flow@proquest.com',
+	GUID: 'refworks@proquest.com',
 	DB_REBUILD: false, // erase DB and recreate from schema
 	REPOSITORY_URL: 'https://repo.zotero.org/repo',
 	REPOSITORY_CHECK_INTERVAL: 86400, // 24 hours
@@ -1177,7 +1177,7 @@ try {
 		)
 			{
 				switch (addon.id) {
-					case "flow@proquest.com":
+					case "refworks@proquest.com":
 					case "{972ce4c6-7e08-4474-a285-3208198ce6fd}": // Default theme
 						continue;
 				}
