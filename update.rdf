@@ -16,7 +16,7 @@
     <RDF:li RDF:resource="rdf:#$dBPkn1"/>
   </RDF:Seq>
   <RDF:Description RDF:about="rdf:#$dBPkn1"
-                   NS1:version="0.6.5">
+                   NS1:version="0.7.0">
     <NS1:targetApplication RDF:resource="rdf:#$gBPkn1"/>
   </RDF:Description>
 </RDF:RDF>

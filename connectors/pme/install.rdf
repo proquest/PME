@@ -10,7 +10,7 @@
                    em:id="refworks@proquest.com"
                    em:name="ProQuest Refworks"
                    em:description="Tame your workflow"
-                   em:version="0.6.5"
+                   em:version="0.7.0"
                    em:creator="ProQuest"
                    em:homepageURL="http://refworks.proquest.com"
                    em:iconURL="chrome://pme/skin/zotero-new-z-48px.png"
