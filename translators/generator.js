@@ -98,7 +98,7 @@ function updateList(existingList, fn) {
 			var unsupported = _.difference(existingList, _.map(translators, function(trans) {
 				return trans.translatorID.replace(".js", "")
 			}));
-			putObjectToS3(masterkey, JSON.stringify(translators), function() {
+			putObjectToS3(masterkey, "Zotero.TranslatorMasterList = " + JSON.stringify(translators), function() {
 				fn(null, unsupported)
 			})
 		});
