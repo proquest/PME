@@ -1,3 +1,9 @@
+
+
+///// DO NOT EDIT this comment or anything above it. (The build script looks for the '/////' string and ignores anything above it)
+// The sharedRefData object is located in the Flow codebase and gets copied into PME. If this object must be changed,
+// update the file ref-type-fields.js in Flow and those changes will propagate to PME.
+
 var SaveToFlow = (function() {
 	var FLOW_SERVER = "https://flow.proquest.com",
 		MODE = "DEBUG";
@@ -206,13 +212,12 @@ var SaveToFlow = (function() {
 	}
 
 	function debug(doc, str) {
-		var debug = doc.getElementById("stf_debug")
+		var debug = doc.getElementById("stf_debug");
 		if (!debug) {
 			doc.body.innerHTML += '<div id="stf_debug"></div>';
 			debug = doc.getElementById("stf_debug")
 		}
 		debug.innerHTML += "<div>" + str + "</div>";
-
 	}
 
 	function error(doc, e) {
@@ -222,14 +227,15 @@ var SaveToFlow = (function() {
 				name: e.name,
 				message: e.message,
 				func: arguments.callee && arguments.callee.caller ? arguments.callee.caller.name : "",
-				lineNumber: e.lineNumber//,
+				lineNumber: e.lineNumber,
+				severity: "error"//,
 				//url:url
 			}
 			if (MODE == "debug") {
 				debug(doc, JSON.stringify(errorObj));
 			}
 			else
-				ZU.HTTP.doPost("http://ec2-54-80-213-189.compute-1.amazonaws.com:8080/stferror", JSON.stringify(errorObj), function () {
+				ZU.HTTP.doPost("https://flow.proquest.com/api/2/logservice/", JSON.stringify(errorObj), function () {
 				}, {"Content-Type": "application/json"});//send to server to be logged
 		}
 		catch (e) {
@@ -869,6 +875,7 @@ var SaveToFlow = (function() {
 		try {
 			reference.refType = doc.getElementById("reference_type").value;
 			reference.modifiedFields = item.modifiedFields ? item.modifiedFields : [];
+			reference.tags = item.tags ? item.tags : [];
 			for (var index = 0; index < labels.order.length; index++) {
 				try {
 					var elem = doc.getElementById("stf_" + labels.order[index]);
@@ -922,14 +929,19 @@ var SaveToFlow = (function() {
 					if (fieldMapping.indexOf(field) >= 0) {
 						var override = labels.referenceTypes[item.refType].fieldLabelOverides[field], label = override ? override : labels.fields[field].label;
 						var value = field == "authors" ? authorNameList(item[field], "\n") : item[field];
-						if (value) {
-							if (label.toLowerCase() == 'isbn')
-								value = value.split(',')[0];
-							output.push("<div class='stf_lbl'>" + label + "</div>" + (field == "authors" ? "<div class='stf_textposition'><span class='stf_author'>Last name, First names</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'>" + value + "</textarea>" + (field == "authors" ? "</div>" : ""));
-						}
-						else {
-							output.push("<div class='stf_lbl'>" + label + "</div><div class='stf_textposition'><span class='stf_empty'>Please enter metadata...</span>" + (field == "authors" ? "<span class='stf_author'>Last name, First names (each on a new line)</span>" : "") + "<textarea class='stf_val' id='stf_" + field + "' rows='1'></textarea></div>");
-						}
+
+						if (value && label.toLowerCase() == 'isbn') value = value.split(',')[0];
+
+						output.push(
+							"<div class='stf_lbl'>" +
+								label +
+								(field == "authors" ? ' ("Last name, First names" each on new line)' : '') +
+							"</div>" +
+							"<textarea class='stf_val' id='stf_" + field + "' rows='1' placeholder='" +
+							(field == "authors" ? "Please enter authors..." : "Please enter metadata...") +
+							"'>" +
+							(value ? value : "") +
+							"</textarea>");
 					}
 				}
 				catch (e) {
@@ -1003,118 +1015,15 @@ var SaveToFlow = (function() {
 	})();
 
 	var labels = (function () {
-		var fields = {
-				abstract: { label: "Abstract"},
-				alternateTitle: {label: "Alternate Title"},
-				authors: { label: "Authors"},
-				arXivId: { label: "ArXiv ID" },
-				availability: { label: "Availability" },
-				classification: { label: "Classification"},
-				compilers: { label: "Compilers"  },
-				department: { label: "Department" },
-				doi: { label: "DOI"},
-				edition: { label: "Edition"},
-				editors: { label: "Editors"},
-				eventName: { label: "Event" },
-				eventLocation: { label: "Event Location" },
-				eventDate: { label: "Event Date" },
-				extraData: { label: "Extra Data"},
-				isbn: { label: "ISBN"},
-				isElectronic: { label: "Is Electronic?" },
-				issn: { label: "ISSN"},
-				issue: { label: "Issue"},
-				journalAbbrev: { label: "Journal Abbrev"},
-				language: { label: "Language"},
-				locCallNumber: { label: "LC Call #"},
-				location: { label: "Place of Publication"},
-				pages: { label: "Pages"},
-				pmcid: { label: "PMCID"},
-				pmid: { label: "PMID"},
-				publication: { label: "Publication"},
-				publicationEditors: { label: "Publication Editors" },
-				publicationDate: { label: "Date"},
-				publisher: { label: "Publisher"},
-				republishedDate: { label: "Republished Date"},
-				retrievedDate: { label: "Date Retrieved"},
-				shortTitle: { label: "Short Title"},
-				seriesEditors: { label: "Series Editors"},
-				seriesTitle: { label: "Series Title"},
-				sourceName: { label: "Source Name"},
-				sourceDatabase: { label: "Source DB"},
-				sourceLibrary: { label: "Source Library"},
-				sourceLocation: { label: "Source Location"},
-				sourceAccession: { label: "Source Accession"},
-				title: { label: "Title"},
-				translators: { label: "Translators"},
-				type: { label: "Type" },
-				url: { label: "Retrieved From"},
-				userNotes: { label: "Notes" },
-				version: { label: "Version" },
-				volume: { label: "Volume"}
-			},
-			referenceTypes = {
-				JOURNAL_ARTICLE_REF: {
-					label: 'Journal Article',
-					defaultFields: [ 'abstract', 'authors', 'issue', 'pages', 'publication', 'publicationDate', 'title', 'url', 'userNotes', 'volume', 'doi', 'issn' ],
-					optionalFields: [ 'arXivId', 'alternateTitle', 'retrievedDate', 'edition', 'extraData', 'isElectronic', 'journalAbbrev', 'language', 'pmcid', 'pmid', 'republishedDate', 'seriesEditors', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
-					fieldLabelOverides: { publication: 'Journal' }
-				},
-				BOOK_REF: {
-					label: "Book",
-					defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'publicationDate', 'seriesTitle', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
-					optionalFields: [ 'alternateTitle', 'compilers', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'translators', 'url'],
-					fieldLabelOverides: { }
-				},
-				BOOK_SECTION_REF: {
-					label: "Book section",
-					defaultFields: [ 'abstract', 'authors', 'editors', 'location', 'pages', 'publicationDate', 'publication', 'publisher', 'title', 'userNotes', 'doi', 'isbn' ],
-					optionalFields: [ 'alternateTitle', 'compilers', 'edition', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'seriesEditors', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
-					fieldLabelOverides: { publication: 'Book title', title: 'Section title' }
-				},
-				GENERIC_REF: {
-					label: "Generic",
-					defaultFields: [ 'abstract', 'authors', 'location', 'publication', 'publicationDate', 'publisher', 'title', 'url', 'userNotes', 'doi', 'isbn', 'issn' ],
-					optionalFields: [ 'availability', 'alternateTitle', 'arXivId', 'classification', 'compilers', 'department', 'doi', 'edition', 'editors', 'eventName', 'eventLocation', 'eventDate', 'extraData', 'isbn', 'isElectronic', 'issn', 'issue', 'journalAbbrev', 'language', 'lcCallNumber', 'pages', 'pmcid', 'pmid', 'publicationEditors', 'republishedDate', 'retrievedDate', 'seriesEditors', 'seriesTitle', 'shortTitle', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'type', 'version', 'volume' ],
-					fieldLabelOverides: { }
-				},
-				WEB_REF: {
-					label: "Web page",
-					defaultFields: [ 'abstract', 'authors', 'publication', 'publicationDate', 'retrievedDate', 'title', 'url', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'extraData', 'language', 'publicationEditors', 'version' ],
-					fieldLabelOverides: { publication: 'Website', url: 'URL' }
-				},
-				REPORT_REF: {
-					label: "Report",
-					defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'retrievedDate', 'edition', 'editors', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
-					fieldLabelOverides: { publication: 'Institution' }
-				},
-				CONF_REF: {
-					label: "Conference proceeding",
-					defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'retrievedDate', 'editors', 'eventName', 'eventDate', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators', 'url' ],
-					fieldLabelOverides: { eventName: 'Conference', eventDate: 'Conference Date', publication: 'Proceedings Title' }
-				},
-				NEWS_REF: {
-					label: "Newspaper article",
-					defaultFields: [ 'abstract', 'authors', 'location', 'edition', 'pages', 'publication', 'publicationDate', 'retrievedDate', 'title', 'userNotes', 'url', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'editors', 'extraData', 'isElectronic', 'language', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'translators' ],
-					fieldLabelOverides: { }
-				},
-				THESIS_REF: {
-					label: "Thesis",
-					defaultFields: [ 'abstract', 'authors', 'department', 'pages', 'publicationDate', 'publisher', 'title', 'type', 'userNotes', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'location', 'extraData', 'isElectronic', 'language', 'lcCallNumber', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'sourceAccession', 'url' ],
-					fieldLabelOverides: { publisher: 'University', location: 'Location' }
-				},
-				MAG_REF: {
-					label: "Magazine article",
-					defaultFields: [ 'abstract', 'authors', 'location', 'pages', 'publication', 'publicationDate', 'publisher', 'title', 'userNotes', 'url', 'doi' ],
-					optionalFields: [ 'alternateTitle', 'extraData', 'editors', 'isElectronic', 'language', 'lcCallNumber', 'retrievedDate', 'sourceName', 'sourceDatabase', 'sourceLibrary', 'sourceLocation', 'translators'],
-					fieldLabelOverides: { }
-				}
-			},
-			order = ['title', 'authors', 'editors', 'publication', 'publicationDate', 'seriesTitle', 'publisher', 'department', 'location', 'edition', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate', 'abstract'];
+		var fields = sharedRefData.fields,
+			referenceTypes = sharedRefData.refTypes,
+			order = [
+				'title', 'historicalTitle', 'authors', 'editors', 'assignees', 'recipients', 'legislativeBody', 'committee',
+				'subcommittee', 'legislativeSession', 'jurisdiction', 'lawType', 'docNumber', 'sectionNumber', 'subsection',
+				'publication', 'publicationDate', 'seriesTitle', 'seriesEditors', 'publisher', 'department', 'location',
+				'edition', 'sequenceNumber', 'volume', 'issue', 'pages', 'doi', 'issn', 'isbn', 'type', 'url', 'retrievedDate',
+				'abstract', 'geographicLocation', 'scale'
+			];
 
 		return {order: order, fields: fields, referenceTypes: referenceTypes};
 	})();
@@ -1130,59 +1039,136 @@ var SaveToFlow = (function() {
 				newspaperArticle: "NEWS_REF",
 				report: "REPORT_REF",
 				thesis: "THESIS_REF",
-				webpage: "WEB_REF"
+				webpage: "WEB_REF",
+				patent: "PATENT_REF",
+				email: "PERSONAL_COMM_REF",
+				instantMessage: "PERSONAL_COMM_REF",
+				letter: "PERSONAL_COMM_REF",
+				manuscript: "UNPUBLISHED_REF",
+				blogPost: "FORUM_REF",
+				forumPost: "FORUM_REF",
+				bill: "BILL_REF",
+				statute: "LAW_REF",
+				hearing: "HEARING_REF",
+				'case': "COURT_REF",
+				map: "MAP_REF",
+				film: "FILM_REF",
+				videoRecording: "FILM_REF",
+				audioRecording: "MUSIC_REF",
+				computerProgram: "PROGRAM_REF"
 			},
 			fields: {
 				abstractNote: "abstract",
+				applicationNumber: "applicationNumber",
+				assignee: "assignees",
+				billNumber: "docNumber",
+				blogTitle: "publication",
 				bookTitle: "publication",
+				caseName: "title",
+				code: "seriesTitle",
+				codeNumber: "volume",
+				codePages: "pages",
+				codeVolume: "volume",
+				committee: "committee",
+				contributor: "authors",
+				cosponsor: "authors",
+				counsel: "authors",
+				country: "country",
+				court: "publisher",
 				creators: "authors",
+				date: "publicationDate",
+				dateEnacted: "publicationDate",
+				documentNumber: "docNumber",
+				docketNumber: "docNumber",
 				DOI: "doi",
 				edition: "edition",
 				editors: "editors",//creator+type=editors
+				firstPage: "pages",
+				forumTitle: "publication",
+				history: "historicalTitle",
 				ISBN: "isbn",
 				ISSN: "issn",
 				issue: "issue",
+				issuingAuthority: "issuer",
 				journalAbbreviation: "journalAbbrev",
+				jurisdiction: "jurisdiction",
 				language: "language",
-				place: "location",
+				legislativeBody: "legislativeBody",
+				nameOfAct: "title",
+				number: "patentNumber",
 				pages: "pages",
+				place: "location",
 				PMCID: "pmcid",
 				PMID: "pmid",
 				publicationTitle: "publication",
-				date: "publicationDate",
+				publicLawNumber: "docNumber",
 				publisher: "publisher",
+				recipient: "recipients",
+				reporter: "publication",
+				reporterVolume: "volume",
 				retrievedDate: "retrievedDate",
+				section: "sectionNumber",
+				sequenceNumber: "sequenceNumber",
+				seriesEditors: "seriesEditors",
+				seriesTitle: "seriesTitle",
+				session: "legislativeSession",
+				sponsor: "authors",
+				subcommittee: "subcommittee",
+				tags: "tags",
 				title: "title",
 				translator: "translator",//creator+type=translator
+				type: "type",
 				URL: "url",
-				volume: "volume"
+				volume: "volume",
+				scale: "scale"
 			}
 		}
 		var flow = {
 			fields: {
 				"abstract": "abstr",
+				"applicationNumber": "docIds.applicationNumber",
+				"assignees": {"key": "contributors.assignees", "fn": handleAuthor},
 				"authors": {"key": "authors", "fn": handleAuthor},
+				"committee": "legal.committee",
+				"docNumber": "legal.docNumber",
+				"country": "publisher.location", // only Patent type has this, and Patent doesn't have Zotero's location field
 				"doi": "docIds.doi",
-				"PMCID": "docIds.pmcid",
-				"PMID": "docIds.pmid",
 				"edition": "series.edition",
 				"editors": {"key": "contributors.editors", "fn": handleAuthor},
+				"geographicLocation": "publication.geographicLocation",
+				"historicalTitle": "legal.historicalTitle",
 				"isbn": "publication.isbn",
 				"issn": "publication.issn",
+				"issue": "series.issue",
+				"issuer": "publisher", // Patent has issuingAuthority, not publisher
 				"journalAbbrev": "publication.abbrev",
+				"jurisdiction": "legal.jurisdiction",
 				"language": "language",
+				"legislativeBody": "legal.legislativeBody",
+				"legislativeSession": "legal.legislativeSession",
+				"location": "publisher.location",
+				"modifiedFields": "modifiedFields",
+				"pages": "pages.rawPages",
+				"patentNumber": "docIds.patentNumber",
+				"PMCID": "docIds.pmcid",
+				"PMID": "docIds.pmid",
 				"publicationDate": "publicationDate.rawDate",
 				"publication": "publication.title",
-				"volume": "series.volume",
-				"issue": "series.issue",
-				"pages": "pages.rawPages",
 				"publisher": "publisher.name",
-				"location": "publisher.location",
-				"translator": {"key": "contributors.translator", "fn": handleAuthor},
-				"title": "title",
+				"recipients": {"key": "contributors.recipients", "fn": handleAuthor},
 				"retrievedDate": "retrievedDate.rawDate",
+				"scale": "publication.scale",
+				"sectionNumber": "legal.sectionNumber",
+				"sequenceNumber": "legal.sequenceNumber",
+				"seriesEditors": {"key": "series.editors", "fn": handleAuthor},
+				"seriesTitle": "series.title",
+				"subcommittee": "legal.subcommittee",
+				"tags": "tags",
+				"title": "title",
+				"translator": {"key": "contributors.translator", "fn": handleAuthor},
+				"type": "publisher.degreeType",
 				"url": "url",
-				"modifiedFields": "modifiedFields"
+				"volume": "series.volume"
 			}
 		}
 
