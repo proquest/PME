@@ -73,17 +73,19 @@ function updateList(existingList, fn) {
 				fs.readFile(path.join(sPath, file), function(err, data) {
 					var fileContent = data.toString();
 					if(fileContent.match(/(^\s*{[\s\S]*?\n})/)) {
-						var transObj = JSON.parse(RegExp.$1);
-						if((transObj.translatorType == 4 ) &&
-							(transObj.browserSupport && transObj.browserSupport.indexOf('b') > -1)) {
-							translators.push({
-								translatorID: transObj.translatorID,
-								target: transObj.target,
-								priority: transObj.priority
-							});
-							putObjectToS3(translatorskey + transObj.translatorID + ".js", fileContent, function() {
-							})
+						try {
+							var transObj = JSON.parse(RegExp.$1);
+							if((transObj.translatorType == 3 || transObj.translatorType == 4) &&
+								(transObj.browserSupport && transObj.browserSupport.indexOf('b') > -1)) {
+								translators.push({
+									translatorID: transObj.translatorID,
+									target: transObj.target,
+									priority: transObj.priority
+								});
+								putObjectToS3(translatorskey + transObj.translatorID + ".js", fileContent, function(){})
+							}
 						}
+						catch (e){console.log("unexpected file format", file, e);}
 					}
 					else {
 						console.log("unexpected file format", file);
@@ -96,7 +98,7 @@ function updateList(existingList, fn) {
 			}
 		}, function() {
 			var unsupported = _.difference(existingList, _.map(translators, function(trans) {
-				return trans.translatorID.replace(".js", "")
+				return trans.translatorID + ".js";
 			}));
 			putObjectToS3(masterkey, "Zotero.TranslatorMasterList = " + JSON.stringify(translators), function() {
 				fn(null, unsupported)
@@ -106,7 +108,7 @@ function updateList(existingList, fn) {
 }
 
 function putObjectToS3(key, content, cb) {
-	s3.putObject({Bucket: s3bucket, Key: key, Body:content}, cb)
+	s3.putObject({Bucket: s3bucket, Key: key, Body:content, ACL: 'public-read'}, cb)
 }
 
 async.waterfall([
