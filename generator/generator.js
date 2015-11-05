@@ -11,7 +11,7 @@ var s3bucket = "pme.proquest.com",
 		s3 = new AWS.S3(),
 		masterkey = "masterlist.js",
 		translatorskey = "translators/",
-		zoteroListPath = "zotero-list",
+		zoteroListPath = "translators",
 		repoPath = process.cwd();
 
 function copyObjectInS3(key, cb) {
