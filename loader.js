@@ -5,14 +5,14 @@ new function() {
 		return;
 	};
 
-	var baseURL = "http://localhost:8273/bookmarklet/",
+	var baseURL = "http://localhost:8273/",
 		ie = (!document.evaluate ? "_ie" : ""),
 		common = baseURL+"common"+ie+".js?_="+(new Date()),
 		inject = baseURL+"inject"+ie+".js?_="+(new Date());
 
 	var iframe = document.createElement("iframe"),
 		tag = document.body || document.documentElement;
-	iframe.id = "zotero-iframe"
+	iframe.id = "zotero-iframe";
 	iframe.style.display = "none";
 	iframe.style.borderStyle = "none";
 	iframe.setAttribute("frameborder", "0");

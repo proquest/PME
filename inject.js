@@ -1812,28 +1812,27 @@ Zotero.OpenURL = new function() {
     ***** END LICENSE BLOCK *****
 */
 
-const cssDivClearString = 'background-attachment: scroll; background-color: transparent; background-image: none; background-position: 0% 0%; background-repeat: repeat; border-bottom-color: rgb(0, 0, 0); border-bottom-style: none; border-bottom-width: 0px; border-collapse: separate; border-left-color: rgb(0, 0, 0); border-left-style: none; border-left-width: 0px; border-right-color: rgb(0, 0, 0); border-right-style: none; border-right-width: 0px; border-spacing: 0px 0px; border-top-color: rgb(0, 0, 0); border-top-style: none; border-top-width: 0px; bottom: auto; caption-side: top; clear: none; clip: auto; color: rgb(0, 0, 0); content: none; counter-increment: none; counter-reset: none; cursor: auto; direction: ltr; display: block; empty-cells: show; float: none; font-family: serif; font-size: 16px; font-size-adjust: none; font-stretch: normal; font-style: normal; font-variant: normal; font-weight: 400; left: auto; letter-spacing: normal; line-height: normal; list-style-image: none; list-style-position: outside; list-style-type: disc; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; margin-top: 0px; marker-offset: auto; max-height: none; max-width: none; min-height: 0px; min-width: 0px; ime-mode: auto; opacity: 1; outline-color: rgb(0, 0, 0); outline-style: none; outline-width: 0px; outline-offset: 0px; overflow: visible; overflow-x: visible; overflow-y: visible; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px; page-break-after: auto; page-break-before: auto; pointer-events: auto; position: static; quotes: "“" "”" "‘" "’"; right: auto; table-layout: auto; text-align: left; text-decoration: none; text-indent: 0px; text-shadow: none; text-transform: none; top: auto; unicode-bidi: embed; vertical-align: baseline; visibility: visible; white-space: normal; word-spacing: 0px; z-index: auto; background-clip: border-box; background-origin: padding-box; background-size: auto auto; border-bottom-left-radius: 0px; border-bottom-right-radius: 0px; border-top-left-radius: 0px; border-top-right-radius: 0px; box-shadow: none; resize: none; word-wrap: normal; clip-path: none; clip-rule: nonzero; color-interpolation: srgb; color-interpolation-filters: linearrgb; dominant-baseline: auto; fill: rgb(0, 0, 0); fill-opacity: 1; fill-rule: nonzero; filter: none; flood-color: rgb(0, 0, 0); flood-opacity: 1; lighting-color: rgb(255, 255, 255); image-rendering: auto; mask: none; marker-end: none; marker-mid: none; marker-start: none; shape-rendering: auto; stop-color: rgb(0, 0, 0); stop-opacity: 1; stroke: none; stroke-dasharray: none; stroke-dashoffset: 0px; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 4; stroke-opacity: 1; stroke-width: 1px; text-anchor: start; text-rendering: auto;';
+const cssDivClearString = 'background-attachment: scroll; background-color: transparent; background-image: none; background-position: 0% 0%; background-repeat: repeat; border-bottom-color: rgb(0, 0, 0); border-bottom-style: none; border-bottom-width: 0px; border-collapse: separate; border-left-color: rgb(0, 0, 0); border-left-style: none; border-left-width: 0px; border-right-color: rgb(0, 0, 0); border-right-style: none; border-right-width: 0px; border-spacing: 0px 0px; border-top-color: rgb(0, 0, 0); border-top-style: none; border-top-width: 0px; bottom: auto; caption-side: top; clear: none; clip: auto; color: rgb(255, 255, 255); content: none; counter-increment: none; counter-reset: none; cursor: auto; direction: ltr; display: block; empty-cells: show; float: none; font-family: serif; font-size: 16px; font-size-adjust: none; font-stretch: normal; font-style: normal; font-variant: normal; font-weight: 400; left: auto; letter-spacing: normal; line-height: normal; list-style-image: none; list-style-position: outside; list-style-type: disc; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; margin-top: 0px; marker-offset: auto; max-height: none; max-width: none; min-height: 0px; min-width: 0px; ime-mode: auto; opacity: 1; outline-color: rgb(0, 0, 0); outline-style: none; outline-width: 0px; outline-offset: 0px; overflow: visible; overflow-x: visible; overflow-y: visible; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px; page-break-after: auto; page-break-before: auto; pointer-events: auto; position: static; quotes: "“" "”" "‘" "’"; right: auto; table-layout: auto; text-align: left; text-decoration: none; text-indent: 0px; text-shadow: none; text-transform: none; top: auto; unicode-bidi: embed; vertical-align: baseline; visibility: visible; white-space: normal; word-spacing: 0px; z-index: auto; background-clip: border-box; background-origin: padding-box; background-size: auto auto; border-bottom-left-radius: 0px; border-bottom-right-radius: 0px; border-top-left-radius: 0px; border-top-right-radius: 0px; box-shadow: none; resize: none; word-wrap: normal; clip-path: none; clip-rule: nonzero; color-interpolation: srgb; color-interpolation-filters: linearrgb; dominant-baseline: auto; fill: rgb(0, 0, 0); fill-opacity: 1; fill-rule: nonzero; filter: none; flood-color: rgb(0, 0, 0); flood-opacity: 1; lighting-color: rgb(255, 255, 255); image-rendering: auto; mask: none; marker-end: none; marker-mid: none; marker-start: none; shape-rendering: auto; stop-color: rgb(0, 0, 0); stop-opacity: 1; stroke: none; stroke-dasharray: none; stroke-dashoffset: 0px; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 4; stroke-opacity: 1; stroke-width: 1px; text-anchor: start; text-rendering: auto;';
 const cssAClearString = 'background-attachment: scroll; background-color: transparent; background-image: none; background-position: 0% 0%; background-repeat: repeat; border-bottom-color: rgb(0, 0, 238); border-bottom-style: none; border-bottom-width: 0px; border-collapse: separate; border-left-color: rgb(0, 0, 238); border-left-style: none; border-left-width: 0px; border-right-color: rgb(0, 0, 238); border-right-style: none; border-right-width: 0px; border-spacing: 0px 0px; border-top-color: rgb(0, 0, 238); border-top-style: none; border-top-width: 0px; bottom: auto; caption-side: top; clear: none; clip: auto; color: rgb(0, 0, 238); content: none; counter-increment: none; counter-reset: none; cursor: pointer; direction: ltr; display: inline; empty-cells: show; float: none; font-family: serif; font-size: 16px; font-size-adjust: none; font-stretch: normal; font-style: normal; font-variant: normal; font-weight: 400; height: auto; left: auto; letter-spacing: normal; line-height: normal; list-style-image: none; list-style-position: outside; list-style-type: disc; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; margin-top: 0px; marker-offset: auto; max-height: none; max-width: none; min-height: 0px; min-width: 0px; ime-mode: auto; opacity: 1; outline-color: rgb(0, 0, 0); outline-style: none; outline-width: 0px; outline-offset: 0px; overflow: visible; overflow-x: visible; overflow-y: visible; padding-bottom: 0px; padding-left: 0px; padding-right: 0px; padding-top: 0px; page-break-after: auto; page-break-before: auto; pointer-events: auto; position: static; quotes: "“" "”" "‘" "’"; right: auto; table-layout: auto; text-align: left; text-decoration: underline; text-indent: 0px; text-shadow: none; text-transform: none; top: auto; unicode-bidi: normal; vertical-align: baseline; visibility: visible; white-space: normal; width: auto; word-spacing: 0px; z-index: auto; background-clip: border-box; background-origin: padding-box; background-size: auto auto; border-bottom-left-radius: 0px; border-bottom-right-radius: 0px; border-top-left-radius: 0px; border-top-right-radius: 0px; box-shadow: none; resize: none; word-wrap: normal; clip-path: none; clip-rule: nonzero; color-interpolation: srgb; color-interpolation-filters: linearrgb; dominant-baseline: auto; fill: rgb(0, 0, 0); fill-opacity: 1; fill-rule: nonzero; filter: none; flood-color: rgb(0, 0, 0); flood-opacity: 1; lighting-color: rgb(255, 255, 255); image-rendering: auto; mask: none; marker-end: none; marker-mid: none; marker-start: none; shape-rendering: auto; stop-color: rgb(0, 0, 0); stop-opacity: 1; stroke: none; stroke-dasharray: none; stroke-dashoffset: 0px; stroke-linecap: butt; stroke-linejoin: miter; stroke-miterlimit: 4; stroke-opacity: 1; stroke-width: 1px; text-anchor: start; text-rendering: auto;'
 
 Zotero.ProgressWindow = new function() {
 	const cssBox = {"position":(Zotero.isIE && document.compatMode === "BackCompat" ? "absolute" : "fixed"),
-		"right":"25px", "bottom":"25px", "width":"240px",
-		"borderWidth":"2px", "borderStyle":"solid", "borderColor":"#7a0000",
-		"backgroundColor":"#ededed", "opacity":"0.9", "filter":"alpha(opacity = 90)",
-		"zIndex":"16777269", "padding":"6px 6px 6px 6px", "minHeight":"40px"};
-	const cssHeadline = {"fontFamily":"Lucida Grande, Tahoma, sans", "fontSize":"11px",
-		"fontWeight":"bold", "marginBottom":"6px", "overflow":"hidden",
+		"right":"0", "top":"0", "width":"399px", "min-height":"60px", "color":"rgb(255,255,255) !important",
+		"backgroundColor":"#0e7bba",
+		"zIndex":"16777269", "padding":"8px", "minHeight":"40px"};
+	const cssHeadline = {"fontFamily":"'Roboto', Helvetica, Arial, sans-serif", "fontSize":"15px",
+		"overflow":"hidden",
 		"whiteSpace":"nowrap", "textOverflow":"ellipsis"};
 	const cssHeadlineIcon = {"display":"none", "width":"16px", "height":"16px",
 		"backgroundPosition":"center", "backgroundRepeat":"no-repeat",
 		"verticalAlign":"-3px"};
-	const cssItem = {"fontSize":"11px", "margin":"4px 0 4px 0"};
-	const cssIcon = {"position":"absolute", "fontSize":"11px", "width":"16px", "height":"16px",
+	const cssItem = {"fontSize":"15px", "margin":"4px 0 4px 0"};
+	const cssIcon = {"position":"absolute", "fontSize":"15px", "width":"16px", "height":"16px",
 		"backgroundPosition":"0", "backgroundRepeat":"no-repeat"};
-	const cssItemText = {"fontFamily":"Lucida Grande, Tahoma, sans",
-		"fontSize":"11px", "verticalAlign":"middle", "overflow":"hidden",
-		"whiteSpace":"nowrap", "lineHeight":"16px", "margin":"0 0 0 20px"};
-	const cssDescription = {"fontFamily":"Lucida Grande, Tahoma, sans", "fontSize":"11px",
+	const cssItemText = {"fontFamily":"'Roboto', Helvetica, Arial, sans-serif",
+		"fontSize":"13px", "verticalAlign":"middle", "overflow":"hidden",
+		"whiteSpace":"nowrap", "lineHeight":"11px", "margin":"0"};
+	const cssDescription = {"fontFamily":"'Roboto', Helvetica, Arial, sans-serif", "fontSize":"13px",
 		"lineHeight":"1.4em", "marginBottom":"4px"};
 
 	if(Zotero.isBookmarklet) {
@@ -1860,8 +1859,8 @@ Zotero.ProgressWindow = new function() {
 		this._div.className = "zotero-item-progress";
 		this._div.style.cssText = cssDivClearString;
 		for(var j in cssItem) this._div.style[j] = cssItem[j];
-		this._div.style.opacity = "0.5";
-		this._div.style.filter = "alpha(opacity = 50)";
+		//this._div.style.opacity = "0.5";
+		//this._div.style.filter = "alpha(opacity = 50)";
 		this._div.style.zoom = "1";
 		if(parentItemProgress) this._div.style.marginLeft = "12px";
 
@@ -3918,7 +3917,7 @@ Zotero.Translate.Sandbox = {
 
 			// We use this within the connector to keep track of items as they are saved
 			if(!item.id) item.id = Zotero.Utilities.randomString();
-
+			console.log(item);
 			// don't save documents as documents in connector, since we can't pass them around
 			if(Zotero.isConnector) {
 				var attachments = item.attachments;
@@ -3932,14 +3931,18 @@ Zotero.Translate.Sandbox = {
 				}
 			}
 
+			console.log(item);
+
 			// Fire itemSaving event
 			translate._runHandler("itemSaving", item);
 
 			if(translate instanceof Zotero.Translate.Web) {
+				console.log("calling saveQueue");
 				// For web translators, we queue saves
 				translate.saveQueue.push(item);
 			} else {
 				// Save items
+				console.log("calling _saveItems");
 				translate._saveItems([item]);
 			}
 		},
@@ -5209,6 +5212,7 @@ Zotero.Translate.Base.prototype = {
 	 * until after save
 	 */
 	"_saveItems":function(items) {
+		console.log(items);
 		var me = this,
 			itemDoneEventsDispatched = false,
 			deferredProgress = [],
@@ -5251,6 +5255,7 @@ Zotero.Translate.Base.prototype = {
 			}
 		},
 		function(attachment, progress, error) {
+			console.log(attachment);
 			var attachmentIndex = me._savingAttachments.indexOf(attachment);
 			if(progress === false || progress === 100) {
 				if(attachmentIndex !== -1) {
@@ -5338,6 +5343,7 @@ Zotero.Translate.Base.prototype = {
 	 * @return {Boolean} Whether the translator could be successfully loaded
 	 */
 	"_loadTranslator":function(translator, callback) {
+		console.log(translator);
 		var sandboxLocation = this._getSandboxLocation();
 		if(!this._sandboxLocation || sandboxLocation !== this._sandboxLocation) {
 			this._sandboxLocation = sandboxLocation;
@@ -5814,6 +5820,7 @@ Zotero.Translate.Import.prototype._loadTranslator = function(translator, callbac
  * Prepare translator IO
  */
 Zotero.Translate.Import.prototype._loadTranslatorPrepareIO = function(translator, callback) {
+	console.log(translator);
 	var configOptions = this._translatorInfo.configOptions;
 	var dataMode = configOptions ? configOptions["dataMode"] : "";
 
@@ -6714,6 +6721,8 @@ Zotero.Translate.ItemSaver.prototype = {
 	 *     on failure or attachmentCallback(attachment, progressPercent) periodically during saving.
 	 */
 	"saveItems":function(items, callback, attachmentCallback) {
+		console.log("ITEM SAVER:");
+		console.log(items);
 		this._saveToServer(items, callback, attachmentCallback);
 	},
 
@@ -6786,7 +6795,7 @@ Zotero.Translate.ItemSaver.prototype = {
 	 *     attachmentCallback() will be called with all attachments that will be saved
 	 */
 	"_saveToServer":function(items, callback, attachmentCallback) {
-    console.log("saving",items);
+		console.log("saving",items);
 
 		var newItems = [], itemIndices = [], typedArraysSupported = false;
 		try {
@@ -6807,6 +6816,7 @@ Zotero.Translate.ItemSaver.prototype = {
 		}
 
 		var me = this;
+		console.log(newItems);
 		Zotero.API.createItem({"items":newItems}, function(statusCode, response) {
 			if(statusCode !== 200) {
 				callback(false, new Error("Save to server failed with "+statusCode+" "+response));
@@ -6845,16 +6855,15 @@ Zotero.Translate.ItemSaver.prototype = {
 
 	/**
 	 * Saves an attachment to server
-	 * @param {String} itemKey The key of the parent item
-	 * @param {String} baseName A string to use as the base name for attachments
 	 * @param {Object[]} attachments An array of attachment objects
 	 * @param {Object} prefs An object with the values of the downloadAssociatedFiles and automaticSnapshots preferences
 	 * @param {Function} attachmentCallback A callback that receives information about attachment
 	 *     save progress. The callback will be called as attachmentCallback(attachment, false, error)
 	 *     on failure or attachmentCallback(attachment, progressPercent) periodically during saving.
 	 */
-	"_saveAttachmentsToServer":function(itemKey, baseName, attachments, prefs, attachmentCallback) {
-						Zotero.debug("saveattachmentstoserver");
+	"_saveAttachmentsToServer":function(attachments, prefs, attachmentCallback) {
+		Zotero.debug("saveattachmentstoserver");
+		console.log(attachments);
 		var me = this,
 			uploadAttachments = [],
 			retrieveHeadersForAttachments = attachments.length;
@@ -6867,12 +6876,12 @@ Zotero.Translate.ItemSaver.prototype = {
 		 */
 		var createAttachments = function() {
 			if(uploadAttachments.length === 0) return;
-			var attachmentPayload = [];
+			/*var attachmentPayload = [];
 			for(var i=0; i<uploadAttachments.length; i++) {
 				var attachment = uploadAttachments[i];
 				attachmentPayload.push({
 					"itemType":"attachment",
-					"parentItem":itemKey,
+					//"parentItem":itemKey,
 					"linkMode":attachment.linkMode,
 					"title":(attachment.title ? attachment.title.toString() : "Untitled Attachment"),
 					"accessDate":"CURRENT_TIMESTAMP",
@@ -6880,9 +6889,9 @@ Zotero.Translate.ItemSaver.prototype = {
 					"note":(attachment.note ? attachment.note.toString() : ""),
 					"tags":(attachment.tags && attachment.tags instanceof Array ? attachment.tags : [])
 				});
-			}
+			}*/
 
-			Zotero.API.createItem({"items":attachmentPayload}, function(statusCode, response) {
+			/*Zotero.API.createItem({"items":attachmentPayload}, function(statusCode, response) {
 				var resp;
 				if(statusCode === 200) {
 					try {
@@ -6891,23 +6900,22 @@ Zotero.Translate.ItemSaver.prototype = {
 					} catch(e) {};
 				}
 
-				Zotero.debug("Finished creating items");
+				Zotero.debug("Finished creating items");*/
 				for(var i=0; i<uploadAttachments.length; i++) {
 					var attachment = uploadAttachments[i];
-					if(!resp || !resp.success[i]) {
+					/*if(!resp || !resp.success[i]) {
 						attachmentCallback(attachment, false,
 							new Error("Unexpected response received from server "+statusCode+" "+response));
-					} else {
-						attachment.key = resp.success[i];
+					} else {*/
 
 						if(attachment.linkMode === "linked_url") {
 							attachmentCallback(attachment, 100);
 						} else if("data" in attachment) {
 							me._uploadAttachmentToServer(attachment, attachmentCallback);
 						}
-					}
+					/*}*/
 				}
-			});
+			/*});*/
 		};
 
 		for(var i=0; i<attachments.length; i++) {
@@ -6918,8 +6926,8 @@ Zotero.Translate.ItemSaver.prototype = {
 				// Ensure these are undefined before continuing, since we'll use them to determine
 				// whether an attachment has been created on the Zotero server and downloaded from
 				// the host
-				delete attachment.key;
-				delete attachment.data;
+				//delete attachment.key;
+				//delete attachment.data;
 
 				var isSnapshot = false;
 				if(attachment.mimeType) {
@@ -6990,7 +6998,7 @@ Zotero.Translate.ItemSaver.prototype = {
 						if(!err) {
 							attachment.mimeType = contentType;
 							attachment.linkMode = "imported_url";
-							switch(contentType.toLowerCase()) {
+							/*switch(contentType.toLowerCase()) {
 								case "application/pdf":
 									attachment.filename = baseName+".pdf";
 									break;
@@ -7000,7 +7008,7 @@ Zotero.Translate.ItemSaver.prototype = {
 									break;
 								default:
 									attachment.filename = baseName;
-							}
+							}*/
 							if(charset) attachment.charset = charset;
 							headersValidated = true;
 						}
@@ -7158,6 +7166,7 @@ Zotero.Translate.ItemSaver.prototype = {
 		}
 		attachment.md5 = hash;
 
+		console.log("About to upload the attachment");
 		if(Zotero.isChrome && !Zotero.isBookmarklet) {
 			// In Chrome, we don't use messaging for Zotero.API.uploadAttachment, since
 			// we can't pass ArrayBuffers to the background page
@@ -7169,6 +7178,12 @@ Zotero.Translate.ItemSaver.prototype = {
 			};
 			Zotero.API.uploadAttachment(attachment);
 		}
+	},
+
+	"notifyAttachmentProgress": function(attachment, progressPercent, error) {
+		console.log(attachment);
+		console.log(progressPercent);
+		console.log(error);
 	},
 
 	/**
@@ -7892,7 +7907,9 @@ Zotero.Messaging = new function() {
 	 * When a message is received, they will call the callback function, which should be passed
 	 * as the last argument to Zotero.xxx.yyy.
 	 */
-	this.init = function() {
+	this.init = function(iFrameSrc) {
+		console.log("THIS HAPPENS!");
+		console.trace();
 		for(var ns in MESSAGES) {
 			if(!Zotero[ns]) Zotero[ns] = {};
 			for(var meth in MESSAGES[ns]) {
@@ -7926,9 +7943,10 @@ Zotero.Messaging = new function() {
 
 						// send message
 						var message = [requestID, messageName, newArgs];
+						var iFrameSrc = iFrameSrc ? iFrameSrc : ZOTERO_CONFIG.BOOKMARKLET_URL+(Zotero.isIE ? "iframe_ie.html" : "iframe.html");
 						zoteroIFrame.contentWindow.postMessage(
 							(_structuredCloneSupported ? message : JSON.stringify(message)),
-							ZOTERO_CONFIG.BOOKMARKLET_URL+(Zotero.isIE ? "iframe_ie.html" : "iframe.html"));
+							iFrameSrc);
 					};
 				};
 			}
@@ -7939,6 +7957,7 @@ Zotero.Messaging = new function() {
 		var listener = function(event) {
 			try {
 				var data = event.data, origin = event.origin;
+				console.log(event.origin);
 				if(event.origin !== ZOTERO_CONFIG.BOOKMARKLET_ORIGIN
 						&& (!Zotero.isIE || event.origin !== ZOTERO_CONFIG.HTTP_BOOKMARKLET_ORIGIN)) {
 					throw "Received message from invalid origin";
@@ -8028,8 +8047,8 @@ var pos = (Zotero.isIE && document.compatMode === "BackCompat" ? "absolute" : "f
 var cssBookmarkletFrameDimmer = {"background":"black", "opacity":"0.5", "position":pos,
 	"top":"0px", "bottom":"0px", "left":"0px", "right":"0px", "zIndex":"16777270",
 	"height":"100%", "width":"100%", "filter":"alpha(opacity = 50);"};
-var cssBookmarkletFrame = {"position":pos, "zIndex":"16777271", "top":"50%",
-	"left":"50%", "background":"white"};
+var cssBookmarkletFrame = {"position":pos, "zIndex":"16777271", "top":"0",
+	"right":"0", "bottom": 0, "background":"white", "border-left":"1px solid #CCC"};
 
 Zotero.initInject();
 Zotero.Connector_Types.init();
@@ -8064,15 +8083,15 @@ var BookmarkletFrame = function(url, width, height) {
 	height = Math.min(windowHeight-10, height);
 	width = Math.min(windowWidth-10, width);
 
-	this._dimmer = parentDoc.createElement("div");
+	/*this._dimmer = parentDoc.createElement("div");
 	this._dimmer.style.cssText = cssDivClearString;
 	for(var i in cssBookmarkletFrameDimmer) this._dimmer.style[i] = cssBookmarkletFrameDimmer[i];
-	this._appendDimmerTo.appendChild(this._dimmer);
+	this._appendDimmerTo.appendChild(this._dimmer);*/
 
 	// Add iframe
 	if(url) {
 		this._frame = document.createElement("iframe");
-		this._frame.src = url;
+		this._frame.src = url + "?referrer=" + document.referrer;
 	} else {
 		this._frame = zoteroIFrame;
 		zoteroIFrame.style.display = "block";
@@ -8088,10 +8107,14 @@ var BookmarkletFrame = function(url, width, height) {
 	var frameElementStyle = window.frameElement.style;
 	for(var i in cssBookmarkletFrame) frameElementStyle[i] = cssBookmarkletFrame[i];
 	frameElementStyle.display = "block";
-	frameElementStyle.margin = "-"+height/2+"px 0 0 -"+width/2+"px";
+	//frameElementStyle.margin = "-"+height/2+"px 0 0 -"+width/2+"px";
 	frameElementStyle.width = width+"px";
-	frameElementStyle.height = height+"px";
+	//frameElementStyle.height = height+"px";
+	frameElementStyle.height = "100%";
 	if(url) this._appendFrameTo.appendChild(this._frame);
+
+
+
 }
 
 /**
@@ -8115,7 +8138,7 @@ translate.setHandler("translators", function(obj, translators) {
 
 	if(translators && translators.length) {
 		if(translators[0].runMode === Zotero.Translator.RUN_MODE_IN_BROWSER) {
-			Zotero.ProgressWindow.changeHeadline("Saving Item...");
+			Zotero.ProgressWindow.changeHeadline("Analyzing...");
 		} else if(translators[0].runMode === Zotero.Translator.RUN_MODE_ZOTERO_SERVER) {
 			Zotero.ProgressWindow.changeHeadline("Saving via Server...");
 		} else {
@@ -8208,10 +8231,21 @@ Zotero.Messaging.addMessageListener("selectDone", function(returnItems) {
 var revealedFrame;
 Zotero.Messaging.addMessageListener("revealZoteroIFrame", function() {
 	if(revealedFrame) return;
-	revealedFrame = new BookmarkletFrame(null, 800, 400);
+	revealedFrame = new BookmarkletFrame(null, 400, 400);
 });
 Zotero.Messaging.addMessageListener("hideZoteroIFrame", function() {
 	revealedFrame.remove();
+});
+
+Zotero.Messaging.addMessageListener("_saveAttachmentsToServer", function(args) {
+	console.log(args);
+	var itemSaver = new Zotero.Translate.ItemSaver(undefined, "ATTACHMENT_MODE_FILE", undefined, undefined, undefined, undefined);
+	itemSaver._saveAttachmentsToServer(args.attachments, {automaticSnapshots: true, downloadAssociatedFiles: true}, itemSaver.notifyAttachmentProgress);
+});
+
+Zotero.Messaging.addMessageListener("cleanup", function() {
+	Zotero.ProgressWindow.close();
+	cleanup();
 });
 
 // For IE, load from http to avoid a warning
@@ -8225,15 +8259,17 @@ var zoteroIFrame;
  * Load privileged iframe and begin translation
  */
 function startTranslation() {
+	console.log(Zotero);
 	Zotero.ProgressWindow.show();
 	Zotero.ProgressWindow.changeHeadline("Looking for Zotero Standalone...");
 
 	zoteroIFrame = document.createElement("iframe");
 	zoteroIFrame.id = "zotero-privileged-iframe";
-	zoteroIFrame.src = ZOTERO_CONFIG.BOOKMARKLET_URL+"iframe"+(Zotero.isIE ? "_ie" : "")+".html";
+	zoteroIFrame.src = ZOTERO_CONFIG.BOOKMARKLET_URL+"iframe"+(Zotero.isIE ? "_ie" : "")+".html" + "?referrer=" + document.referrer;
 	zoteroIFrame.style.display = "none";
 	document.body.appendChild(zoteroIFrame);
 	document.body.style.overflow = "hidden";
+
 }
 
 /**
