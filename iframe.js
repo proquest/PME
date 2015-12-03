@@ -649,7 +649,6 @@ Zotero.Translators = new function() {
 	 *                              returned.
 	 */
 	this.get = function(translatorID, callback) {
-		console.log(callback);
 		this._getCode(translatorID, function(result) {
 			if(result) {
 				_haveCode(result, callback);
@@ -1033,12 +1032,8 @@ Zotero.Messaging = new function() {
 	 * @param {String|Number} tabID ID of this tab
 	 */
 	this.receiveMessage = function(messageName, args, sendResponseCallback, tab) {
-		console.log("received message >>>>");
-		console.log(messageName);
-		console.log(args);
 		try {
 			//Zotero.debug("Messaging: Received message: "+messageName);
-			console.log(_messageListeners);
 			// first see if there is a message listener
 			if(_messageListeners[messageName]) {
 				_messageListeners[messageName](args, tab);
@@ -1102,7 +1097,6 @@ Zotero.Messaging = new function() {
 	this.init = function() {
 		if(Zotero.isBookmarklet) {
 			var listener = function(event) {
-				console.log(event);
 				var data = event.data, source = event.source;
 
 				// Ensure this message was sent by Zotero or RefWorks
@@ -1213,8 +1207,6 @@ Zotero.API = new function() {
 		iframe.style.width = "100%";
 		iframe.style.height = "100%";
 
-		console.log("attempting authorize");
-
 		iframe.onload = function() {
 			var win = iframe.contentWindow;
 			if(win.location.href === ZOTERO_CONFIG.AUTH_COMPLETE_URL) {
@@ -1254,31 +1246,6 @@ Zotero.API = new function() {
 	 *     already authorized.
 	 */
 	this.createItem = function(payload, callback, askForAuth) {
-		console.log(Zotero);
-		console.log(JSON.stringify(payload));
-
-		console.log("attempting createItem");
-		/*var c = _getCredentials(document), userID = c[0], sessionToken = c[1],
-			reauthorize = function() {
-			Zotero.API.authorize(function(status, msg) {
-				if(!status) {
-					Zotero.logError("Authentication failed with message "+msg);
-					callback(403, "Authentication failed");
-					return;
-				}
-
-				Zotero.API.createItem(payload, callback, false);
-			});
-		};
-
-		if(!userID || !sessionToken) {
-			if(askForAuth === false) {
-				callback(403, "Not authorized");
-			} else {
-				reauthorize();
-				return;
-			}
-		}*/
 
 		function getParameterByName(name) {
 			name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -1313,29 +1280,16 @@ Zotero.API = new function() {
 		iframe.style.left = "0px";
 		iframe.style.width = "100%";
 		iframe.style.height = "100%";
+		iframe.setAttribute('allowtransparency', 'true');
+		iframe.style.backgroundImage = "url(" + ZOTERO_CONFIG.API_URL + "public/img/loading-large.gif)";
+		iframe.style.backgroundPosition = "center";
+		iframe.style.backgroundRepeat = "no-repeat";
 
-		console.log("attempting api");
 		document.body.appendChild(form);
 		document.body.appendChild(iframe);
 		form.submit();
 		Zotero.Messaging.sendMessage("revealZoteroIFrame", null);
 
-
-		/*Zotero.HTTP.doPost(url, JSON.stringify(payload), function(xmlhttp) {
-			if(xmlhttp.status !== 0 && xmlhttp.status < 400) {
-				callback(xmlhttp.status, xmlhttp.responseText);
-			} else if(xmlhttp.status == 403 && askForAuth) {
-				Zotero.debug("API request failed with 403 ("+xmlhttp.responseText+"); reauthorizing");
-				reauthorize();
-			} else {
-				var msg = xmlhttp.status+" ("+xmlhttp.responseText+")";
-				Zotero.logError("API request failed with "+msg);
-				callback(xmlhttp.status, xmlhttp.responseText);
-			}
-		}, {
-			"Content-Type": "application/json",
-			"Zotero-API-Version":"2"
-		});*/
 	};
 	/**
 	 * Uploads an attachment to the Zotero server
@@ -1349,106 +1303,7 @@ Zotero.API = new function() {
 	 *     mimeType - the attachment MIME type
 	 */
 	this.uploadAttachment = function(attachment) {
-		console.log("uploading attachment");
-		console.log(attachment);
 		Zotero.Messaging.sendMessageToRefWorks("uploadAttachment", attachment);
-		//const REQUIRED_PROPERTIES = ["id", "data", "filename", "key", "md5", "mimeType"];
-		/*const REQUIRED_PROPERTIES = ["id", "data", "filename", "key", "md5", "mimeType"];
-		for(var i=0; i<REQUIRED_PROPERTIES.length; i++) {
-			if(!attachment[REQUIRED_PROPERTIES[i]]) {
-				_dispatchAttachmentCallback(attachment.id, false,
-					'Required property "'+REQUIRED_PROPERTIES[i]+'" not defined');
-			}
-		}*/
-
-		/*if(/[^a-zA-Z0-9]/.test(attachment.key)) {
-			_dispatchAttachmentCallback(attachment.id, false, 'Attachment key is invalid');
-		}
-
-		var data = {
-			"md5":attachment.md5,
-			"filename":attachment.filename,
-			"filesize":attachment.data.byteLength,
-			"mtime":(+new Date),
-			"contentType":attachment.mimeType
-		};
-		if(attachment.charset) data.charset = attachment.charset;
-		var dataString = [];
-		for(var i in data) {
-			dataString.push(i+"="+encodeURIComponent(data[i]));
-		}
-		data = dataString.join("&");*/
-
-		//var c = _getCredentials(document),
-		// 	  userID = c[0],
-		// 	  sessionToken = c[1];
-		//var url = ZOTERO_CONFIG.API_URL+"users/"+userID+"/items/"+attachment.key+"/file?session="+sessionToken;
-		/*var url = attachment.mimeType.indexOf("html") > 0 ?
-				ZOTERO_CONFIG.API_URL + "edit/" + attachment.key + "/html/?url=" + encodeURIComponent(attachment.url) :
-				ZOTERO_CONFIG.API_URL + "savetoflow/attachment/" + attachment.key + "/";
-		var body = attachment.mimeType.indexOf("html") > 0 ? attachment.html : new Blob([attachment.data], {type: attachment.mimeType});
-		console.log(attachment);
-		console.log(body);
-		Zotero.HTTP.doPost(url, body,
-			function(xmlhttp) {
-				console.log(xmlhttp);
-				if(xmlhttp.status !== 200) {
-					var msg = xmlhttp.status+" ("+xmlhttp.responseText+")";
-					_dispatchAttachmentCallback(attachment.id, false, msg);
-				}
-
-				try {
-					var response = JSON.parse(xmlhttp.responseText);
-				} catch(e) {
-					_dispatchAttachmentCallback(attachment.id, false, "Error parsing JSON from server");
-				}
-
-				// { "exists": 1 } implies no further action necessary
-				if(response.exists) {
-					Zotero.debug("OAuth: Attachment exists; no upload necessary");
-					_dispatchAttachmentCallback(attachment.id, 100);
-					return;
-				}
-
-				Zotero.debug("OAuth: Upload authorized");
-
-				// Append prefix and suffix to data array
-				var prefixLength = Zotero.Utilities.getStringByteLength(response.prefix),
-					suffixLength = Zotero.Utilities.getStringByteLength(response.suffix),
-					uploadData = new Uint8Array(attachment.data.byteLength + prefixLength
-						+ suffixLength);
-				Zotero.Utilities.stringToUTF8Array(response.prefix, uploadData, 0);
-				uploadData.set(new Uint8Array(attachment.data), prefixLength);
-				Zotero.Utilities.stringToUTF8Array(response.suffix, uploadData,
-					attachment.data.byteLength+prefixLength);
-
-				Uploader.upload(response.contentType, uploadData, function(status, error) {
-					if(status === 100) {
-						// Upload complete; register it
-						Zotero.HTTP.doPost(url, "upload="+response.uploadKey, function(xmlhttp) {
-							if(xmlhttp.status === 204) {
-								Zotero.debug("OAuth: Upload registered");
-								_dispatchAttachmentCallback(attachment.id, 100);
-							} else {
-								var msg = "API request failed with "+xmlhttp.status+" ("+xmlhttp.responseText+")";
-								_dispatchAttachmentCallback(attachment.id, false, msg);
-							}
-						}, {
-							"Content-Type":"application/x-www-form-urlencoded",
-							"If-None-Match":"*"
-						});
-					} else {
-						// Upload progress/error
-						_dispatchAttachmentCallback(attachment.id, status, error);
-					}
-				});
-			},
-			{
-				"Content-Type":"application/x-www-form-urlencoded",
-				//"If-None-Match":"*"//,
-				//"Zotero-API-Version":"2"
-			});*/
-		//Uploader.init();
 	};
 
 	/**
@@ -1457,7 +1312,6 @@ Zotero.API = new function() {
 	var userID, sessionToken;
 	function _getCredentials(doc) {
 		var cookies = doc.cookie.split(/ *; */);
-		console.log(cookies);
 		for(var i=0, n=cookies.length; i<n; i++) {
 			var cookie = cookies[i],
 				equalsIndex = cookie.indexOf("="),
@@ -1556,7 +1410,6 @@ Zotero.Debug.init();
 
 // Add message listeners to save attachments
 Zotero.Messaging.addMessageListener("_saveAttachmentsToServer", function(args){
-	console.log(args);
 	Zotero.Messaging.sendMessage("_saveAttachmentsToServer", args);
 });
 

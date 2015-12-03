@@ -3917,7 +3917,6 @@ Zotero.Translate.Sandbox = {
 
 			// We use this within the connector to keep track of items as they are saved
 			if(!item.id) item.id = Zotero.Utilities.randomString();
-			console.log(item);
 			// don't save documents as documents in connector, since we can't pass them around
 			if(Zotero.isConnector) {
 				var attachments = item.attachments;
@@ -3931,18 +3930,14 @@ Zotero.Translate.Sandbox = {
 				}
 			}
 
-			console.log(item);
-
 			// Fire itemSaving event
 			translate._runHandler("itemSaving", item);
 
 			if(translate instanceof Zotero.Translate.Web) {
-				console.log("calling saveQueue");
 				// For web translators, we queue saves
 				translate.saveQueue.push(item);
 			} else {
 				// Save items
-				console.log("calling _saveItems");
 				translate._saveItems([item]);
 			}
 		},
@@ -5212,7 +5207,6 @@ Zotero.Translate.Base.prototype = {
 	 * until after save
 	 */
 	"_saveItems":function(items) {
-		console.log(items);
 		var me = this,
 			itemDoneEventsDispatched = false,
 			deferredProgress = [],
@@ -5255,7 +5249,6 @@ Zotero.Translate.Base.prototype = {
 			}
 		},
 		function(attachment, progress, error) {
-			console.log(attachment);
 			var attachmentIndex = me._savingAttachments.indexOf(attachment);
 			if(progress === false || progress === 100) {
 				if(attachmentIndex !== -1) {
@@ -5343,7 +5336,6 @@ Zotero.Translate.Base.prototype = {
 	 * @return {Boolean} Whether the translator could be successfully loaded
 	 */
 	"_loadTranslator":function(translator, callback) {
-		console.log(translator);
 		var sandboxLocation = this._getSandboxLocation();
 		if(!this._sandboxLocation || sandboxLocation !== this._sandboxLocation) {
 			this._sandboxLocation = sandboxLocation;
@@ -5820,7 +5812,6 @@ Zotero.Translate.Import.prototype._loadTranslator = function(translator, callbac
  * Prepare translator IO
  */
 Zotero.Translate.Import.prototype._loadTranslatorPrepareIO = function(translator, callback) {
-	console.log(translator);
 	var configOptions = this._translatorInfo.configOptions;
 	var dataMode = configOptions ? configOptions["dataMode"] : "";
 
@@ -6721,8 +6712,6 @@ Zotero.Translate.ItemSaver.prototype = {
 	 *     on failure or attachmentCallback(attachment, progressPercent) periodically during saving.
 	 */
 	"saveItems":function(items, callback, attachmentCallback) {
-		console.log("ITEM SAVER:");
-		console.log(items);
 		this._saveToServer(items, callback, attachmentCallback);
 	},
 
@@ -6795,7 +6784,6 @@ Zotero.Translate.ItemSaver.prototype = {
 	 *     attachmentCallback() will be called with all attachments that will be saved
 	 */
 	"_saveToServer":function(items, callback, attachmentCallback) {
-		console.log("saving",items);
 
 		var newItems = [], itemIndices = [], typedArraysSupported = false;
 		try {
@@ -6816,7 +6804,6 @@ Zotero.Translate.ItemSaver.prototype = {
 		}
 
 		var me = this;
-		console.log(newItems);
 		Zotero.API.createItem({"items":newItems}, function(statusCode, response) {
 			if(statusCode !== 200) {
 				callback(false, new Error("Save to server failed with "+statusCode+" "+response));
@@ -6863,7 +6850,6 @@ Zotero.Translate.ItemSaver.prototype = {
 	 */
 	"_saveAttachmentsToServer":function(attachments, prefs, attachmentCallback) {
 		Zotero.debug("saveattachmentstoserver");
-		console.log(attachments);
 		var me = this,
 			uploadAttachments = [],
 			retrieveHeadersForAttachments = attachments.length;
@@ -7166,7 +7152,6 @@ Zotero.Translate.ItemSaver.prototype = {
 		}
 		attachment.md5 = hash;
 
-		console.log("About to upload the attachment");
 		if(Zotero.isChrome && !Zotero.isBookmarklet) {
 			// In Chrome, we don't use messaging for Zotero.API.uploadAttachment, since
 			// we can't pass ArrayBuffers to the background page
@@ -7908,8 +7893,6 @@ Zotero.Messaging = new function() {
 	 * as the last argument to Zotero.xxx.yyy.
 	 */
 	this.init = function(iFrameSrc) {
-		console.log("THIS HAPPENS!");
-		console.trace();
 		for(var ns in MESSAGES) {
 			if(!Zotero[ns]) Zotero[ns] = {};
 			for(var meth in MESSAGES[ns]) {
@@ -7957,7 +7940,6 @@ Zotero.Messaging = new function() {
 		var listener = function(event) {
 			try {
 				var data = event.data, origin = event.origin;
-				console.log(event.origin);
 				if(event.origin !== ZOTERO_CONFIG.BOOKMARKLET_ORIGIN
 						&& (!Zotero.isIE || event.origin !== ZOTERO_CONFIG.HTTP_BOOKMARKLET_ORIGIN)) {
 					throw "Received message from invalid origin";
@@ -8238,7 +8220,6 @@ Zotero.Messaging.addMessageListener("hideZoteroIFrame", function() {
 });
 
 Zotero.Messaging.addMessageListener("_saveAttachmentsToServer", function(args) {
-	console.log(args);
 	var itemSaver = new Zotero.Translate.ItemSaver(undefined, "ATTACHMENT_MODE_FILE", undefined, undefined, undefined, undefined);
 	itemSaver._saveAttachmentsToServer(args.attachments, {automaticSnapshots: true, downloadAssociatedFiles: true}, itemSaver.notifyAttachmentProgress);
 });
@@ -8259,7 +8240,6 @@ var zoteroIFrame;
  * Load privileged iframe and begin translation
  */
 function startTranslation() {
-	console.log(Zotero);
 	Zotero.ProgressWindow.show();
 	Zotero.ProgressWindow.changeHeadline("Looking for Zotero Standalone...");
 

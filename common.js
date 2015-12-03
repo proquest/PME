@@ -4589,7 +4589,7 @@ Zotero.Utilities = {
 
 		var fieldID, itemFieldID;
 		for(var field in item) {
-			if(field === "complete" || field === "itemID" || field === "attachments"
+			if(field === "complete" || field === "itemID"
 					|| field === "seeAlso") continue;
 
 			var val = item[field];
@@ -4657,19 +4657,21 @@ Zotero.Utilities = {
 			} else if(field === "notes") {
 				// normalize notes
 				var n = val.length;
-				for(var j=0; j<n; j++) {
+				for (var j = 0; j < n; j++) {
 					var note = val[j];
-					if(typeof note === "object") {
-						if(!note.note) {
+					if (typeof note === "object") {
+						if (!note.note) {
 							Zotero.debug("itemToServerJSON: Discarded invalid note");
 							continue;
 						}
 						note = note.note;
 					}
-					newItems.push({"itemType":"note", "parentItem":newItem.itemKey,
+					newItems.push({"itemType": "note", "parentItem": newItem.itemKey,
 						"note":note.toString()});
 				}
-			} else if((fieldID = Zotero.ItemFields.getID(field))) {
+			} else if (field === "attachments") {
+				newItem[field] = val;
+			} else {
 				// if content is not a string, either stringify it or delete it
 				if(typeof val !== "string") {
 					if(val || val === 0) {
@@ -4686,15 +4688,8 @@ Zotero.Utilities = {
 					if(fieldName !== field && !newItem[fieldName]) newItem[fieldName] = val;
 					continue;	// already know this is valid
 				}
+				newItem[field] = val;
 
-				// if field is valid for this type, set field
-				if(Zotero.ItemFields.isValidForType(fieldID, typeID)) {
-					newItem[field] = val;
-				} else {
-					Zotero.debug("itemToServerJSON: Discarded field "+field+": field not valid for type "+item.itemType, 3);
-				}
-			} else {
-				Zotero.debug("itemToServerJSON: Discarded unknown field "+field, 3);
 			}
 		}
 
