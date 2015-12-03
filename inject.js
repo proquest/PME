@@ -7166,9 +7166,10 @@ Zotero.Translate.ItemSaver.prototype = {
 	},
 
 	"notifyAttachmentProgress": function(attachment, progressPercent, error) {
-		console.log(attachment);
-		console.log(progressPercent);
-		console.log(error);
+		//TODO: Make progress in savetorefworks app reflect real progress
+		//console.log(attachment);
+		//console.log(progressPercent);
+		//console.log(error);
 	},
 
 	/**
@@ -8241,7 +8242,7 @@ var zoteroIFrame;
  */
 function startTranslation() {
 	Zotero.ProgressWindow.show();
-	Zotero.ProgressWindow.changeHeadline("Looking for Zotero Standalone...");
+	Zotero.ProgressWindow.changeHeadline("Looking for Standalone...");
 
 	zoteroIFrame = document.createElement("iframe");
 	zoteroIFrame.id = "zotero-privileged-iframe";
