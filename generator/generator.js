@@ -80,6 +80,7 @@ function updateList(existingList, fn) {
 								translators.push({
 									translatorID: transObj.translatorID,
 									target: transObj.target,
+									label: transObj.label,
 									priority: transObj.priority
 								});
 								putObjectToS3(translatorskey + transObj.translatorID + ".js", fileContent, function(){})
