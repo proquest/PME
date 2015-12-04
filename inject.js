@@ -6862,58 +6862,21 @@ Zotero.Translate.ItemSaver.prototype = {
 		 */
 		var createAttachments = function() {
 			if(uploadAttachments.length === 0) return;
-			/*var attachmentPayload = [];
-			for(var i=0; i<uploadAttachments.length; i++) {
-				var attachment = uploadAttachments[i];
-				attachmentPayload.push({
-					"itemType":"attachment",
-					//"parentItem":itemKey,
-					"linkMode":attachment.linkMode,
-					"title":(attachment.title ? attachment.title.toString() : "Untitled Attachment"),
-					"accessDate":"CURRENT_TIMESTAMP",
-					"url":attachment.url,
-					"note":(attachment.note ? attachment.note.toString() : ""),
-					"tags":(attachment.tags && attachment.tags instanceof Array ? attachment.tags : [])
-				});
-			}*/
 
-			/*Zotero.API.createItem({"items":attachmentPayload}, function(statusCode, response) {
-				var resp;
-				if(statusCode === 200) {
-					try {
-						resp = JSON.parse(response);
-						if(!resp.success) resp = undefined;
-					} catch(e) {};
-				}
-
-				Zotero.debug("Finished creating items");*/
 				for(var i=0; i<uploadAttachments.length; i++) {
 					var attachment = uploadAttachments[i];
-					/*if(!resp || !resp.success[i]) {
-						attachmentCallback(attachment, false,
-							new Error("Unexpected response received from server "+statusCode+" "+response));
-					} else {*/
-
-						if(attachment.linkMode === "linked_url") {
-							attachmentCallback(attachment, 100);
-						} else if("data" in attachment) {
-							me._uploadAttachmentToServer(attachment, attachmentCallback);
-						}
-					/*}*/
+					if(attachment.linkMode === "linked_url") {
+						attachmentCallback(attachment, 100);
+					} else if("data" in attachment) {
+						me._uploadAttachmentToServer(attachment, attachmentCallback);
+					}
 				}
-			/*});*/
 		};
 
 		for(var i=0; i<attachments.length; i++) {
 			// Also begin to download attachments
 			(function(attachment) {
 				var headersValidated = null;
-
-				// Ensure these are undefined before continuing, since we'll use them to determine
-				// whether an attachment has been created on the Zotero server and downloaded from
-				// the host
-				//delete attachment.key;
-				//delete attachment.data;
 
 				var isSnapshot = false;
 				if(attachment.mimeType) {
@@ -6984,17 +6947,6 @@ Zotero.Translate.ItemSaver.prototype = {
 						if(!err) {
 							attachment.mimeType = contentType;
 							attachment.linkMode = "imported_url";
-							/*switch(contentType.toLowerCase()) {
-								case "application/pdf":
-									attachment.filename = baseName+".pdf";
-									break;
-								case "text/html":
-								case "application/xhtml+xml":
-									attachment.filename = baseName+".html";
-									break;
-								default:
-									attachment.filename = baseName;
-							}*/
 							if(charset) attachment.charset = charset;
 							headersValidated = true;
 						}
@@ -7040,6 +6992,12 @@ Zotero.Translate.ItemSaver.prototype = {
 						attachmentCallback(attachment, event.loaded/event.total*50);
 					}
 				};
+				xhr.onerror = function(event) {
+					if(attachmentCallback) {
+						attachmentCallback(attachment, 0, {"status": event.target.status});
+					}
+				};
+
 				xhr.send();
 
 				if(attachmentCallback) attachmentCallback(attachment, 0);
@@ -7166,6 +7124,7 @@ Zotero.Translate.ItemSaver.prototype = {
 	},
 
 	"notifyAttachmentProgress": function(attachment, progressPercent, error) {
+		Zotero.API.notifyAttachmentProgress({attachment:attachment, progressPercent: progressPercent, error: error});
 		//TODO: Make progress in savetorefworks app reflect real progress
 		//console.log(attachment);
 		//console.log(progressPercent);
@@ -8220,7 +8179,7 @@ Zotero.Messaging.addMessageListener("hideZoteroIFrame", function() {
 	revealedFrame.remove();
 });
 
-Zotero.Messaging.addMessageListener("_saveAttachmentsToServer", function(args) {
+Zotero.Messaging.addMessageListener("_getAttachment", function(args) {
 	var itemSaver = new Zotero.Translate.ItemSaver(undefined, "ATTACHMENT_MODE_FILE", undefined, undefined, undefined, undefined);
 	itemSaver._saveAttachmentsToServer(args.attachments, {automaticSnapshots: true, downloadAssociatedFiles: true}, itemSaver.notifyAttachmentProgress);
 });

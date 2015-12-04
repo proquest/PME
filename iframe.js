@@ -1306,6 +1306,10 @@ Zotero.API = new function() {
 		Zotero.Messaging.sendMessageToRefWorks("uploadAttachment", attachment);
 	};
 
+	this.notifyAttachmentProgress = function(args) {
+		Zotero.Messaging.sendMessageToRefWorks("attachmentProgress", args);
+	};
+
 	/**
 	 * Extracts credentials from cookies
 	 */
@@ -1409,8 +1413,8 @@ Zotero.isBookmarklet = true;
 Zotero.Debug.init();
 
 // Add message listeners to save attachments
-Zotero.Messaging.addMessageListener("_saveAttachmentsToServer", function(args){
-	Zotero.Messaging.sendMessage("_saveAttachmentsToServer", args);
+Zotero.Messaging.addMessageListener("_getAttachment", function(args){
+	Zotero.Messaging.sendMessage("_getAttachment", args);
 });
 
 Zotero.Messaging.addMessageListener("cleanup", function(){

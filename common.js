@@ -5224,7 +5224,8 @@ const MESSAGES = {
 	"API":
 		{
 			"createItem":true,
-			"uploadAttachment":false
+			"uploadAttachment":false,
+			"notifyAttachmentProgress":false
 		}
 };
 
