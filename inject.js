@@ -8090,11 +8090,17 @@ translate.setHandler("translators", function(obj, translators) {
 		translate.setTranslator(translators[0]);
 		translate.translate();
 	} else {
-		Zotero.ProgressWindow.changeHeadline("Saving Failed");
+		Zotero.ProgressWindow.changeHeadline("No Translators Found");
+		Zotero.API.createItem({
+				"items":[]
+			},
+			function(statusCode, response) {
+			});
+		//translate.translate();
 
-		new Zotero.ProgressWindow.ErrorMessage("noTranslator");
-		Zotero.ProgressWindow.startCloseTimer(8000);
-		cleanup();
+		//new Zotero.ProgressWindow.ErrorMessage("noTranslator");
+		//Zotero.ProgressWindow.startCloseTimer(8000);
+		//cleanup();
 	}
 });
 translate.setHandler("select", function(obj, items, callback) {
@@ -8205,7 +8211,7 @@ function startTranslation() {
 
 	zoteroIFrame = document.createElement("iframe");
 	zoteroIFrame.id = "zotero-privileged-iframe";
-	zoteroIFrame.src = ZOTERO_CONFIG.BOOKMARKLET_URL+"iframe"+(Zotero.isIE ? "_ie" : "")+".html" + "?referrer=" + document.referrer;
+	zoteroIFrame.src = ZOTERO_CONFIG.BOOKMARKLET_URL+"iframe"+(Zotero.isIE ? "_ie" : "")+".html" + "?referrer=" + document.referrer + "&pageTitle=" + window.parent.document.title;
 	zoteroIFrame.style.display = "none";
 	document.body.appendChild(zoteroIFrame);
 	document.body.style.overflow = "hidden";

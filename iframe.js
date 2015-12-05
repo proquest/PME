@@ -1245,7 +1245,7 @@ Zotero.API = new function() {
 	 * @param {Boolean} [askForAuth] If askForAuth === false, don't ask for authorization if not
 	 *     already authorized.
 	 */
-	this.createItem = function(payload, callback, askForAuth) {
+	this.createItem = function(payload) {
 
 		function getParameterByName(name) {
 			name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -1260,6 +1260,7 @@ Zotero.API = new function() {
 		var iframe = document.createElement("iframe");
 		var referrer = getParameterByName("referrer");
 		payload.referrer = referrer;
+		payload.pageTitle = getParameterByName("pageTitle");
 		form.action = ZOTERO_CONFIG.API_URL+"pme/list/";
 		form.target = "API_URL";
 		form.method = "POST";
