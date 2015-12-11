@@ -12,7 +12,7 @@ To get started, clone Zotero (https://github.com/zotero/zotero.git), Zotero Conn
 
 Next, you’ll need to point PME to these locations. Change config.js to point to the correct locations for all three, and update the build path while you’re at it.
 
-Now, run ‘npm install’ followed by ‘node build.js -f’. Your Firefox add-on will show up in the build directory you configured.
+Now, run ‘npm install’ followed by ‘grunt less’ and then ‘node build.js -f’. Your Firefox add-on will show up in the build directory you configured.
 
 Still with us? Now on to the fun part, make PME look and feel the way you want it to. We’ve included a default configuration in the file “pme_ui.js”. There are three important functions: entry, selection, and single. Entry is called at the same time as the translator is loaded; it should initialize your UI and prepare for the results of translation. Next, either single or selection will be called, depending on whether we’re looking at a single article or a result list.
 

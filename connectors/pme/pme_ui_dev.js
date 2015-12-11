@@ -1,32 +1,131 @@
 
-
 ///// DO NOT EDIT this comment or anything above it. (The build script looks for the '/////' string and ignores anything above it)
 // The sharedRefData object is located in the Flow codebase and gets copied into PME. If this object must be changed,
 // update the file ref-type-fields.js in Flow and those changes will propagate to PME.
+// var sharedRefData = {};
+
+// Templates:
+// The template strings are located in pme/templates.js and added to this file during the build process.
+// var s2rTemplateStrings = {};
+
+var s2r = {};
+
+s2r.Utils = {};
+
+/**
+ * Compiles JavaScript templates into functions that can be evaluated for rendering.
+ * Useful for rendering complicated bits of HTML from JSON data sources. Template
+ * functions can interpolate values, using <%= … %>.
+ * When you evaluate a template function, pass in a data object that has properties
+ * corresponding to the template's free variables.
+ *
+ * A slightly modified version of Underscore templates.
+ *
+ * ex:
+ * var helloTemplate = Utils.template("hello: <%= name %>");
+ * var helloJessica = helloTemplate({name:"Jessica"});
+ *
+ * @param templateString A string to be evaluated for rendering.
+ * @returns an executable function that will render the string with passed properties.
+ */
+s2r.Utils.template = function(text) {
+
+	// Certain characters need to be escaped so that they can be put into a
+	// string literal.
+	var escapes = {
+		"'": "'",
+		'\\': '\\',
+		'\r': 'r',
+		'\n': 'n',
+		'\u2028': 'u2028',
+		'\u2029': 'u2029'
+	};
+
+	var escapeRegExp = /\\|'|\r|\n|\u2028|\u2029/g;
+
+	var escapeChar = function(match) {
+		return '\\' + escapes[match];
+	};
+
+	var settings = {
+		evaluate: /<%([\s\S]+?)%>/g,
+		interpolate: /<%=([\s\S]+?)%>/g
+	};
+
+	// Combine delimiters into one regular expression via alternation.
+	var matcher = RegExp([
+		(settings.interpolate || noMatch).source,
+		(settings.evaluate || noMatch).source
+	].join('|') + '|$', 'g');
+
+	// Compile the template source, escaping string literals appropriately.
+	var index = 0;
+	var source = "__p+='";
+	text.replace(matcher, function(match, interpolate, evaluate, offset) {
+		source += text.slice(index, offset).replace(escapeRegExp, escapeChar);
+		index = offset + match.length;
+
+		if (interpolate) {
+			source += "'+\n((__t=(" + interpolate + "))==null?'':__t)+\n'";
+		} else if (evaluate) {
+			source += "';\n" + evaluate + "\n__p+='";
+		}
+
+		// Adobe VMs need the match returned to produce the correct offset.
+		return match;
+	});
+	source += "';\n";
+
+	// If a variable is not specified, place data values in local scope.
+	if (!settings.variable) source = 'with(obj||{}){\n' + source + '}\n';
+
+	source = "var __t,__p='',__j=Array.prototype.join," +
+	"print=function(){__p+=__j.call(arguments,'');};\n" +
+	source + 'return __p;\n';
+
+	var render;
+	try {
+		render = new Function(settings.variable || 'obj', '_', source);
+	} catch (e) {
+		e.source = source;
+		throw e;
+	}
+
+	var template = function(data) {
+		return render.call(this, data);
+	};
+
+	// Provide the compiled source as a convenience for precompilation.
+	var argument = settings.variable || 'obj';
+	template.source = 'function(' + argument + '){\n' + source + '}';
+
+	return template;
+};
 
 var SaveToFlow = (function() {
-	var FLOW_SERVER = "https://flow.proquest.com",
+
+	var FLOW_SERVER = "https://refworks.proquest.com",
 		MODE = "DEBUG";
 
 	function setSaveTimeout(doc,delay){
 		delay = delay || 10000;
 		if(delay == -1) {
-			doc.getElementById("stf_container").setAttribute("not_loaded", "false");
+			doc.getElementById("s2r-container").setAttribute("not_loaded", "false");
 			return;
 		}
 		else {
-			doc.getElementById("stf_container").setAttribute("not_loaded", "true");
+			doc.getElementById("s2r-container").setAttribute("not_loaded", "true");
 		}
 		ZU.setTimeout(function () {
-			var notLoaded = doc.getElementById("stf_container").getAttribute("not_loaded");
+			var notLoaded = doc.getElementById("s2r-container").getAttribute("not_loaded");
 			if (notLoaded == "true") {
 				//got stuck at done, has items, just something prevented the complete.
 				Zotero.done();
 				ZU.setTimeout(function () {
-					var notLoaded = doc.getElementById("stf_container").getAttribute("not_loaded");
+					var notLoaded = doc.getElementById("s2r-container").getAttribute("not_loaded");
 					if (notLoaded == "true") {
-						doc.getElementById("stf_container").style.display = "none";
-						doc.getElementById("stf_progress").style.display = "block";
+						doc.getElementById("s2r-container").style.display = "none";
+						doc.getElementById("s2r-progress").style.display = "block";
 						saveFailed(doc);
 					}
 				}, 10000);
@@ -35,97 +134,27 @@ var SaveToFlow = (function() {
 	}
 
 	function entry(doc, url) {
-		if (doc && !doc.getElementById("stf_capture")) {
+		if (doc && !doc.getElementById("s2r-capture")) {
 			style(doc);
 			container(doc);
 
 			ZU.setTimeout(function () {
-				var className = doc.getElementById("stf_capture").className;
-				doc.getElementById("stf_capture").className = (className ? className + " " : "") + "stf_show";
+				var className = doc.getElementById("s2r-capture").className;
+				doc.getElementById("s2r-capture").className = (className ? className + " " : "") + "s2r-show";
 			}, 100);
 
 			setSaveTimeout(doc);
 		}
-		return "Save to Flow Loaded"
+		return "Save to RefWorks Loaded"
 	}
 
 	function style(doc) {
 		try {
-			var style = [];
-			style.push("@import url(//fonts.googleapis.com/css?family=Open+Sans:600,600italic,400,400italic,300,300italic);");
-			style.push("#stf_capture {z-index:1000000000000009;box-sizing:border-box;position:fixed;right:-360px;top:0;bottom:0;width:360px;display:block;border:none;overflow:hidden;transition: all 1s ease;-webkit-transition: all 1s ease;-moz-transition: all 1s ease;}");
-			style.push("#stf_capture.stf_show {right: 0px;}");
-			style.push("#stf_capture * {-moz-box-sizing:border-box;box-sizing:border-box;margin:0;padding:0;background:transparent;font-family:'Open Sans',Arial,Verdana,Helvetica,sans-serif;font-size:12px;line-height:18px;font-style:normal;font-weight:normal;text-align:left; color:#f1f2f5}");
-			style.push("#stf_capture img {display:inline;}");
-			style.push("#stf_capture a {text-decoration:none;color:#73b9ff;}");
-			style.push("#stf_capture .stf_clear {clear:both;margin-bottom:10px;}");
-			style.push("#stf_capture .stf_status,#stf_capture .stf_download,#stf_capture .stf_error {height:72px;width:355px;background:#454a53;border-radius:4px;padding:20px;position:absolute;top:5px;right:5px;display:none;}");
-			style.push("#stf_capture .stf_status,#stf_capture .stf_error {font-size:14px;font-weight:300;line-height:20px;}");
-			style.push("#stf_capture .stf_status a {font-size:14px;font-weight:300;}");
-			style.push("#stf_capture .stf_status button {position:absolute;top:0;right:0;font-size:13px;color:#fff;font-weight:300;text-align:center;color:#fff;width:auto;padding-left:20px;padding-right:20px;}");
-			style.push("#stf_capture .stf_download {display:none;position:relative;right:0px;}");
-			style.push("#stf_capture .stf_download .stf_download_info {text-align:left;margin:0 0 10px 2px;font-size:14px;font-weight:300;color:#fff;}");
-			style.push("#stf_capture .stf_download .stf_download_bar {position:relative;width:315px;height:12px;background:rgb(0,115,161);border-radius:4px;}");
-			style.push("#stf_capture .stf_download .stf_download_progress {position:absolute;height:12px;width:10px;background:rgb(0,154,211);border-radius:4px;}");
-			style.push("#stf_capture #stf_container {z-index:1;background:#454a53;position:absolute;top:0;bottom:0;width:360px;}");
-			style.push("#stf_capture #stf_container #stf_processing {padding:0 20px;font-size:14px;text-align:center;z-index:2;position:absolute;top:81px;}");
-			style.push("#stf_capture.stf_listView:not(.toggle) #stf_container #stf_processing {display:none;}");
-			style.push("#stf_capture.stf_listView.stf_singleView.stf_toggle #stf_container #stf_processing {display:block;top:91px;}");
-			style.push("#stf_capture.stf_singleView:not(.stf_toggle) #stf_container #stf_processing {display:none;}");
-			style.push("#stf_capture .stf_warn {display:none;color:#d1d2d5;margin:10px 20px 20px 20px;padding:6px 10px;background:#585c65;border-radius:3px;box-shadow:inset 2px 3px 3px rgba(0,0,0,0.07);width:320px;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper {width:360px;height:81px;background:#454a53;padding-top:10px;position:absolute;top:0px;right:0px;z-index:100;text-align:center;}");
-			style.push("#stf_capture.stf_listView .stf_ui_logo_wrapper {border-bottom:1px solid #585c65}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_selected_header {color:#999;font-size:14px;}");
-			style.push("#stf_capture.stf_listView .stf_ui_logo_wrapper .stf_selected_header {display:inline;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_left {display:none;position:absolute;left:18px;top:51px;margin:0;line-height:20px;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_right {display:none;position:absolute;right:18px;top:51px;margin:0;line-height:20px;font-size:13px;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_cancel,#stf_capture .stf_error .stf_cancel {position:absolute;right:10px;top:0px;cursor:pointer;opacity:0.65;padding:10px;}");
-			style.push("#stf_capture.stf_listView:not(.stf_singleView) .stf_ui_logo_wrapper #stf_select_all {display:inline;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_single_nav img {cursor:pointer;padding:10px;opacity:0.65;}");
-			style.push("#stf_capture .stf_ui_logo_wrapper .stf_single_nav img.stf_disabled {cursor:default;opacity:0.2;}");
-			style.push("#stf_capture.stf_listView.stf_singleView .stf_ui_logo_wrapper .stf_single_nav {display:inline;}");
-			style.push("#stf_capture.stf_singleView:not(.stf_listView) .stf_ui_logo_wrapper {height:30px}");
-			style.push("#stf_capture .stf_button_pane {width:360px;height:81px;position:absolute;bottom:0px;right:0px;background:#454a53;}");
-			style.push("#stf_capture .stf_button_pane button {display:none;}");
-			style.push("#stf_capture.stf_listView .stf_button_pane button {display:inline;opacity:0.6;}");
-			style.push("#stf_capture.stf_listView .stf_button_pane button.stf_enable {opacity:1.0;}");
-			style.push("#stf_capture.stf_singleView.stf_listView .stf_button_pane button {background:rgb(85,91,103);border:1px solid rgb(109,115,127);}");
-			style.push("#stf_capture.stf_singleView .stf_button_pane button {display:inline;opacity:1.0;}");
-			style.push("#stf_capture button {color:#fff;background:#0091c5;border:none;width:180px;height:32px;font-size:14px;margin:20px;margin-left:85px;text-align:center;font-weight:normal;cursor:pointer;border-radius:3px}");
-			style.push("#stf_capture #stf_ui_main::-webkit-scrollbar,#stf_capture .stf_ui_itemlist::-webkit-scrollbar,#stf_capture #stf_ui_main .stf_val::-webkit-scrollbar {background:transparent;width:8px;}");
-			style.push("#stf_capture #stf_ui_main::-webkit-scrollbar-thumb,#stf_capture .stf_ui_itemlist::-webkit-scrollbar-thumb,#stf_capture #stf_ui_main .stf_val::-webkit-scrollbar-thumb {background:#96989e;border-radius:5px;}");
-			style.push("#stf_capture .stf_ui_itemlist {display:none;position:absolute;top:81px;bottom:81px;padding:20px 18px;background:#454a53;width:360px;overflow-y:auto;}");
-			style.push("#stf_capture.stf_listView:not(.stf_singleView) .stf_ui_itemlist {display:block;}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item {position:relative;margin-bottom:5px;}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item .stf_item_authorlist {color:#999;padding:2px 30px 4px 23px;line-height:16px;}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item label {cursor:pointer;padding:2px 30px 0 23px;display:inline-block}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item input[type=checkbox] {position:absolute;left:0;top:5px}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item img.stf_pdf {float:left;margin-right:5px;}");
-			style.push("#stf_capture .stf_ui_itemlist .stf_ui_item img.stf_detail {position:absolute;right:0px;top:5px;cursor:pointer}");
-			style.push("#stf_capture #stf_ui_main {display:none;background:#454a53;position:absolute;top:81px;bottom:81px;width:360px;overflow-y:auto;padding:20px 0px;overflow-y:auto;overflow-x:hidden;}");
-			style.push("#stf_capture.stf_singleView:not(.stf_toggle) #stf_ui_main {display:block;}");
-			style.push("#stf_capture.stf_singleView:not(.stf_listView) #stf_ui_main {top:51px;}");
-			style.push("#stf_capture #stf_ui_main .stf_textposition {position:relative}");
-			style.push("#stf_capture #stf_ui_main span.stf_empty {color:#686d76;position:absolute;left:31px;top:7px;line-height:16px;}");
-			style.push("#stf_capture #stf_ui_main span.stf_author {color:#686d76;position:absolute;left:31px;bottom:7px;line-height:16px;display:none;}");
-			style.push("#stf_capture #stf_ui_main .stf_lbl {color:#999;margin:10px 20px 0px 30px;}");
-			style.push("#stf_capture #stf_ui_main .stf_val {box-sizing:border-box;overflow-x:hidden;color:#d1d2d5;margin:0px 20px;padding:6px 10px;background:#383e46;border:1px solid #565b64;width:320px;border-radius:3px;box-shadow:inset 2px 3px 3px rgba(0,0,0,0.07);overflow:hidden;outline:none;resize:none;}");
-			style.push("#stf_capture #stf_ui_main img.stf_lbl {margin-top:0px;margin-left:25px;float:left;margin-bottom:20px;}");
-			style.push("#stf_capture #stf_ui_main .stf_attach {margin-top:0px;vertical-align:middle;}");
-			style.push("#stf_capture #stf_ui_main .stf_input_container {display:inline-block;width:265px;display:inline;zoom:1;}");
-			style.push("#stf_capture #stf_ui_main .stf_details {border-bottom:1px solid #666;margin-bottom:20px;margin-left:20px;margin-right:20px;padding:10px;}");
-			style.push("#stf_capture #stf_ui_main .stf_header {font-size:14px;margin-top:0;}");
-			style.push("#stf_capture #stf_ui_main .stf_dropdown {margin:10px 20px 20px 20px;width:320px;height:28px;background:#f1f2f5;border:1px solid #565b64;color:#333;}");
-			style.push("#stf_capture #stf_ui_main .stf_dropdown option {background:#f1f2f5;color:#333;}");
-			style.push("#stf_capture #stf_ui_main .stf_webref {display:none;}");
-			style.push("#stf_capture #stf_reference_json {display:none;}");
-			style.push("#stf_debug {z-index:1000000000000009;position:absolute;top:0;left:0;width:400px;min-height:100%;border:1px solid #333;background:#fff;}");
-			style.push("#stf_debug div {margin:10px; border-bottom:1px solid #ccc;}");
-
-			var styleElement = doc.createElement("style");
-			styleElement.id = "stf_style";
-			styleElement.innerHTML = style.join("");
-			doc.head.appendChild(styleElement);
+			var linkedStyle = doc.createElement("link");
+			linkedStyle.type = "text/css";
+			linkedStyle.rel = "stylesheet";
+			linkedStyle.href = "resource://pme/style.css";
+			doc.head.appendChild(linkedStyle);
 		}
 		catch (e) {
 			error(doc, e);
@@ -135,43 +164,11 @@ var SaveToFlow = (function() {
 	function container(doc) {
 		try {
 			var container = doc.createElement("div");
-			container.id = "stf_capture";
+			container.id = "s2r-capture";
 			container.className = "notranslate";
-			container.innerHTML =
-				'<iframe frameborder="0" id="stf_tracking_iframe" name="stf_tracking_iframe" allowtransparency="true" width="1" height="1"></iframe>' +
-				'<form method="post" action="' + FLOW_SERVER + '/savetoflow/tracking/" accept-charset="UTF-8" enctype="application/x-www-form-urlencoded" target="stf_tracking_iframe" name="stf_tracking_form" id="stf_tracking_form">' +
-				'<input type="hidden" name="found" id="stf_track_found">' +
-				'<input type="hidden" name="selected" id="stf_track_selected">' +
-				'<input type="hidden" name="url" id="stf_track_url">' +
-				'<input type="hidden" name="modified" id="stf_track_modified">' +
-				'<input type="hidden" name="citation" id="stf_track_citation">' +
-				'</form>' +
-				'<div class="stf_status" id="stf_status"></div>' +
-				'<div class="stf_error" id="stf_error"></div>' +
-				'<div class="stf_download" id="stf_progress">' +
-				'<div class="stf_download_info">Saving to Flow</div>' +
-				'<div class="stf_download_bar"><div class="stf_download_progress" id="stf_download_progress"></div></div>' +
-				'</div>' +
-				'<div id="stf_container">' +
-				'<div class="stf_ui_logo_wrapper">' +
-				'<img src="' + FLOW_SERVER + '/public/img/PQ-StF.png"/><img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_cancel"/>' +
-				'<p class="stf_selected_header stf_left" id="stf_header_text">Select articles</p>' +
-				'<a class="stf_ui_pick_all all stf_right" href="javascript:void(0);" id="stf_select_all">Select All</a>' +
-				'<span class="stf_right stf_single_nav">' +
-				'<img src="' + FLOW_SERVER + '/public/img/arrow-up.png" class="prev" id="stf_single_prev"/>' +
-				'<img src="' + FLOW_SERVER + '/public/img/arrow-down.png" class="next" id="stf_single_next"/>' +
-				'</span>' +
-				'</div>' +
-				'<div id="stf_processing">Finding references</div>' +
-				'<div id="stf_ui_main">' +
-				'<div class="stf_webref stf_warn" id="stf_webref">Flow couldn\'t find much here, but you can enter the missing metadata below. </div>' +
-				'<div class="stf_meta" id="stf_meta"></div>' +
-				'</div>' +
-				'<div class="stf_ui_itemlist" id="stf_ui_itemlist"></div>' +
-				'<div class="stf_button_pane"><button class="stf_btn_save" disabled="disabled" id="stf_save_button">Save to Flow</button></div>' +
-				'</div>'
+			container.innerHTML = s2r.Utils.template(s2rTemplateStrings.s2fContainer)({flowServer: FLOW_SERVER});
 			doc.body.appendChild(container);
-			attachCloseEvent(doc, "stf_cancel");
+			attachCloseEvent(doc, "s2r-cancel");
 		}
 		catch (e) {
 			error(doc, e);
@@ -186,17 +183,17 @@ var SaveToFlow = (function() {
 
 	function close(doc) {
 		try {
-			var elem = doc.getElementById("stf_capture");
+			var elem = doc.getElementById("s2r-capture");
 			if (elem) {
 				var className = elem.className;
-				elem.className = className.replace("stf_show", "");
+				elem.className = className.replace("s2r-show", "");
 				ZU.setTimeout(function () {
 					try {
 						//need to recheck if the element still there, it could've been removed by now
-						var elem = doc.getElementById("stf_capture");
+						var elem = doc.getElementById("s2r-capture");
 						if (elem) {
 							doc.body.removeChild(elem);
-							doc.head.removeChild(doc.getElementById("stf_style"));
+							doc.head.removeChild(doc.getElementById("s2r-style"));
 							Z.done();
 						}
 					}
@@ -212,10 +209,10 @@ var SaveToFlow = (function() {
 	}
 
 	function debug(doc, str) {
-		var debug = doc.getElementById("stf_debug");
+		var debug = doc.getElementById("s2r-debug");
 		if (!debug) {
-			doc.body.innerHTML += '<div id="stf_debug"></div>';
-			debug = doc.getElementById("stf_debug")
+			doc.body.innerHTML += '<div id="s2r-debug"></div>';
+			debug = doc.getElementById("s2r-debug")
 		}
 		debug.innerHTML += "<div>" + str + "</div>";
 	}
@@ -235,7 +232,7 @@ var SaveToFlow = (function() {
 				debug(doc, JSON.stringify(errorObj));
 			}
 			else
-				ZU.HTTP.doPost("https://flow.proquest.com/api/2/logservice/", JSON.stringify(errorObj), function () {
+				ZU.HTTP.doPost("https://refworks.proquest.com/api/2/logservice/", JSON.stringify(errorObj), function () {
 				}, {"Content-Type": "application/json"});//send to server to be logged
 		}
 		catch (e) {
@@ -244,12 +241,12 @@ var SaveToFlow = (function() {
 
 	function tracking(doc, tracking) {
 		try {
-			doc.getElementById("stf_track_found").value = tracking.found;
-			doc.getElementById("stf_track_selected").value = tracking.selected;
-			doc.getElementById("stf_track_url").value = tracking.url;
-			doc.getElementById("stf_track_citation").value = tracking.citation;
-			doc.getElementById("stf_track_modified").value = JSON.stringify(tracking.modified);
-			//doc.getElementById("stf_tracking_form").submit();
+			doc.getElementById("s2r-track_found").value = tracking.found;
+			doc.getElementById("s2r-track_selected").value = tracking.selected;
+			doc.getElementById("s2r-track_url").value = tracking.url;
+			doc.getElementById("s2r-track_citation").value = tracking.citation;
+			doc.getElementById("s2r-track_modified").value = JSON.stringify(tracking.modified);
+			//doc.getElementById("s2r-tracking_form").submit();
 		}
 		catch (e) {
 			error(doc, e);
@@ -351,12 +348,12 @@ var SaveToFlow = (function() {
 
 	function startProgress(doc) {
 		setSaveTimeout(doc,60000);
-		doc.getElementById("stf_container").style.display = "none";
-		doc.getElementById("stf_progress").style.display = "block";
+		doc.getElementById("s2r-container").style.display = "none";
+		doc.getElementById("s2r-progress").style.display = "block";
 	}
 
 	function completeProgress(doc) {
-		var stf = doc.getElementById("stf_capture"),
+		var stf = doc.getElementById("s2r-capture"),
 			done = parseInt(stf.getAttribute("data-saving-done"));
 		stf.setAttribute("data-saving-done", (isNaN(done) ? 1 : done + 1));
 		progressDialog(doc, 0.5);
@@ -422,11 +419,14 @@ var SaveToFlow = (function() {
 	function saveFailed(doc) {
 		progressDialog(doc, 1);//allow completion
 		try {
-			var errorDialog = doc.getElementById("stf_error");
-			doc.getElementById("stf_progress").style.display = "none";
+			var errorDialog = doc.getElementById("s2r-error");
+			doc.getElementById("s2r-container").style.display = "none";
+			doc.getElementById("s2r-progress").style.display = "none";
+			doc.getElementById("s2r-status").style.display = "none";
 			errorDialog.style.display = "block";
-			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_err_cancel"/>We\'re sorry, we were unable to save to Flow. We tried, but came up empty.';
-			attachCloseEvent(doc, "stf_err_cancel");
+			errorDialog.innerHTML = 'We\'re sorry, we were unable to save to RefWorks. We tried, but came up empty.';
+			errorDialog.innerHTML += '<button class="btn btn-primary" id="s2r-err_cancel">Ok</button>';
+			attachCloseEvent(doc, "s2r-err_cancel");
 		}
 		catch (e) {
 			error(doc, e);
@@ -436,12 +436,15 @@ var SaveToFlow = (function() {
 	function attachmentFailed(doc) {
 		progressDialog(doc, 1);//allow completion
 		try {
-			var errorDialog = doc.getElementById("stf_error");
+			var errorDialog = doc.getElementById("s2r-error");
+			doc.getElementById("s2r-container").style.display = "none";
+			doc.getElementById("s2r-progress").style.display = "none";
+			doc.getElementById("s2r-status").style.display = "none";
 			errorDialog.style.display = "block";
 			errorDialog.style.top = '85px';
-			errorDialog.innerHTML = "We're sorry, we were unable to get some of the full-text. We tried, but came up empty.";
-			errorDialog.innerHTML = '<img src="' + FLOW_SERVER + '/public/img/close.png" class="stf_cancel" id="stf_err_cancel"/>We\'re sorry, we were unable to get some of the full-text. We tried, but came up empty.';
-			attachCloseEvent(doc, "stf_err_cancel");
+			errorDialog.innerHTML = 'We\'re sorry, we were unable to get some of the full-text. We tried, but came up empty.';
+			errorDialog.innerHTML += '<button class="btn btn-primary" id="s2r-err_cancel">Ok</button>';
+			attachCloseEvent(doc, "s2r-err_cancel");
 		}
 		catch (e) {
 			error(doc, e);
@@ -450,7 +453,7 @@ var SaveToFlow = (function() {
 	}
 
 	function progressDialog(doc, ratio) {
-		var stf = doc.getElementById("stf_capture"),
+		var stf = doc.getElementById("s2r-capture"),
 			count = stf.getAttribute("data-saving-count"),
 			done = stf.getAttribute("data-saving-done");
 		if (count) {
@@ -462,20 +465,20 @@ var SaveToFlow = (function() {
 		if (!count && parseInt(done) == 1)
 			ratio = 1;
 
-		doc.getElementById("stf_download_progress").style.width = Math.round(ratio * 315) + "px";
+		doc.getElementById("s2r-download-progress").style.width = Math.round(ratio * 315) + "px";
 		if (ratio == 1)
 			completeDialog(doc);
 	}
 
 	function completeDialog(doc) {
 		try {
-			var count = doc.getElementById("stf_capture").getAttribute("data-saving-count"),
-				status = doc.getElementById("stf_status"),
-				countText = count ? count + " articles saved." : "1 article saved.";
+			var count = doc.getElementById("s2r-capture").getAttribute("data-saving-count"),
+				status = doc.getElementById("s2r-status"),
+				countText = count > 1 ? count + " articles saved to RefWorks" : "1 article saved to RefWorks";
 
-			doc.getElementById("stf_progress").style.display = "none";
+			doc.getElementById("s2r-progress").style.display = "none";
 			status.style.display = "block";
-			status.innerHTML = countText + '<form method="get" action="' + FLOW_SERVER + '/library/recent/" target="ProQuestFlow"><button id="stf_view_button" type="submit">View in Flow</button></form>';
+			status.innerHTML = s2r.Utils.template(s2rTemplateStrings.savedMessage)({'countText': countText, 'flowServer':FLOW_SERVER});
 
 			ZU.setTimeout(function () {
 				try {
@@ -496,15 +499,15 @@ var SaveToFlow = (function() {
 	function loginDialog(doc) {
 		try {
 			setSaveTimeout(doc,-1);
-			var status = doc.getElementById("stf_status");
-			doc.getElementById("stf_progress").style.display = "none";
+			var status = doc.getElementById("s2r-status");
+			doc.getElementById("s2r-progress").style.display = "none";
 			status.style.display = "block";
-			status.innerHTML = 'You must be logged in. <form method="get" action="' + FLOW_SERVER + '" target="ProQuestFlow"><button id="stf_view_button" type="submit">Log in now</button></form>';
+			status.innerHTML = s2r.Utils.template(s2rTemplateStrings.loginMessage)({'flowServer':FLOW_SERVER});
 
 			ZU.setTimeout(function () {
 				try {
 					status.style.display = "none";
-					doc.getElementById("stf_container").style.display = "block";
+					doc.getElementById("s2r-container").style.display = "block";
 				}
 				catch (e) {
 					error(doc, e);
@@ -516,27 +519,34 @@ var SaveToFlow = (function() {
 		}
 	}
 
+	function backToList(doc) {
+		var stf = doc.getElementById("s2r-capture");
+		stf.className = "s2r-listView s2r-show";//save and back to list
+		doc.getElementById("s2r-header-text").innerHTML = "";
+		setListButton(doc);
+	}
 	function selection(doc, url, items, callback) {
 		setSaveTimeout(doc,-1);
 		try {
 			//callback should complete items, so we'll basically want to use it when we want to see of save an item.
-			var container = doc.getElementById("stf_ui_itemlist"), stf = doc.getElementById("stf_capture"), ix = 1;
-			if (container.getElementsByClassName("stf_ui_item").length > 0) {
+			var container = doc.getElementById("s2r-ui-itemlist"), stf = doc.getElementById("s2r-capture"), ix = 1;
+			if (container.getElementsByClassName("s2r-ui-item").length > 0) {
 				Z.debug("selection called after already loaded.");
 				return;
 			}
-			stf.className = " stf_listView";
+			stf.className = " s2r-listView";
+			var listItemTemplate = s2r.Utils.template(s2rTemplateStrings.listItem);
 			for (itemId in items) {
 				try {
 					var item = doc.createElement("div");
-					item.className = "stf_ui_item";
+					item.className = "s2r-ui-item";
 					item.setAttribute("data-id", itemId);
 					item.setAttribute("data-ix", ix++);
 					item.addEventListener("click", function (e) {
 						try {
-							if (e.target.className == "stf_detail") {//go to reference
-								stf.className += " stf_singleView stf_toggle";
-								doc.getElementById("stf_processing").innerHTML = "Loading reference";
+							if (e.target.className == "s2r-detail") {//go to reference
+								stf.className += " s2r-singleView s2r-toggle";
+								doc.getElementById("s2r-processing").innerHTML = "Loading reference...";
 								var thisItemId = this.getAttribute("data-id");
 								stf.setAttribute("data-id", thisItemId);
 								stf.setAttribute("data-ix", this.getAttribute("data-ix"));
@@ -559,8 +569,7 @@ var SaveToFlow = (function() {
 							error(doc, e);
 						}
 					}, true);
-					item.innerHTML = '<p><input type="checkbox" id="stf_cbx_' + itemId + '"/><label for="stf_cbx_' + itemId + '">' + items[itemId] + '</label></p>'
-						+ '<img src="' + FLOW_SERVER + '/public/img/oval-arrow-grey.png" class="stf_detail"/>';
+					item.innerHTML = listItemTemplate({'itemId':itemId, 'itemDescription':items[itemId]});
 					container.appendChild(item);
 				}
 				catch (e) {
@@ -570,10 +579,10 @@ var SaveToFlow = (function() {
 			stf.setAttribute("data-count", ix - 1);
 			var savedReferences = {};
 
-			doc.getElementById("stf_select_all").addEventListener("click", function (e) {
+			doc.getElementById("s2r-select-all").addEventListener("click", function (e) {
 				try {
 					if (this.getAttribute("unselect") == "true") {
-						this.innerHTML = "Select All";
+						this.innerHTML = "select all";
 						this.setAttribute("unselect", "false");
 						setListButton(doc, false);
 					}
@@ -587,7 +596,8 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}, true);
-			doc.getElementById("stf_single_next").addEventListener("click", function (e) {
+
+			doc.getElementById("s2r-single-next").addEventListener("click", function (e) {
 				try {
 					var item_id = stf.getAttribute("data-id");
 					savedReferences[item_id] = getModified(doc);
@@ -597,7 +607,7 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}, true);
-			doc.getElementById("stf_single_prev").addEventListener("click", function (e) {
+			doc.getElementById("s2r-single-prev").addEventListener("click", function (e) {
 				try {
 					var item_id = stf.getAttribute("data-id");
 					savedReferences[item_id] = getModified(doc);
@@ -607,28 +617,31 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}, true);
-			doc.getElementById("stf_save_button").addEventListener("click", function (e) {
+
+			doc.getElementById("s2r-back-to-list").addEventListener("click", function(e){
+				backToList(doc);
+			});
+
+			doc.getElementById("s2r-save_button").addEventListener("click", function (e) {
 				try {
-					var stf = doc.getElementById("stf_capture");
-					if (stf.className.indexOf("stf_listView") >= 0 && stf.className.indexOf("singleView") >= 0) {
+					var stf = doc.getElementById("s2r-capture");
+					if (stf.className.indexOf("s2r-listView") >= 0 && stf.className.indexOf("singleView") >= 0) {
 						var item_id = stf.getAttribute("data-id");
 						savedReferences[item_id] = getModified(doc);
-						stf.className = "stf_listView stf_show";//save and back to list
-						doc.getElementById("stf_header_text").innerHTML = "Select articles";
-						setListButton(doc);
+						backToList(doc);
 					}
-					else if (stf.className.indexOf("stf_listView") >= 0) {
+					else if (stf.className.indexOf("s2r-listView") >= 0) {
 						stf.setAttribute("data-saving", "true");
 						stf.setAttribute("data-saving-count", 1);
 						startProgress(doc);
-						var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
+						var cbx = doc.getElementById("s2r-ui-itemlist").getElementsByTagName("input"),
 							count = 0,
 							modified = [],
 							list = {};
 						for (var i = 0; i < cbx.length; i++) {
 							if (cbx[i].checked) {
 								count++;
-								var item_id = cbx[i].id.replace("stf_cbx_", "");
+								var item_id = cbx[i].id.replace("s2r-cbx_", "");
 								if (savedReferences[item_id]) {
 									if (savedReferences[item_id].modifiedFields)
 										modified.push(savedReferences[item_id].modifiedFields)
@@ -662,16 +675,16 @@ var SaveToFlow = (function() {
 	}
 
 	function move(doc, url, callback, items, offset, savedReferences) {
-		var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"),
-			stf = doc.getElementById("stf_capture"),
+		var cbx = doc.getElementById("s2r-ui-itemlist").getElementsByTagName("input"),
+			stf = doc.getElementById("s2r-capture"),
 			id = stf.getAttribute("data-id");
 		for (var i = 0; i < cbx.length; i++) {
 			try {
-				if (cbx[i].id == "stf_cbx_" + id) {
+				if (cbx[i].id == "s2r-cbx_" + id) {
 					if (i + offset < 0 || i + offset >= cbx.length)
 						return;
-					stf.className += " stf_toggle";
-					var thisItem = {}, thisItemId = cbx[i + offset].id.replace("stf_cbx_", "");
+					stf.className += " s2r-toggle";
+					var thisItem = {}, thisItemId = cbx[i + offset].id.replace("s2r-cbx_", "");
 					stf.setAttribute("data-id", thisItemId);
 					stf.setAttribute("data-ix", i + (1 + offset));
 					if (savedReferences[thisItemId]) {
@@ -691,23 +704,23 @@ var SaveToFlow = (function() {
 
 	function setListButton(doc, check) {
 		try {
-			var cbx = doc.getElementById("stf_ui_itemlist").getElementsByTagName("input"), count = 0;
+			var cbx = doc.getElementById("s2r-ui-itemlist").getElementsByTagName("input"), count = 0;
 			for (var i = 0; i < cbx.length; i++) {
 				if (check !== undefined)
 					cbx[i].checked = check;
 				if (cbx[i].checked)
 					count++;
 			}
-			var button = doc.getElementById("stf_save_button");
+			var button = doc.getElementById("s2r-save_button");
 			if (count > 0) {
 				button.disabled = false;
-				button.className = "stf_btn_save stf_enable";
+				button.className = "btn btn-primary s2r-btn_save s2r-enable";
 			}
 			else {
 				button.disabled = true;
-				button.className = "stf_btn_save";
+				button.className = "btn btn-primary s2r-btn_save";
 			}
-			button.innerHTML = "Save to Flow (" + count + ")";
+			button.innerHTML = "Save to RefWorks (" + count + ")";
 		}
 		catch (e) {
 			error(doc, e);
@@ -716,26 +729,26 @@ var SaveToFlow = (function() {
 
 	function singleHeader(doc, refType, attachments) {
 		try {
-			var stf = doc.getElementById("stf_capture"),
+			var stf = doc.getElementById("s2r-capture"),
 				containerClass = stf.className,
 				output = [];
-			containerClass = containerClass.replace(" stf_toggle", "");
-			if (containerClass.indexOf("stf_singleView") < 0)
-				stf.className = containerClass + " stf_singleView";
+			containerClass = containerClass.replace(" s2r-toggle", "");
+			if (containerClass.indexOf("s2r-singleView") < 0)
+				stf.className = containerClass + " s2r-singleView";
 			else
 				stf.className = containerClass;
-			if (containerClass.indexOf("stf_listView") >= 0) {
+			if (containerClass.indexOf("s2r-listView") >= 0) {
 				var ix = parseInt(stf.getAttribute("data-ix")),
 					count = parseInt(stf.getAttribute("data-count"));
-				doc.getElementById("stf_header_text").innerHTML = "Article details - " + ix + " of " + count;
-				doc.getElementById("stf_single_prev").className = "stf_prev" + (ix <= 1 ? " stf_disabled" : "");
-				doc.getElementById("stf_single_next").className = "stf_next" + (ix >= count ? " stf_disabled" : "");
-				doc.getElementById("stf_save_button").innerHTML = "Done editing";
+				doc.getElementById("s2r-header-text").innerHTML = "Article details - " + ix + " of " + count;
+				doc.getElementById("s2r-single-prev").className = "s2r-prev" + (ix <= 1 ? " s2r-disabled" : "");
+				doc.getElementById("s2r-single-next").className = "s2r-next" + (ix >= count ? " s2r-disabled" : "");
+				doc.getElementById("s2r-save_button").innerHTML = "Done editing";
 			}
 			else
-				output.push("<div class='stf_lbl stf_header'>Save As</div>");
+				output.push("<p class='s2r-selected-header'>Save As</p>");
 
-			output.push("<select id='reference_type' class='stf_dropdown'>");
+			output.push("<select id='reference_type' class='s2r-dropdown'>");
 			for (var index in labels.referenceTypes) {
 				var value = labels.referenceTypes[index];
 				var selected = refType == index ? " selected='selected'" : "";
@@ -757,14 +770,25 @@ var SaveToFlow = (function() {
 			catch (e) {
 				error(doc, e);
 			}
+			var fullTextTemplate = s2r.Utils.template(s2rTemplateStrings.fullTextLine);
 			if (pdf || html) {
-				output.push("<img src='" + FLOW_SERVER + "/public/img/" + (pdf ? "pdf" : "web") + ".png' class='stf_lbl'/><span class='stf_input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' checked='checked' class='stf_attach'> <span>We found the article, want to save it?</span></label></span>");
+				output.push(fullTextTemplate({
+					flowServer: FLOW_SERVER,
+					type: (pdf ? 'PDF' : 'WEB'),
+					label: "We found the article, want to save it?",
+					checked: "checked"})
+				);
 			}
-			else if (containerClass.indexOf("stf_listView") == -1) {
-				output.push("<img src='" + FLOW_SERVER + "/public/img/web.png' class='stf_lbl'/><span class='stf_input_container'><label for='stf_attach_web' class='stf_attach'><input type='checkbox' id='stf_attach' class='stf_attach'> <span>Save the content of this web page</span></label></span>");
+			else if (containerClass.indexOf("s2r-listView") == -1) {
+				output.push(fullTextTemplate({
+						flowServer: FLOW_SERVER,
+						type: 'WEB',
+						label: "Save the content of this web page",
+						checked: ""})
+				);
 			}
 
-			output.push("<div id='stf_ref_type_spec' class='stf_clear'>");
+			output.push("<div id='s2r-ref_type_spec' class='s2r-clear'>");
 			return output;
 		}
 		catch (e) {
@@ -791,8 +815,8 @@ var SaveToFlow = (function() {
 				item.URL = url;
 				item.attachments = [];
 			}
-			var container = doc.getElementById("stf_meta"),
-				stf = doc.getElementById("stf_capture");
+			var container = doc.getElementById("s2r-meta"),
+				stf = doc.getElementById("s2r-capture");
 			if (!item.refType) {//this function can be called with zotero format or flow format (first view, and there-after)
 				if (!item.retrievedDate)
 					item.retrievedDate = new Date();
@@ -811,7 +835,7 @@ var SaveToFlow = (function() {
 				if (url.indexOf(".pdf") > -1)
 					item.attachments.push({title: 'Full Text PDF', url: url, mimeType: 'application/pdf'});
 				else
-					doc.getElementById("stf_webref").style.display = "block";
+					doc.getElementById("s2r-webref").style.display = "block";
 			}
 
 			var output = singleHeader(doc, item.refType, item.attachments)
@@ -822,17 +846,17 @@ var SaveToFlow = (function() {
 
 			container.innerHTML = output.join('');
 
-			doc.getElementById("stf_save_button").disabled = false;
+			doc.getElementById("s2r-save_button").disabled = false;
 
 			autoSize.addEvents(doc);
 
-			if (doc.getElementById("stf_capture").getAttribute("events_attached") != "true") {
+			if (doc.getElementById("s2r-capture").getAttribute("events_attached") != "true") {
 				doc.getElementById("reference_type").addEventListener("change", function (e) {
 					try {
 						//get current field values (may be editted)
 						autoSize.removeEvents(doc);
 						item = getModified(doc);
-						doc.getElementById("stf_ref_type_spec").innerHTML = createFields(doc, item).join('');
+						doc.getElementById("s2r-ref_type_spec").innerHTML = createFields(doc, item).join('');
 						autoSize.addEvents(doc);
 					}
 					catch (ex) {
@@ -840,8 +864,8 @@ var SaveToFlow = (function() {
 					}
 				}, true);
 
-				if (stf.className.indexOf("stf_singleView") >= 0 && stf.className.indexOf("stf_listView") == -1) {
-					doc.getElementById("stf_save_button").addEventListener("click", function (e) {
+				if (stf.className.indexOf("s2r-singleView") >= 0 && stf.className.indexOf("s2r-listView") == -1) {
+					doc.getElementById("s2r-save_button").addEventListener("click", function (e) {
 						try {
 							startProgress(doc);
 							item = saveReference(doc, url, item, false);
@@ -855,7 +879,7 @@ var SaveToFlow = (function() {
 						}
 					}, true);
 				}
-				doc.getElementById("stf_capture").setAttribute("events_attached", "true")
+				doc.getElementById("s2r-capture").setAttribute("events_attached", "true")
 			}
 		}
 		catch (e) {
@@ -867,7 +891,7 @@ var SaveToFlow = (function() {
 	function getModified(doc) {
 		var reference = {}, item = {};
 		try {
-			item = JSON.parse(doc.getElementById("stf_reference_json").innerHTML);
+			item = JSON.parse(doc.getElementById("s2r-reference-json").innerHTML);
 		}
 		catch (e) {
 			error(doc, e);
@@ -878,7 +902,7 @@ var SaveToFlow = (function() {
 			reference.tags = item.tags ? item.tags : [];
 			for (var index = 0; index < labels.order.length; index++) {
 				try {
-					var elem = doc.getElementById("stf_" + labels.order[index]);
+					var elem = doc.getElementById("s2r-" + labels.order[index]);
 					if (elem) {
 						var val = elem.value;
 						if (labels.order[index] == "authors")
@@ -897,7 +921,7 @@ var SaveToFlow = (function() {
 				}
 			}
 			reference.attachments = item.attachments;
-			reference.attach = doc.getElementById("stf_attach") && doc.getElementById("stf_attach").checked;
+			reference.attach = doc.getElementById("s2r-attach") && doc.getElementById("s2r-attach").checked;
 		}
 		catch (e) {
 			error(doc, e);
@@ -910,7 +934,7 @@ var SaveToFlow = (function() {
 			var reference = useItem ? item : getModified(doc);
 			reference = conversion.convert(reference);//convert to deep flow model
 			reference.attachments = item.attachments;
-			reference.attach = useItem ? item.attachments.length : doc.getElementById("stf_attach").checked;
+			reference.attach = useItem ? item.attachments.length : doc.getElementById("s2r-attach").checked;
 			save(reference, doc, url);
 			return reference;
 		}
@@ -933,11 +957,11 @@ var SaveToFlow = (function() {
 						if (value && label.toLowerCase() == 'isbn') value = value.split(',')[0];
 
 						output.push(
-							"<div class='stf_lbl'>" +
+							"<div class='s2r-lbl'>" +
 								label +
 								(field == "authors" ? ' ("Last name, First names" each on new line)' : '') +
 							"</div>" +
-							"<textarea class='stf_val' id='stf_" + field + "' rows='1' placeholder='" +
+							"<textarea class='s2r-val' id='s2r-" + field + "' rows='1' placeholder='" +
 							(field == "authors" ? "Please enter authors..." : "Please enter metadata...") +
 							"'>" +
 							(value ? value : "") +
@@ -948,7 +972,7 @@ var SaveToFlow = (function() {
 					error(doc, e);
 				}
 			}
-			output.push("<div id='stf_reference_json'>" + JSON.stringify(item) + "</div>");
+			output.push("<div id='s2r-reference-json'>" + JSON.stringify(item) + "</div>");
 			return output;
 		}
 		catch (e) {
@@ -959,9 +983,9 @@ var SaveToFlow = (function() {
 	var autoSize = (function () {
 		function autoSize(text) {
 			var textHeight = 102;
-			if (text.scrollHeight < textHeight || text.id == "stf_authors") {
+			if (text.scrollHeight < textHeight || text.id == "s2r-authors") {
 				text.style.height = 'auto';
-				var height = (text.scrollHeight + (text.id == "stf_authors" ? 18 : 0))
+				var height = (text.scrollHeight + (text.id == "s2r-authors" ? 18 : 0))
 				text.style.height = (height > 32 ? height : 32) + 'px';//minimum, one line
 				text.style.overflow = 'hidden';
 			}
@@ -991,7 +1015,7 @@ var SaveToFlow = (function() {
 		function removeEvents(doc) {
 			for (var index = 0; index < labels.order.length; index++) {
 				var value = labels.order[index];
-				var text = doc.getElementById("stf_" + value);
+				var text = doc.getElementById("s2r-" + value);
 				if (text) {
 					text.removeEventListener("focus", focusEvent);
 					text.removeEventListener("blur", blurEvent);
@@ -1002,7 +1026,7 @@ var SaveToFlow = (function() {
 		function addEvents(doc) {
 			for (var index = 0; index < labels.order.length; index++) {
 				var value = labels.order[index];
-				var text = doc.getElementById("stf_" + value);
+				var text = doc.getElementById("s2r-" + value);
 				if (text) {
 					autoSize(text);
 					text.addEventListener("focus", focusEvent);

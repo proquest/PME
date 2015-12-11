@@ -8,9 +8,13 @@
     "url": "https://github.com/proquest/PME/tree/connectors/connectors"
   },
   "dependencies": {
+    "grunt": "~0.4.3",
+    "grunt-contrib-less": "~0.10.0",
+    "grunt-contrib-watch": "~0.5.3",
     "crx": "",
     "uglify-js": "",
     "graceful-fs": "",
-    "archiver": ""
+    "archiver": "",
+    "request": "^2.53.0"
   }
 }

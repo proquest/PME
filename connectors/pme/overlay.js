@@ -40,7 +40,7 @@ var PMEOverlay = new function() {
 				addonBar.setAttribute("collapsed", false);
 				document.persist(addonBar.id, "collapsed");
 			}
-			tool_bar_button.tooltipText = "ProQuest Flow";
+			tool_bar_button.tooltipText = "ProQuest RefWorks";
 
 		}
 		catch(e) {
