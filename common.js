@@ -26,13 +26,13 @@
 
 const ZOTERO_CONFIG = {
 	REPOSITORY_URL: 'http://pme.proquest.com',
-	API_URL: 'http://localhost:8080/',
-	LOGIN_URL: 'http://localhost:8080/login/',
-	BOOKMARKLET_ORIGIN : 'https://s3.amazonaws.com/pme.proquest.com',
-	HTTP_BOOKMARKLET_ORIGIN : 'http://pme.proquest.com',
-	BOOKMARKLET_URL: 'https://s3.amazonaws.com/pme.proquest.com/',
-	HTTP_BOOKMARKLET_URL: 'http://pme.proquest.com/',
-	AUTH_COMPLETE_URL: 'http://localhost:8080/auth_complete/',
+	API_URL: 'http://localhost:8080/',//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com
+	LOGIN_URL: 'http://localhost:8080/login/',//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com/login/
+	BOOKMARKLET_ORIGIN : 'https://s3.amazonaws.com/pme.proquest.com',//change this to the url you're using for the bookmark https://s3.amazonaws.com/pme.proquest.com/review/new-pme
+	HTTP_BOOKMARKLET_ORIGIN : 'http://pme.proquest.com',//change this to the url you're using for the bookmark https://pme.proquest.com/review/new-pme
+	BOOKMARKLET_URL: 'https://s3.amazonaws.com/pme.proquest.com/',//change this to the url you're using for the bookmark https://s3.amazonaws.com/pme.proquest.com/review/new-pme
+	HTTP_BOOKMARKLET_URL: 'http://pme.proquest.com/',//change this to the url you're using for the bookmark http://pme.proquest.com/review/new-pme
+	AUTH_COMPLETE_URL: 'http://localhost:8080/auth_complete/',//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com/auth_complete/
 	S3_URL: 'https://zoterofilestorage.s3.amazonaws.com/'
 };
 Zotero.isBookmarklet = true;
