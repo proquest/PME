@@ -1,3 +1,44 @@
+/******** BEGIN zotero_config.js ********/
+/*
+    ***** BEGIN LICENSE BLOCK *****
+
+    Copyright © 2011 Center for History and New Media
+                     George Mason University, Fairfax, Virginia, USA
+                     http://zotero.org
+
+    This file is part of Zotero.
+
+    Zotero is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Zotero is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
+
+    ***** END LICENSE BLOCK *****
+*/
+
+const ZOTERO_CONFIG = {
+	REPOSITORY_URL: 'http://pme.proquest.com',
+	API_URL: 'http://localhost:8080/',
+	LOGIN_URL: 'http://localhost:8080/login/',
+	BOOKMARKLET_ORIGIN : 'https://s3.amazonaws.com/pme.proquest.com',
+	HTTP_BOOKMARKLET_ORIGIN : 'http://pme.proquest.com',
+	BOOKMARKLET_URL: 'https://s3.amazonaws.com/pme.proquest.com/',
+	HTTP_BOOKMARKLET_URL: 'http://pme.proquest.com/',
+	AUTH_COMPLETE_URL: 'http://localhost:8080/auth_complete/',
+	S3_URL: 'https://zoterofilestorage.s3.amazonaws.com/'
+};
+Zotero.isBookmarklet = true;
+
+/******** END zotero_config.js ********/
+
 /******** BEGIN zotero.js ********/
 /*
     ***** BEGIN LICENSE BLOCK *****
@@ -192,46 +233,7 @@ Zotero.Prefs = new function() {
 	};
 }
 /******** END zotero.js ********/
-/******** BEGIN zotero_config.js ********/
-/*
-    ***** BEGIN LICENSE BLOCK *****
 
-    Copyright © 2011 Center for History and New Media
-                     George Mason University, Fairfax, Virginia, USA
-                     http://zotero.org
-
-    This file is part of Zotero.
-
-    Zotero is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Zotero is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
-
-    ***** END LICENSE BLOCK *****
-*/
-
-const ZOTERO_CONFIG = {
-	REPOSITORY_URL: 'http://pme.proquest.com',
-	API_URL: 'http://localhost:8080/',
-	LOGIN_URL: 'http://localhost:8080/login/',
-	BOOKMARKLET_ORIGIN : 'https://s3.amazonaws.com/pme.proquest.com',
-	HTTP_BOOKMARKLET_ORIGIN : 'http://pme.proquest.com',
-	BOOKMARKLET_URL: 'https://s3.amazonaws.com/pme.proquest.com/',
-	HTTP_BOOKMARKLET_URL: 'http://pme.proquest.com/',
-	AUTH_COMPLETE_URL: 'http://localhost:8080/auth_complete/',
-	S3_URL: 'https://zoterofilestorage.s3.amazonaws.com/'
-};
-Zotero.isBookmarklet = true;
-
-/******** END zotero_config.js ********/
 /******** BEGIN debug.js ********/
 /*
     ***** BEGIN LICENSE BLOCK *****
