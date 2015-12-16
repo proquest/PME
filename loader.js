@@ -5,7 +5,7 @@ new function() {
 		return;
 	};
 
-	var baseURL = "http://localhost:8273/",
+	var baseURL = window.location.hostname +(window.location.port?":"+window.location.port:""),
 		ie = (!document.evaluate ? "_ie" : ""),
 		common = baseURL+"common"+ie+".js?_="+(new Date()),
 		inject = baseURL+"inject"+ie+".js?_="+(new Date());
