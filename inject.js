@@ -7900,8 +7900,8 @@ Zotero.Messaging = new function() {
 		var listener = function(event) {
 			try {
 				var data = event.data, origin = event.origin;
-				if(event.origin !== ZOTERO_CONFIG.BOOKMARKLET_ORIGIN
-						&& (!Zotero.isIE || event.origin !== ZOTERO_CONFIG.HTTP_BOOKMARKLET_ORIGIN)) {
+				if(ZOTERO_CONFIG.BOOKMARKLET_ORIGIN.indexOf(event.origin) < 0
+						&& (!Zotero.isIE || ZOTERO_CONFIG.HTTP_BOOKMARKLET_ORIGIN.indexOf(event.origin) < 0)) {
 					throw "Received message from invalid origin";
 				}
 
@@ -8033,7 +8033,7 @@ var BookmarkletFrame = function(url, width, height) {
 	// Add iframe
 	if(url) {
 		this._frame = document.createElement("iframe");
-		this._frame.src = url + "?referrer=" + document.referrer;
+		this._frame.src = url + "?referrer=" + document.referrer+"&EXT_SERVICE_PROVIDER="+encodeURIComponent(window.EXT_SERVICE_PROVIDER) + "&PME_SERVICE_PROVIDER="+encodeURIComponent(window.PME_SERVICE_PROVIDER);
 	} else {
 		this._frame = zoteroIFrame;
 		zoteroIFrame.style.display = "block";
@@ -8211,7 +8211,7 @@ function startTranslation() {
 
 	zoteroIFrame = document.createElement("iframe");
 	zoteroIFrame.id = "zotero-privileged-iframe";
-	zoteroIFrame.src = ZOTERO_CONFIG.BOOKMARKLET_URL+"iframe"+(Zotero.isIE ? "_ie" : "")+".html" + "?referrer=" + document.referrer + "&pageTitle=" + window.parent.document.title;
+	zoteroIFrame.src = ZOTERO_CONFIG.BOOKMARKLET_URL+"iframe"+(Zotero.isIE ? "_ie" : "")+".html" + "?referrer=" + document.referrer + "&pageTitle=" + window.parent.document.title + "&EXT_SERVICE_PROVIDER="+encodeURIComponent(window.EXT_SERVICE_PROVIDER) + "&PME_SERVICE_PROVIDER="+encodeURIComponent(window.PME_SERVICE_PROVIDER);
 	zoteroIFrame.style.display = "none";
 	document.body.appendChild(zoteroIFrame);
 	document.body.style.overflow = "hidden";

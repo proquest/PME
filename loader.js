@@ -4,8 +4,9 @@ new function() {
 			"or refresh the page.");
 		return;
 	};
-
-	var baseURL = window.location.hostname +(window.location.port?":"+window.location.port:""),
+	if(!window.PME_SERVICE_PROVIDER) window.PME_SERVICE_PROVIDER = "https://s3.amazonaws.com/pme.proquest.com";
+	if(!window.EXT_SERVICE_PROVIDER) window.EXT_SERVICE_PROVIDER = "https://refworks.proquest.com";
+	var baseURL = window.PME_SERVICE_PROVIDER+"/",
 		ie = (!document.evaluate ? "_ie" : ""),
 		common = baseURL+"common"+ie+".js?_="+(new Date()),
 		inject = baseURL+"inject"+ie+".js?_="+(new Date());
@@ -16,7 +17,8 @@ new function() {
 	iframe.style.display = "none";
 	iframe.style.borderStyle = "none";
 	iframe.setAttribute("frameborder", "0");
-	iframe.src = 'javascript:(function(){document.open();try{window.parent.document;}catch(e){document.domain="' + document.domain.replace(/[\\\"]/g, "\\$0")+'";}document.write(\'<!DOCTYPE html><html><head><script src="'+common+'"></script><script src="'+inject+'"></script></head><body></body></html>\');document.close();})()';
+	var scriptLocations = 'window.PME_SERVICE_PROVIDER="'+window.PME_SERVICE_PROVIDER+'";window.EXT_SERVICE_PROVIDER="'+window.EXT_SERVICE_PROVIDER+'";';
+	iframe.src = 'javascript:(function(){document.open();try{window.parent.document;}catch(e){document.domain="' + document.domain.replace(/[\\\"]/g, "\\$0")+'";}document.write(\'<!DOCTYPE html><html><head><script>'+scriptLocations+'</script><script src="'+common+'"></script><script src="'+inject+'"></script></head><body></body></html>\');document.close();})()';
 	tag.appendChild(iframe);
 };
 undefined;

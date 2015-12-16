@@ -610,7 +610,7 @@ Zotero.Translators = new function() {
 	 * Gets translator code; only in this implementation
 	 */
 	this._getCode = function(translatorID, callback) {
-		Zotero.HTTP.doGet(ZOTERO_CONFIG.REPOSITORY_URL+"/bookmarklet/translators/"+translatorID+".js", function(xmlhttp) {
+		Zotero.HTTP.doGet(ZOTERO_CONFIG.REPOSITORY_URL+"/translators/"+translatorID+".js", function(xmlhttp) {
 			if(xmlhttp.status !== 200) {
 				Zotero.logError(new Error("Translator " + translatorID + " could not be retrieved"));
 				callback(false);
