@@ -23,16 +23,19 @@
 
     ***** END LICENSE BLOCK *****
 */
-
+console.log(window.REFWORKS_SERVICE_PROVIDER)
+console.log(window.PME_SERVICE_PROVIDER)
+if(!window.PME_SERVICE_PROVIDER) window.PME_SERVICE_PROVIDER = "http://pme.proquest.com";
+if(!window.REFWORKS_SERVICE_PROVIDER) window.REFWORKS_SERVICE_PROVIDER = "http://refworks.proquest.com";
 const ZOTERO_CONFIG = {
-	REPOSITORY_URL: 'http://pme.proquest.com',
-	API_URL: 'http://localhost:8080/',//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com
-	LOGIN_URL: 'http://localhost:8080/login/',//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com/login/
+	REPOSITORY_URL: window.PME_SERVICE_PROVIDER,
+	API_URL: window.REFWORKS_SERVICE_PROVIDER,//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com
+	LOGIN_URL: window.REFWORKS_SERVICE_PROVIDER+'/login/',//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com/login/
 	BOOKMARKLET_ORIGIN : 'https://s3.amazonaws.com/pme.proquest.com',//change this to the url you're using for the bookmark https://s3.amazonaws.com/pme.proquest.com/review/new-pme
-	HTTP_BOOKMARKLET_ORIGIN : 'http://pme.proquest.com',//change this to the url you're using for the bookmark https://pme.proquest.com/review/new-pme
+	HTTP_BOOKMARKLET_ORIGIN : window.PME_SERVICE_PROVIDER,//change this to the url you're using for the bookmark https://pme.proquest.com/review/new-pme
 	BOOKMARKLET_URL: 'https://s3.amazonaws.com/pme.proquest.com/',//change this to the url you're using for the bookmark https://s3.amazonaws.com/pme.proquest.com/review/new-pme
-	HTTP_BOOKMARKLET_URL: 'http://pme.proquest.com/',//change this to the url you're using for the bookmark http://pme.proquest.com/review/new-pme
-	AUTH_COMPLETE_URL: 'http://localhost:8080/auth_complete/',//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com/auth_complete/
+	HTTP_BOOKMARKLET_URL: window.PME_SERVICE_PROVIDER,//change this to the url you're using for the bookmark http://pme.proquest.com/review/new-pme
+	AUTH_COMPLETE_URL: window.REFWORKS_SERVICE_PROVIDER+'/auth_complete/',//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com/auth_complete/
 	S3_URL: 'https://zoterofilestorage.s3.amazonaws.com/'
 };
 Zotero.isBookmarklet = true;
