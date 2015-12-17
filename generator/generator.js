@@ -99,8 +99,9 @@ function updateList(existingList, fn) {
 					if(fileContent.match(/(^\s*{[\s\S]*?\n})/)) {
 						try {
 							var transObj = JSON.parse(RegExp.$1);
-							if(!transObj.browserSupport) console.log("no browserSupport: "+transObj.label)
-							if(	(transObj.browserSupport && transObj.browserSupport.indexOf('b') > -1)
+							if(
+									(whiteList.indexOf(transObj.translatorID) >= 0) ||
+									(transObj.browserSupport && transObj.browserSupport.indexOf('b') > -1)
 								) {
 								translators.push({
 									translatorID: transObj.translatorID,
@@ -109,6 +110,9 @@ function updateList(existingList, fn) {
 									priority: transObj.priority
 								});
 								putObjectToS3(translatorskey + transObj.translatorID + ".js", fileContent, function(){})
+							}
+							else {
+								console.log("skipping: "+transObj.label+" ("+transObj.translatorID+")")
 							}
 						}
 						catch (e){console.log("unexpected file format", file, e);}
