@@ -879,8 +879,8 @@ Zotero.Translators.CodeGetter.prototype.getCodeFor = function(i) {
 	}
 }
 
-var TRANSLATOR_REQUIRED_PROPERTIES = ["translatorID", "target", "priority"];
-var TRANSLATOR_PASSING_PROPERTIES = TRANSLATOR_REQUIRED_PROPERTIES.concat(["browserSupport", "code", "runMode"]);
+var TRANSLATOR_REQUIRED_PROPERTIES = ["translatorID", "target", "priority", "label", "code"];
+var TRANSLATOR_PASSING_PROPERTIES = TRANSLATOR_REQUIRED_PROPERTIES.concat(["browserSupport", "runMode"]);
 var TRANSLATOR_SAVE_PROPERTIES = TRANSLATOR_REQUIRED_PROPERTIES.concat(["browserSupport"]);
 /**
  * @class Represents an individual translator
@@ -925,7 +925,6 @@ Zotero.Translator.prototype.init = function(info) {
 			this[property] = info[property];
 		}
 	}
-
 	this.browserSupport = "b";
 	this.runMode = Zotero.Translator.RUN_MODE_IN_BROWSER;
 
