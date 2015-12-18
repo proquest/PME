@@ -7900,10 +7900,6 @@ Zotero.Messaging = new function() {
 		var listener = function(event) {
 			try {
 				var data = event.data, origin = event.origin;
-				if(ZOTERO_CONFIG.BOOKMARKLET_ORIGIN.indexOf(event.origin) < 0
-						&& (!Zotero.isIE || ZOTERO_CONFIG.HTTP_BOOKMARKLET_ORIGIN.indexOf(event.origin) < 0)) {
-					throw "Received message from invalid origin";
-				}
 
 				if(typeof data === "string") {
 					try {
@@ -7999,7 +7995,7 @@ Zotero.Connector_Types.init();
  * Creates a new frame with the specified width and height
  * @constructor
  */
-var BookmarkletFrame = function(url, width, height) {
+var BookmarkletFrame = function(url, width, height, name) {
 	var parentWin = window.parent,
 		parentDoc = parentWin.document;
 
@@ -8031,9 +8027,10 @@ var BookmarkletFrame = function(url, width, height) {
 	this._appendDimmerTo.appendChild(this._dimmer);*/
 
 	// Add iframe
-	if(url) {
+	if(url || name) {
 		this._frame = document.createElement("iframe");
-		this._frame.src = url + "?referrer=" + document.referrer+"&EXT_SERVICE_PROVIDER="+encodeURIComponent(window.EXT_SERVICE_PROVIDER) + "&PME_SERVICE_PROVIDER="+encodeURIComponent(window.PME_SERVICE_PROVIDER);
+		if(name) this._frame.name = name;
+		if(url) this._frame.src = url + "?referrer=" + document.referrer+"&EXT_SERVICE_PROVIDER="+encodeURIComponent(window.EXT_SERVICE_PROVIDER) + "&PME_SERVICE_PROVIDER="+encodeURIComponent(window.PME_SERVICE_PROVIDER);
 	} else {
 		this._frame = zoteroIFrame;
 		zoteroIFrame.style.display = "block";
@@ -8053,7 +8050,7 @@ var BookmarkletFrame = function(url, width, height) {
 	frameElementStyle.width = width+"px";
 	//frameElementStyle.height = height+"px";
 	frameElementStyle.height = "100%";
-	if(url) this._appendFrameTo.appendChild(this._frame);
+	if(url || name) this._appendFrameTo.appendChild(this._frame);
 
 
 
@@ -8104,13 +8101,43 @@ translate.setHandler("translators", function(obj, translators) {
 	}
 });
 translate.setHandler("select", function(obj, items, callback) {
-	var frame = new BookmarkletFrame(ZOTERO_CONFIG.BOOKMARKLET_URL+"itemSelector.html#"
-		+encodeURIComponent(JSON.stringify([null, items])), 600, 350);
-
+	var payload = {items:items};
+	Zotero.API.createSelection(payload,function(){console.log("completed Zotero.API.createSelection")});
+	/*
+	function getParameterByName(name) {
+		name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+		var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+			results = regex.exec(window.location.search);
+		return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+	}
+	var form = document.createElement("form");
+	var textarea = document.createElement("textarea");
+	var returnURL = document.createElement("input");
+	var referrer = getParameterByName("referrer");
+	var payload = {items:items};
+	payload.referrer = referrer;
+	payload.pageTitle = getParameterByName("pageTitle");
+	form.action = ZOTERO_CONFIG.API_URL+"pme/list/";
+	form.target = "LIST_URL";
+	form.method = "POST";
+	form.style.display = "none";
+	form.acceptCharset = "UTF-8";
+	textarea.style.display = "none";
+	textarea.name = "payload";
+	textarea.value = JSON.stringify(payload);
+	form.appendChild(textarea);
+	returnURL.name = "returnUrl";
+	returnURL.value = encodeURIComponent(referrer);
+	form.appendChild(returnURL);
+	document.body.appendChild(form);
+	var frame = new BookmarkletFrame(null, 600, 350, form.target);
+	frame._frame.id = "RefWorksListMode";
 	selectCallback = function(items) {
-		frame.remove();
+		Zotero.USING_IN_LIST_MODE = true;
 		callback(items);
 	};
+	form.submit();
+	*/
 });
 var _itemProgress = {};
 translate.setHandler("itemSaving", function(obj, item) {

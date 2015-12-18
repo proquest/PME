@@ -5225,6 +5225,8 @@ const MESSAGES = {
 		},
 	"API":
 		{
+			"selectDone":true,
+			"createSelection":true,
 			"createItem":true,
 			"uploadAttachment":false,
 			"notifyAttachmentProgress":false
