@@ -1250,20 +1250,20 @@ Zotero.API = new function() {
 	 */
 	this.createItem = function(payload) {
 console.log(Zotero.USING_IN_LIST_MODE)
-console.log(window.location)
-		var listMode = parent.document.getElementById("RefWorksListMode");
+console.log(window.location);
+		/*console.log(payload);
+		var listMode = true;
+
+		//var listMode = parent.document.getElementById("RefWorksListMode");
 		if(listMode){
-			var messageName = "fullReference"
+			console.log(payload);
+			//var messageName = "fullReference";
+			//Zotero.Messaging.sendMessageToRefWorks(messageName, payload);
 			listMode.contentWindow.postMessage((_structuredCloneSupported
 					? [null, messageName, payload] : JSON.stringify([null, messageName, payload])), "*");
 		}
-		else{
-			function getParameterByName(name) {
-				name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-				var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-					results = regex.exec(window.location.search);
-				return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-			}
+		else{*/
+
 
 			var form = document.createElement("form");
 			var textarea = document.createElement("textarea");
@@ -1301,7 +1301,7 @@ console.log(window.location)
 			document.body.appendChild(iframe);
 			form.submit();
 			Zotero.Messaging.sendMessage("revealZoteroIFrame", null);
-		}
+		//}
 	};
 	/**
 	 * Creates a new selection

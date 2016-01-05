@@ -4256,7 +4256,6 @@ Zotero.Translate.Sandbox = {
 				for(var i in items) itemsObj[i] = items[i];
 				items = itemsObj;
 			}
-
 			if(translate._selectedItems) {
 				// if we have a set of selected items for this translation, use them
 				return transferObject(translate._selectedItems);
@@ -6804,6 +6803,7 @@ Zotero.Translate.ItemSaver.prototype = {
 		}
 
 		var me = this;
+		console.log("THIS HAPPENS");
 		Zotero.API.createItem({"items":newItems}, function(statusCode, response) {
 			if(statusCode !== 200) {
 				callback(false, new Error("Save to server failed with "+statusCode+" "+response));
@@ -8101,8 +8101,28 @@ translate.setHandler("translators", function(obj, translators) {
 	}
 });
 translate.setHandler("select", function(obj, items, callback) {
-	var payload = {items:items};
-	Zotero.API.createSelection(payload,function(){console.log("completed Zotero.API.createSelection")});
+
+	//selectCallback = cancelled = haveItem = null;
+	// add checkboxes to selector
+	for(var i in items) {
+		var title, checked = false;
+		if(items[i] && typeof(items[i]) == "object" && items[i].title !== undefined) {
+			title = items[i].title;
+			checked = !!items[i].checked;
+		} else {
+			title = items[i];
+			checked = false;
+		}
+		items[i].title = title;
+		items[i].checked = checked;
+	}
+	callback(items);
+	/*, function(items){
+		var payload = {items:items};
+		Zotero.API.createItem(payload,function(){console.log("completed Zotero.API.createSelection")});
+	});*/
+
+
 	/*
 	function getParameterByName(name) {
 		name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
@@ -8192,14 +8212,14 @@ Zotero.Messaging.addMessageListener("translate", function(data, event) {
 	}
 	translate.getTranslators();
 });
-Zotero.Messaging.addMessageListener("selectDone", function(returnItems) {
+/*Zotero.Messaging.addMessageListener("selectDone", function(returnItems) {
 	// if no items selected, close save dialog immediately
 	if(!returnItems || Zotero.Utilities.isEmpty(returnItems)) {
 		cancelled = true;
 		Zotero.ProgressWindow.close();
 	}
 	selectCallback(returnItems);
-});
+});*/
 
 // We use these for OAuth, so that we can load the OAuth pages in a child frame of the privileged
 // iframe
