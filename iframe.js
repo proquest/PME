@@ -610,7 +610,7 @@ Zotero.Translators = new function() {
 	 * Gets translator code; only in this implementation
 	 */
 	this._getCode = function(translatorID, callback) {
-		Zotero.HTTP.doGet(ZOTERO_CONFIG.REPOSITORY_URL+"/bookmarklet/translators/"+translatorID+".js", function(xmlhttp) {
+		Zotero.HTTP.doGet(ZOTERO_CONFIG.REPOSITORY_URL+"/translators/"+translatorID+".js", function(xmlhttp) {
 			if(xmlhttp.status !== 200) {
 				Zotero.logError(new Error("Translator " + translatorID + " could not be retrieved"));
 				callback(false);
@@ -716,11 +716,10 @@ Zotero.Translators = new function() {
 		 */
 		function getTranslatorsFromRepo() {
 			var searchURI = fetchURIs.shift();
-      for(var i=0; i<Zotero.TranslatorMasterList.length; i++) {
-        var re = new RegExp(Zotero.TranslatorMasterList[i].target);
-        if(re.test(searchURI))
-          translators.push(Zotero.TranslatorMasterList[i]);
-      }
+			for(var i=0; i<Zotero.TranslatorMasterList.length; i++) {
+				var re = new RegExp(Zotero.TranslatorMasterList[i].target);
+				if(re.test(searchURI)) translators.push(Zotero.TranslatorMasterList[i]);
+			}
 
 			if(fetchURIs.length) {	// More URLs to try
 				getTranslatorsFromRepo();
@@ -880,8 +879,8 @@ Zotero.Translators.CodeGetter.prototype.getCodeFor = function(i) {
 	}
 }
 
-var TRANSLATOR_REQUIRED_PROPERTIES = ["translatorID", "target", "priority"];
-var TRANSLATOR_PASSING_PROPERTIES = TRANSLATOR_REQUIRED_PROPERTIES.concat(["browserSupport", "code", "runMode"]);
+var TRANSLATOR_REQUIRED_PROPERTIES = ["translatorID", "target", "priority", "label", "code"];
+var TRANSLATOR_PASSING_PROPERTIES = TRANSLATOR_REQUIRED_PROPERTIES.concat(["browserSupport", "runMode"]);
 var TRANSLATOR_SAVE_PROPERTIES = TRANSLATOR_REQUIRED_PROPERTIES.concat(["browserSupport"]);
 /**
  * @class Represents an individual translator
@@ -926,9 +925,8 @@ Zotero.Translator.prototype.init = function(info) {
 			this[property] = info[property];
 		}
 	}
-
 	this.browserSupport = "b";
-  this.runMode = Zotero.Translator.RUN_MODE_IN_BROWSER;
+	this.runMode = Zotero.Translator.RUN_MODE_IN_BROWSER;
 
 	if(this.translatorType & TRANSLATOR_TYPES["import"]) {
 		// compile import regexp to match only file extension
@@ -1035,7 +1033,6 @@ Zotero.Messaging = new function() {
 	this.receiveMessage = function(messageName, args, sendResponseCallback, tab) {
 		try {
 			//Zotero.debug("Messaging: Received message: "+messageName);
-
 			// first see if there is a message listener
 			if(_messageListeners[messageName]) {
 				_messageListeners[messageName](args, tab);
@@ -1074,6 +1071,7 @@ Zotero.Messaging = new function() {
 	 */
 	this.sendMessage = function(messageName, args, tab) {
 		if(Zotero.isBookmarklet) {
+			_structuredCloneSupported = false;
 			window.parent.postMessage((_structuredCloneSupported
 				? [messageName, args] : JSON.stringify([messageName, args])), "*");
 		} else if(Zotero.isChrome) {
@@ -1084,6 +1082,16 @@ Zotero.Messaging = new function() {
 	}
 
 	/**
+	 * Sends a message to RefWorks iFrame
+	 */
+	this.sendMessageToRefWorks = function(messageName, args) {
+		var refworksiFrame = document.getElementById("RefWorks");
+		if (refworksiFrame)
+			refworksiFrame.contentWindow.postMessage((_structuredCloneSupported
+				? [null, messageName, args] : JSON.stringify([null, messageName, args])), "*");
+	}
+
+	/**
 	 * Adds messaging listener
 	 */
 	this.init = function() {
@@ -1091,8 +1099,8 @@ Zotero.Messaging = new function() {
 			var listener = function(event) {
 				var data = event.data, source = event.source;
 
-				// Ensure this message was sent by Zotero
-				if(event.source !== window.parent && event.source !== window) return;
+				// Ensure this message was sent by Zotero or RefWorks
+				if(event.source !== window.parent && event.source !== window && event.origin !== ZOTERO_CONFIG.API_URL.slice(0, -1)) return;
 
 				// Parse and receive message
 				if(typeof data === "string") {
@@ -1198,7 +1206,7 @@ Zotero.API = new function() {
 		iframe.style.left = "0px";
 		iframe.style.width = "100%";
 		iframe.style.height = "100%";
-    console.log("attempting authorize");
+
 		iframe.onload = function() {
 			var win = iframe.contentWindow;
 			if(win.location.href === ZOTERO_CONFIG.AUTH_COMPLETE_URL) {
@@ -1227,7 +1235,9 @@ Zotero.API = new function() {
 		document.body.appendChild(iframe);
 		Zotero.Messaging.sendMessage("revealZoteroIFrame", null);
 	};
-
+	/*this.selectDone = function(items){
+		Zotero.Messaging.sendMessage("selectDone",items);
+	}*/
 	/**
 	 * Creates a new item
 	 * @param {Object} payload Item(s) to create, in the object format expected by the server.
@@ -1237,97 +1247,98 @@ Zotero.API = new function() {
 	 * @param {Boolean} [askForAuth] If askForAuth === false, don't ask for authorization if not
 	 *     already authorized.
 	 */
-	this.createItem = function(payload, callback, askForAuth) {
+	this.createItem = function(payload) {
 
-    console.log("attempting createItem");
-		var c = _getCredentials(document), userID = c[0], sessionToken = c[1],
-			reauthorize = function() {
-			Zotero.API.authorize(function(status, msg) {
-				if(!status) {
-					Zotero.logError("Authentication failed with message "+msg);
-					callback(403, "Authentication failed");
-					return;
-				}
-
-				Zotero.API.createItem(payload, callback, false);
-			});
-		};
-/*
-		if(!userID || !sessionToken) {
-			if(askForAuth === false) {
-				callback(403, "Not authorized");
-			} else {
-				reauthorize();
-				return;
-			}
-		}
-*/
-    var form = document.createElement("form");
-    var textarea = document.createElement("textarea");
-    var iframe = document.createElement("iframe");
-    form.action = ZOTERO_CONFIG.API_URL+"pme/";
-    form.target = "API_URL";
-    form.method = "POST";
-    form.style.display = "none";
-    textarea.style.display = "none";
-    textarea.name = "payload";
-    console.log(JSON.stringify(payload))
-    console.log(payload)
-    textarea.value = JSON.stringify(payload);
-    form.appendChild(textarea);
+		var form = document.createElement("form");
+		var textarea = document.createElement("textarea");
+		var returnURL = document.createElement("input");
+		var iframe = document.createElement("iframe");
+		var referrer = getParameterByName("referrer");
+		payload.referrer = referrer;
+		payload.pageTitle = getParameterByName("pageTitle");
+		form.action = ZOTERO_CONFIG.API_URL+"pme/list/";
+		form.target = "API_URL";
+		form.method = "POST";
+		form.style.display = "none";
+		form.acceptCharset = "UTF-8";
+		textarea.style.display = "none";
+		textarea.name = "payload";
+		textarea.value = JSON.stringify(payload);
+		form.appendChild(textarea);
+		returnURL.name = "returnUrl";
+		returnURL.value = encodeURIComponent(referrer);
+		form.appendChild(returnURL);
 		iframe.name = form.target;
+		iframe.id = "RefWorks";
 		iframe.style.borderStyle = "none";
 		iframe.style.position = "absolute";
 		iframe.style.top = "0px";
 		iframe.style.left = "0px";
 		iframe.style.width = "100%";
 		iframe.style.height = "100%";
-    console.log("attempting api");
-		iframe.onload = function() {
-			var win = iframe.contentWindow;
-      console.log("loaded refworks")
-			/*if(win.location.href === ZOTERO_CONFIG.AUTH_COMPLETE_URL) {
-				// Authorization should be done
-				var c = _getCredentials(win.document ? win.document : document),
-					userID = c[0], sessionToken = c[1];
-				if(!userID || !sessionToken) {
-					if(!userID) {
-						var str = "User ID";
-					} else if(!sessionToken) {
-						var str = "Session token";
-					} else {
-						var str = "User ID and session token";
-					}
-					str += " not available";
-					callback(false, str);
-					return;
-				}
+		iframe.setAttribute('allowtransparency', 'true');
+		iframe.style.backgroundImage = "url(" + ZOTERO_CONFIG.API_URL + "public/img/loading-large.gif)";
+		iframe.style.backgroundPosition = "center";
+		iframe.style.backgroundRepeat = "no-repeat";
 
-				Zotero.Messaging.sendMessage("hideZoteroIFrame", null);
-				document.body.removeChild(iframe);
-				callback(true);
-			}*/
-		};
-    document.body.appendChild(form);
+		document.body.appendChild(form);
 		document.body.appendChild(iframe);
-    form.submit();
+		form.submit();
 		Zotero.Messaging.sendMessage("revealZoteroIFrame", null);
+	};
+	/**
+	 * Creates a new selection
+	 * @param {Object} payload Item(s) to create, in the object format expected by the server.
+	 * @param {String|null} itemKey Parent item key, or null if a top-level item.
+	 * @param {Function} callback Callback to be executed upon request completion. Passed true if
+	 *     succeeded, or false if failed, along with the response body.
+	 * @param {Boolean} [askForAuth] If askForAuth === false, don't ask for authorization if not
+	 *     already authorized.
+	 */
+	this.createSelection = function(payload) {
+		function getParameterByName(name) {
+			name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+			var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+				results = regex.exec(window.location.search);
+			return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+		}
 
-		/*Zotero.HTTP.doPost(url, JSON.stringify(payload), function(xmlhttp) {
-			if(xmlhttp.status !== 0 && xmlhttp.status < 400) {
-				callback(xmlhttp.status, xmlhttp.responseText);
-			} else if(xmlhttp.status == 403 && askForAuth) {
-				Zotero.debug("API request failed with 403 ("+xmlhttp.responseText+"); reauthorizing");
-				reauthorize();
-			} else {
-				var msg = xmlhttp.status+" ("+xmlhttp.responseText+")";
-				Zotero.logError("API request failed with "+msg);
-				callback(xmlhttp.status, xmlhttp.responseText);
-			}
-		}, {
-			"Content-Type": "application/json",
-			"Zotero-API-Version":"2"
-		});*/
+		var form = document.createElement("form");
+		var textarea = document.createElement("textarea");
+		var returnURL = document.createElement("input");
+		var iframe = document.createElement("iframe");
+		var referrer = getParameterByName("referrer");
+		payload.referrer = referrer;
+		payload.pageTitle = getParameterByName("pageTitle");
+		form.action = ZOTERO_CONFIG.API_URL+"pme/list/";
+		form.target = "API_URL";
+		form.method = "POST";
+		form.style.display = "none";
+		form.acceptCharset = "UTF-8";
+		textarea.style.display = "none";
+		textarea.name = "payload";
+		textarea.value = JSON.stringify(payload);
+		form.appendChild(textarea);
+		returnURL.name = "returnUrl";
+		returnURL.value = encodeURIComponent(referrer);
+		form.appendChild(returnURL);
+		iframe.name = form.target;
+		iframe.id = "RefWorks";
+		iframe.style.borderStyle = "none";
+		iframe.style.position = "absolute";
+		iframe.style.top = "0px";
+		iframe.style.left = "0px";
+		iframe.style.width = "100%";
+		iframe.style.height = "100%";
+		iframe.setAttribute('allowtransparency', 'true');
+		iframe.style.backgroundImage = "url(" + ZOTERO_CONFIG.API_URL + "public/img/loading-large.gif)";
+		iframe.style.backgroundPosition = "center";
+		iframe.style.backgroundRepeat = "no-repeat";
+
+		document.body.appendChild(form);
+		document.body.appendChild(iframe);
+		form.submit();
+		Zotero.Messaging.sendMessage("revealZoteroIFrame", null);
 	};
 	/**
 	 * Uploads an attachment to the Zotero server
@@ -1341,94 +1352,15 @@ Zotero.API = new function() {
 	 *     mimeType - the attachment MIME type
 	 */
 	this.uploadAttachment = function(attachment) {
-		const REQUIRED_PROPERTIES = ["id", "data", "filename", "key", "md5", "mimeType"];
-		for(var i=0; i<REQUIRED_PROPERTIES.length; i++) {
-			if(!attachment[REQUIRED_PROPERTIES[i]]) {
-				_dispatchAttachmentCallback(attachment.id, false,
-					'Required property "'+REQUIRED_PROPERTIES[i]+'" not defined');
-			}
-		}
+		Zotero.Messaging.sendMessageToRefWorks("uploadAttachment", attachment);
+	};
 
-		if(/[^a-zA-Z0-9]/.test(attachment.key)) {
-			_dispatchAttachmentCallback(attachment.id, false, 'Attachment key is invalid');
-		}
+	this.notifyAttachmentProgress = function(args) {
+		Zotero.Messaging.sendMessageToRefWorks("attachmentProgress", args);
+	};
 
-		var data = {
-			"md5":attachment.md5,
-			"filename":attachment.filename,
-			"filesize":attachment.data.byteLength,
-			"mtime":(+new Date),
-			"contentType":attachment.mimeType
-		};
-		if(attachment.charset) data.charset = attachment.charset;
-		var dataString = [];
-		for(var i in data) {
-			dataString.push(i+"="+encodeURIComponent(data[i]));
-		}
-		data = dataString.join("&");
-
-		var c = _getCredentials(document), userID = c[0], sessionToken = c[1];
-		var url = ZOTERO_CONFIG.API_URL+"users/"+userID+"/items/"+attachment.key+"/file?session="+sessionToken;
-
-		Zotero.HTTP.doPost(url, data,
-			function(xmlhttp) {
-				if(xmlhttp.status !== 200) {
-					var msg = xmlhttp.status+" ("+xmlhttp.responseText+")";
-					_dispatchAttachmentCallback(attachment.id, false, msg);
-				}
-
-				try {
-					var response = JSON.parse(xmlhttp.responseText);
-				} catch(e) {
-					_dispatchAttachmentCallback(attachment.id, false, "Error parsing JSON from server");
-				}
-
-				// { "exists": 1 } implies no further action necessary
-				if(response.exists) {
-					Zotero.debug("OAuth: Attachment exists; no upload necessary");
-					_dispatchAttachmentCallback(attachment.id, 100);
-					return;
-				}
-
-				Zotero.debug("OAuth: Upload authorized");
-
-				// Append prefix and suffix to data array
-				var prefixLength = Zotero.Utilities.getStringByteLength(response.prefix),
-					suffixLength = Zotero.Utilities.getStringByteLength(response.suffix),
-					uploadData = new Uint8Array(attachment.data.byteLength + prefixLength
-						+ suffixLength);
-				Zotero.Utilities.stringToUTF8Array(response.prefix, uploadData, 0);
-				uploadData.set(new Uint8Array(attachment.data), prefixLength);
-				Zotero.Utilities.stringToUTF8Array(response.suffix, uploadData,
-					attachment.data.byteLength+prefixLength);
-
-				Uploader.upload(response.contentType, uploadData, function(status, error) {
-					if(status === 100) {
-						// Upload complete; register it
-						Zotero.HTTP.doPost(url, "upload="+response.uploadKey, function(xmlhttp) {
-							if(xmlhttp.status === 204) {
-								Zotero.debug("OAuth: Upload registered");
-								_dispatchAttachmentCallback(attachment.id, 100);
-							} else {
-								var msg = "API request failed with "+xmlhttp.status+" ("+xmlhttp.responseText+")";
-								_dispatchAttachmentCallback(attachment.id, false, msg);
-							}
-						}, {
-							"Content-Type":"application/x-www-form-urlencoded",
-							"If-None-Match":"*"
-						});
-					} else {
-						// Upload progress/error
-						_dispatchAttachmentCallback(attachment.id, status, error);
-					}
-				});
-			},
-			{
-				"Content-Type":"application/x-www-form-urlencoded",
-				"If-None-Match":"*",
-				"Zotero-API-Version":"2"
-			});
-		Uploader.init();
+	this.notifyFullReference = function(item) {
+		Zotero.Messaging.sendMessageToRefWorks("fullReference", item);
 	};
 
 	/**
@@ -1532,7 +1464,25 @@ Zotero.API = new function() {
 
 Zotero.isBookmarklet = true;
 Zotero.Debug.init();
+
+// Add message listeners to save attachments
+Zotero.Messaging.addMessageListener("_getAttachment", function(args){
+	Zotero.Messaging.sendMessage("_getAttachment", args);
+});
+
+// Add message listeners to get metadata
+Zotero.Messaging.addMessageListener("getMetaData", function(items){
+	Zotero.Messaging.sendMessage("selectDone", items);
+});
+
+Zotero.Messaging.addMessageListener("cleanup", function(){
+	Zotero.Messaging.sendMessage("cleanup", null);
+});
+
+
+
 Zotero.Messaging.init();
+
 if(Zotero.isIE) {
 	Zotero.Connector.checkIsOnline(function(status) {
 		if(!status && window.location.protocol === "http:") {
