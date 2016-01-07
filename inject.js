@@ -4244,9 +4244,6 @@ Zotero.Translate.Sandbox = {
 				return Zotero.isFx && !Zotero.isBookmarklet ? translate._sandboxManager.copyObject(obj) : obj;
 			}
 
-			console.log(translate);
-			console.log(items);
-
 			if(Zotero.Utilities.isEmpty(items)) {
 				throw new Error("Translator called select items with no items");
 			}
@@ -6806,7 +6803,6 @@ Zotero.Translate.ItemSaver.prototype = {
 		}
 
 		var me = this;
-		console.log("THIS HAPPENS");
 		Zotero.API.createItem({"items":newItems}, function(statusCode, response) {
 			if(statusCode !== 200) {
 				callback(false, new Error("Save to server failed with "+statusCode+" "+response));
@@ -8105,7 +8101,6 @@ translate.setHandler("translators", function(obj, translators) {
 });
 var originalCallback;
 translate.setHandler("select", function(obj, items, callback) {
-	console.log("select handler");
 	//selectCallback = cancelled = haveItem = null;
 	// add checkboxes to selector
 	for(var i in items) {
@@ -8120,12 +8115,9 @@ translate.setHandler("select", function(obj, items, callback) {
 		items[i].title = title;
 		items[i].checked = checked;
 	}
-	console.log(obj);
-	console.log(items);
-	console.log(callback);
+
 	//callback(items);
 	if (Zotero.getDetails === true){
-		console.log("This happens");
 		originalCallback(items);
 	} else {
 		originalCallback = callback;
@@ -8173,8 +8165,6 @@ translate.setHandler("select", function(obj, items, callback) {
 });
 var _itemProgress = {};
 translate.setHandler("itemSaving", function(obj, item) {
-	console.log("itemSaving");
-	console.log(item);
 	Zotero.API.notifyFullReference(item);
 	/*if(!_itemProgress[item.id]) {
 		_itemProgress[item.id] = new Zotero.ProgressWindow.ItemProgress(
@@ -8228,8 +8218,6 @@ Zotero.Messaging.addMessageListener("translate", function(data, event) {
 	translate.getTranslators();
 });
 Zotero.Messaging.addMessageListener("selectDone", function(returnItems) {
-	console.log("selectDone");
-	console.log(returnItems);
 	// if no items selected, close save dialog immediately
 	/*if(!returnItems || Zotero.Utilities.isEmpty(returnItems)) {
 		cancelled = true;
