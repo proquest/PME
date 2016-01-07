@@ -1817,7 +1817,7 @@ const cssAClearString = 'background-attachment: scroll; background-color: transp
 
 Zotero.ProgressWindow = new function() {
 	const cssBox = {"position":(Zotero.isIE && document.compatMode === "BackCompat" ? "absolute" : "fixed"),
-		"right":"0", "top":"0", "width":"399px", "min-height":"60px", "color":"rgb(255,255,255) !important",
+		"right":"0", "top":"0", "width":"385px", "min-height":"60px", "color":"rgb(255,255,255) !important",
 		"backgroundColor":"#0e7bba",
 		"zIndex":"16777269", "padding":"8px", "minHeight":"40px"};
 	const cssHeadline = {"fontFamily":"'Roboto', Helvetica, Arial, sans-serif", "fontSize":"15px",
@@ -4243,6 +4243,9 @@ Zotero.Translate.Sandbox = {
 			function transferObject(obj) {
 				return Zotero.isFx && !Zotero.isBookmarklet ? translate._sandboxManager.copyObject(obj) : obj;
 			}
+
+			console.log(translate);
+			console.log(items);
 
 			if(Zotero.Utilities.isEmpty(items)) {
 				throw new Error("Translator called select items with no items");
@@ -8100,8 +8103,9 @@ translate.setHandler("translators", function(obj, translators) {
 		//cleanup();
 	}
 });
+var originalCallback;
 translate.setHandler("select", function(obj, items, callback) {
-
+	console.log("select handler");
 	//selectCallback = cancelled = haveItem = null;
 	// add checkboxes to selector
 	for(var i in items) {
@@ -8116,11 +8120,19 @@ translate.setHandler("select", function(obj, items, callback) {
 		items[i].title = title;
 		items[i].checked = checked;
 	}
-	callback(items);
-	/*, function(items){
+	console.log(obj);
+	console.log(items);
+	console.log(callback);
+	//callback(items);
+	if (Zotero.getDetails === true){
+		console.log("This happens");
+		originalCallback(items);
+	} else {
+		originalCallback = callback;
 		var payload = {items:items};
-		Zotero.API.createItem(payload,function(){console.log("completed Zotero.API.createSelection")});
-	});*/
+		Zotero.API.createSelection(payload,function(){console.log("completed Zotero.API.createSelection")});
+	}
+
 
 
 	/*
@@ -8161,10 +8173,13 @@ translate.setHandler("select", function(obj, items, callback) {
 });
 var _itemProgress = {};
 translate.setHandler("itemSaving", function(obj, item) {
-	if(!_itemProgress[item.id]) {
+	console.log("itemSaving");
+	console.log(item);
+	Zotero.API.notifyFullReference(item);
+	/*if(!_itemProgress[item.id]) {
 		_itemProgress[item.id] = new Zotero.ProgressWindow.ItemProgress(
 			Zotero.ItemTypes.getImageSrc(item.itemType), item.title);
-	}
+	}*/
 });
 translate.setHandler("itemDone", function(obj, dbItem, item) {
 	var itemProgress = _itemProgress[item.id];
@@ -8212,14 +8227,17 @@ Zotero.Messaging.addMessageListener("translate", function(data, event) {
 	}
 	translate.getTranslators();
 });
-/*Zotero.Messaging.addMessageListener("selectDone", function(returnItems) {
+Zotero.Messaging.addMessageListener("selectDone", function(returnItems) {
+	console.log("selectDone");
+	console.log(returnItems);
 	// if no items selected, close save dialog immediately
-	if(!returnItems || Zotero.Utilities.isEmpty(returnItems)) {
+	/*if(!returnItems || Zotero.Utilities.isEmpty(returnItems)) {
 		cancelled = true;
 		Zotero.ProgressWindow.close();
-	}
-	selectCallback(returnItems);
-});*/
+	}*/
+	Zotero.getDetails = true;
+	Zotero.Translate.Sandbox.Web.selectItems(translate, returnItems);
+});
 
 // We use these for OAuth, so that we can load the OAuth pages in a child frame of the privileged
 // iframe
@@ -8254,8 +8272,6 @@ var zoteroIFrame;
  */
 function startTranslation() {
 	Zotero.ProgressWindow.show();
-	Zotero.ProgressWindow.changeHeadline("Looking for Standalone...");
-
 	zoteroIFrame = document.createElement("iframe");
 	zoteroIFrame.id = "zotero-privileged-iframe";
 	zoteroIFrame.src = ZOTERO_CONFIG.BOOKMARKLET_URL+"iframe"+(Zotero.isIE ? "_ie" : "")+".html" + "?referrer=" + document.referrer + "&pageTitle=" + window.parent.document.title + "&EXT_SERVICE_PROVIDER="+encodeURIComponent(window.EXT_SERVICE_PROVIDER) + "&PME_SERVICE_PROVIDER="+encodeURIComponent(window.PME_SERVICE_PROVIDER);

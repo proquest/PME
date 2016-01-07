@@ -1031,6 +1031,7 @@ Zotero.Messaging = new function() {
 	 * @param {String|Number} tabID ID of this tab
 	 */
 	this.receiveMessage = function(messageName, args, sendResponseCallback, tab) {
+		console.log(messageName);
 		try {
 			//Zotero.debug("Messaging: Received message: "+messageName);
 			// first see if there is a message listener
@@ -1236,9 +1237,9 @@ Zotero.API = new function() {
 		document.body.appendChild(iframe);
 		Zotero.Messaging.sendMessage("revealZoteroIFrame", null);
 	};
-	this.selectDone = function(items){
+	/*this.selectDone = function(items){
 		Zotero.Messaging.sendMessage("selectDone",items);
-	}
+	}*/
 	/**
 	 * Creates a new item
 	 * @param {Object} payload Item(s) to create, in the object format expected by the server.
@@ -1313,7 +1314,7 @@ console.log(window.location);
 	 *     already authorized.
 	 */
 	this.createSelection = function(payload) {
-
+		console.log(payload);
 		function getParameterByName(name) {
 			name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
 			var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -1375,6 +1376,10 @@ console.log(window.location);
 
 	this.notifyAttachmentProgress = function(args) {
 		Zotero.Messaging.sendMessageToRefWorks("attachmentProgress", args);
+	};
+
+	this.notifyFullReference = function(item) {
+		Zotero.Messaging.sendMessageToRefWorks("fullReference", item);
 	};
 
 	/**
@@ -1484,9 +1489,15 @@ Zotero.Messaging.addMessageListener("_getAttachment", function(args){
 	Zotero.Messaging.sendMessage("_getAttachment", args);
 });
 
+// Add message listeners to get metadata
+Zotero.Messaging.addMessageListener("getMetaData", function(items){
+	Zotero.Messaging.sendMessage("selectDone", items);
+});
+
 Zotero.Messaging.addMessageListener("cleanup", function(){
 	Zotero.Messaging.sendMessage("cleanup", null);
 });
+
 
 
 Zotero.Messaging.init();

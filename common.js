@@ -5229,7 +5229,8 @@ const MESSAGES = {
 			"createSelection":true,
 			"createItem":true,
 			"uploadAttachment":false,
-			"notifyAttachmentProgress":false
+			"notifyAttachmentProgress":false,
+			"notifyFullReference":false
 		}
 };
 
