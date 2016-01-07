@@ -1087,9 +1087,9 @@ Zotero.Messaging = new function() {
 	 * Sends a message to RefWorks iFrame
 	 */
 	this.sendMessageToRefWorks = function(messageName, args) {
-		var refworksiFrame = document.getElementById("RefWorks").contentWindow;
-
-		refworksiFrame.postMessage((_structuredCloneSupported
+		var refworksiFrame = document.getElementById("RefWorks");
+		if (refworksiFrame)
+			refworksiFrame.contentWindow.postMessage((_structuredCloneSupported
 				? [null, messageName, args] : JSON.stringify([null, messageName, args])), "*");
 	}
 
