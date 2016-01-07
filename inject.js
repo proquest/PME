@@ -8020,10 +8020,6 @@ var BookmarkletFrame = function(url, width, height, name) {
 	height = Math.min(windowHeight-10, height);
 	width = Math.min(windowWidth-10, width);
 
-	/*this._dimmer = parentDoc.createElement("div");
-	this._dimmer.style.cssText = cssDivClearString;
-	for(var i in cssBookmarkletFrameDimmer) this._dimmer.style[i] = cssBookmarkletFrameDimmer[i];
-	this._appendDimmerTo.appendChild(this._dimmer);*/
 
 	// Add iframe
 	if(url || name) {
@@ -8092,28 +8088,18 @@ translate.setHandler("translators", function(obj, translators) {
 			},
 			function(statusCode, response) {
 			});
-		//translate.translate();
-
-		//new Zotero.ProgressWindow.ErrorMessage("noTranslator");
-		//Zotero.ProgressWindow.startCloseTimer(8000);
-		//cleanup();
 	}
 });
 var originalCallback;
 translate.setHandler("select", function(obj, items, callback) {
-	//selectCallback = cancelled = haveItem = null;
-	// add checkboxes to selector
 	for(var i in items) {
-		var title, checked = false;
+		var title;
 		if(items[i] && typeof(items[i]) == "object" && items[i].title !== undefined) {
 			title = items[i].title;
-			checked = !!items[i].checked;
 		} else {
 			title = items[i];
-			checked = false;
 		}
 		items[i].title = title;
-		items[i].checked = checked;
 	}
 
 	//callback(items);
@@ -8124,44 +8110,6 @@ translate.setHandler("select", function(obj, items, callback) {
 		var payload = {items:items};
 		Zotero.API.createSelection(payload,function(){console.log("completed Zotero.API.createSelection")});
 	}
-
-
-
-	/*
-	function getParameterByName(name) {
-		name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-		var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-			results = regex.exec(window.location.search);
-		return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-	}
-	var form = document.createElement("form");
-	var textarea = document.createElement("textarea");
-	var returnURL = document.createElement("input");
-	var referrer = getParameterByName("referrer");
-	var payload = {items:items};
-	payload.referrer = referrer;
-	payload.pageTitle = getParameterByName("pageTitle");
-	form.action = ZOTERO_CONFIG.API_URL+"pme/list/";
-	form.target = "LIST_URL";
-	form.method = "POST";
-	form.style.display = "none";
-	form.acceptCharset = "UTF-8";
-	textarea.style.display = "none";
-	textarea.name = "payload";
-	textarea.value = JSON.stringify(payload);
-	form.appendChild(textarea);
-	returnURL.name = "returnUrl";
-	returnURL.value = encodeURIComponent(referrer);
-	form.appendChild(returnURL);
-	document.body.appendChild(form);
-	var frame = new BookmarkletFrame(null, 600, 350, form.target);
-	frame._frame.id = "RefWorksListMode";
-	selectCallback = function(items) {
-		Zotero.USING_IN_LIST_MODE = true;
-		callback(items);
-	};
-	form.submit();
-	*/
 });
 var _itemProgress = {};
 translate.setHandler("itemSaving", function(obj, item) {
@@ -8218,11 +8166,6 @@ Zotero.Messaging.addMessageListener("translate", function(data, event) {
 	translate.getTranslators();
 });
 Zotero.Messaging.addMessageListener("selectDone", function(returnItems) {
-	// if no items selected, close save dialog immediately
-	/*if(!returnItems || Zotero.Utilities.isEmpty(returnItems)) {
-		cancelled = true;
-		Zotero.ProgressWindow.close();
-	}*/
 	Zotero.getDetails = true;
 	Zotero.Translate.Sandbox.Web.selectItems(translate, returnItems);
 });
