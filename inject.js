@@ -6972,7 +6972,8 @@ Zotero.Translate.ItemSaver.prototype = {
 				};
 
 				var xhr = new XMLHttpRequest();
-				xhr.open((attachment.snapshot === false ? "HEAD" : "GET"), attachment.url, true);
+				var url = attachment.url.replace(/^https*:\/\//, "//");	// Try getting the attachment using the protocol of the page (it still might fail but at least it will be caught by onerror)
+				xhr.open((attachment.snapshot === false ? "HEAD" : "GET"), url, true);
 				xhr.responseType = (isSnapshot ? "document" : "arraybuffer");
 				xhr.onreadystatechange = function() {
 					if(xhr.readyState !== 4 || !checkHeaders()) return;
