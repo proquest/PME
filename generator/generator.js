@@ -101,7 +101,8 @@ function updateList(existingList, fn) {
 							var transObj = JSON.parse(RegExp.$1);
 							if(
 									(whiteList.indexOf(transObj.translatorID) >= 0) ||
-									(transObj.browserSupport && transObj.browserSupport.indexOf('b') > -1)
+									(transObj.browserSupport && transObj.browserSupport.indexOf('b') > -1 &&
+										transObj.translatorType && transObj.translatorType & 4 == 4)
 								) {
 								translators.push({
 									translatorID: transObj.translatorID,
