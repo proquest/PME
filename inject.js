@@ -1986,7 +1986,7 @@ Zotero.ProgressWindow = new function() {
 		headlineDiv.style.cssText = cssDivClearString;
 		for(var i in cssHeadline) headlineDiv.style[i] = cssHeadline[i];
 
-		headlinePreImageTextNode = doc.createTextNode("Saving Item");
+		headlinePreImageTextNode = doc.createTextNode("Initializing...");
 		headlineDiv.appendChild(headlinePreImageTextNode);
 
 		headlineImage = doc.createElement("div");
@@ -7887,6 +7887,7 @@ Zotero.Messaging = new function() {
 						// send message
 						var message = [requestID, messageName, newArgs];
 						var iFrameSrc = iFrameSrc ? iFrameSrc : ZOTERO_CONFIG.BOOKMARKLET_URL+(Zotero.isIE ? "iframe_ie.html" : "iframe.html");
+						_structuredCloneSupported = false;
 						zoteroIFrame.contentWindow.postMessage(
 							(_structuredCloneSupported ? message : JSON.stringify(message)),
 							iFrameSrc);
