@@ -1819,7 +1819,7 @@ Zotero.ProgressWindow = new function() {
 	const cssBox = {"position":(Zotero.isIE && document.compatMode === "BackCompat" ? "absolute" : "fixed"),
 		"right":"0", "top":"0", "width":"385px", "min-height":"60px", "color":"rgb(255,255,255) !important",
 		"backgroundColor":"#0e7bba",
-		"zIndex":"16777269", "padding":"8px", "minHeight":"40px"};
+		"zIndex":"1000000091", "padding":"8px", "minHeight":"40px"};
 	const cssHeadline = {"fontFamily":"'Roboto', Helvetica, Arial, sans-serif", "fontSize":"15px",
 		"overflow":"hidden",
 		"whiteSpace":"nowrap", "textOverflow":"ellipsis"};
@@ -7984,9 +7984,9 @@ Zotero.Messaging = new function() {
 
 var pos = (Zotero.isIE && document.compatMode === "BackCompat" ? "absolute" : "fixed");
 var cssBookmarkletFrameDimmer = {"background":"black", "opacity":"0.5", "position":pos,
-	"top":"0px", "bottom":"0px", "left":"0px", "right":"0px", "zIndex":"16777270",
+	"top":"0px", "bottom":"0px", "left":"0px", "right":"0px", "zIndex":"1000000092",
 	"height":"100%", "width":"100%", "filter":"alpha(opacity = 50);"};
-var cssBookmarkletFrame = {"position":pos, "zIndex":"16777271", "top":"0",
+var cssBookmarkletFrame = {"position":pos, "zIndex":"1000000093", "top":"0",
 	"right":"0", "bottom": 0, "background":"white", "border-left":"1px solid #CCC"};
 
 Zotero.initInject();
