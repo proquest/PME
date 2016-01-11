@@ -102,7 +102,7 @@ function updateList(existingList, fn) {
 							if(
 									(whiteList.indexOf(transObj.translatorID) >= 0) ||
 									(transObj.browserSupport && transObj.browserSupport.indexOf('b') > -1 &&
-										transObj.translatorType && transObj.translatorType & 4 == 4)
+										transObj.translatorType && parseInt(transObj.translatorType) & 4 == 4)
 								) {
 								translators.push({
 									translatorID: transObj.translatorID,
