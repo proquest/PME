@@ -99,18 +99,10 @@ function updateList(existingList, fn) {
 					if(fileContent.match(/(^\s*{[\s\S]*?\n})/)) {
 						try {
 							var transObj = JSON.parse(RegExp.$1);
-							console.log(transObj.translatorType);
-							
-							var testVal = transObj.translatorType & 4;
-							
-							console.log((transObj.translatorType & 4) == 4);
-							
-							console.log(testVal == 4);
-							console.log("---------");
-							
 							if(
 									(whiteList.indexOf(transObj.translatorID) >= 0) ||
-									(transObj.browserSupport && transObj.browserSupport.indexOf('b') > -1)
+									(transObj.browserSupport && transObj.browserSupport.indexOf('b') > -1 &&
+										transObj.translatorType && (transObj.translatorType & 4) == 4)
 								) {
 								translators.push({
 									translatorID: transObj.translatorID,
