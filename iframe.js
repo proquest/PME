@@ -1056,7 +1056,6 @@ Zotero.Messaging = new function() {
 					sendResponseCallback(newArgs);
 				}
 			}
-			console.log(args)
 			args.push(tab);
 
 			var fn = Zotero[messageParts[0]][messageParts[1]];
@@ -1086,9 +1085,9 @@ Zotero.Messaging = new function() {
 	 * Sends a message to RefWorks iFrame
 	 */
 	this.sendMessageToRefWorks = function(messageName, args) {
-		var refworksiFrame = document.getElementById("RefWorks").contentWindow;
-
-		refworksiFrame.postMessage((_structuredCloneSupported
+		var refworksiFrame = document.getElementById("RefWorks");
+		if (refworksiFrame)
+			refworksiFrame.contentWindow.postMessage((_structuredCloneSupported
 				? [null, messageName, args] : JSON.stringify([null, messageName, args])), "*");
 	}
 
@@ -1236,9 +1235,9 @@ Zotero.API = new function() {
 		document.body.appendChild(iframe);
 		Zotero.Messaging.sendMessage("revealZoteroIFrame", null);
 	};
-	this.selectDone = function(items){
+	/*this.selectDone = function(items){
 		Zotero.Messaging.sendMessage("selectDone",items);
-	}
+	}*/
 	/**
 	 * Creates a new item
 	 * @param {Object} payload Item(s) to create, in the object format expected by the server.
@@ -1249,59 +1248,43 @@ Zotero.API = new function() {
 	 *     already authorized.
 	 */
 	this.createItem = function(payload) {
-console.log(Zotero.USING_IN_LIST_MODE)
-console.log(window.location);
-		/*console.log(payload);
-		var listMode = true;
 
-		//var listMode = parent.document.getElementById("RefWorksListMode");
-		if(listMode){
-			console.log(payload);
-			//var messageName = "fullReference";
-			//Zotero.Messaging.sendMessageToRefWorks(messageName, payload);
-			listMode.contentWindow.postMessage((_structuredCloneSupported
-					? [null, messageName, payload] : JSON.stringify([null, messageName, payload])), "*");
-		}
-		else{*/
+		var form = document.createElement("form");
+		var textarea = document.createElement("textarea");
+		var returnURL = document.createElement("input");
+		var iframe = document.createElement("iframe");
+		var referrer = getParameterByName("referrer");
+		payload.referrer = referrer;
+		payload.pageTitle = getParameterByName("pageTitle");
+		form.action = ZOTERO_CONFIG.API_URL+"pme/list/";
+		form.target = "API_URL";
+		form.method = "POST";
+		form.style.display = "none";
+		form.acceptCharset = "UTF-8";
+		textarea.style.display = "none";
+		textarea.name = "payload";
+		textarea.value = JSON.stringify(payload);
+		form.appendChild(textarea);
+		returnURL.name = "returnUrl";
+		returnURL.value = encodeURIComponent(referrer);
+		form.appendChild(returnURL);
+		iframe.name = form.target;
+		iframe.id = "RefWorks";
+		iframe.style.borderStyle = "none";
+		iframe.style.position = "absolute";
+		iframe.style.top = "0px";
+		iframe.style.left = "0px";
+		iframe.style.width = "100%";
+		iframe.style.height = "100%";
+		iframe.setAttribute('allowtransparency', 'true');
+		iframe.style.backgroundImage = "url(" + ZOTERO_CONFIG.API_URL + "public/img/loading-large.gif)";
+		iframe.style.backgroundPosition = "center";
+		iframe.style.backgroundRepeat = "no-repeat";
 
-
-			var form = document.createElement("form");
-			var textarea = document.createElement("textarea");
-			var returnURL = document.createElement("input");
-			var iframe = document.createElement("iframe");
-			var referrer = getParameterByName("referrer");
-			payload.referrer = referrer;
-			payload.pageTitle = getParameterByName("pageTitle");
-			form.action = ZOTERO_CONFIG.API_URL+"pme/list/";
-			form.target = "API_URL";
-			form.method = "POST";
-			form.style.display = "none";
-			form.acceptCharset = "UTF-8";
-			textarea.style.display = "none";
-			textarea.name = "payload";
-			textarea.value = JSON.stringify(payload);
-			form.appendChild(textarea);
-			returnURL.name = "returnUrl";
-			returnURL.value = encodeURIComponent(referrer);
-			form.appendChild(returnURL);
-			iframe.name = form.target;
-			iframe.id = "RefWorks";
-			iframe.style.borderStyle = "none";
-			iframe.style.position = "absolute";
-			iframe.style.top = "0px";
-			iframe.style.left = "0px";
-			iframe.style.width = "100%";
-			iframe.style.height = "100%";
-			iframe.setAttribute('allowtransparency', 'true');
-			iframe.style.backgroundImage = "url(" + ZOTERO_CONFIG.API_URL + "public/img/loading-large.gif)";
-			iframe.style.backgroundPosition = "center";
-			iframe.style.backgroundRepeat = "no-repeat";
-
-			document.body.appendChild(form);
-			document.body.appendChild(iframe);
-			form.submit();
-			Zotero.Messaging.sendMessage("revealZoteroIFrame", null);
-		//}
+		document.body.appendChild(form);
+		document.body.appendChild(iframe);
+		form.submit();
+		Zotero.Messaging.sendMessage("revealZoteroIFrame", null);
 	};
 	/**
 	 * Creates a new selection
@@ -1313,7 +1296,6 @@ console.log(window.location);
 	 *     already authorized.
 	 */
 	this.createSelection = function(payload) {
-
 		function getParameterByName(name) {
 			name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
 			var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
@@ -1375,6 +1357,10 @@ console.log(window.location);
 
 	this.notifyAttachmentProgress = function(args) {
 		Zotero.Messaging.sendMessageToRefWorks("attachmentProgress", args);
+	};
+
+	this.notifyFullReference = function(item) {
+		Zotero.Messaging.sendMessageToRefWorks("fullReference", item);
 	};
 
 	/**
@@ -1484,9 +1470,15 @@ Zotero.Messaging.addMessageListener("_getAttachment", function(args){
 	Zotero.Messaging.sendMessage("_getAttachment", args);
 });
 
+// Add message listeners to get metadata
+Zotero.Messaging.addMessageListener("getMetaData", function(items){
+	Zotero.Messaging.sendMessage("selectDone", items);
+});
+
 Zotero.Messaging.addMessageListener("cleanup", function(){
 	Zotero.Messaging.sendMessage("cleanup", null);
 });
+
 
 
 Zotero.Messaging.init();

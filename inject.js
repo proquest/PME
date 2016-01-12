@@ -1817,9 +1817,9 @@ const cssAClearString = 'background-attachment: scroll; background-color: transp
 
 Zotero.ProgressWindow = new function() {
 	const cssBox = {"position":(Zotero.isIE && document.compatMode === "BackCompat" ? "absolute" : "fixed"),
-		"right":"0", "top":"0", "width":"399px", "min-height":"60px", "color":"rgb(255,255,255) !important",
+		"right":"0", "top":"0", "width":"385px", "min-height":"60px", "color":"rgb(255,255,255) !important",
 		"backgroundColor":"#0e7bba",
-		"zIndex":"16777269", "padding":"8px", "minHeight":"40px"};
+		"zIndex":"1000000091", "padding":"8px", "minHeight":"40px"};
 	const cssHeadline = {"fontFamily":"'Roboto', Helvetica, Arial, sans-serif", "fontSize":"15px",
 		"overflow":"hidden",
 		"whiteSpace":"nowrap", "textOverflow":"ellipsis"};
@@ -1986,7 +1986,7 @@ Zotero.ProgressWindow = new function() {
 		headlineDiv.style.cssText = cssDivClearString;
 		for(var i in cssHeadline) headlineDiv.style[i] = cssHeadline[i];
 
-		headlinePreImageTextNode = doc.createTextNode("Saving Item");
+		headlinePreImageTextNode = doc.createTextNode("Initializing...");
 		headlineDiv.appendChild(headlinePreImageTextNode);
 
 		headlineImage = doc.createElement("div");
@@ -6803,7 +6803,6 @@ Zotero.Translate.ItemSaver.prototype = {
 		}
 
 		var me = this;
-		console.log("THIS HAPPENS");
 		Zotero.API.createItem({"items":newItems}, function(statusCode, response) {
 			if(statusCode !== 200) {
 				callback(false, new Error("Save to server failed with "+statusCode+" "+response));
@@ -6973,7 +6972,8 @@ Zotero.Translate.ItemSaver.prototype = {
 				};
 
 				var xhr = new XMLHttpRequest();
-				xhr.open((attachment.snapshot === false ? "HEAD" : "GET"), attachment.url, true);
+				var url = attachment.url.replace(/^https*:\/\//, "//");	// Try getting the attachment using the protocol of the page (it still might fail but at least it will be caught by onerror)
+				xhr.open((attachment.snapshot === false ? "HEAD" : "GET"), url, true);
 				xhr.responseType = (isSnapshot ? "document" : "arraybuffer");
 				xhr.onreadystatechange = function() {
 					if(xhr.readyState !== 4 || !checkHeaders()) return;
@@ -7887,6 +7887,7 @@ Zotero.Messaging = new function() {
 						// send message
 						var message = [requestID, messageName, newArgs];
 						var iFrameSrc = iFrameSrc ? iFrameSrc : ZOTERO_CONFIG.BOOKMARKLET_URL+(Zotero.isIE ? "iframe_ie.html" : "iframe.html");
+						_structuredCloneSupported = false;
 						zoteroIFrame.contentWindow.postMessage(
 							(_structuredCloneSupported ? message : JSON.stringify(message)),
 							iFrameSrc);
@@ -7983,9 +7984,9 @@ Zotero.Messaging = new function() {
 
 var pos = (Zotero.isIE && document.compatMode === "BackCompat" ? "absolute" : "fixed");
 var cssBookmarkletFrameDimmer = {"background":"black", "opacity":"0.5", "position":pos,
-	"top":"0px", "bottom":"0px", "left":"0px", "right":"0px", "zIndex":"16777270",
+	"top":"0px", "bottom":"0px", "left":"0px", "right":"0px", "zIndex":"1000000092",
 	"height":"100%", "width":"100%", "filter":"alpha(opacity = 50);"};
-var cssBookmarkletFrame = {"position":pos, "zIndex":"16777271", "top":"0",
+var cssBookmarkletFrame = {"position":pos, "zIndex":"1000000093", "top":"0",
 	"right":"0", "bottom": 0, "background":"white", "border-left":"1px solid #CCC"};
 
 Zotero.initInject();
@@ -8021,10 +8022,6 @@ var BookmarkletFrame = function(url, width, height, name) {
 	height = Math.min(windowHeight-10, height);
 	width = Math.min(windowWidth-10, width);
 
-	/*this._dimmer = parentDoc.createElement("div");
-	this._dimmer.style.cssText = cssDivClearString;
-	for(var i in cssBookmarkletFrameDimmer) this._dimmer.style[i] = cssBookmarkletFrameDimmer[i];
-	this._appendDimmerTo.appendChild(this._dimmer);*/
 
 	// Add iframe
 	if(url || name) {
@@ -8093,78 +8090,36 @@ translate.setHandler("translators", function(obj, translators) {
 			},
 			function(statusCode, response) {
 			});
-		//translate.translate();
-
-		//new Zotero.ProgressWindow.ErrorMessage("noTranslator");
-		//Zotero.ProgressWindow.startCloseTimer(8000);
-		//cleanup();
 	}
 });
+var originalCallback;
 translate.setHandler("select", function(obj, items, callback) {
-
-	//selectCallback = cancelled = haveItem = null;
-	// add checkboxes to selector
 	for(var i in items) {
-		var title, checked = false;
+		var title;
 		if(items[i] && typeof(items[i]) == "object" && items[i].title !== undefined) {
 			title = items[i].title;
-			checked = !!items[i].checked;
 		} else {
 			title = items[i];
-			checked = false;
 		}
 		items[i].title = title;
-		items[i].checked = checked;
 	}
-	callback(items);
-	/*, function(items){
+
+	//callback(items);
+	if (Zotero.getDetails === true){
+		originalCallback(items);
+	} else {
+		originalCallback = callback;
 		var payload = {items:items};
-		Zotero.API.createItem(payload,function(){console.log("completed Zotero.API.createSelection")});
-	});*/
-
-
-	/*
-	function getParameterByName(name) {
-		name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-		var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-			results = regex.exec(window.location.search);
-		return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+		Zotero.API.createSelection(payload,function(){console.log("completed Zotero.API.createSelection")});
 	}
-	var form = document.createElement("form");
-	var textarea = document.createElement("textarea");
-	var returnURL = document.createElement("input");
-	var referrer = getParameterByName("referrer");
-	var payload = {items:items};
-	payload.referrer = referrer;
-	payload.pageTitle = getParameterByName("pageTitle");
-	form.action = ZOTERO_CONFIG.API_URL+"pme/list/";
-	form.target = "LIST_URL";
-	form.method = "POST";
-	form.style.display = "none";
-	form.acceptCharset = "UTF-8";
-	textarea.style.display = "none";
-	textarea.name = "payload";
-	textarea.value = JSON.stringify(payload);
-	form.appendChild(textarea);
-	returnURL.name = "returnUrl";
-	returnURL.value = encodeURIComponent(referrer);
-	form.appendChild(returnURL);
-	document.body.appendChild(form);
-	var frame = new BookmarkletFrame(null, 600, 350, form.target);
-	frame._frame.id = "RefWorksListMode";
-	selectCallback = function(items) {
-		Zotero.USING_IN_LIST_MODE = true;
-		callback(items);
-	};
-	form.submit();
-	*/
 });
 var _itemProgress = {};
 translate.setHandler("itemSaving", function(obj, item) {
-	if(!_itemProgress[item.id]) {
+	Zotero.API.notifyFullReference(item);
+	/*if(!_itemProgress[item.id]) {
 		_itemProgress[item.id] = new Zotero.ProgressWindow.ItemProgress(
 			Zotero.ItemTypes.getImageSrc(item.itemType), item.title);
-	}
+	}*/
 });
 translate.setHandler("itemDone", function(obj, dbItem, item) {
 	var itemProgress = _itemProgress[item.id];
@@ -8212,14 +8167,10 @@ Zotero.Messaging.addMessageListener("translate", function(data, event) {
 	}
 	translate.getTranslators();
 });
-/*Zotero.Messaging.addMessageListener("selectDone", function(returnItems) {
-	// if no items selected, close save dialog immediately
-	if(!returnItems || Zotero.Utilities.isEmpty(returnItems)) {
-		cancelled = true;
-		Zotero.ProgressWindow.close();
-	}
-	selectCallback(returnItems);
-});*/
+Zotero.Messaging.addMessageListener("selectDone", function(returnItems) {
+	Zotero.getDetails = true;
+	Zotero.Translate.Sandbox.Web.selectItems(translate, returnItems);
+});
 
 // We use these for OAuth, so that we can load the OAuth pages in a child frame of the privileged
 // iframe
@@ -8254,8 +8205,6 @@ var zoteroIFrame;
  */
 function startTranslation() {
 	Zotero.ProgressWindow.show();
-	Zotero.ProgressWindow.changeHeadline("Looking for Standalone...");
-
 	zoteroIFrame = document.createElement("iframe");
 	zoteroIFrame.id = "zotero-privileged-iframe";
 	zoteroIFrame.src = ZOTERO_CONFIG.BOOKMARKLET_URL+"iframe"+(Zotero.isIE ? "_ie" : "")+".html" + "?referrer=" + document.referrer + "&pageTitle=" + window.parent.document.title + "&EXT_SERVICE_PROVIDER="+encodeURIComponent(window.EXT_SERVICE_PROVIDER) + "&PME_SERVICE_PROVIDER="+encodeURIComponent(window.PME_SERVICE_PROVIDER);
