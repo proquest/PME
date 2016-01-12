@@ -7887,9 +7887,9 @@ Zotero.Messaging = new function() {
 						// send message
 						var message = [requestID, messageName, newArgs];
 						var iFrameSrc = iFrameSrc ? iFrameSrc : ZOTERO_CONFIG.BOOKMARKLET_URL+(Zotero.isIE ? "iframe_ie.html" : "iframe.html");
-						_structuredCloneSupported = false;
+						var _structuredCloneSupportedForThisMessage = message[2][0].error ? false : _structuredCloneSupported;	// Errors don't work with structured clones (https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
 						zoteroIFrame.contentWindow.postMessage(
-							(_structuredCloneSupported ? message : JSON.stringify(message)),
+							(_structuredCloneSupportedForThisMessage ? message : JSON.stringify(message)),
 							iFrameSrc);
 					};
 				};
