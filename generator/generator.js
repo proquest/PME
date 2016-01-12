@@ -100,7 +100,12 @@ function updateList(existingList, fn) {
 						try {
 							var transObj = JSON.parse(RegExp.$1);
 							console.log(transObj.translatorType);
-							console.log(transObj.translatorType & 4 == 4);
+							
+							var testVal = transObj.translatorType & 4;
+							
+							console.log((transObj.translatorType & 4) == 4);
+							
+							console.log(testVal == 4);
 							console.log("---------");
 							
 							if(
