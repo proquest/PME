@@ -5054,8 +5054,8 @@ Zotero.Translate.Base.prototype = {
 				resolved = a.href;
 			} else if (url.indexOf('//') == 0) {
 				// Protocol-relative URL with no associated web page
-				// Use HTTP by default
-				resolved = 'http:' + url;
+				// Use // by default
+				resolved = '//' + url;
 			} else {
 				throw new Error('Cannot resolve relative URL without an associated web page: ' + url);
 			}
@@ -5063,7 +5063,7 @@ Zotero.Translate.Base.prototype = {
 			Zotero.debug("Translate: unsupported scheme " + m[1]);
 			return url;
 		} else {
-			resolved = url;
+			resolved = url.replace(/^https*:\/\//, "//");;
 		}
 
 		Zotero.debug("Translate: resolved to " + resolved);

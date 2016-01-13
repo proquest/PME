@@ -571,7 +571,9 @@ Zotero.HTTP = new function() {
 
 		var xmlhttp = new XMLHttpRequest();
 		try {
-			xmlhttp.open('GET', url, true);
+			var newUrl = url.replace(/^https*:\/\//, "//");	// Try getting the attachment using the protocol of the page (it still might fail but at least it will be caught by onerror)
+
+			xmlhttp.open('GET', newUrl, true);
 
 			if(xmlhttp.overrideMimeType && responseCharset) {
 				xmlhttp.overrideMimeType("text/plain; charset=" + responseCharset);
@@ -626,7 +628,9 @@ Zotero.HTTP = new function() {
 
 		var xmlhttp = new XMLHttpRequest();
 		try {
-			xmlhttp.open('POST', url, true);
+			var newUrl = url.replace(/^https*:\/\//, "//");	// Try getting the attachment using the protocol of the page (it still might fail but at least it will be caught by onerror)
+
+			xmlhttp.open('POST', newUrl, true);
 
 			if (!headers) headers = {};
 			if (!headers["Content-Type"]) {
