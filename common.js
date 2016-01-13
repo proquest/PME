@@ -5230,7 +5230,8 @@ const MESSAGES = {
 			"createItem":true,
 			"uploadAttachment":false,
 			"notifyAttachmentProgress":false,
-			"notifyFullReference":false
+			"notifyFullReference":false,
+			"notifyFullReferenceFail":false
 		}
 };
 

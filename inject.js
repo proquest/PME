@@ -4352,7 +4352,6 @@ Zotero.Translate.Sandbox = {
 					item.itemType = "webpage";
 					translate._debug("WARNING: No item type specified");
 				}
-
 				if(item.type == "attachment" || item.type == "note") {
 					Zotero.debug("Translate: Discarding standalone "+item.type+" in non-import translator", 2);
 					return;
@@ -4381,7 +4380,7 @@ Zotero.Translate.Sandbox = {
 				if(altTitle && item[altTitle]) item.title = item[altTitle];
 
 				if(!item.title) {
-					translate.complete(false, new Error("No title specified for item"));
+					translate.complete(false, new Error("No title specified for item"), item);
 					return;
 				}
 
@@ -5103,9 +5102,12 @@ Zotero.Translate.Base.prototype = {
 	 * @returm {String|NULL} The exception serialized to a string, or null if translation
 	 *     completed successfully.
 	 */
-	"complete":function(returnValue, error) {
+	"complete":function(returnValue, error, item) {
 		// allow translation to be aborted for re-running after selecting items
-		if(this._aborted) return;
+		if(this._aborted) {
+			if (item) Zotero.API.notifyFullReferenceFail(item);
+			return;
+		}
 
 		// Make sure this isn't called twice
 		if(this._currentState === null) {
@@ -5717,10 +5719,10 @@ Zotero.Translate.Web.prototype._translateServerComplete = function(statusCode, r
 /**
  * Overload complete to report translation failure
  */
-Zotero.Translate.Web.prototype.complete = function(returnValue, error) {
+Zotero.Translate.Web.prototype.complete = function(returnValue, error, item) {
 	// call super
 	var oldState = this._currentState;
-	var errorString = Zotero.Translate.Base.prototype.complete.apply(this, [returnValue, error]);
+	var errorString = Zotero.Translate.Base.prototype.complete.apply(this, [returnValue, error, item]);
 
 	// Report translation failure if we failed
 	if(oldState == "translate" && errorString && !this._parentTranslator && this.translator.length
@@ -7887,7 +7889,7 @@ Zotero.Messaging = new function() {
 						// send message
 						var message = [requestID, messageName, newArgs];
 						var iFrameSrc = iFrameSrc ? iFrameSrc : ZOTERO_CONFIG.BOOKMARKLET_URL+(Zotero.isIE ? "iframe_ie.html" : "iframe.html");
-						var _structuredCloneSupportedForThisMessage = message[2][0].error ? false : _structuredCloneSupported;	// Errors don't work with structured clones (https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
+						var _structuredCloneSupportedForThisMessage = message[2][0] && message[2][0].error ? false : _structuredCloneSupported;	// Errors don't work with structured clones (https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
 						zoteroIFrame.contentWindow.postMessage(
 							(_structuredCloneSupportedForThisMessage ? message : JSON.stringify(message)),
 							iFrameSrc);

@@ -1363,6 +1363,11 @@ Zotero.API = new function() {
 		Zotero.Messaging.sendMessageToRefWorks("fullReference", item);
 	};
 
+	this.notifyFullReferenceFail = function(item) {
+		console.log(item);
+		Zotero.Messaging.sendMessageToRefWorks("fullReferenceFail", item);
+	};
+
 	/**
 	 * Extracts credentials from cookies
 	 */
