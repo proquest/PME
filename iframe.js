@@ -1248,7 +1248,8 @@ Zotero.API = new function() {
 	 *     already authorized.
 	 */
 	this.createItem = function(payload) {
-
+		if (this.uiAlreadyCreated) return;	// occasionally createItem and createSelection will both be called, only call the first one.
+		this.uiAlreadyCreated = true;
 		var form = document.createElement("form");
 		var textarea = document.createElement("textarea");
 		var returnURL = document.createElement("input");
@@ -1296,6 +1297,8 @@ Zotero.API = new function() {
 	 *     already authorized.
 	 */
 	this.createSelection = function(payload) {
+		if (this.uiAlreadyCreated) return; // occasionally createItem and createSelection will both be called, only call the first one.
+		this.uiAlreadyCreated = true;
 		function getParameterByName(name) {
 			name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
 			var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
