@@ -1042,6 +1042,8 @@ Zotero.HTTP.isSameOrigin = function(url) {
 	if(!m) {
 		return true;
 	} else {
+		console.log(m);
+		console.log(window.parent.location);
 		var location = Zotero.isBookmarklet ? window.parent.location : window.location;
 		return m[1].toLowerCase() === location.protocol.toLowerCase() &&
 			m[2].toLowerCase() === location.host.toLowerCase();
@@ -1090,7 +1092,6 @@ Zotero.HTTP.processDocuments = function(urls, processor, done, exception, dontDe
 				Zotero.debug("HTTP.processDocuments: Loading "+loadingURL);
 				if(Zotero.HTTP.isSameOrigin(loadingURL)) {
 					hiddenBrowser.src = loadingURL;
-
 					if(Zotero.isBookmarklet) {
 						// Hack to disable window.alert() on iframe loads
 						var id = window.setInterval(function() {
@@ -5054,8 +5055,8 @@ Zotero.Translate.Base.prototype = {
 				resolved = a.href;
 			} else if (url.indexOf('//') == 0) {
 				// Protocol-relative URL with no associated web page
-				// Use // by default
-				resolved = '//' + url;
+				// Use http by default
+				resolved = 'http' + url;
 			} else {
 				throw new Error('Cannot resolve relative URL without an associated web page: ' + url);
 			}
@@ -5063,7 +5064,7 @@ Zotero.Translate.Base.prototype = {
 			Zotero.debug("Translate: unsupported scheme " + m[1]);
 			return url;
 		} else {
-			resolved = url.replace(/^https*:\/\//, "//");;
+			resolved = url;
 		}
 
 		Zotero.debug("Translate: resolved to " + resolved);
