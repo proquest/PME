@@ -22,6 +22,35 @@
 "use strict";
 // PME.js
 
+var today = new Date();
+if(today >= new Date("1/18/2016") || !window.PQD_SCR){
+	if(document.getElementById("zotero-iframe")) {
+		alert("A previous translation process is still in progress. Please wait for it to complete, "+
+			"or refresh the page.");
+		return;
+	};
+	if(!window.PME_SERVICE_PROVIDER) window.PME_SERVICE_PROVIDER = "https://s3.amazonaws.com/pme.proquest.com";
+	if(!window.EXT_SERVICE_PROVIDER) window.EXT_SERVICE_PROVIDER = "https://refworks.proquest.com";
+	var baseURL = window.PME_SERVICE_PROVIDER+"/",
+		ie = (!document.evaluate ? "_ie" : ""),
+		common = baseURL+"common"+ie+".js?_="+(new Date()),
+		inject = baseURL+"inject"+ie+".js?_="+(new Date());
+
+	var iframe = document.createElement("iframe"),
+		tag = document.body || document.documentElement;
+	iframe.id = "zotero-iframe";
+	iframe.style.display = "none";
+	iframe.style.borderStyle = "none";
+	iframe.setAttribute("frameborder", "0");
+	var scriptLocations = 'window.PME_SERVICE_PROVIDER="'+window.PME_SERVICE_PROVIDER+'";window.EXT_SERVICE_PROVIDER="'+window.EXT_SERVICE_PROVIDER+'";';
+	iframe.src = 'javascript:(function(){document.open();try{window.parent.document;}catch(e){document.domain="' + document.domain.replace(/[\\\"]/g, "\\$0")+'";}document.write(\'<!DOCTYPE html><html><head><script>'+scriptLocations+'</script><script src="'+common+'"></script><script src="'+inject+'"></script></head><body></body></html>\');document.close();})()';
+	tag.appendChild(iframe);
+}
+else{
+
+
+
+
 window.PME = {};
 
 window.pageList = [];
@@ -203,12 +232,12 @@ var pageURL, pageDoc,
 
 
 // ------------------------------------------------------------------------
-//  _                   _             
-// | | ___   __ _  __ _(_)_ __   __ _ 
+//  _                   _
+// | | ___   __ _  __ _(_)_ __   __ _
 // | |/ _ \ / _` |/ _` | | '_ \ / _` |
 // | | (_) | (_| | (_| | | | | | (_| |
 // |_|\___/ \__, |\__, |_|_| |_|\__, |
-//          |___/ |___/         |___/ 
+//          |___/ |___/         |___/
 // ------------------------------------------------------------------------
 function log(m1, m2, m3) {
 	var stuff = Array.prototype.slice.call(arguments, 0);
@@ -244,12 +273,12 @@ PME.debug = function(str) {
 
 
 // ------------------------------------------------------------------------
-//                                  _   _ _     _ _ _ _         
-//   ___ ___  _ __ ___  _ __   __ _| |_(_) |__ (_) (_) |_ _   _ 
+//                                  _   _ _     _ _ _ _
+//   ___ ___  _ __ ___  _ __   __ _| |_(_) |__ (_) (_) |_ _   _
 //  / __/ _ \| '_ ` _ \| '_ \ / _` | __| | '_ \| | | | __| | | |
 // | (_| (_) | | | | | | |_) | (_| | |_| | |_) | | | | |_| |_| |
 //  \___\___/|_| |_| |_| .__/ \__,_|\__|_|_.__/|_|_|_|\__|\__, |
-//                     |_|                                |___/ 
+//                     |_|                                |___/
 // ------------------------------------------------------------------------
 
 function hasUsefulDOMParser() {
@@ -327,12 +356,12 @@ if (Array.prototype.filter && Array.prototype.filter.toString().indexOf("[native
 
 
 // ------------------------------------------------------------------------
-//                                                    _   _ _     
-//   ___ ___  _ __ ___  _ __ ___   ___  _ __    _   _| |_(_) |___ 
+//                                                    _   _ _
+//   ___ ___  _ __ ___  _ __ ___   ___  _ __    _   _| |_(_) |___
 //  / __/ _ \| '_ ` _ \| '_ ` _ \ / _ \| '_ \  | | | | __| | / __|
 // | (_| (_) | | | | | | | | | | | (_) | | | | | |_| | |_| | \__ \
 //  \___\___/|_| |_| |_|_| |_| |_|\___/|_| |_|  \__,_|\__|_|_|___/
-//                                                                
+//
 // ------------------------------------------------------------------------
 function isArrayLike(x) {
 	return (typeof x == "object") && x && ("length" in x) && (x.constructor != String);
@@ -453,12 +482,12 @@ function documentScriptRootNode(doc) {
 
 
 // ------------------------------------------------------------------------
-//  _ _  __      _   _                
-// | (_)/ _| ___| |_(_)_ __ ___   ___ 
+//  _ _  __      _   _
+// | (_)/ _| ___| |_(_)_ __ ___   ___
 // | | | |_ / _ \ __| | '_ ` _ \ / _ \
 // | | |  _|  __/ |_| | | | | | |  __/
 // |_|_|_|  \___|\__|_|_| |_| |_|\___|
-//                                    
+//
 // ------------------------------------------------------------------------
 var pmeTaskStack = [],
 	pmeCompleted = false;
@@ -599,12 +628,12 @@ PME.done = function(returnValue) {
 
 
 // ------------------------------------------------------------------------
-//  _ _                     
-// (_) |_ ___ _ __ ___  ___ 
+//  _ _
+// (_) |_ ___ _ __ ___  ___
 // | | __/ _ \ '_ ` _ \/ __|
 // | | ||  __/ | | | | \__ \
 // |_|\__\___|_| |_| |_|___/
-//                          
+//
 // ------------------------------------------------------------------------
 PME.items = [];
 
@@ -616,7 +645,7 @@ PME.selectItems = function(items, callback) {
 			out[k] = items[k];
 		}
 	}
-	
+
 
 	if (! itemCount)
 		return false;
@@ -678,12 +707,12 @@ PME.Item = function(type) {
 
 
 // ------------------------------------------------------------------------
-//  _____                    _       _              ____ _               
-// |_   _| __ __ _ _ __  ___| | __ _| |_ ___  _ __ / ___| | __ _ ___ ___ 
+//  _____                    _       _              ____ _
+// |_   _| __ __ _ _ __  ___| | __ _| |_ ___  _ __ / ___| | __ _ ___ ___
 //   | || '__/ _` | '_ \/ __| |/ _` | __/ _ \| '__| |   | |/ _` / __/ __|
 //   | || | | (_| | | | \__ \ | (_| | || (_) | |  | |___| | (_| \__ \__ \
 //   |_||_|  \__,_|_| |_|___/_|\__,_|\__\___/|_|   \____|_|\__,_|___/___/
-//                                                                       
+//
 // ------------------------------------------------------------------------
 PME.TranslatorClass = function(classID) {
 	if (! pmeOK)
@@ -755,12 +784,12 @@ PME.TranslatorClass.baseURL = (PME_SRV.indexOf('http') == 0 ? '' : 'http://') + 
 
 
 // ------------------------------------------------------------------------
-//  _____                    _       _             
-// |_   _| __ __ _ _ __  ___| | __ _| |_ ___  _ __ 
+//  _____                    _       _
+// |_   _| __ __ _ _ __  ___| | __ _| |_ ___  _ __
 //   | || '__/ _` | '_ \/ __| |/ _` | __/ _ \| '__|
-//   | || | | (_| | | | \__ \ | (_| | || (_) | |   
-//   |_||_|  \__,_|_| |_|___/_|\__,_|\__\___/|_|   
-//                                                 
+//   | || | | (_| | | | \__ \ | (_| | || (_) | |
+//   |_||_|  \__,_|_| |_|___/_|\__,_|\__\___/|_|
+//
 // ------------------------------------------------------------------------
 PME.Translator = function(type) {
 	var handlers = {},
@@ -963,12 +992,12 @@ PME.read = function(size) {
 
 
 // ------------------------------------------------------------------------
-//  _   _ _   _ _ 
+//  _   _ _   _ _
 // | | | | |_(_) |
 // | | | | __| | |
 // | |_| | |_| | |
 //  \___/ \__|_|_|
-//                
+//
 // ------------------------------------------------------------------------
 PME.Util = {};
 
@@ -993,7 +1022,7 @@ PME.Util.sortByKey = function (array, key) {
 
         if (typeof x == "string")
         {
-            x = x.toLowerCase(); 
+            x = x.toLowerCase();
             y = y.toLowerCase();
         }
 
@@ -1427,7 +1456,7 @@ PME.Util.parseContextObject = function (COstring, item) {
 		type = "patent";
 	else
 		return false;
-	
+
 	if (!item)
 		newItem = new PME.Item(type);
 	else
@@ -1498,7 +1527,7 @@ PME.Util.parseContextObject = function (COstring, item) {
 	if (contextObject["rft.aulast"]) {
 		var authFirstName = '';
 		var authLastName = contextObject["rft.aulast"] + (contextObject["rft.ausuffix"] ? contextObject["rft.ausuffix"] : "");
-		
+
 		if (contextObject["rft.aufirst"] || contextObject["rft.auinit1"]) {
 			authFirstName = (contextObject["rft.aufirst"] ? contextObject["rft.aufirst"] : contextObject["rft.auinit1"]) + (contextObject["rft.auinitm"] ? contextObject["rft.auinitm"] : '');
 		}
@@ -1554,12 +1583,12 @@ PME.Util.parseContextObject = function (COstring, item) {
 
 
 // ------------------------------------------------------------------------
-//                                    ____                 
-//  _ __  _ __ ___   ___ ___  ___ ___|  _ \  ___   ___ ___ 
+//                                    ____
+//  _ __  _ __ ___   ___ ___  ___ ___|  _ \  ___   ___ ___
 // | '_ \| '__/ _ \ / __/ _ \/ __/ __| | | |/ _ \ / __/ __|
 // | |_) | | | (_) | (_|  __/\__ \__ \ |_| | (_) | (__\__ \
 // | .__/|_|  \___/ \___\___||___/___/____/ \___/ \___|___/
-// |_|                                                     
+// |_|
 // ------------------------------------------------------------------------
 function HiddenDocument(url, cont) {
 	var timer, iframe;
@@ -1677,12 +1706,12 @@ PME.Util.processDocuments = function(urls, processor, onDone, onError) {
 
 
 // ------------------------------------------------------------------------
-//  _   _ _____ _____ ____  
-// | | | |_   _|_   _|  _ \ 
+//  _   _ _____ _____ ____
+// | | | |_   _|_   _|  _ \
 // | |_| | | |   | | | |_) |
-// |  _  | | |   | | |  __/ 
-// |_| |_| |_|   |_| |_|    
-//                          
+// |  _  | | |   | | |  __/
+// |_| |_| |_|   |_| |_|
+//
 // ------------------------------------------------------------------------
 PME.Util.HTTP = {};
 
@@ -1810,12 +1839,12 @@ PME.Util.HTTP.doPost = PME.Util.doPost = function(url, data, callback, headers, 
 };
 
 // ------------------------------------------------------------------------
-//   __ _ _ _                
-//  / _(_) | |_ ___ _ __ ___ 
+//   __ _ _ _
+//  / _(_) | |_ ___ _ __ ___
 // | |_| | | __/ _ \ '__/ __|
 // |  _| | | ||  __/ |  \__ \
 // |_| |_|_|\__\___|_|  |___/
-//                           
+//
 // ------------------------------------------------------------------------
 function ValueFilter() {
 	var filters = [], st;
@@ -1967,12 +1996,12 @@ function Xpath(selector) {
 
 
 // ------------------------------------------------------------------------
-//                                         
-//  ___  ___ _ __ __ _ _ __   ___ _ __ ___ 
+//
+//  ___  ___ _ __ __ _ _ __   ___ _ __ ___
 // / __|/ __| '__/ _` | '_ \ / _ \ '__/ __|
 // \__ \ (__| | | (_| | |_) |  __/ |  \__ \
 // |___/\___|_|  \__,_| .__/ \___|_|  |___/
-//                    |_|                  
+//                    |_|
 // ------------------------------------------------------------------------
 window.FW = (function(){
 	var scrapers = [];
@@ -2087,12 +2116,12 @@ window.FW = (function(){
 
 
 // ------------------------------------------------------------------------
-//                  _       
-//  _ __ ___   __ _(_)_ __  
-// | '_ ` _ \ / _` | | '_ \ 
+//                  _
+//  _ __ ___   __ _(_)_ __
+// | '_ ` _ \ / _` | | '_ \
 // | | | | | | (_| | | | | |
 // |_| |_| |_|\__,_|_|_| |_|
-//                                
+//
 // ------------------------------------------------------------------------
 PME.isURLSupported = function (sUrl)
 {
@@ -2290,7 +2319,7 @@ PME.genericScrape = function(doc) {
 				else if (doiFromAttribute) {
 					matches.push({"DOI" : doiFromAttribute});
 				}
-				
+
 				break;
 		}
 	}
@@ -2319,7 +2348,7 @@ PME.genericScrape = function(doc) {
 			matches = [{ "DOI": metaDOI }];
 		}
 	}
-	
+
 	if (matches.length == 0) {
 		for (var i = 0; i < PDFmatches.length; i++)
 			matches.push({ "URL": PDFmatches[i] });
@@ -2493,3 +2522,4 @@ $ = jQuery.noConflict();
 
 
 }());
+}
