@@ -117,7 +117,7 @@ var Zotero = new function() {
 
 		// Chrome only gives a stack
 		if(!fileName && !lineNumber && err.stack) {
-			const stackRe = /^\s+at (?:[^(\n]* \()?([^\n]*):([0-9]+):([0-9]+)\)?$/m;
+			var stackRe = /^\s+at (?:[^(\n]* \()?([^\n]*):([0-9]+):([0-9]+)\)?$/m;
 			var m = stackRe.exec(err.stack);
 			if(m) {
 				fileName = m[1];
@@ -152,7 +152,7 @@ var Zotero = new function() {
 }
 
 Zotero.Prefs = new function() {
-	const DEFAULTS = {
+	var DEFAULTS = {
 		"debug.log":true,
 		"debug.stackTrace":false,
 		"debug.store":false,
@@ -220,7 +220,7 @@ Zotero.Prefs = new function() {
 
 
 
-const ZOTERO_CONFIG = {
+var ZOTERO_CONFIG = {
 	REPOSITORY_URL: "https://s3.amazonaws.com/pme.proquest.com",
 	API_URL: window.EXT_SERVICE_PROVIDER+"/",//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com
 	LOGIN_URL: window.EXT_SERVICE_PROVIDER+'/login/',//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com/login/
@@ -3256,7 +3256,7 @@ var XRegExp = (function(undefined) {
  * Note that this is the reverse of the text variable map, since all mappings should be one to one
  * and it makes the code cleaner
  */
-const CSL_NAMES_MAPPINGS = {
+var CSL_NAMES_MAPPINGS = {
 	"author":"author",
 	"editor":"editor",
 	"bookAuthor":"container-author",
@@ -3272,7 +3272,7 @@ const CSL_NAMES_MAPPINGS = {
 /*
  * Mappings for text variables
  */
-const CSL_TEXT_MAPPINGS = {
+var CSL_TEXT_MAPPINGS = {
 	"title":["title"],
 	"container-title":["publicationTitle",  "reporter", "code"], /* reporter and code should move to SQL mapping tables */
 	"collection-title":["seriesTitle", "series"],
@@ -3316,7 +3316,7 @@ const CSL_TEXT_MAPPINGS = {
 /*
  * Mappings for dates
  */
-const CSL_DATE_MAPPINGS = {
+var CSL_DATE_MAPPINGS = {
 	"issued":"date",
 	"accessed":"accessDate",
 	"submitted":"filingDate"
@@ -3326,7 +3326,7 @@ const CSL_DATE_MAPPINGS = {
  * Mappings for types
  * Also see itemFromCSLJSON
  */
-const CSL_TYPE_MAPPINGS = {
+var CSL_TYPE_MAPPINGS = {
 	'book':"book",
 	'bookSection':'chapter',
 	'journalArticle':"article-journal",
@@ -3918,7 +3918,7 @@ Zotero.Utilities = {
 	 * @return {Integer[]} Start and end pages
 	 */
 	"getPageRange":function(pages) {
-		const pageRangeRegexp = /^\s*([0-9]+) ?[-\u2013] ?([0-9]+)\s*$/
+		var pageRangeRegexp = /^\s*([0-9]+) ?[-\u2013] ?([0-9]+)\s*$/
 
 		var pageNumbers;
 		var m = pageRangeRegexp.exec(pages);
@@ -3998,12 +3998,12 @@ Zotero.Utilities = {
 	 * @type String
 	 */
 	"capitalizeTitle":function(string, force) {
-		const skipWords = ["but", "or", "yet", "so", "for", "and", "nor", "a", "an",
+		var skipWords = ["but", "or", "yet", "so", "for", "and", "nor", "a", "an",
 			"the", "at", "by", "from", "in", "into", "of", "on", "to", "with", "up",
 			"down", "as"];
 
 		// this may only match a single character
-		const delimiterRegexp = /([ \/\u002D\u00AD\u2010-\u2015\u2212\u2E3A\u2E3B])/;
+		var delimiterRegexp = /([ \/\u002D\u00AD\u2010-\u2015\u2212\u2E3A\u2E3B])/;
 
 		string = this.trimInternal(string);
 		string = string.replace(/ : /g, ": ");
@@ -4294,7 +4294,7 @@ Zotero.Utilities = {
 		if(typeof literal !== "string") {
 			throw "Argument "+literal+" must be a string in Zotero.Utilities.quotemeta()";
 		}
-		const metaRegexp = /[-[\]{}()*+?.\\^$|,#\s]/g;
+		var metaRegexp = /[-[\]{}()*+?.\\^$|,#\s]/g;
 		return literal.replace(metaRegexp, "\\$&");
 	},
 
@@ -5197,8 +5197,8 @@ Zotero.Utilities = {
  *
  * See other messaging scripts for more details.
  */
-const MESSAGE_SEPARATOR = ".";
-const MESSAGES = {
+var MESSAGE_SEPARATOR = ".";
+var MESSAGES = {
 	"Translators":
 		{
 			"get":{

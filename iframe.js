@@ -25,8 +25,8 @@
 */
 
 Zotero.Connector = new function() {
-	const CONNECTOR_URI = "http://127.0.0.1:23119/";
-	const CONNECTOR_API_VERSION = 2;
+	var CONNECTOR_URI = "http://127.0.0.1:23119/";
+	var CONNECTOR_API_VERSION = 2;
 
 	var _ieStandaloneIframeTarget, _ieConnectorCallbacks;
 	// As of Chrome 38 (and corresponding Opera version 24?) pages loaded over
@@ -298,7 +298,7 @@ Zotero.Connector_Debug = new function() {
 
 /******** END connector.js ********/
 /******** BEGIN tlds.js ********/
-const TLDS = {
+var TLDS = {
 	"ac":true,
 	"ad":true,
 	"ae":true,
@@ -1493,7 +1493,7 @@ if (Zotero.isIE) {
 	/**
 	 * Make a translator compatible with IE. Rewrites the AST to replace textContent property
 	 * references with calls to textContent(), indexOf property references with calls to
-	 * indexOf(), and const expressions with var expressions.
+	 * indexOf(), and var expressions with var expressions.
 	 */
 	function explorerify(code) {
 		var rewritePropertiesToFunctionCalls = {
@@ -3408,7 +3408,7 @@ if (Zotero.isIE) {
 					return "var " + add_commas(MAP(defs, make_1vardef)) + ";";
 				},
 				"const": function (defs) {
-					return "const " + add_commas(MAP(defs, make_1vardef)) + ";";
+					return "var " + add_commas(MAP(defs, make_1vardef)) + ";";
 				},
 				"try": function (tr, ca, fi) {
 					var out = ["try", make_block(tr)];
