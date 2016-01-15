@@ -31,9 +31,9 @@ if(today >= new Date("1/18/2016") || !window.PQD_SCR){
 	if(!window.PME_SERVICE_PROVIDER) window.PME_SERVICE_PROVIDER = "https://s3.amazonaws.com/pme.proquest.com";
 	if(!window.EXT_SERVICE_PROVIDER) window.EXT_SERVICE_PROVIDER = "https://refworks.proquest.com";
 	var baseURL = window.PME_SERVICE_PROVIDER+"/",
-		ie = (!document.evaluate ? "_ie" : ""),
-		common = baseURL+"common"+ie+".js?_="+(new Date()),
-		inject = baseURL+"inject"+ie+".js?_="+(new Date());
+		//ie = (!document.evaluate ? "_ie" : ""),
+		common = baseURL+"common.js?_="+(new Date()),
+		inject = baseURL+"inject.js?_="+(new Date());
 
 	var iframe = document.createElement("iframe"),
 		tag = document.body || document.documentElement;
