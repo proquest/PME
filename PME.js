@@ -19,7 +19,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 (function() {
-"use strict";
 // PME.js
 
 var today = new Date();
