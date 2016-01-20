@@ -33,7 +33,8 @@ if(today >= new Date("1/18/2016") || !window.PQD_SCR){
 	var baseURL = window.PME_SERVICE_PROVIDER+"/",
 		//ie = (!document.evaluate ? "_ie" : ""),
 		common = baseURL+"common.js?_="+(new Date()),
-		inject = baseURL+"inject.js?_="+(new Date());
+		inject = baseURL+"inject.js?_="+(new Date()),
+		xpath = baseURL+"wgxpath.install.js?_="+(new Date());
 
 	var iframe = document.createElement("iframe"),
 		tag = document.body || document.documentElement;
@@ -42,7 +43,7 @@ if(today >= new Date("1/18/2016") || !window.PQD_SCR){
 	iframe.style.borderStyle = "none";
 	iframe.setAttribute("frameborder", "0");
 	var scriptLocations = 'window.PME_SERVICE_PROVIDER="'+window.PME_SERVICE_PROVIDER+'";window.EXT_SERVICE_PROVIDER="'+window.EXT_SERVICE_PROVIDER+'";';
-	iframe.src = 'javascript:(function(){document.open();try{window.parent.document;}catch(e){document.domain="' + document.domain.replace(/[\\\"]/g, "\\$0")+'";}document.write(\'<!DOCTYPE html><html><head><script>'+scriptLocations+'</script><script src="'+common+'"></script><script src="'+inject+'"></script></head><body></body></html>\');document.close();})()';
+	iframe.src = 'javascript:(function(){document.open();try{window.parent.document;}catch(e){document.domain="' + document.domain.replace(/[\\\"]/g, "\\$0")+'";}document.write(\'<!DOCTYPE html><html><head><script>'+scriptLocations+'</script><script src="'+xpath+'"></script><script src="'+common+'"></script><script src="'+inject+'"></script></head><body></body></html>\');document.close();})()';
 	tag.appendChild(iframe);
 }
 else{
@@ -1361,7 +1362,7 @@ PME.Util.xpathHelper = function(docWindow, doc, callback) {
 		5 * 1000,
 		function(success) {
 			if (success) {
-				docWindow.wgxpath.install();
+				wgxpath.install(docWindow);
 				log("wgxpath loaded: " + doc.evaluate);
 				if (callback)
 					callback();
