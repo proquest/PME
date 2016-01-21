@@ -7915,6 +7915,7 @@ Zotero.Messaging = new function() {
 					Zotero.debug("Structured clone algorithm is supported");
 				}
 
+				if (data[0] || data[1]) {
 				// first see if there is a message listener
 				if(_messageListeners[data[0]]) {
 					_messageListeners[data[0]](data[1], event);
@@ -7940,6 +7941,8 @@ Zotero.Messaging = new function() {
 
 				// run callback
 				callback.apply(null, response);
+				}
+
 			} catch(e) {
 				Zotero.logError(e);
 			}
