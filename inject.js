@@ -5103,8 +5103,8 @@ Zotero.Translate.Base.prototype = {
 	 */
 	"complete":function(returnValue, error, item) {
 		// allow translation to be aborted for re-running after selecting items
-		if(this._aborted) {
-			if (item) Zotero.API.notifyFullReferenceFail(item);
+		if(this._aborted || (!returnValue && error)) {
+			if (item || (!returnValue && error)) Zotero.API.notifyFullReferenceFail(item);
 			return;
 		}
 
