@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "shelljs": "latest",
+    "jade": "latest"
+  }
+}
