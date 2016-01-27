@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "shelljs": "latest",
-    "jade": "latest"
+    "jade": "latest",
+    "node-minify": "latest"
   }
 }

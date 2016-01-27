@@ -24,8 +24,6 @@
  ***** END LICENSE BLOCK *****
  */
 
-
-
 var ZOTERO_CONFIG = {
 	REPOSITORY_URL: "https://s3.amazonaws.com/pme.proquest.com",
 	API_URL: window.EXT_SERVICE_PROVIDER+"/",//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com
@@ -34,8 +32,7 @@ var ZOTERO_CONFIG = {
 	HTTP_BOOKMARKLET_ORIGIN : window.PME_SERVICE_PROVIDER,//change this to the url you're using for the bookmark https://pme.proquest.com/review/new-pme
 	BOOKMARKLET_URL: window.PME_SERVICE_PROVIDER+"/",//change this to the url you're using for the bookmark https://s3.amazonaws.com/pme.proquest.com/review/new-pme
 	HTTP_BOOKMARKLET_URL: window.PME_SERVICE_PROVIDER+"/",//change this to the url you're using for the bookmark http://pme.proquest.com/review/new-pme
-	AUTH_COMPLETE_URL: window.EXT_SERVICE_PROVIDER+'/auth_complete/',//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com/auth_complete/
-	S3_URL: 'https://zoterofilestorage.s3.amazonaws.com/'
+	AUTH_COMPLETE_URL: window.EXT_SERVICE_PROVIDER+'/auth_complete/'//change this to review instance e.g. http://ec2-23-20-68-31.compute-1.amazonaws.com/auth_complete/
 };
 Zotero.isBookmarklet = true;
 

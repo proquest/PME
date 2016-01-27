@@ -1,5 +1,9 @@
 var shell = require('shelljs'),
-	jade = require('jade');
+	compressor = require('node-minify'),
+	jade = require('jade'),
+	REPOSITORY_URL = "https://s3.amazonaws.com/pme.proquest.com",
+	debug = false,
+	compressorType = debug ? "no-compress" : "gcc";
 
 var injectScripts = [
 	'xpcom/connector/cachedTypes.js',
@@ -27,13 +31,25 @@ var injectIEScripts = [
 	'../wgxpath.install.js'
 ];
 
-shell.cat(
-	injectScripts.concat(['bookmarklet/inject_base.js'])
-).to('../inject.js');
+new compressor.minify({
+	type: compressorType,
+	language: 'ECMASCRIPT5',
+	fileIn: injectScripts.concat(['bookmarklet/inject_base.js']),
+	fileOut: '../inject.js',
+	callback: function(err, min){
+		console.log(err);
+	}
+});
 
-shell.cat(
-	injectScripts.concat(injectIEScripts, ['bookmarklet/inject_base.js'])
-).to('../inject_ie.js');
+new compressor.minify({
+	type: compressorType,
+	language: 'ECMASCRIPT5',
+	fileIn: injectScripts.concat(injectIEScripts, ['bookmarklet/inject_base.js']),
+	fileOut: '../inject_ie.js',
+	callback: function(err, min){
+		console.log(err);
+	}
+});
 
 var commonScripts = [
 	'zotero.js',
@@ -55,13 +71,25 @@ var commonIEScripts = [
 	'bookmarklet/ie_compat.js'
 ];
 
-shell.cat(
-	commonScripts
-).to('../common.js');
+new compressor.minify({
+	type: compressorType,
+	language: 'ECMASCRIPT5',
+	fileIn: commonScripts,
+	fileOut: '../common.js',
+	callback: function(err, min){
+		console.log(err);
+	}
+});
 
-shell.cat(
-	commonScripts.concat(commonIEScripts)
-).to('../common_ie.js');
+new compressor.minify({
+	type: compressorType,
+	language: 'ECMASCRIPT5',
+	fileIn: commonScripts.concat(commonIEScripts),
+	fileOut: '../common_ie.js',
+	callback: function(err, min){
+		console.log(err);
+	}
+});
 
 var iframeScripts = [
 	'xpcom/connector/connector.js',
@@ -74,23 +102,35 @@ var iFrameIEScripts = [
 	'bookmarklet/iframe_ie_compat.js'
 ];
 
-shell.cat(
-	iframeScripts.concat(['bookmarklet/iframe_base.js'])
-).to('../iframe.js');
+new compressor.minify({
+	type: compressorType,
+	language: 'ECMASCRIPT5',
+	fileIn: iframeScripts.concat(['bookmarklet/iframe_base.js']),
+	fileOut: '../iframe.js',
+	callback: function(err, min){
+		console.log(err);
+	}
+});
 
-shell.cat(
-	iframeScripts.concat(iFrameIEScripts, ['bookmarklet/iframe_base.js'])
-).to('../iframe_ie.js');
+new compressor.minify({
+	type: compressorType,
+	language: 'ECMASCRIPT5',
+	fileIn: iframeScripts.concat(iFrameIEScripts, ['bookmarklet/iframe_base.js']),
+	fileOut: '../iframe_ie.js',
+	callback: function(err, min){
+		console.log(err);
+	}
+});
 
 var iframeScripts = [
 		'common.js',
-		'https://s3.amazonaws.com/pme.proquest.com/masterlist.js',
+		REPOSITORY_URL + '/masterlist.js',
 		'iframe.js'
 	],
 	iframeIEScripts = [
 		'wgxpath.install.js',
 		'common_ie.js',
-		'https://s3.amazonaws.com/pme.proquest.com/masterlist.js',
+		REPOSITORY_URL + '/masterlist.js',
 		'iframe_ie.js'
 	],
 	fn = jade.compileFile('iframe.jade');
