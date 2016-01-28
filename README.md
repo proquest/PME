@@ -1,33 +1,26 @@
 #What is PME?
 PME (Publication Metadata Extraction) allows users to extract, display, and save article metadata from webpages using Zotero Translators. Zotero Translators are the de-facto language for extracting metadata from webpages and we want to provide a way for them to be used in all bibliographic management software.
 
-PME is a freely available open source project, licensed under AGPLv3. It is based on the Zotero Connectors project. PME adapts this work, creating a tool capable of building add-ons that incorporate the functionality of Translators, and allows for a configurable UI capable of saving metadata to any web service.
+PME is a freely available open source project, licensed under AGPLv3. It is based on the Zotero Connectors project. PME adapts this work, creating a bookmarklet that incorporate the functionality of Translators, and allows for a configurable UI capable of saving metadata to any web service.
 
 PME is a work in progress, many of its functions are not yet complete.
 
 #How do I use PME?
-PME is a node.js application which pulls together parts of Zotero, Zotero Connectors, and Zotero Translators, along with its own code and your configurations to create a browser add-on. The add-on created uses the code you configure to show and save metadata which is found by Zotero Translators.
 
-To get started, clone Zotero (https://github.com/zotero/zotero.git), Zotero Connectors (https://github.com/zotero/zotero-connectors.git), and Zotero Translators (https://github.com/zotero/translators.git) to your machine.
+PME is a node.js application which pulls together parts of Zotero, Zotero Connectors, and Zotero Translators, along with its own code and your configurations to create a browser bookmarklet. The bookmarklet created uses the code you configure to show and save metadata which is found by Zotero Translators.
 
-Next, you’ll need to point PME to these locations. Change config.js to point to the correct locations for all three, and update the build path while you’re at it.
+There are two main parts, the generator which collects and publishes the latest translators and custom translator identification code to an s3 bucket, and the bookmarklet project which compiles the required files for the bookmarklet itself.
 
-Now, run ‘npm install’ followed by ‘node build.js -f’. Your Firefox add-on will show up in the build directory you configured.
+To run the generator, configure generator.js to point to your own s3 bucket and then go to the generator folder:
 
-Still with us? Now on to the fun part, make PME look and feel the way you want it to. We’ve included a default configuration in the file “pme_ui.js”. There are three important functions: entry, selection, and single. Entry is called at the same time as the translator is loaded; it should initialize your UI and prepare for the results of translation. Next, either single or selection will be called, depending on whether we’re looking at a single article or a result list.
+npm install
+node generator.js
 
-Each of these functions is called with the page url, and document object. Selection is also passed an object of {id:title} pairs (for each article found), and a callback function to get the full article metadata. The callback function of selection should be passed back an object with only the ids the user selects. The callback function will result in single being called with the full metadata of those selected.
+To compile the bookmarklet code configure zoter_config.js to point to your own servers and then go to the src folder:
 
-entry(doc,url)
-doc: This is the document object for the page where PME was invoked.
-url: This is the url of the page where PME was invoked.
+npm install
+node build.js
 
-selection(doc,url,items,callback)
-items: A javascript object containing id:title pairs for items which can be selected. example: {“1234”:”the title one two three four”, “5678”:”some other title”}
-callback: A callback function which instructs the translator to get full metadata for a list of ids from items. The parameter should be a subset of items.
-
-single(doc,url,item)
-item: A javascript object containing all metadata found by the translator. It is in Zotero format.
 
 # AGPL v3 License
 
