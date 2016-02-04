@@ -1121,6 +1121,9 @@ Zotero.Utilities = {
 			} else {
 				throw new Error("First argument must be either element(s) or document(s) in Zotero.Utilities.xpath(elements, '"+xpath+"')");
 			}
+
+			if (!rootDoc.evaluate) wgxpath.install({'document':rootDoc}); // Make sure the document can be evaluated (IE)
+
 			if(!Zotero.isIE || "evaluate" in rootDoc) {
 				try {
 					// This may result in a deprecation warning in the console due to
