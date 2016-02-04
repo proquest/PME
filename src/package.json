@@ -1,7 +1,30 @@
 {
+  "name": "PME",
+  "version": "2.0.0",
+  "scripts": {
+    "watch": "npm-watch",
+    "build": "node build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/proquest/PME.git"
+  },
+  "author": "RefWorks Development Team",
+  "bugs": {
+    "url": "https://github.com/proquest/PME/issues"
+  },
+  "homepage": "https://github.com/proquest/PME#readme",
   "dependencies": {
     "shelljs": "latest",
     "jade": "latest",
-    "node-minify": "latest"
+    "node-minify": "latest",
+    "npm-watch": "latest"
+
+  },
+  "watch": {
+    "build": {
+      "patterns": ["src"],
+      "extensions": "js,jade"
+    }
   }
 }
