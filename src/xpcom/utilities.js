@@ -1091,7 +1091,7 @@ Zotero.Utilities = {
 			};
 		}
 
-		if(elements.length) elements = [elements];
+		if(!elements.length) elements = [elements];
 
 		var results = [];
 		for(var i=0, n=elements.length; i<n; i++) {
