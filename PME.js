@@ -26,7 +26,7 @@
 			"or refresh the page.");
 		return;
 	};
-	if(!window.PME_SERVICE_PROVIDER) window.PME_SERVICE_PROVIDER = "https://s3.amazonaws.com/pme.proquest.com";
+	if(!window.PME_SERVICE_PROVIDER) window.PME_SERVICE_PROVIDER = "https://pme.proquest.com";
 	if(!window.EXT_SERVICE_PROVIDER) window.EXT_SERVICE_PROVIDER = "https://refworks.proquest.com";
 	var baseURL = window.PME_SERVICE_PROVIDER+"/",
 		ie = (!document.evaluate ? "_ie" : ""),

@@ -1,8 +1,8 @@
 var shell = require('shelljs'),
 	compressor = require('node-minify'),
 	jade = require('jade'),
-	REPOSITORY_URL = "https://s3.amazonaws.com/pme.proquest.com",
-	debug = false,
+	REPOSITORY_URL = "https://pme.proquest.com",
+	debug = true,
 	compressorType = debug ? "no-compress" : "gcc";
 
 var injectScripts = [
