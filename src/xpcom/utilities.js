@@ -1173,6 +1173,7 @@ Zotero.Utilities = {
 	 * @return {String|null} DOM elements matching XPath, or null if no elements exist
 	 */
 	"xpathText":function(node, xpath, namespaces, delimiter) {
+		if (node.length == 0) return null
 		var elements = Zotero.Utilities.xpath(node, xpath, namespaces);
 		if(!elements.length) return null;
 
