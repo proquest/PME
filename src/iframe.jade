@@ -1,0 +1,15 @@
+doctype html
+html(lang="en")
+    head
+        script.
+            function getParameterByName(name) {
+                name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+                var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+                return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+            }
+            window.EXT_SERVICE_PROVIDER=getParameterByName("EXT_SERVICE_PROVIDER");
+            window.PME_SERVICE_PROVIDER=getParameterByName("PME_SERVICE_PROVIDER");
+        each script in locals
+            script(type="text/javascript" src=script)
+    body

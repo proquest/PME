@@ -1,10 +1,13 @@
 .project
 .DS_Store
 .idea
-PME.iml
 
-test/tape/
-
-connectors/build/chrome.pem
-
-connectors/build/safari_extension.cer
+common.js
+common_ie.js
+inject.js
+inject_ie.js
+iframe.js
+iframe_ie.js
+iframe.html
+iframe_ie.html
+src/node_modules/*

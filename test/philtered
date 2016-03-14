@@ -1,2 +1,0 @@
-#!/bin/bash
-node_modules/phantomjs/bin/phantomjs $@ 2> >(grep '{"success"|PME_TEST' 1>&2)
