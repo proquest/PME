@@ -250,7 +250,8 @@ function startTranslation() {
 	zoteroIFrame = document.createElement("iframe");
 	zoteroIFrame.id = "zotero-privileged-iframe";
 	var ie = Zotero.isIE ? "_ie" : "";
-	zoteroIFrame.src = ZOTERO_CONFIG.BOOKMARKLET_URL + "iframe" + ie + ".html" + "?referrer=" + document.referrer + "&pageTitle=" + window.parent.document.title + "&EXT_SERVICE_PROVIDER="+encodeURIComponent(window.EXT_SERVICE_PROVIDER) + "&PME_SERVICE_PROVIDER="+encodeURIComponent(window.PME_SERVICE_PROVIDER);
+	var referrer = document.referrer ? document.referrer : window.parent.location.href;
+	zoteroIFrame.src = ZOTERO_CONFIG.BOOKMARKLET_URL + "iframe" + ie + ".html" + "?referrer=" + referrer + "&pageTitle=" + window.parent.document.title + "&EXT_SERVICE_PROVIDER="+encodeURIComponent(window.EXT_SERVICE_PROVIDER) + "&PME_SERVICE_PROVIDER="+encodeURIComponent(window.PME_SERVICE_PROVIDER);
 	zoteroIFrame.style.display = "none";
 	document.body.appendChild(zoteroIFrame);
 	document.body.style.overflow = "hidden";

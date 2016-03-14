@@ -203,6 +203,5 @@ function arrayForEach(array, callback, thisArg) {
 	// 8. return undefined
 }
 
-var XMLHttpRequest = window.parent.XMLHttpRequest;
 
 /******* END inject_ie_compat.js *********/
