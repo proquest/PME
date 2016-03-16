@@ -262,8 +262,11 @@ function startTranslation() {
  * Remove the frames
  */
 function cleanup() {
-	zoteroIFrame.parentNode.removeChild(zoteroIFrame);
-	window.frameElement.parentNode.removeChild(window.frameElement);
+	if (Zotero.isIE) window.parent.location.reload(false);
+	else {
+		zoteroIFrame.parentNode.removeChild(zoteroIFrame);
+		window.frameElement.parentNode.removeChild(window.frameElement);
+	}
 }
 
 
