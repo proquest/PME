@@ -25,7 +25,7 @@ node build.js
 # AGPL v3 License
 
 Publication Metadata Extraction
-Copyright (C) 2013-2014 ProQuest LLC
+Copyright (C) 2015-2016 ProQuest LLC
 
 Based on the Zotero Web Translators - https://github.com/zotero/translators
 Project documentation at http://www.zotero.org/support/dev/translators.
