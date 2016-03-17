@@ -46,9 +46,9 @@ Zotero.HTTP = new function() {
 			}
 		}
 
-		Zotero.debug("HTTP GET " + url);
 
-		var xmlhttp = new XMLHttpRequest();
+		Zotero.debug("HTTP GET " + url);
+		var xmlhttp = new XMLHttpRequest();	//TODO Use XDomainRequest for IE9 with cross domain requests
 		try {
 			var newUrl = url.replace(/^https*:\/\//, "//");	// Try getting the attachment using the protocol of the page (it still might fail but at least it will be caught by onerror)
 			xmlhttp.open('GET', newUrl, true);

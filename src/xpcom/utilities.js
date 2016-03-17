@@ -1091,7 +1091,7 @@ Zotero.Utilities = {
 			};
 		}
 
-		if(!("length" in elements)) elements = [elements];
+		if(!elements.length) elements = [elements];
 
 		var results = [];
 		for(var i=0, n=elements.length; i<n; i++) {
@@ -1121,6 +1121,9 @@ Zotero.Utilities = {
 			} else {
 				throw new Error("First argument must be either element(s) or document(s) in Zotero.Utilities.xpath(elements, '"+xpath+"')");
 			}
+
+			if (!rootDoc.evaluate) wgxpath.install({'document':rootDoc}); // Make sure the document can be evaluated (IE)
+
 			if(!Zotero.isIE || "evaluate" in rootDoc) {
 				try {
 					// This may result in a deprecation warning in the console due to
@@ -1170,6 +1173,7 @@ Zotero.Utilities = {
 	 * @return {String|null} DOM elements matching XPath, or null if no elements exist
 	 */
 	"xpathText":function(node, xpath, namespaces, delimiter) {
+		if (node.length == 0) return null
 		var elements = Zotero.Utilities.xpath(node, xpath, namespaces);
 		if(!elements.length) return null;
 
