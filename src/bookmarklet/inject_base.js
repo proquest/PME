@@ -69,7 +69,7 @@ var BookmarkletFrame = function(url, width, height, name) {
 	if(url || name) {
 		this._frame = document.createElement("iframe");
 		if(name) this._frame.name = name;
-		if(url) this._frame.src = url + "?referrer=" + document.referrer+"&EXT_SERVICE_PROVIDER="+encodeURIComponent(window.EXT_SERVICE_PROVIDER) + "&PME_SERVICE_PROVIDER="+encodeURIComponent(window.PME_SERVICE_PROVIDER);
+		if(url) this._frame.src = url + "?referrer=" + encodeURIComponent(document.referrer) + "&EXT_SERVICE_PROVIDER="+encodeURIComponent(window.EXT_SERVICE_PROVIDER) + "&PME_SERVICE_PROVIDER="+encodeURIComponent(window.PME_SERVICE_PROVIDER);
 	} else {
 		this._frame = zoteroIFrame;
 		zoteroIFrame.style.display = "block";
