@@ -4,6 +4,6 @@
 		"aws-sdk": "~2.1.8",
 		"async": "latest",
 		"moment": "latest",
-		"lodash": "latest"
+		"lodash": "~3.10.1"
 	}
 }
