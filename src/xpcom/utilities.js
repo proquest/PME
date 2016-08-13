@@ -1083,84 +1083,82 @@ Zotero.Utilities = {
 	 *                              values represent their URIs
 	 * @return {element[]} DOM elements matching XPath
 	 */
-	"xpath":function(elements, xpath, namespaces) {
-		var nsResolver = null;
-		if(namespaces) {
-			nsResolver = function(prefix) {
-				return namespaces[prefix] || null;
-			};
-		}
+    "xpath":function(elements, xpath, namespaces) {
+        var nsResolver = null;
+        if(namespaces) {
+            nsResolver = function(prefix) {
+                return namespaces[prefix] || null;
+            };
+        }
 
-		if(!elements.length) elements = [elements];
+        if(!("length" in elements)) elements = [elements];
 
-		var results = [];
-		for(var i=0, n=elements.length; i<n; i++) {
-			// For some reason, if elements is wrapped by an object
-			// Xray, we won't be able to unwrap the DOMWrapper around
-			// the element. So waive the object Xray.
-			var maybeWrappedEl = elements.wrappedJSObject ? elements.wrappedJSObject[i] : elements[i];
+        var results = [];
+        for(var i=0, n=elements.length; i<n; i++) {
+            // For some reason, if elements is wrapped by an object
+            // Xray, we won't be able to unwrap the DOMWrapper around
+            // the element. So waive the object Xray.
+            var maybeWrappedEl = elements.wrappedJSObject ? elements.wrappedJSObject[i] : elements[i];
 
-			// Firefox 5 hack, so we will preserve Fx5DOMWrappers
-			var isWrapped = Zotero.Translate.DOMWrapper && Zotero.Translate.DOMWrapper.isWrapped(maybeWrappedEl);
-			var element = isWrapped ? Zotero.Translate.DOMWrapper.unwrap(maybeWrappedEl) : maybeWrappedEl;
+            // Firefox 5 hack, so we will preserve Fx5DOMWrappers
+            var isWrapped = Zotero.Translate.DOMWrapper && Zotero.Translate.DOMWrapper.isWrapped(maybeWrappedEl);
+            var element = isWrapped ? Zotero.Translate.DOMWrapper.unwrap(maybeWrappedEl) : maybeWrappedEl;
 
-			// We waived the object Xray above, which will waive the
-			// DOM Xray, so make sure we have a DOM Xray wrapper.
-			if(Zotero.isFx) {
-				element = new XPCNativeWrapper(element);
-			}
+            // We waived the object Xray above, which will waive the
+            // DOM Xray, so make sure we have a DOM Xray wrapper.
+            if(Zotero.isFx) {
+                element = new XPCNativeWrapper(element);
+            }
 
-			if(element.ownerDocument) {
-				var rootDoc = element.ownerDocument;
-			} else if(element.documentElement) {
-				var rootDoc = element;
-			} else if(Zotero.isIE && element.documentElement === null) {
-				// IE: documentElement may be null if there is a parse error. In this
-				// case, we don't match anything to mimic what would happen with DOMParser
-				continue;
-			} else {
-				throw new Error("First argument must be either element(s) or document(s) in Zotero.Utilities.xpath(elements, '"+xpath+"')");
-			}
+            if(element.ownerDocument) {
+                var rootDoc = element.ownerDocument;
+            } else if(element.documentElement) {
+                var rootDoc = element;
+            } else if(Zotero.isIE && element.documentElement === null) {
+                // IE: documentElement may be null if there is a parse error. In this
+                // case, we don't match anything to mimic what would happen with DOMParser
+                continue;
+            } else {
+                throw new Error("First argument must be either element(s) or document(s) in Zotero.Utilities.xpath(elements, '"+xpath+"')");
+            }
 
-			if (!rootDoc.evaluate) wgxpath.install({'document':rootDoc}); // Make sure the document can be evaluated (IE)
+            if(!Zotero.isIE || "evaluate" in rootDoc) {
+                try {
+                    // This may result in a deprecation warning in the console due to
+                    // https://bugzilla.mozilla.org/show_bug.cgi?id=674437
+                    var xpathObject = rootDoc.evaluate(xpath, element, nsResolver, 5 /*ORDERED_NODE_ITERATOR_TYPE*/, null);
+                } catch(e) {
+                    // rethrow so that we get a stack
+                    throw new Error(e.name+": "+e.message);
+                }
 
-			if(!Zotero.isIE || "evaluate" in rootDoc) {
-				try {
-					// This may result in a deprecation warning in the console due to
-					// https://bugzilla.mozilla.org/show_bug.cgi?id=674437
-					var xpathObject = rootDoc.evaluate(xpath, element, nsResolver, 5 /*ORDERED_NODE_ITERATOR_TYPE*/, null);
-				} catch(e) {
-					// rethrow so that we get a stack
-					throw new Error(e.name+": "+e.message);
-				}
+                var newEl;
+                while(newEl = xpathObject.iterateNext()) {
+                    // Firefox 5 hack
+                    results.push(isWrapped ? Zotero.Translate.DOMWrapper.wrapIn(newEl, maybeWrappedEl) : newEl);
+                }
+            } else if("selectNodes" in element) {
+                // We use JavaScript-XPath in IE for HTML documents, but with an XML
+                // document, we need to use selectNodes
+                if(namespaces) {
+                    var ieNamespaces = [];
+                    for(var j in namespaces) {
+                        if(!j) continue;
+                        ieNamespaces.push('xmlns:'+j+'="'+Zotero.Utilities.htmlSpecialChars(namespaces[j])+'"');
+                    }
+                    rootDoc.setProperty("SelectionNamespaces", ieNamespaces.join(" "));
+                }
+                var nodes = element.selectNodes(xpath);
+                for(var j=0; j<nodes.length; j++) {
+                    results.push(nodes[j]);
+                }
+            } else {
+                throw new Error("XPath functionality not available");
+            }
+        }
 
-				var newEl;
-				while(newEl = xpathObject.iterateNext()) {
-					// Firefox 5 hack
-					results.push(isWrapped ? Zotero.Translate.DOMWrapper.wrapIn(newEl, maybeWrappedEl) : newEl);
-				}
-			} else if("selectNodes" in element) {
-				// We use JavaScript-XPath in IE for HTML documents, but with an XML
-				// document, we need to use selectNodes
-				if(namespaces) {
-					var ieNamespaces = [];
-					for(var j in namespaces) {
-						if(!j) continue;
-						ieNamespaces.push('xmlns:'+j+'="'+Zotero.Utilities.htmlSpecialChars(namespaces[j])+'"');
-					}
-					rootDoc.setProperty("SelectionNamespaces", ieNamespaces.join(" "));
-				}
-				var nodes = element.selectNodes(xpath);
-				for(var j=0; j<nodes.length; j++) {
-					results.push(nodes[j]);
-				}
-			} else {
-				throw new Error("XPath functionality not available");
-			}
-		}
-
-		return results;
-	},
+        return results;
+    },
 
 	/**
 	 * Generates a string from the content of nodes matching a given XPath
