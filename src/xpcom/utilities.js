@@ -1095,20 +1095,7 @@ Zotero.Utilities = {
 
         var results = [];
         for(var i=0, n=elements.length; i<n; i++) {
-            // For some reason, if elements is wrapped by an object
-            // Xray, we won't be able to unwrap the DOMWrapper around
-            // the element. So waive the object Xray.
-            var maybeWrappedEl = elements.wrappedJSObject ? elements.wrappedJSObject[i] : elements[i];
-
-            // Firefox 5 hack, so we will preserve Fx5DOMWrappers
-            var isWrapped = Zotero.Translate.DOMWrapper && Zotero.Translate.DOMWrapper.isWrapped(maybeWrappedEl);
-            var element = isWrapped ? Zotero.Translate.DOMWrapper.unwrap(maybeWrappedEl) : maybeWrappedEl;
-
-            // We waived the object Xray above, which will waive the
-            // DOM Xray, so make sure we have a DOM Xray wrapper.
-            if(Zotero.isFx) {
-                element = new XPCNativeWrapper(element);
-            }
+            var element = elements[i];
 
             if(element.ownerDocument) {
                 var rootDoc = element.ownerDocument;
@@ -1122,6 +1109,8 @@ Zotero.Utilities = {
                 throw new Error("First argument must be either element(s) or document(s) in Zotero.Utilities.xpath(elements, '"+xpath+"')");
             }
 
+            if(!rootDoc.evaluate) wgxpath.install({'document':rootDoc}); // Make sure the document can be evaluated (IE)
+
             if(!Zotero.isIE || "evaluate" in rootDoc) {
                 try {
                     // This may result in a deprecation warning in the console due to
@@ -1131,15 +1120,8 @@ Zotero.Utilities = {
                     // rethrow so that we get a stack
                     throw new Error(e.name+": "+e.message);
                 }
-
-                var newEl;
-                while(newEl = xpathObject.iterateNext()) {
-                    // Firefox 5 hack
-                    results.push(isWrapped ? Zotero.Translate.DOMWrapper.wrapIn(newEl, maybeWrappedEl) : newEl);
-                }
             } else if("selectNodes" in element) {
-                // We use JavaScript-XPath in IE for HTML documents, but with an XML
-                // document, we need to use selectNodes
+                // We use JavaScript-XPath in IE for HTML documents, but with an XML document, we need to use selectNodes
                 if(namespaces) {
                     var ieNamespaces = [];
                     for(var j in namespaces) {
