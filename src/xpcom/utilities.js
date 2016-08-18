@@ -1120,6 +1120,11 @@ Zotero.Utilities = {
                     // rethrow so that we get a stack
                     throw new Error(e.name+": "+e.message);
                 }
+
+                var newEl;
+                while(newEl = xpathObject.iterateNext()) {
+                    results.push(newEl);
+                }
             } else if("selectNodes" in element) {
                 // We use JavaScript-XPath in IE for HTML documents, but with an XML document, we need to use selectNodes
                 if(namespaces) {
