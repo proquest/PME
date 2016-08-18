@@ -1,6 +1,7 @@
 var shell = require('shelljs'),
 	compressor = require('node-minify'),
-	jade = require('jade'),
+	jade = require('pug'),
+	fs = require('fs'),
 	REPOSITORY_URL = "https://pme.proquest.com",
 	debug = true,
 	compressorType = debug ? "no-compress" : "gcc";
@@ -135,5 +136,13 @@ var iframeScripts = [
 	],
 	fn = jade.compileFile('iframe.jade');
 
-fn(iframeScripts).to('../iframe.html');
-fn(iframeIEScripts).to('../iframe_ie.html');
+fs.writeFile('../iframe.html', fn(iframeScripts), function(err) {
+    if(err) {
+        return console.log(err);
+    }
+});
+fs.writeFile('../iframe_ie.html', fn(iframeIEScripts), function(err) {
+		if(err) {
+				return console.log(err);
+		}
+});
