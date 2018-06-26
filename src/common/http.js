@@ -29,6 +29,28 @@
  * @namespace
  */
 Zotero.HTTP = new function() {
+
+    /**
+     * Returns the domain of a given url
+     */
+    this.getDomain = function (url, subdomain) {
+        subdomain = subdomain || false;
+
+        url = url.replace(/(https?:\/\/)?(www.)?/i, '');
+
+        if (!subdomain) {
+            url = url.split('.');
+
+            url = url.slice(url.length - 2).join('.');
+        }
+
+        if (url.indexOf('/') !== -1) {
+            return url.split('/')[0];
+        }
+
+        return url;
+    };
+
 	/**
 	 * Send an HTTP GET request via XMLHTTPRequest
 	 *
@@ -37,15 +59,18 @@ Zotero.HTTP = new function() {
 	 * @return {Boolean} True if the request was sent, or false if the browser is offline
 	 */
 	this.doGet = function(url, onDone, responseCharset) {
-		if(Zotero.isInject && !Zotero.HTTP.isSameOrigin(url)) {
-			if(Zotero.isBookmarklet) {
-				Zotero.debug("Attempting cross-site request from bookmarklet; this may fail");
-			} else if(Zotero.isSafari || Zotero.HTTP.isLessSecure(url)) {
-				Zotero.COHTTP.doGet(url, onDone, responseCharset);
-				return;
-			}
-		}
 
+        if(Zotero.isInject && !Zotero.HTTP.isSameOrigin(url)) {
+            if(Zotero.isBookmarklet) {
+                Zotero.debug("Attempting cross-site request from bookmarklet; this may fail");
+                var domain = Zotero.HTTP.getDomain(url);
+                Zotero.debug("Detected possible CORS call, setting iframe domain to " + domain);
+                document.domain = domain;
+            } else if(Zotero.isSafari || Zotero.HTTP.isLessSecure(url)) {
+                Zotero.COHTTP.doGet(url, onDone, responseCharset);
+                return;
+            }
+        }
 
 		Zotero.debug("HTTP GET " + url);
 		var xmlhttp = new XMLHttpRequest();	//TODO Use XDomainRequest for IE9 with cross domain requests

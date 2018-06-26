@@ -52,7 +52,13 @@ Zotero.Messaging = new function() {
 	 */
 	this.receiveMessage = function(messageName, args, sendResponseCallback, tab) {
 		try {
-			//Zotero.debug("Messaging: Received message: "+messageName);
+			Zotero.debug("Messaging: Received message: "+messageName);
+
+			if (messageName == undefined) {
+                Zotero.debug("Messaging: Received message is undefined.");
+                return;
+            }
+
 			// first see if there is a message listener
 			if(_messageListeners[messageName]) {
 				_messageListeners[messageName](args, tab);
