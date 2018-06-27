@@ -154,7 +154,7 @@ var parseArguments = function() {
         var val = process.argv[++i];
         console.log(arg, val);
         switch(arg) {
-            case '-o': //Output folder, default is "../"
+            case '-o': //Output folder, default is "../output"
                 parameters.output = val;
                 break;
             case '-debug': //Debug flag generates js files without compression to facilitate reading.
