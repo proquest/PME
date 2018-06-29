@@ -63,19 +63,23 @@ Zotero.HTTP = new function() {
         if(Zotero.isInject && !Zotero.HTTP.isSameOrigin(url)) {
             if(Zotero.isBookmarklet) {
                 Zotero.debug("Attempting cross-site request from bookmarklet; this may fail");
-                var domain = Zotero.HTTP.getDomain(url);
-                Zotero.debug("Detected possible CORS call, setting iframe domain to " + domain);
-                document.domain = domain;
+                useProxy = true;
             } else if(Zotero.isSafari || Zotero.HTTP.isLessSecure(url)) {
                 Zotero.COHTTP.doGet(url, onDone, responseCharset);
                 return;
             }
         }
 
-		Zotero.debug("HTTP GET " + url);
+		Zotero.debug("HTTP GET - original - " + url);
 		var xmlhttp = new XMLHttpRequest();	//TODO Use XDomainRequest for IE9 with cross domain requests
 		try {
 			var newUrl = url.replace(/^https*:\/\//, "//");	// Try getting the attachment using the protocol of the page (it still might fail but at least it will be caught by onerror)
+            if (useProxy){
+                newUrl = EXT_SERVICE_PROVIDER + "/api/2/strproxy?url=" + url;
+            }
+
+            Zotero.debug("HTTP GET - actual - " + newUrl);
+
 			xmlhttp.open('GET', newUrl, true);
 
 			if(xmlhttp.overrideMimeType && responseCharset) {
