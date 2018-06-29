@@ -60,6 +60,7 @@ Zotero.HTTP = new function() {
 	 */
 	this.doGet = function(url, onDone, responseCharset) {
 
+		var useProxy = false;
         if(Zotero.isInject && !Zotero.HTTP.isSameOrigin(url)) {
             if(Zotero.isBookmarklet) {
                 Zotero.debug("Attempting cross-site request from bookmarklet; this may fail");
