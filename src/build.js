@@ -32,21 +32,25 @@ var injectIEScripts = [
 	'../wgxpath.install.js'
 ];
 
-new compressor.minify({
-	type: compressorType,
-	language: 'ECMASCRIPT5',
-	fileIn: injectScripts.concat(['bookmarklet/inject_base.js']),
-	fileOut: '../inject.js',
+compressor.minify({
+	compressor: compressorType,
+	options: {
+		language: 'ECMASCRIPT5',
+	},
+	input: injectScripts.concat(['bookmarklet/inject_base.js']),
+	output: '../output/pme/inject.js',
 	callback: function(err, min){
 		console.log(err);
 	}
 });
 
-new compressor.minify({
-	type: compressorType,
-	language: 'ECMASCRIPT5',
-	fileIn: injectScripts.concat(injectIEScripts, ['bookmarklet/inject_base.js']),
-	fileOut: '../inject_ie.js',
+compressor.minify({
+	compressor: compressorType,
+	options: {
+		language: 'ECMASCRIPT5',
+	},
+	input: injectScripts.concat(injectIEScripts, ['bookmarklet/inject_base.js']),
+	output: '../output/pme/inject_ie.js',
 	callback: function(err, min){
 		console.log(err);
 	}
@@ -72,21 +76,25 @@ var commonIEScripts = [
 	'bookmarklet/ie_compat.js'
 ];
 
-new compressor.minify({
-	type: compressorType,
-	language: 'ECMASCRIPT5',
-	fileIn: commonScripts,
-	fileOut: '../common.js',
+compressor.minify({
+	compressor: compressorType,
+	options: {
+		language: 'ECMASCRIPT5',
+	},
+	input: commonScripts,
+	output: '../output/pme/common.js',
 	callback: function(err, min){
 		console.log(err);
 	}
 });
 
-new compressor.minify({
-	type: compressorType,
-	language: 'ECMASCRIPT5',
-	fileIn: commonScripts.concat(commonIEScripts),
-	fileOut: '../common_ie.js',
+compressor.minify({
+	compressor: compressorType,
+	options: {
+		language: 'ECMASCRIPT5',
+	},
+	input: commonScripts.concat(commonIEScripts),
+	output: '../output/pme/common_ie.js',
 	callback: function(err, min){
 		console.log(err);
 	}
@@ -103,21 +111,25 @@ var iFrameIEScripts = [
 	'bookmarklet/iframe_ie_compat.js'
 ];
 
-new compressor.minify({
-	type: compressorType,
-	language: 'ECMASCRIPT5',
-	fileIn: iframeScripts.concat(['bookmarklet/iframe_base.js']),
-	fileOut: '../iframe.js',
+compressor.minify({
+	compressor: compressorType,
+	options: {
+		language: 'ECMASCRIPT5',
+	},
+	input: iframeScripts.concat(['bookmarklet/iframe_base.js']),
+	output: '../output/pme/iframe.js',
 	callback: function(err, min){
 		console.log(err);
 	}
 });
 
-new compressor.minify({
-	type: compressorType,
-	language: 'ECMASCRIPT5',
-	fileIn: iframeScripts.concat(iFrameIEScripts, ['bookmarklet/iframe_base.js']),
-	fileOut: '../iframe_ie.js',
+compressor.minify({
+	compressor: compressorType,
+	options: {
+		language: 'ECMASCRIPT5',
+	},
+	input: iframeScripts.concat(iFrameIEScripts, ['bookmarklet/iframe_base.js']),
+	output: '../output/pme/iframe_ie.js',
 	callback: function(err, min){
 		console.log(err);
 	}
@@ -136,12 +148,12 @@ var iframeScripts = [
 	],
 	fn = jade.compileFile('iframe.jade');
 
-fs.writeFile('../iframe.html', fn(iframeScripts), function(err) {
+fs.writeFile('../output/pme/iframe.html', fn(iframeScripts), function(err) {
     if(err) {
         return console.log(err);
     }
 });
-fs.writeFile('../iframe_ie.html', fn(iframeIEScripts), function(err) {
+fs.writeFile('../output/pme/iframe_ie.html', fn(iframeIEScripts), function(err) {
 		if(err) {
 				return console.log(err);
 		}
