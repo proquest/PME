@@ -15,10 +15,9 @@
   },
   "homepage": "https://github.com/proquest/PME#readme",
   "dependencies": {
-    "shelljs": "latest",
-    "pug": "2.0.0-beta6",
-    "node-minify": "latest",
-    "npm-watch": "latest"
+    "pug": "3.0.2",
+    "node-minify": "3.6.0",
+    "npm-watch": "0.10.0"
   },
   "watch": {
     "build": {

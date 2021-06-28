@@ -1,5 +1,4 @@
-var shell = require('shelljs'),
-	compressor = require('node-minify'),
+var compressor = require('node-minify'),
 	jade = require('pug'),
 	fs = require('fs'),
 	REPOSITORY_URL = "https://pme.proquest.com",
@@ -39,8 +38,8 @@ compressor.minify({
 	},
 	input: injectScripts.concat(['bookmarklet/inject_base.js']),
 	output: '../output/pme/inject.js',
-	callback: function(err, min){
-		console.log(err);
+	callback: function(err){
+		if (err) console.log(err);
 	}
 });
 
@@ -51,8 +50,20 @@ compressor.minify({
 	},
 	input: injectScripts.concat(injectIEScripts, ['bookmarklet/inject_base.js']),
 	output: '../output/pme/inject_ie.js',
-	callback: function(err, min){
-		console.log(err);
+	callback: function(err){
+		if (err) console.log(err);
+	}
+});
+
+compressor.minify({
+	compressor: compressorType,
+	options: {
+		language: 'ECMASCRIPT5',
+	},
+	input: ['../PME.js'],
+	output: '../output/pme/PME.js',
+	callback: function(err){
+		if (err) console.log(err);
 	}
 });
 
@@ -83,8 +94,8 @@ compressor.minify({
 	},
 	input: commonScripts,
 	output: '../output/pme/common.js',
-	callback: function(err, min){
-		console.log(err);
+	callback: function(err, ){
+		if (err) console.log(err);
 	}
 });
 
@@ -95,8 +106,8 @@ compressor.minify({
 	},
 	input: commonScripts.concat(commonIEScripts),
 	output: '../output/pme/common_ie.js',
-	callback: function(err, min){
-		console.log(err);
+	callback: function(err){
+		if (err) console.log(err);
 	}
 });
 
@@ -118,8 +129,8 @@ compressor.minify({
 	},
 	input: iframeScripts.concat(['bookmarklet/iframe_base.js']),
 	output: '../output/pme/iframe.js',
-	callback: function(err, min){
-		console.log(err);
+	callback: function(err){
+		if (err) console.log(err);
 	}
 });
 
@@ -130,8 +141,8 @@ compressor.minify({
 	},
 	input: iframeScripts.concat(iFrameIEScripts, ['bookmarklet/iframe_base.js']),
 	output: '../output/pme/iframe_ie.js',
-	callback: function(err, min){
-		console.log(err);
+	callback: function(err){
+		if (err) console.log(err);
 	}
 });
 
