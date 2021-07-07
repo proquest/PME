@@ -193,11 +193,15 @@ translate.setHandler("attachmentProgress", function(obj, attachment, progress) {
 translate.setHandler("done", function(obj, returnValue) {
 	if(returnValue && haveItem) {
 		Zotero.ProgressWindow.startCloseTimer(2500);
+		cleanup();
 	} else if(!cancelled) {
-		new Zotero.ProgressWindow.ErrorMessage("translationError");
-		Zotero.ProgressWindow.startCloseTimer(8000);
+		Zotero.ProgressWindow.changeHeadline("We could not extract the metadata.");
+		Zotero.API.createItem({
+					"items":[]
+				},
+				function(statusCode, response) {
+				});
 	}
-	cleanup();
 });
 
 // Add message listener for translate, so we don't call until the iframe is loaded

@@ -15,14 +15,15 @@
   },
   "homepage": "https://github.com/proquest/PME#readme",
   "dependencies": {
-    "shelljs": "latest",
-    "pug": "latest",
-    "node-minify": "latest",
-    "npm-watch": "latest"
+    "pug": "3.0.2",
+    "node-minify": "3.6.0",
+    "npm-watch": "0.10.0"
   },
   "watch": {
     "build": {
-      "patterns": ["src"],
+      "patterns": [
+        "src"
+      ],
       "extensions": "js,jade"
     }
   }
