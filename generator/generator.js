@@ -49,7 +49,7 @@ function copyObjectInS3(key, cb) {
 
 function listS3Objects(listOfFiles, marker, cb) {
 	s3.listObjects({Bucket: s3bucket, Prefix: translatorskey, Marker: marker, Delimiter: ';'}, function(err, response) {
-		listOfFiles = _.union(listOfFiles, _.pluck(response.Contents, "Key"));
+		listOfFiles = _.union(listOfFiles, _.map(response.Contents, "Key"));
 		if(response.IsTruncated) {
 			listS3Objects(listOfFiles, response.NextMarker)
 		}
