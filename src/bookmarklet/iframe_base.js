@@ -111,6 +111,7 @@ Zotero.API = new function() {
 		form.appendChild(returnURL);
 		iframe.name = form.target;
 		iframe.id = "RefWorks";
+		iframe.title = "Save to RefWorks";
 		iframe.style.borderStyle = "none";
 		iframe.style.position = "absolute";
 		iframe.style.top = "0px";
