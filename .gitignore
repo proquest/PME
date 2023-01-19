@@ -11,3 +11,4 @@ iframe_ie.js
 iframe.html
 iframe_ie.html
 src/node_modules/*
+output/pme/PME.js

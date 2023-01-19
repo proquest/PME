@@ -28,14 +28,20 @@ var s3bucket = "pme.proquest.com",
 			"5f0ca39b-898a-4b1e-b98d-8cd0d6ce9801",
 			"881f60f2-0802-411a-9228-ce5f47b64c7d",
 			"91acf493-0de7-4473-8b62-89fd141e6c74",
-			"951c027d-74ac-47d4-a107-9c3069ab7b48",
 			"9cb70025-a888-4a29-a210-93ec52da40d4",
 			"a6ee60df-1ddc-4aae-bb25-45e0537be973",
 			"bc03b4fe-436d-4a1f-ba59-de4d2d7a63f7",
 			"c73a4a8c-3ef1-4ec8-8229-7531ee384cc4",
 			"eb7059a4-35ec-4961-a915-3cf58eb9784b",
 			"edd87d07-9194-42f8-b2ad-997c4c7deefd",
-			"fcf41bed-0cbc-3704-85c7-8062a0068a7a"
+			"fcf41bed-0cbc-3704-85c7-8062a0068a7a",
+			"efd737c9-a227-4113-866e-d57fbc0684ca"
+		],
+		blackList = [
+			"951c027d-74ac-47d4-a107-9c3069ab7b48"
+		],
+		skipDeleteTranslators = [
+			"951c027d-74ac-47d4-a107-9c3069ab7b48.js"
 		];
 
 function copyObjectInS3(key, cb) {
@@ -80,7 +86,9 @@ function archiveExisting(fn) {
 
 function deleteUnused(list, fn) {
 	var keys = _.map(list, function(name) {
-		return {Key: translatorskey + name}
+		if (skipDeleteTranslators.indexOf(name) < 0) {
+			return {Key: translatorskey + name}
+		}
 	});
 	s3.deleteObjects({
 		Bucket: s3bucket,
@@ -110,7 +118,9 @@ function updateList(existingList, fn) {
 									label: transObj.label,
 									priority: transObj.priority
 								});
-								putObjectToS3(translatorskey + transObj.translatorID + ".js", fileContent, function(){})
+								if (blackList.indexOf(transObj.translatorID) < 0) {
+									putObjectToS3(translatorskey + transObj.translatorID + ".js", fileContent, function (){})
+								}
 							}
 							else {
 								console.log("skipping: "+transObj.label+" ("+transObj.translatorID+")")
