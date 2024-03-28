@@ -124,6 +124,8 @@ function updateList(existingList, fn) {
 								});
 								if (blackList.indexOf(transObj.translatorID) < 0) {
 									putObjectToS3(translatorskey + transObj.translatorID + ".js", fileContent, function (){})
+								} else {
+									console.log("Translator exists in blackList, keep the old version and don't update it from Zotero: " + transObj.label + " (" + transObj.translatorID + ")")
 								}
 							}
 							else {
