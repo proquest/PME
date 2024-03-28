@@ -13,6 +13,7 @@ var s3bucket = "pme.proquest.com",
 		translatorskey = "translators/",
 		zoteroListPath = "translators",
 		repoPath = process.cwd(),
+		// Force to add these translators to S3
 		whiteList = [
 			"05d07af9-105a-4572-99f6-a8e231c0daef",
 			"0e2235e7-babf-413c-9acf-f27cce5f059c",
@@ -37,11 +38,14 @@ var s3bucket = "pme.proquest.com",
 			"fcf41bed-0cbc-3704-85c7-8062a0068a7a",
 			"efd737c9-a227-4113-866e-d57fbc0684ca"
 		],
+		// Keep the old translators and don't update them from Zotero
 		blackList = [
-			"951c027d-74ac-47d4-a107-9c3069ab7b48"
+			"951c027d-74ac-47d4-a107-9c3069ab7b48",
+			"57a00950-f0d1-4b41-b6ba-44ff0fc30289"
 		],
 		skipDeleteTranslators = [
-			"951c027d-74ac-47d4-a107-9c3069ab7b48.js"
+			"951c027d-74ac-47d4-a107-9c3069ab7b48.js",
+			"57a00950-f0d1-4b41-b6ba-44ff0fc30289.js"
 		];
 
 function copyObjectInS3(key, cb) {
