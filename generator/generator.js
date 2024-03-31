@@ -36,7 +36,8 @@ var s3bucket = "pme.proquest.com",
 			"eb7059a4-35ec-4961-a915-3cf58eb9784b",
 			"edd87d07-9194-42f8-b2ad-997c4c7deefd",
 			"fcf41bed-0cbc-3704-85c7-8062a0068a7a",
-			"efd737c9-a227-4113-866e-d57fbc0684ca"
+			"efd737c9-a227-4113-866e-d57fbc0684ca",
+			"b28d0d42-8549-4c6d-83fc-8382874a5cb9"
 		],
 		// Keep the old translators and don't update them from Zotero
 		blackList = [
