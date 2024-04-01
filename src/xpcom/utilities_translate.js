@@ -350,7 +350,8 @@ Zotero.Utilities.Translate.prototype.request = async function (url, options = {}
  *  	response or rejected with a Zotero.HTTP.UnexpectedStatusException.
  */
 Zotero.Utilities.Translate.prototype.requestText = async function (url, options = {}) {
-	return (await this.request(url, { ...options, responseType: 'text' })).body;
+	options.responseType = 'text';
+	return (await this.request(url, options)).body;
 };
 
 /**
@@ -359,7 +360,8 @@ Zotero.Utilities.Translate.prototype.requestText = async function (url, options 
  *  	response (parsed with JSON.parse) or rejected with a Zotero.HTTP.UnexpectedStatusException.
  */
 Zotero.Utilities.Translate.prototype.requestJSON = async function (url, options = {}) {
-	return (await this.request(url, { ...options, responseType: 'json' })).body;
+	options.responseType = 'json';
+	return (await this.request(url, options)).body;
 };
 
 /**
@@ -368,7 +370,8 @@ Zotero.Utilities.Translate.prototype.requestJSON = async function (url, options 
  *  	response (parsed with DOMParser) or rejected with a Zotero.HTTP.UnexpectedStatusException.
  */
 Zotero.Utilities.Translate.prototype.requestDocument = async function (url, options = {}) {
-	return (await this.request(url, { ...options, responseType: 'document' })).body;
+	options.responseType = 'document';
+	return (await this.request(url, options)).body;
 };
 
 /**
