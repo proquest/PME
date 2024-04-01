@@ -41,12 +41,10 @@ var s3bucket = "pme.proquest.com",
 		],
 		// Keep the old translators and don't update them from Zotero
 		blackList = [
-			"951c027d-74ac-47d4-a107-9c3069ab7b48",
-			"57a00950-f0d1-4b41-b6ba-44ff0fc30289"
+			"951c027d-74ac-47d4-a107-9c3069ab7b48"
 		],
 		skipDeleteTranslators = [
-			"951c027d-74ac-47d4-a107-9c3069ab7b48.js",
-			"57a00950-f0d1-4b41-b6ba-44ff0fc30289.js"
+			"951c027d-74ac-47d4-a107-9c3069ab7b48.js"
 		];
 
 function copyObjectInS3(key, cb) {

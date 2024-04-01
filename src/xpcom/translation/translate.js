@@ -1624,7 +1624,78 @@ Zotero.Translate.Base.prototype = {
 		this._sandboxManager.sandbox.Z = this._sandboxZotero;
 		this._sandboxManager.sandbox.ZU = this._sandboxZotero.Utilities;
 		this._transferItem = this._sandboxZotero._transferItem;
+
+		// Add helper functions
+		if (this.type == 'web' || this.type == 'search') {
+			this._sandboxManager.sandbox.attr = this._attr.bind(this);
+			this._sandboxManager.sandbox.text = this._text.bind(this);
+			this._sandboxManager.sandbox.innerText = this._innerText.bind(this);
+			this._sandboxManager.sandbox.request = this._sandboxZotero.Utilities.request.bind(this._sandboxZotero.Utilities);
+			this._sandboxManager.sandbox.requestText = this._sandboxZotero.Utilities.requestText.bind(this._sandboxZotero.Utilities);
+			this._sandboxManager.sandbox.requestJSON = this._sandboxZotero.Utilities.requestJSON.bind(this._sandboxZotero.Utilities);
+			this._sandboxManager.sandbox.requestDocument = this._sandboxZotero.Utilities.requestDocument.bind(this._sandboxZotero.Utilities);
+		}
 	},
+
+	/**
+	 * Helper function to extract HTML attribute text
+	 *
+	 * Text is automatically trimmed
+	 */
+	_attr: function (selector, attr, index) {
+		if (typeof arguments[0] == 'string') {
+			var docOrElem = this.document;
+		}
+		// Document or element passed as first argument
+		else {
+			[docOrElem, selector, attr, index] = arguments;
+		}
+		var elem = index
+			? docOrElem.querySelectorAll(selector).item(index)
+			: docOrElem.querySelector(selector);
+		if (!elem) return "";
+		return (elem.hasAttribute(attr) ? elem.getAttribute(attr) : "").trim();
+	},
+
+	/**
+	 * Helper function to extract HTML element text
+	 *
+	 * Text is extracted using textContent and is automatically trimmed
+	 */
+	_text: function (selector, index) {
+		if (typeof arguments[0] == 'string') {
+			var docOrElem = this.document;
+		}
+		// Document or element passed as first argument
+		else {
+			[docOrElem, selector, index] = arguments;
+		}
+		var elem = index
+			? docOrElem.querySelectorAll(selector).item(index)
+			: docOrElem.querySelector(selector);
+		return (elem ? elem.textContent : "").trim();
+	},
+
+	/**
+	 * Helper function to extract rendered HTML element text
+	 *
+	 * Text is extracted using innerText, not textContent, so it reflects the rendered content, and
+	 * is automatically trimmed
+	 */
+	_innerText: function (selector, index) {
+		if (typeof arguments[0] == 'string') {
+			var docOrElem = this.document;
+		}
+		// Document or element passed as first argument
+		else {
+			[docOrElem, selector, index] = arguments;
+		}
+		var elem = index
+			? docOrElem.querySelectorAll(selector).item(index)
+			: docOrElem.querySelector(selector);
+		return (elem ? elem.innerText : "").trim();
+	},
+
 
 	/**
 	 * Logs a debugging message
