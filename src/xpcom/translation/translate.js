@@ -1308,7 +1308,7 @@ Zotero.Translate.Base.prototype = {
 	 * done() from an asynchronous scraper. Finishes things up and calls callback function(s).
 	 * @param {Boolean|String} returnValue An item type or a boolean true or false
 	 * @param {String|Exception} [error] An error that occurred during translation.
-	 * @returm {String|NULL} The exception serialized to a string, or null if translation
+	 * @return {String|NULL} The exception serialized to a string, or null if translation
 	 *     completed successfully.
 	 */
 	"complete":function(returnValue, error, item) {
@@ -1626,15 +1626,13 @@ Zotero.Translate.Base.prototype = {
 		this._transferItem = this._sandboxZotero._transferItem;
 
 		// Add helper functions
-		if (this.type == 'web' || this.type == 'search') {
-			this._sandboxManager.sandbox.attr = this._attr.bind(this);
-			this._sandboxManager.sandbox.text = this._text.bind(this);
-			this._sandboxManager.sandbox.innerText = this._innerText.bind(this);
-			this._sandboxManager.sandbox.request = this._sandboxZotero.Utilities.request.bind(this._sandboxZotero.Utilities);
-			this._sandboxManager.sandbox.requestText = this._sandboxZotero.Utilities.requestText.bind(this._sandboxZotero.Utilities);
-			this._sandboxManager.sandbox.requestJSON = this._sandboxZotero.Utilities.requestJSON.bind(this._sandboxZotero.Utilities);
-			this._sandboxManager.sandbox.requestDocument = this._sandboxZotero.Utilities.requestDocument.bind(this._sandboxZotero.Utilities);
-		}
+		this._sandboxManager.sandbox.attr = this._attr.bind(this);
+		this._sandboxManager.sandbox.text = this._text.bind(this);
+		this._sandboxManager.sandbox.innerText = this._innerText.bind(this);
+		this._sandboxManager.sandbox.request = this._sandboxZotero.Utilities.request.bind(this._sandboxZotero.Utilities);
+		this._sandboxManager.sandbox.requestText = this._sandboxZotero.Utilities.requestText.bind(this._sandboxZotero.Utilities);
+		this._sandboxManager.sandbox.requestJSON = this._sandboxZotero.Utilities.requestJSON.bind(this._sandboxZotero.Utilities);
+		this._sandboxManager.sandbox.requestDocument = this._sandboxZotero.Utilities.requestDocument.bind(this._sandboxZotero.Utilities);
 	},
 
 	/**
