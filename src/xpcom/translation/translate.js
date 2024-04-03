@@ -448,102 +448,85 @@ Zotero.Translate.Sandbox = {
 		 * @param {Zotero.Translate} translate
 		 * @param {Object} items An set of id => name pairs in object format
 		 */
-		"selectItems":function(translate, items, callback) {
-			function transferObject(obj) {
-				return Zotero.isFx && !Zotero.isBookmarklet ? translate._sandboxManager.copyObject(obj) : obj;
-			}
+		"selectItems": function (translate, items, callback) {
+			function helper(translate, items, callback) {
+				if (Zotero.Utilities.isEmpty(items)) {
+					throw new Error("Translator called selectItems with no items");
+				}
 
-			if(Zotero.Utilities.isEmpty(items)) {
-				throw new Error("Translator called select items with no items");
-			}
+				// Some translators pass an array rather than an object to Zotero.selectItems.
+				// This will break messaging outside of Firefox, so we need to fix it.
+				if (Object.prototype.toString.call(items) === "[object Array]") {
+					translate._debug("WARNING: Zotero.selectItems should be called with an object, not an array");
+					let itemsObj = {};
+					for (var i in items) itemsObj[i] = items[i];
+					items = itemsObj;
+				}
 
-			// Some translators pass an array rather than an object to Zotero.selectItems.
-			// This will break messaging outside of Firefox, so we need to fix it.
-			if(Object.prototype.toString.call(items) === "[object Array]") {
-				translate._debug("WARNING: Zotero.selectItems should be called with an object, not an array");
-				var itemsObj = {};
-				for(var i in items) itemsObj[i] = items[i];
-				items = itemsObj;
-			}
-			if(translate._selectedItems) {
-				// if we have a set of selected items for this translation, use them
-				return transferObject(translate._selectedItems);
-			} else if(translate._handlers.select) {
-				// whether the translator supports asynchronous selectItems
-				var haveAsyncCallback = !!callback;
-				// whether the handler operates asynchronously
-				var haveAsyncHandler = false;
-				var returnedItems = null;
+				if (translate._selectedItems) {
+					// if we have a set of selected items for this translation, use them
+					return translate._selectedItems;
+				}
+				else if (translate._handlers.select) {
+					// whether the handler operates asynchronously
+					var haveAsyncHandler = false;
+					var returnedItems = null;
 
-				var callbackExecuted = false;
-				if(haveAsyncCallback) {
+					var callbackExecuted = false;
 					// if this translator provides an async callback for selectItems, rig things
 					// up to pop off the async process
-					var newCallback = function(selectedItems) {
+					var newCallback = function (selectedItems) {
 						callbackExecuted = true;
-						callback(transferObject(selectedItems));
-						if(haveAsyncHandler) translate.decrementAsyncProcesses("Zotero.selectItems()");
-					};
-				} else {
-					// if this translator doesn't provide an async callback for selectItems, set things
-					// up so that we can wait to see if the select handler returns synchronously. If it
-					// doesn't, we will need to restart translation.
-					var newCallback = function(selectedItems) {
-						callbackExecuted = true;
-						if(haveAsyncHandler) {
-							translate.translate(translate._libraryID, translate._saveAttachments, selectedItems);
-						} else {
-							returnedItems = transferObject(selectedItems);
+						try {
+							callback(selectedItems);
 						}
+						catch (e) {
+							translate.complete(false, e);
+							return false;
+						}
+						if (haveAsyncHandler) translate.decrementAsyncProcesses("Zotero.selectItems()");
 					};
-				}
 
-				if(Zotero.isFx && !Zotero.isBookmarklet) {
-					items = Components.utils.cloneInto(items, {});
-				}
+					if (Zotero.isFx && !Zotero.isBookmarklet) {
+						items = Components.utils.cloneInto(items, {});
+					}
 
-				var returnValue = translate._runHandler("select", items, newCallback);
-				if(returnValue !== undefined) {
-					// handler may have returned a value, which makes callback unnecessary
-					Zotero.debug("WARNING: Returning items from a select handler is deprecated. "+
-					"Please pass items as to the callback provided as the third argument to "+
-					"the handler.");
+					var returnValue = translate._runHandler("select", items, newCallback);
+					if (returnValue !== undefined) {
+						// handler may have returned a value, which makes callback unnecessary
+						Zotero.debug("WARNING: Returning items from a select handler is deprecated. "
+							+ "Please pass items as to the callback provided as the third argument to "
+							+ "the handler.");
 
-					returnedItems = transferObject(returnValue);
-					haveAsyncHandler = false;
-				} else {
-					// if we don't have returnedItems set already, the handler is asynchronous
-					haveAsyncHandler = !callbackExecuted;
-				}
+						returnedItems = returnValue;
+						haveAsyncHandler = false;
+					}
+					else {
+						// if we don't have returnedItems set already, the handler is asynchronous
+						haveAsyncHandler = !callbackExecuted;
+					}
 
-				if(haveAsyncCallback) {
-					if(haveAsyncHandler) {
+					if (haveAsyncHandler) {
 						// we are running asynchronously, so increment async processes
 						translate.incrementAsyncProcesses("Zotero.selectItems()");
-					} else if(!callbackExecuted) {
+					}
+					else if (!callbackExecuted) {
 						// callback didn't get called from handler, so call it here
 						callback(returnedItems);
 					}
 					return false;
-				} else {
-					translate._debug("COMPAT WARNING: No callback was provided for "+
-					"Zotero.selectItems(). When executed outside of Firefox, a selectItems() call "+
-					"will require this translator to be called multiple times.", 1);
-
-					if(haveAsyncHandler) {
-						// The select handler is asynchronous, but this translator doesn't support
-						// asynchronous select. We return false to abort translation in this
-						// instance, and we will restart it later when the selectItems call is
-						// complete.
-						translate._aborted = true;
-						return false;
-					} else {
-						return returnedItems;
-					}
 				}
-			} else { // no handler defined; assume they want all of them
-				if(callback) callback(items);
-				return items;
+				else { // no handler defined; assume they want all of them
+					callback(items);
+					return items;
+				}
+			}
+
+			if (callback) {
+				return helper(translate, items, callback);
+			}
+			else {
+				return new Promise(resolve => helper(translate, items, resolve));
 			}
 		},
 
@@ -1493,7 +1476,7 @@ Zotero.Translate.Base.prototype = {
 	/**
 	 * Begins running detect code for a translator, first loading it
 	 */
-	"_detect":function() {
+	"_detect": async function() {
 		// there won't be any translators if we need an RPC call
 		if(!this._potentialTranslators.length) {
 			this.complete(true);
@@ -1501,8 +1484,13 @@ Zotero.Translate.Base.prototype = {
 		}
 
 		var me = this;
-		this._loadTranslator(this._potentialTranslators[0],
-			function() { me._detectTranslatorLoaded() });
+		try {
+			await this._loadTranslator(this._potentialTranslators[0]);
+			return await me._detectTranslatorLoaded();
+		}
+		catch (e) {
+			this.complete(false, e);
+		}
 	},
 
 	/**
