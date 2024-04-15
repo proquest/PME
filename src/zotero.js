@@ -32,6 +32,7 @@ var Zotero = new function() {
 	this.isWebKit = window.navigator.userAgent.toLowerCase().indexOf("webkit") !== -1;
 	this.isIE = document && !document.evaluate;
 	this.version = "3.0.999";
+	this.isManifestV3 = true;
 
 	if(this.isFx) {
 		this.browser = "g";
@@ -51,7 +52,6 @@ var Zotero = new function() {
 		Zotero.Debug.init();
 		Zotero.Messaging.init();
 		Zotero.Connector_Types.init();
-		Zotero.Repo.init();
 	};
 
 	/**
@@ -152,19 +152,47 @@ var Zotero = new function() {
 }
 
 Zotero.Prefs = new function() {
-	var DEFAULTS = {
-		"debug.log":true,
-		"debug.stackTrace":false,
-		"debug.store":false,
-		"debug.store.limit":750000,
-		"debug.level":5,
-		"debug.time":false,
-		"downloadAssociatedFiles":true,
-		"automaticSnapshots":true,
-		"connector.repo.lastCheck.localTime":0,
-		"connector.repo.lastCheck.repoTime":0,
-		"capitalizeTitles":false
+	const DEFAULTS = {
+		"debug.stackTrace": false,
+		"debug.store": false,
+		"debug.store.limit": 750000,
+		"debug.level": 5,
+		"debug.time": false,
+		"lastVersion": "",
+		"downloadAssociatedFiles": true,
+		"automaticSnapshots": true, // only affects saves to zotero.org. saves to client governed by pref in the client
+		"connector.repo.lastCheck.localTime": 0,
+		"connector.repo.lastCheck.repoTime": 0,
+		"connector.url": 'http://127.0.0.1:23119/',
+		"capitalizeTitles": false,
+		"interceptKnownFileTypes": true,
+		"allowedCSLExtensionHosts": ["raw.githubusercontent.com"],
+		"allowedInterceptHosts": [],
+		"firstUse": true,
+		"firstSaveToServer": true,
+		"reportTranslationFailure": true,
+		"translatorMetadata": [],
+
+		"proxies.transparent": true,
+		"proxies.autoRecognize": true,
+		"proxies.showRedirectNotification": true,
+		"proxies.disableByDomain": false,
+		"proxies.disableByDomainString": '.edu',
+		"proxies.proxies": [],
+		"proxies.clientChecked": false,
+		"proxies.loopPreventionTimestamp": 0,
+
+		"integration.googleDocs.enabled": true,
+		"integration.googleDocs.useGoogleDocsAPI": false,
+
+		"shortcuts.cite": {ctrlKey: true, altKey: true, key: 'c'}
 	};
+
+	if (Zotero.isMac) {
+		DEFAULTS['shortcuts.cite'] = {metaKey: true, ctrlKey: true, key: 'c'}
+	}
+
+	this.syncStorage = {};
 
 	this.get = function(pref) {
 		try {
