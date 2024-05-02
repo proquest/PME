@@ -34,7 +34,7 @@ Zotero.Messaging = new function() {
 			"structuredCloneTest":function() {}
 		},
 		_nextTabIndex = 1,
-		_structuredCloneSupported = false;
+		_structuredCloneSupported = true;
 
 	/**
 	 * Add a message listener
@@ -91,9 +91,12 @@ Zotero.Messaging = new function() {
 	 */
 	this.sendMessage = function(messageName, args, tab) {
 		if(Zotero.isBookmarklet) {
-			_structuredCloneSupported = false;
-			window.parent.postMessage((_structuredCloneSupported
-				? [messageName, args] : JSON.stringify([messageName, args])), "*");
+			// _structuredCloneSupported = false;
+			try {
+				window.parent.postMessage([messageName, args], "*");
+			} catch(e) {
+				window.parent.postMessage(JSON.stringify([messageName, args]), "*");
+			}
 		} else if(Zotero.isChrome) {
 			chrome.tabs.sendRequest(tab.id, [messageName, args]);
 		} else if(Zotero.isSafari) {
@@ -107,8 +110,11 @@ Zotero.Messaging = new function() {
 	this.sendMessageToRefWorks = function(messageName, args) {
 		var refworksiFrame = document.getElementById("RefWorks");
 		if (refworksiFrame)
-			refworksiFrame.contentWindow.postMessage((_structuredCloneSupported
-				? [null, messageName, args] : JSON.stringify([null, messageName, args])), "*");
+			try {
+				refworksiFrame.contentWindow.postMessage([null, messageName, args], "*");
+			} catch(e) {
+				refworksiFrame.contentWindow.postMessage(JSON.stringify([null, messageName, args]), "*");
+			}
 	}
 
 	/**
@@ -136,7 +142,11 @@ Zotero.Messaging = new function() {
 
 				Zotero.Messaging.receiveMessage(data[1], data[2], function(output) {
 					var message = [data[0], data[1], output];
-					source.postMessage(_structuredCloneSupported ? message : JSON.stringify(message), "*");
+					try {
+						source.postMessage(message, "*");
+					} catch(e) {
+						source.postMessage(JSON.stringify(message), "*");
+					}
 				}, event);
 			};
 

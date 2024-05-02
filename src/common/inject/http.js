@@ -73,7 +73,6 @@ Zotero.HTTP.processDocuments = function(urls, processor, done, exception, dontDe
 		if("removeEventListener" in hiddenBrowser) {
 			hiddenBrowser.removeEventListener("load", onFrameLoad, false);
 		}
-		if(!dontDelete) Zotero.Browser.removeHiddenBrowser(hiddenBrowser);
 	}
 
 	/**

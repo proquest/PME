@@ -1,31 +1,30 @@
-/******** BEGIN utilities_translate.js ********/
 /*
- ***** BEGIN LICENSE BLOCK *****
+    ***** BEGIN LICENSE BLOCK *****
 
- Copyright © 2009 Center for History and New Media
- George Mason University, Fairfax, Virginia, USA
- http://zotero.org
+    Copyright © 2009 Center for History and New Media
+                     George Mason University, Fairfax, Virginia, USA
+                     http://zotero.org
 
- This file is part of Zotero.
+    This file is part of Zotero.
 
- Zotero is free software: you can redistribute it and/or modify
- it under the terms of the GNU Affero General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+    Zotero is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
- Zotero is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU Affero General Public License for more details.
+    Zotero is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
 
- You should have received a copy of the GNU Affero General Public License
- along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU Affero General Public License
+    along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
 
 
- Utilities based in part on code taken from Piggy Bank 2.1.1 (BSD-licensed)
+	Utilities based in part on code taken from Piggy Bank 2.1.1 (BSD-licensed)
 
- ***** END LICENSE BLOCK *****
- */
+    ***** END LICENSE BLOCK *****
+*/
 
 /**
  * @class All functions accessible from within Zotero.Utilities namespace inside sandboxed
@@ -92,9 +91,7 @@ Zotero.Utilities.Translate.prototype.getVersion = function() {
 Zotero.Utilities.Translate.prototype.gatherElementsOnXPath = function(doc, parentNode, xpath, nsResolver) {
 	var elmts = [];
 
-	var iterator = doc.evaluate(xpath, parentNode, nsResolver,
-		(Zotero.isFx ? Components.interfaces.nsIDOMXPathResult.ANY_TYPE : XPathResult.ANY_TYPE),
-		null);
+	var iterator = doc.evaluate(xpath, parentNode, nsResolver, XPathResult.ANY_TYPE, null);
 	var elmt = iterator.iterateNext();
 	var i = 0;
 	while (elmt) {
@@ -192,13 +189,25 @@ Zotero.Utilities.Translate.prototype.loadDocument = function(url, succeeded, fai
 }
 
 /**
- * Already documented in Zotero.HTTP
+ * Already documented in Zotero.HTTP, except this optionally takes noCompleteOnError, which prevents
+ * the translation process from being cancelled automatically on error, as it is normally. The promise
+ * is still rejected on error for handling by the calling function.
+ * @deprecated in Zotero 6.0; prefer requestDocument
+ * @see Zotero.Utilities.Translate#requestDocument
  * @ignore
  */
-Zotero.Utilities.Translate.prototype.processDocuments = function(urls, processor, done, exception) {
+Zotero.Utilities.Translate.prototype.processDocuments = async function (urls, processor, noCompleteOnError) {
+	// Handle old signature: urls, processor, onDone, onError
+	if (arguments.length > 3 || typeof arguments[2] == 'function') {
+		Zotero.debug("ZU.processDocuments() now takes only 3 arguments -- update your code");
+		var onDone = arguments[2];
+		var onError = arguments[3];
+		noCompleteOnError = false;
+	}
+
 	var translate = this._translate;
 
-	if(typeof(urls) == "string") {
+	if (typeof urls == "string") {
 		urls = [translate.resolveURL(urls)];
 	} else {
 		for(var i in urls) {
@@ -206,91 +215,154 @@ Zotero.Utilities.Translate.prototype.processDocuments = function(urls, processor
 		}
 	}
 
-	// Unless the translator has proposed some way to handle an error, handle it
-	// by throwing a "scraping error" message
-	if(exception) {
-		var myException = function(e) {
-			var browserDeleted;
-			try {
-				exception(e);
-			} catch(e) {
-				if(hiddenBrowser) {
-					try {
-						Zotero.Browser.deleteHiddenBrowser(hiddenBrowser);
-					} catch(e) {}
-				}
-				browserDeleted = true;
-				translate.complete(false, e);
-			}
+	var processDoc = function (doc) {
+		return processor(doc, doc.location.href);
+	};
 
-			if(!browserDeleted) {
-				try {
-					Zotero.Browser.deleteHiddenBrowser(hiddenBrowser);
-				} catch(e) {}
-			}
-		}
-	} else {
-		var myException = function(e) {
-			if(hiddenBrowser) {
-				try {
-					Zotero.Browser.deleteHiddenBrowser(hiddenBrowser);
-				} catch(e) {}
-			}
-			translate.complete(false, e);
-		}
-	}
-
-	if(Zotero.isFx) {
-		if(typeof translate._sandboxLocation === "object") {
-			var protocol = translate._sandboxLocation.location.protocol,
-				host = translate._sandboxLocation.location.host;
-		} else {
-			var url = Components.classes["@mozilla.org/network/io-service;1"]
-					.getService(Components.interfaces.nsIIOService)
-					.newURI(translate._sandboxLocation, null, null),
-				protocol = url.scheme+":",
-				host = url.host;
-		}
-	}
-
-	for(var i=0; i<urls.length; i++) {
-		if(this._translate.document && this._translate.document.location
-			&& this._translate.document.location.toString() === urls[i]) {
-			// Document is attempting to reload itself
+	var funcs = [];
+	// If current URL passed, use loaded document instead of reloading
+	for (var i = 0; i < urls.length; i++) {
+		if(translate.document && translate.document.location
+			&& translate.document.location.toString() === urls[i]) {
 			Zotero.debug("Translate: Attempted to load the current document using processDocuments; using loaded document instead");
-			processor(this._translate.document, urls[i]);
+			funcs.push(() => processDoc(this._translate.document, urls[i]));
 			urls.splice(i, 1);
 			i--;
 		}
 	}
 
 	translate.incrementAsyncProcesses("Zotero.Utilities.Translate#processDocuments");
-	var hiddenBrowser = Zotero.HTTP.processDocuments(urls, function(doc) {
-			if(!processor) return;
 
-			var newLoc = doc.location;
-			if(Zotero.isFx && !Zotero.isBookmarklet && (protocol != newLoc.protocol || host != newLoc.host)) {
-				// Cross-site; need to wrap
-				processor(translate._sandboxManager.wrap(doc), newLoc.toString());
-			} else {
-				// Not cross-site; no need to wrap
-				processor(doc, newLoc.toString());
-			}
-		},
-		function() {
-			if(done) done();
-			var handler = function() {
-				if(hiddenBrowser) {
-					try {
-						Zotero.Browser.deleteHiddenBrowser(hiddenBrowser);
-					} catch(e) {}
+	if (urls.length) {
+		funcs.push(
+			() => Zotero.HTTP.processDocuments(
+				urls,
+				function (doc) {
+					if (!processor) return;
+					return processDoc(doc);
+				},
+				{
+					cookieSandbox: translate.cookieSandbox
 				}
-				translate.removeHandler("done", handler);
-			};
-			translate.setHandler("done", handler);
-			translate.decrementAsyncProcesses("Zotero.Utilities.Translate#processDocuments");
-		}, myException, true, translate.cookieSandbox);
-}
+			)
+		);
+	}
+
+	var f;
+	while (f = funcs.shift()) {
+		try {
+			let maybePromise = f();
+			// The processor may or may not return a promise
+			if (maybePromise) {
+				await maybePromise;
+			}
+		}
+		catch (e) {
+			if (onError) {
+				try {
+					onError(e);
+				}
+				catch (e) {
+					translate.complete(false, e);
+				}
+			}
+			// Unless instructed otherwise, end the translation on error
+			else if (!noCompleteOnError) {
+				translate.complete(false, e);
+			}
+			throw e;
+		}
+	}
+
+	// Deprecated
+	if (onDone) {
+		onDone();
+	}
+
+	translate.decrementAsyncProcesses("Zotero.Utilities.Translate#processDocuments");
+};
+
+/**
+ * Send an asynchronous HTTP request, returning a promise.
+ *
+ * @param {string} url URL to request
+ * @param {string} [options.method=GET] The method of the request ("GET", "POST", etc.)
+ * @param {object} [options.requestHeaders] HTTP headers to send with the request
+ * @param {string} [options.body] The request's body
+ * @param {string} [options.responseCharset] The charset the response should be interpreted as
+ * @param {string} [options.responseType] 'text', 'json', or 'document'.
+ * 	If 'json', the response's body will be parsed with JSON.parse before being returned.
+ * 	If 'document', the response's body will be parsed as an HTML document (like deprecated processDocuments).
+ * @return {Promise<object>} A promise resolved with an object containing status,
+ * 	headers, and body attributes if the request succeeds.
+ * 	If the browser is offline or the response contains a non-2XX status code,
+ * 	the promise will be rejected with a Zotero.HTTP.UnexpectedStatusException.
+ */
+Zotero.Utilities.Translate.prototype.request = async function (url, options = {}) {
+	url = this._translate.resolveURL(url);
+
+	let method = options.method || 'GET';
+
+	let internalOptions = {
+		headers: Object.assign({}, this._translate.requestHeaders, options.headers),
+		body: options.body,
+		responseCharset: options.responseCharset,
+		responseType: options.responseType,
+		cookieSandbox: this._translate.cookieSandbox
+	};
+
+	// If the request fails or a non-2XX status is returned, Zotero.HTTP.request rejects its promise.
+	// We let the Zotero.HTTP.UnexpectedStatusException bubble up to the caller.
+	let xhr = await Zotero.HTTP.request(method, url, internalOptions);
+	let status = xhr.status;
+	let headers = {};
+	xhr.getAllResponseHeaders()
+		.trim()
+		.split(/[\r\n]+/)
+		.map(line => line.split(': '))
+		.forEach(parts => headers[parts.shift().toLowerCase()] = parts.join(': '));
+	let body = xhr.response;
+
+	if (options.responseType === 'document' && body && !body.location) {
+		body = Zotero.HTTP.wrapDocument(body, xhr.responseURL);
+	}
+
+	return {
+		status,
+		headers,
+		body
+	};
+};
+
+/**
+ * Convenience wrapper for request that returns the text of a successful response.
+ * @return {Promise<string>} A promise resolved with the text of a successful
+ *  	response or rejected with a Zotero.HTTP.UnexpectedStatusException.
+ */
+Zotero.Utilities.Translate.prototype.requestText = async function (url, options = {}) {
+	options.responseType = 'text';
+	return (await this.request(url, options)).body;
+};
+
+/**
+ * Convenience wrapper for request that returns the body of a successful response parsed as JSON.
+ * @return {Promise<any>} A promise resolved with the body of a successful
+ *  	response (parsed with JSON.parse) or rejected with a Zotero.HTTP.UnexpectedStatusException.
+ */
+Zotero.Utilities.Translate.prototype.requestJSON = async function (url, options = {}) {
+	options.responseType = 'json';
+	return (await this.request(url, options)).body;
+};
+
+/**
+ * Convenience wrapper for request that returns the body of a successful response parsed as an HTML document.
+ * @return {Promise<Document>} A promise resolved with the body of a successful
+ *  	response (parsed with DOMParser) or rejected with a Zotero.HTTP.UnexpectedStatusException.
+ */
+Zotero.Utilities.Translate.prototype.requestDocument = async function (url, options = {}) {
+	options.responseType = 'document';
+	return (await this.request(url, options)).body;
+};
 
 /**
  * Send an HTTP GET request via XMLHTTPRequest

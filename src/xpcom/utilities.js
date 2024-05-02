@@ -1,150 +1,219 @@
-/******** BEGIN utilities.js ********/
 /*
- ***** BEGIN LICENSE BLOCK *****
+    ***** BEGIN LICENSE BLOCK *****
 
- Copyright © 2009 Center for History and New Media
- George Mason University, Fairfax, Virginia, USA
- http://zotero.org
+    Copyright © 2009 Center for History and New Media
+                     George Mason University, Fairfax, Virginia, USA
+                     http://zotero.org
 
- This file is part of Zotero.
+    This file is part of Zotero.
 
- Zotero is free software: you can redistribute it and/or modify
- it under the terms of the GNU Affero General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+    Zotero is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
- Zotero is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU Affero General Public License for more details.
+    Zotero is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
 
- You should have received a copy of the GNU Affero General Public License
- along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU Affero General Public License
+    along with Zotero.  If not, see <http://www.gnu.org/licenses/>.
 
 
- Utilities based in part on code taken from Piggy Bank 2.1.1 (BSD-licensed)
+	Utilities based in part on code taken from Piggy Bank 2.1.1 (BSD-licensed)
 
- ***** END LICENSE BLOCK *****
- */
+    ***** END LICENSE BLOCK *****
+*/
 
-/*
- * Mappings for names
- * Note that this is the reverse of the text variable map, since all mappings should be one to one
- * and it makes the code cleaner
- */
-var CSL_NAMES_MAPPINGS = {
-	"author":"author",
-	"editor":"editor",
-	"bookAuthor":"container-author",
-	"composer":"composer",
-	"director":"director",
-	"interviewer":"interviewer",
-	"recipient":"recipient",
-	"reviewedAuthor":"reviewed-author",
-	"seriesEditor":"collection-editor",
-	"translator":"translator"
+function movedToUtilitiesInternal(fnName) {
+	return function () {
+		if (Zotero.Utilities && Zotero.Utilities.Internal) {
+			Zotero.debug(`Zotero.Utilities.${fnName}() is deprecated -- use Zotero.Utilities.Internal.${fnName}() instead`);
+			return Zotero.Utilities.Internal[fnName].apply(Zotero.Utilities.Internal, arguments);
+		} else {
+			throw new Error(`Zotero.Utilities.${fnName}() is only available in the zotero-client codebase`)
+		}
+	}
 }
-
-/*
- * Mappings for text variables
- */
-var CSL_TEXT_MAPPINGS = {
-	"title":["title"],
-	"container-title":["publicationTitle",  "reporter", "code"], /* reporter and code should move to SQL mapping tables */
-	"collection-title":["seriesTitle", "series"],
-	"collection-number":["seriesNumber"],
-	"publisher":["publisher", "distributor"], /* distributor should move to SQL mapping tables */
-	"publisher-place":["place"],
-	"authority":["court","legislativeBody", "issuingAuthority"],
-	"page":["pages"],
-	"volume":["volume", "codeNumber"],
-	"issue":["issue", "priorityNumbers"],
-	"number-of-volumes":["numberOfVolumes"],
-	"number-of-pages":["numPages"],
-	"edition":["edition"],
-	"version":["versionNumber"],
-	"section":["section", "committee"],
-	"genre":["type", "programmingLanguage"],
-	"source":["libraryCatalog"],
-	"dimensions": ["artworkSize", "runningTime"],
-	"medium":["medium", "system"],
-	"scale":["scale"],
-	"archive":["archive"],
-	"archive_location":["archiveLocation"],
-	"event":["meetingName", "conferenceName"], /* these should be mapped to the same base field in SQL mapping tables */
-	"event-place":["place"],
-	"abstract":["abstractNote"],
-	"URL":["url"],
-	"DOI":["DOI"],
-	"ISBN":["ISBN"],
-	"ISSN":["ISSN"],
-	"call-number":["callNumber", "applicationNumber"],
-	"note":["extra"],
-	"number":["number"],
-	"chapter-number":["session"],
-	"references":["history", "references"],
-	"shortTitle":["shortTitle"],
-	"journalAbbreviation":["journalAbbreviation"],
-	"status":["legalStatus"],
-	"language":["language"]
-}
-
-/*
- * Mappings for dates
- */
-var CSL_DATE_MAPPINGS = {
-	"issued":"date",
-	"accessed":"accessDate",
-	"submitted":"filingDate"
-}
-
-/*
- * Mappings for types
- * Also see itemFromCSLJSON
- */
-var CSL_TYPE_MAPPINGS = {
-	'book':"book",
-	'bookSection':'chapter',
-	'journalArticle':"article-journal",
-	'magazineArticle':"article-magazine",
-	'newspaperArticle':"article-newspaper",
-	'thesis':"thesis",
-	'encyclopediaArticle':"entry-encyclopedia",
-	'dictionaryEntry':"entry-dictionary",
-	'conferencePaper':"paper-conference",
-	'letter':"personal_communication",
-	'manuscript':"manuscript",
-	'interview':"interview",
-	'film':"motion_picture",
-	'artwork':"graphic",
-	'webpage':"webpage",
-	'report':"report",
-	'bill':"bill",
-	'case':"legal_case",
-	'hearing':"bill",				// ??
-	'patent':"patent",
-	'statute':"legislation",		// ??
-	'email':"personal_communication",
-	'map':"map",
-	'blogPost':"post-weblog",
-	'instantMessage':"personal_communication",
-	'forumPost':"post",
-	'audioRecording':"song",		// ??
-	'presentation':"speech",
-	'videoRecording':"motion_picture",
-	'tvBroadcast':"broadcast",
-	'radioBroadcast':"broadcast",
-	'podcast':"song",			// ??
-	'computerProgram':"book",		// ??
-	'document':"article",
-	'note':"article",
-	'attachment':"article"
-};
 
 /**
  * @class Functions for text manipulation and other miscellaneous purposes
  */
-Zotero.Utilities = {
+var Utilities = {
+	/**
+	 * Returns a function which will execute `fn` with provided arguments after `delay` milliseconds and not more
+	 * than once, if called multiple times. See
+	 * http://stackoverflow.com/questions/24004791/can-someone-explain-the-debounce-function-in-javascript
+	 * @param fn {Function} function to debounce
+	 * @param delay {Integer} number of milliseconds to delay the function execution
+	 * @returns {Function}
+	 */
+	debounce: function(fn, delay=500) {
+		var timer = null;
+		return function () {
+			let args = arguments;
+			clearTimeout(timer);
+			timer = setTimeout(function () {
+				fn.apply(this, args);
+			}.bind(this), delay);
+		};
+	},
+
+	/**
+	 *  Creates and returns a new, throttled version of the
+	 *  passed function, that, when invoked repeatedly,
+	 *  will only actually call the original function at most
+	 *  once per every wait milliseconds
+	 *
+	 *  By default, throttle will execute the function as soon
+	 *  as you call it for the first time, and, if you call it
+	 *  again any number of times during the wait period, as soon
+	 *  as that period is over. If you'd like to disable the
+	 *  leading-edge call, pass {leading: false}, and if you'd
+	 *  like to disable the execution on the trailing-edge,
+	 *  pass {trailing: false}. See
+	 *  https://underscorejs.org/#throttle
+	 *  https://github.com/jashkenas/underscore/blob/master/underscore.js
+	 *  (c) 2009-2018 Jeremy Ashkenas, DocumentCloud and Investigative Reporters & Editors
+	 *  Underscore may be freely distributed under the MIT license.
+	 *
+	 *  @param {Function} func Function to throttle
+	 *  @param {Integer} wait Wait period in milliseconds
+	 *  @param {Boolean} [options.leading] Call at the beginning of the wait period
+	 *  @param {Boolean} [options.trailing] Call at the end of the wait period
+	 */
+	throttle: function (func, wait, options) {
+		var context, args, result;
+		var timeout = null;
+		var previous = 0;
+		if (!options) options = {};
+		var later = function () {
+			previous = options.leading === false ? 0 : Date.now();
+			timeout = null;
+			result = func.apply(context, args);
+			if (!timeout) context = args = null;
+		};
+		return function () {
+			var now = Date.now();
+			if (!previous && options.leading === false) previous = now;
+			var remaining = wait - (now - previous);
+			context = this;
+			args = arguments;
+			if (remaining <= 0 || remaining > wait) {
+				if (timeout) {
+					clearTimeout(timeout);
+					timeout = null;
+				}
+				previous = now;
+				result = func.apply(context, args);
+				if (!timeout) context = args = null;
+			}
+			else if (!timeout && options.trailing !== false) {
+				timeout = setTimeout(later, remaining);
+			}
+			return result;
+		};
+	},
+
+	sentenceCase: function (text) {
+		const preserve = [];
+		const allcaps = text === text.toUpperCase()
+
+		// sub-sentence start
+		text.replace(/([.?!][\s]+)(<[^>]+>)?([\p{Lu}])/ug, (match, end, markup, char, i) => {
+			markup = markup || "";
+			if (!text.substring(0, i + 1).match(/(\p{Lu}[.]){2,}$/u)) { // prevent "U.S. Taxes" from starting a new sub-sentence
+				preserve.push({ start: i + end.length + markup.length, end: i + end.length + markup.length + char.length });
+			}
+		});
+
+		// protect leading capital
+		text.replace(/^(<[^>]+>)?([\p{Lu}])/u, (match, markup, char) => {
+			markup = markup || "";
+			preserve.push({ start: markup.length, end: markup.length + char.length });
+		});
+
+		// protect nocase
+		text.replace(/<span class="nocase">.*?<\/span>|<nc>.*?<\/nc>/gi, (match, i) => {
+			preserve.push({ start: i, end: i + match.length, description: 'nocase' });
+		});
+
+		// mask html tags with characters so the sentence-casing can deal with them as simple words
+		let masked = text.replace(/<[^>]+>/g, (match, i) => {
+			preserve.push({ start: i, end: i + match.length, description: 'markup' });
+			return '\uFFFD'.repeat(match.length);
+		});
+
+		masked = masked
+			.replace(/[;:]\uFFFD*\s+\uFFFD*A\s/g, match => match.toLowerCase())
+			.replace(/[–—]\uFFFD*\s*\uFFFD*A\s/g, match => match.toLowerCase())
+			// words, compound words, and acronyms (latter also catches U.S.A.)
+			.replace(/([\u{FFFD}\p{L}\p{N}\p{No}]+([\u{FFFD}\p{L}\p{N}\p{No}\p{Pc}]*))|(\s(\p{Lu}+[.]){2,})?/ug, word => {
+				if (allcaps) return word.toLowerCase()
+
+				const unmasked = word.replace(/\uFFFD/g, '');
+
+				if (unmasked.length === 1) {
+					return unmasked === 'A' ? word.toLowerCase() : word
+				}
+
+				// inner capital somewhere
+				if (unmasked.match(/.\p{Lu}/u)) {
+					return word
+				}
+
+				// identifiers or allcaps
+				if (unmasked.match(/^\p{L}\p{L}*[\p{N}\p{No}][\p{L}\p{N}\p{No}]*$/u) || unmasked.match(/^[\p{Lu}\p{N}\p{No}]+$/u)) {
+					return word
+				}
+
+				return word.toLowerCase()
+			});
+
+		for (const { start, end } of preserve) {
+			masked = masked.substring(0, start) + text.substring(start, end) + masked.substring(end);
+		}
+
+		return masked;
+	},
+
+	/**
+	 * Fixes author name capitalization.
+	 * Splits names into space-separated parts and only changes parts either in all uppercase
+	 * or all lowercase.
+	 *
+	 * JOHN -> John
+	 * GUTIÉRREZ-ALBILLA -> Gutiérrez-Albilla
+	 * O'NEAL -> O'Neal
+	 * o'neal -> O'Neal
+	 * O'neal -> O'neal
+	 * John MacGregor O'NEILL -> John MacGregor O'Neill
+	 * martha McMiddlename WASHINGTON -> Martha McMiddlename Washington
+	 *
+	 * @param {String} string Uppercase author name
+	 * @return {String} Title-cased author name
+	 */
+	capitalizeName: function (string) {
+		if (!(typeof string === 'string')) {
+			return string;
+		}
+		return string.split(' ')
+			.map((part) => {
+				if (part.toUpperCase() === part || part.toLowerCase() === part) {
+					return Utilities.XRegExp.replace(
+						part.toLowerCase(),
+						Utilities.XRegExp('(^|[^\\pL])\\pL', 'g'),
+						m => m.toUpperCase()
+					);
+				}
+				else {
+					return part;
+				}
+			})
+			.join(' ');
+	},
+
 	/**
 	 * Cleans extraneous punctuation off a creator name and parse into first and last name
 	 *
@@ -153,7 +222,7 @@ Zotero.Utilities = {
 	 * @param {Boolean} useComma Whether the creator string is in inverted (Last, First) format
 	 * @return {Object} firstName, lastName, and creatorType
 	 */
-	"cleanAuthor":function(author, type, useComma) {
+	cleanAuthor: function(author, type, useComma) {
 		var allCaps = 'A-Z' +
 			'\u0400-\u042f';		//cyrilic
 
@@ -161,7 +230,7 @@ Zotero.Utilities = {
 		var initialRe = new RegExp('^-?[' + allCaps + ']$');
 
 		if(typeof(author) != "string") {
-			throw "cleanAuthor: author must be a string";
+			throw new Error("cleanAuthor: author must be a string");
 		}
 
 		author = author.replace(/^[\s\u00A0\.\,\/\[\]\:]+/, '')
@@ -172,7 +241,7 @@ Zotero.Utilities = {
 			// Add spaces between periods
 			author = author.replace(/\.([^ ])/, ". $1");
 
-			var splitNames = author.split(/, ?/);
+			var splitNames = author.split(/[,،] ?/);
 			if(splitNames.length > 1) {
 				var lastName = splitNames[0];
 				var firstName = splitNames[1];
@@ -180,9 +249,13 @@ Zotero.Utilities = {
 				var lastName = author;
 			}
 		} else {
-			var spaceIndex = author.lastIndexOf(" ");
-			var lastName = author.substring(spaceIndex+1);
-			var firstName = author.substring(0, spaceIndex);
+			// Don't parse "Firstname Lastname [Country]" as "[Country], Firstname Lastname"
+			var spaceIndex = author.length;
+			do {
+				spaceIndex = author.lastIndexOf(" ", spaceIndex-1);
+				var lastName = author.substring(spaceIndex + 1);
+				var firstName = author.substring(0, spaceIndex);
+			} while (!Utilities.XRegExp('\\pL').test(lastName[0]) && spaceIndex > 0)
 		}
 
 		if(firstName && allCapsRe.test(firstName) &&
@@ -219,9 +292,9 @@ Zotero.Utilities = {
 	 * Removes leading and trailing whitespace from a string
 	 * @type String
 	 */
-	"trim":function(/**String*/ s) {
+	trim: function(/**String*/ s) {
 		if (typeof(s) != "string") {
-			throw "trim: argument must be a string";
+			throw new Error("trim: argument must be a string");
 		}
 
 		s = s.replace(/^\s+/, "");
@@ -232,7 +305,7 @@ Zotero.Utilities = {
 	 * Cleans whitespace off a string and replaces multiple spaces with one
 	 * @type String
 	 */
-	"trimInternal":function(/**String*/ s) {
+	trimInternal: function(/**String*/ s) {
 		if (typeof(s) != "string") {
 			throw new Error("trimInternal: argument must be a string");
 		}
@@ -245,38 +318,170 @@ Zotero.Utilities = {
 	 * Cleans any non-word non-parenthesis characters off the ends of a string
 	 * @type String
 	 */
-	"superCleanString":function(/**String*/ x) {
+	superCleanString: function(/**String*/ x) {
 		if(typeof(x) != "string") {
-			throw "superCleanString: argument must be a string";
+			throw new Error("superCleanString: argument must be a string");
 		}
 
 		var x = x.replace(/^[\x00-\x27\x29-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+/, "");
 		return x.replace(/[\x00-\x28\x2A-\x2F\x3A-\x40\x5B-\x60\x7B-\x7F\s]+$/, "");
 	},
 
+	isHTTPURL: function (url, allowNoScheme = false) {
+		// From https://stackoverflow.com/a/3809435
+		var noSchemeRE = /^[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)/;
+		return /^https?:\/\//.test(url)
+			|| (allowNoScheme && !url.startsWith('mailto:') && noSchemeRE.test(url));
+	},
+
+	/**
+	 * Cleans a http url string
+	 * @param url {String}
+	 * @params tryHttp {Boolean} Attempt prepending 'http://' to the url
+	 * @returns {String}
+	 */
+	cleanURL: function(url, tryHttp=false) {
+		url = url.trim();
+		if (!url) return false;
+
+		try {
+			return Services.io.newURI(url, null, null).spec; // Valid URI if succeeds
+		} catch (e) {
+			if (e instanceof Components.Exception
+				&& e.result == Components.results.NS_ERROR_MALFORMED_URI
+			) {
+				if (tryHttp && /\w\.\w/.test(url)) {
+					// Assume it's a URL missing "http://" part
+					try {
+						return Services.io.newURI('http://' + url, null, null).spec;
+					} catch (e) {}
+				}
+
+				Zotero.debug('cleanURL: Invalid URI: ' + url, 2);
+				return false;
+			}
+			throw e;
+		}
+	},
+
 	/**
 	 * Eliminates HTML tags, replacing &lt;br&gt;s with newlines
 	 * @type String
 	 */
-	"cleanTags":function(/**String*/ x) {
+	cleanTags: function(/**String*/ x) {
 		if(typeof(x) != "string") {
-			throw "cleanTags: argument must be a string";
+			throw new Error("cleanTags: argument must be a string");
 		}
 
 		x = x.replace(/<br[^>]*>/gi, "\n");
+		x = x.replace(/<\/p>/gi, "\n\n");
 		return x.replace(/<[^>]+>/g, "");
+	},
+
+	extractIdentifiers: function (text) {
+		var identifiers = [];
+		var foundIDs = new Set(); // keep track of identifiers to avoid duplicates
+
+		// First look for DOIs
+		var ids = text.split(/[\s\u00A0]+/); // whitespace + non-breaking space
+		var doi;
+		for (let id of ids) {
+			if ((doi = Zotero.Utilities.cleanDOI(id)) && !foundIDs.has(doi)) {
+				identifiers.push({
+					DOI: doi
+				});
+				foundIDs.add(doi);
+			}
+		}
+
+		// Then try ISBNs
+		if (!identifiers.length) {
+			// First try replacing dashes
+			let ids = text.replace(/[\u002D\u00AD\u2010-\u2015\u2212]+/g, "") // hyphens and dashes
+				.toUpperCase();
+			let ISBN_RE = /(?:\D|^)(97[89]\d{10}|\d{9}[\dX])(?!\d)/g;
+			let isbn;
+			while (isbn = ISBN_RE.exec(ids)) {
+				isbn = Zotero.Utilities.cleanISBN(isbn[1]);
+				if (isbn && !foundIDs.has(isbn)) {
+					identifiers.push({
+						ISBN: isbn
+					});
+					foundIDs.add(isbn);
+				}
+			}
+
+			// Next try spaces
+			if (!identifiers.length) {
+				ids = ids.replace(/[ \u00A0]+/g, ""); // space + non-breaking space
+				while (isbn = ISBN_RE.exec(ids)) {
+					isbn = Zotero.Utilities.cleanISBN(isbn[1]);
+					if(isbn && !foundIDs.has(isbn)) {
+						identifiers.push({
+							ISBN: isbn
+						});
+						foundIDs.add(isbn);
+					}
+				}
+			}
+		}
+
+		// Next try arXiv
+		if (!identifiers.length) {
+			// arXiv identifiers are extracted without version number
+			// i.e. 0706.0044v1 is extracted as 0706.0044,
+			// because arXiv OAI API doesn't allow to access individual versions
+			let arXiv_RE = /((?:[^A-Za-z]|^)([\-A-Za-z\.]+\/\d{7})(?:(v[0-9]+)|)(?!\d))|((?:\D|^)(\d{4}\.\d{4,5})(?:(v[0-9]+)|)(?!\d))/g;
+			let m;
+			while ((m = arXiv_RE.exec(text))) {
+				let arXiv = m[2] || m[5];
+				if (arXiv && !foundIDs.has(arXiv)) {
+					identifiers.push({arXiv: arXiv});
+					foundIDs.add(arXiv);
+				}
+			}
+		}
+
+		// Next, try ADS Bibcodes
+		if (!identifiers.length) {
+			// regex as in the ADS Bibcode translator
+			let adsBibcode_RE = /\b(\d{4}\D\S{13}[A-Z.:])\b/g;
+			let adsBibcode;
+			while ((adsBibcode = adsBibcode_RE.exec(text)) && !foundIDs.has(adsBibcode)) {
+				identifiers.push({
+					adsBibcode: adsBibcode[1]
+				});
+				foundIDs.add(adsBibcode);
+			}
+		}
+
+		// Finally, try PMID
+		if (!identifiers.length) {
+			// PMID; right now, the longest PMIDs are 8 digits, so it doesn't seem like we'll
+			// need to discriminate for a fairly long time
+			let PMID_RE = /(^|\s|,|:)(\d{1,9})(?=\s|,|$)/g;
+			let pmid;
+			while ((pmid = PMID_RE.exec(text)) && !foundIDs.has(pmid)) {
+				identifiers.push({
+					PMID: pmid[2]
+				});
+				foundIDs.add(pmid);
+			}
+		}
+
+		return identifiers;
 	},
 
 	/**
 	 * Strip info:doi prefix and any suffixes from a DOI
 	 * @type String
 	 */
-	"cleanDOI":function(/**String**/ x) {
+	cleanDOI: function(/**String**/ x) {
 		if(typeof(x) != "string") {
-			throw "cleanDOI: argument must be a string";
+			throw new Error("cleanDOI: argument must be a string");
 		}
 
-		var doi = x.match(/10\.[0-9]{4,}\/[^\s]*[^\s\.,]/);
+		var doi = x.match(/10(?:\.[0-9]{4,})?\/[^\s]*[^\s\.,]/);
 		return doi ? doi[0] : null;
 	},
 
@@ -287,7 +492,7 @@ Zotero.Utilities = {
 	 * @param {Boolean} [dontValidate=false] Do not validate check digit
 	 * @return {String|Boolean} Valid ISBN or false
 	 */
-	"cleanISBN":function(isbnStr, dontValidate) {
+	cleanISBN: function(isbnStr, dontValidate) {
 		isbnStr = isbnStr.toUpperCase()
 			.replace(/[\x2D\xAD\u2010-\u2015\u2043\u2212]+/g, ''); // Ignore dashes
 		var isbnRE = /\b(?:97[89]\s*(?:\d\s*){9}\d|(?:\d\s*){9}[\dX])\b/g,
@@ -331,9 +536,9 @@ Zotero.Utilities = {
 	 *   cleanISBN
 	 * @return {String} ISBN-13
 	 */
-	"toISBN13": function(isbnStr) {
+	toISBN13: function(isbnStr) {
 		var isbn;
-		if (!(isbn = Zotero.Utilities.cleanISBN(isbnStr, true))) {
+		if (!(isbn = Utilities.cleanISBN(isbnStr, true))) {
 			throw new Error('ISBN not found in "' + isbnStr + '"');
 		}
 
@@ -358,7 +563,7 @@ Zotero.Utilities = {
 	 * Clean and validate ISSN.
 	 * Return issn if valid, otherwise return false
 	 */
-	"cleanISSN":function(/**String*/ issnStr) {
+	cleanISSN: function(/**String*/ issnStr) {
 		issnStr = issnStr.toUpperCase()
 			.replace(/[\x2D\xAD\u2010-\u2015\u2043\u2212]+/g, ''); // Ignore dashes
 		var issnRE = /\b(?:\d\s*){7}[\dX]\b/g,
@@ -393,23 +598,23 @@ Zotero.Utilities = {
 	 *     are replaced with P tags, while single newlines are replaced with BR tags.
 	 * @type String
 	 */
-	"text2html":function (/**String**/ str, /**Boolean**/ singleNewlineIsParagraph) {
-		str = Zotero.Utilities.htmlSpecialChars(str);
+	text2html: function (/**String**/ str, /**Boolean**/ singleNewlineIsParagraph) {
+		str = Utilities.htmlSpecialChars(str);
 
 		// \n => <p>
 		if (singleNewlineIsParagraph) {
 			str = '<p>'
-			+ str.replace(/\n/g, '</p><p>')
-				.replace(/  /g, '&nbsp; ')
-			+ '</p>';
+				+ str.replace(/\n/g, '</p><p>')
+					.replace(/  /g, '&nbsp; ')
+				+ '</p>';
 		}
 		// \n\n => <p>, \n => <br/>
 		else {
 			str = '<p>'
-			+ str.replace(/\n\n/g, '</p><p>')
-				.replace(/\n/g, '<br/>')
-				.replace(/  /g, '&nbsp; ')
-			+ '</p>';
+				+ str.replace(/\n\n/g, '</p><p>')
+					.replace(/\n/g, '<br/>')
+					.replace(/  /g, '&nbsp; ')
+				+ '</p>';
 		}
 		return str.replace(/<p>\s*<\/p>/g, '<p>&nbsp;</p>');
 	},
@@ -423,8 +628,10 @@ Zotero.Utilities = {
 	 * @param {String} str
 	 * @return {String}
 	 */
-	"htmlSpecialChars":function(str) {
+	htmlSpecialChars: function(str) {
 		if (str && typeof str != 'string') {
+			Zotero.debug('#htmlSpecialChars: non-string arguments are deprecated. Update your code',
+				1, undefined, true);
 			str = str.toString();
 		}
 
@@ -463,27 +670,15 @@ Zotero.Utilities = {
 				// Create a node and use the textContent property to do unescaping where
 				// possible, because this approach preserves line endings in the HTML
 				if(node === undefined) {
-					var parser = Components.classes["@mozilla.org/xmlextras/domparser;1"]
-						.createInstance(Components.interfaces.nsIDOMParser);
-					var domDocument = parser.parseFromString("<!DOCTYPE html><html></html>",
-						"text/html");
-					node = domDocument.createElement("div");
+					node = Utilities.Internal.getDOMDocument().createElement("div");
 				}
 
 				node.innerHTML = str;
 				return node.textContent.replace(/ {2,}/g, " ");
 			} else if(Zotero.isNode) {
-				/*var doc = require('jsdom').jsdom(str, null, {
-				 "features":{
-				 "FetchExternalResources":false,
-				 "ProcessExternalResources":false,
-				 "MutationEvents":false,
-				 "QuerySelector":false
-				 }
-				 });
-				 if(!doc.documentElement) return str;
-				 return doc.documentElement.textContent;*/
-				return Zotero.Utilities.cleanTags(str);
+				let {JSDOM} = require('jsdom');
+				let document = (new JSDOM(str)).window.document;
+				return document.documentElement.textContent.replace(/ {2,}/g, " ");
 			} else {
 				if(!node) node = document.createElement("div");
 				node.innerHTML = str;
@@ -498,7 +693,7 @@ Zotero.Utilities = {
 	 * Ignore URLs preceded by '>', just in case there are already links
 	 * @type String
 	 */
-	"autoLink":function (/**String**/ str) {
+	autoLink: function (/**String**/ str) {
 		// "http://www.google.com."
 		// "http://www.google.com. "
 		// "<http://www.google.com>" (and other characters, with or without a space after)
@@ -523,7 +718,7 @@ Zotero.Utilities = {
 	 *         [ attributes: { key1: val [ , key2: val, ...] }
 	 *    }</pre>
 	 */
-	"parseMarkup":function(/**String*/ str) {
+	parseMarkup: function(/**String*/ str) {
 		var parts = [];
 		var splits = str.split(/(<a [^>]+>[^<]*<\/a>)/);
 
@@ -562,7 +757,7 @@ Zotero.Utilities = {
 	 * Calculates the Levenshtein distance between two strings
 	 * @type Number
 	 */
-	"levenshtein":function (/**String*/ a, /**String**/ b) {
+	levenshtein: function (/**String*/ a, /**String**/ b) {
 		var aLen = a.length;
 		var bLen = b.length;
 
@@ -594,7 +789,7 @@ Zotero.Utilities = {
 	 * @param {Object} obj
 	 * @type Boolean
 	 */
-	"isEmpty":function (obj) {
+	isEmpty: function (obj) {
 		for (var i in obj) {
 			return false;
 		}
@@ -611,12 +806,12 @@ Zotero.Utilities = {
 	 *										the index of array2's elements;
 	 *										otherwise return the values
 	 */
-	"arrayDiff":function(array1, array2, useIndex) {
+	arrayDiff: function(array1, array2, useIndex) {
 		if (!Array.isArray(array1)) {
-			throw ("array1 is not an array (" + array1 + ")");
+			throw new Error("array1 is not an array (" + array1 + ")");
 		}
 		if (!Array.isArray(array2)) {
-			throw ("array2 is not an array (" + array2 + ")");
+			throw new Error("array2 is not an array (" + array2 + ")");
 		}
 
 		var val, pos, vals = [];
@@ -630,6 +825,40 @@ Zotero.Utilities = {
 		return vals;
 	},
 
+
+	/**
+	 * Determine whether two arrays are identical
+	 *
+	 * Modified from http://stackoverflow.com/a/14853974
+	 *
+	 * @return {Boolean}
+	 */
+	arrayEquals: function (array1, array2) {
+		// If either array is a falsy value, return
+		if (!array1 || !array2)
+			return false;
+
+		// Compare lengths - can save a lot of time
+		if (array1.length != array2.length)
+			return false;
+
+		for (var i = 0, l=array1.length; i < l; i++) {
+			// Check if we have nested arrays
+			if (array1[i] instanceof Array && array2[i] instanceof Array) {
+				// Recurse into the nested arrays
+				if (!this.arrayEquals(array1[i], array2[i])) {
+					return false;
+				}
+			}
+			else if (array1[i] != array2[i]) {
+				// Warning - two different object instances will never be equal: {x:20} != {x:20}
+				return false;
+			}
+		}
+		return true;
+	},
+
+
 	/**
 	 * Return new array with values shuffled
 	 *
@@ -638,7 +867,7 @@ Zotero.Utilities = {
 	 * @param {Array} arr
 	 * @return {Array}
 	 */
-	"arrayShuffle": function (array) {
+	arrayShuffle: function (array) {
 		var counter = array.length, temp, index;
 
 		// While there are elements in the array
@@ -659,21 +888,11 @@ Zotero.Utilities = {
 	/**
 	 * Return new array with duplicate values removed
 	 *
-	 * From http://stackoverflow.com/a/1961068
-	 *
 	 * @param	{Array}		array
 	 * @return	{Array}
 	 */
-	"arrayUnique":function(arr) {
-		var u = {}, a = [];
-		for (var i=0, l=arr.length; i<l; ++i){
-			if (u.hasOwnProperty(arr[i])) {
-				continue;
-			}
-			a.push(arr[i]);
-			u[arr[i]] = 1;
-		}
-		return a;
+	arrayUnique: function (arr) {
+		return [...new Set(arr)];
 	},
 
 	/**
@@ -683,7 +902,7 @@ Zotero.Utilities = {
 	 * @param	{Integer}	max
 	 * @return	{Integer}
 	 */
-	"rand":function (min, max) {
+	rand: function (min, max) {
 		return Math.floor(Math.random() * (max - min + 1)) + min;
 	},
 
@@ -693,8 +912,8 @@ Zotero.Utilities = {
 	 * @param {String} Page range to parse
 	 * @return {Integer[]} Start and end pages
 	 */
-	"getPageRange":function(pages) {
-		var pageRangeRegexp = /^\s*([0-9]+) ?[-\u2013] ?([0-9]+)\s*$/
+	getPageRange: function(pages) {
+		const pageRangeRegexp = /^\s*([0-9]+) ?[-\u2013] ?([0-9]+)\s*$/
 
 		var pageNumbers;
 		var m = pageRangeRegexp.exec(pages);
@@ -716,7 +935,7 @@ Zotero.Utilities = {
 	 * @length {Integer} length Length of new padded string
 	 * @type String
 	 */
-	"lpad":function(string, pad, length) {
+	lpad: function(string, pad, length) {
 		string = string ? string + '' : '';
 		while(string.length < length) {
 			string = pad + string;
@@ -727,19 +946,54 @@ Zotero.Utilities = {
 	/**
 	 * Shorten and add an ellipsis to a string if necessary
 	 *
-	 * @param	{String}	str
-	 * @param	{Integer}	len
-	 * @param	{Boolean}	[countChars=false]
+	 * @param {String}	str
+	 * @param {Integer}	len
+	 * @param {Boolean} [wordBoundary=false]
+	 * @param {Boolean} [countChars=false]
 	 */
-	"ellipsize":function (str, len, countChars) {
+	ellipsize: function (str, len, wordBoundary = false, countChars) {
 		if (!len) {
-			throw ("Length not specified in Zotero.Utilities.ellipsize()");
+			throw ("Length not specified in Utilities.ellipsize()");
 		}
-		if (str.length > len) {
-			return str.substr(0, len) + '\u2026' + (countChars ? ' (' + str.length + ' chars)' : '');
+		if (str.length <= len) {
+			return str;
 		}
-		return str;
+		var origLen = str.length;
+		let radius = Math.min(len, 5);
+		if (wordBoundary) {
+			let min = len - radius;
+			// If next character is a space, include that so we stop at len
+			if (str.charAt(len).match(/\s/)) {
+				radius++;
+			}
+			// Remove trailing characters and spaces, up to radius
+			str = str.substr(0, min) + str.substr(min, radius).replace(/\W*\s\S*$/, "");
+		}
+		else {
+			str = str.substr(0, len)
+		}
+		return str + '\u2026' + (countChars ? ' (' + origLen + ' chars)' : '');
 	},
+
+
+	/**
+	 * Return the proper plural form of a string
+	 *
+	 * For now, this is only used for debug output in English.
+	 *
+	 * @param {Integer} num
+	 * @param {String[]|String} forms - If an array, an array of plural forms (e.g., ['object', 'objects']);
+	 *     currently only the two English forms are supported, for 1 and 0/many. If a single string,
+	 *     's' is added automatically for 0/many.
+	 * @return {String}
+	 */
+	pluralize: function (num, forms) {
+		if (typeof forms == 'string') {
+			forms = [forms, forms + 's'];
+		}
+		return num == 1 ? forms[0] : forms[1];
+	},
+
 
 	/**
 	 * Port of PHP's number_format()
@@ -757,7 +1011,7 @@ Zotero.Utilities = {
 	 * *     example 1: number_format(1234.5678, 2, '.', '');
 	 * *     returns 1: 1234.57
 	 */
-	"numberFormat":function (number, decimals, dec_point, thousands_sep) {
+	numberFormat: function (number, decimals, dec_point, thousands_sep) {
 		var n = number, c = isNaN(decimals = Math.abs(decimals)) ? 2 : decimals;
 		var d = dec_point == undefined ? "." : dec_point;
 		var t = thousands_sep == undefined ? "," : thousands_sep, s = n < 0 ? "-" : "";
@@ -773,22 +1027,29 @@ Zotero.Utilities = {
 	 * @param {Boolean} force Forces title case conversion, even if the capitalizeTitles pref is off
 	 * @type String
 	 */
-	"capitalizeTitle":function(string, force) {
-		var skipWords = ["but", "or", "yet", "so", "for", "and", "nor", "a", "an",
+	capitalizeTitle: function(string, force) {
+		const skipWords = ["but", "or", "yet", "so", "for", "and", "nor", "a", "an",
 			"the", "at", "by", "from", "in", "into", "of", "on", "to", "with", "up",
 			"down", "as"];
 
 		// this may only match a single character
-		var delimiterRegexp = /([ \/\u002D\u00AD\u2010-\u2015\u2212\u2E3A\u2E3B])/;
+		const delimiterRegexp = /([ \/\u002D\u00AD\u2010-\u2015\u2212\u2E3A\u2E3B])/;
 
 		string = this.trimInternal(string);
 		string = string.replace(/ : /g, ": ");
-		if(force === false || (!Zotero.Prefs.get('capitalizeTitles') && !force)) return string;
-		if(!string) return "";
+		if (Zotero.Prefs && !Zotero.Prefs.get('capitalizeTitles') && !force) return string;
+		if (!string) return "";
+
+		// Remove HTML tags but remember their positions
+		let htmlTags = [];
+		let cleanedString = string.replace(/<[^>]+>/g, (match, offset) => {
+			htmlTags.push({ match, offset });
+			return "";
+		});
 
 		// split words
-		var words = string.split(delimiterRegexp);
-		var isUpperCase = string.toUpperCase() == string;
+		var words = cleanedString.split(delimiterRegexp);
+		var isUpperCase = cleanedString.toUpperCase() == cleanedString;
 
 		var newString = "";
 		var delimiterOffset = words[0].length;
@@ -804,11 +1065,11 @@ Zotero.Utilities = {
 				if(isUpperCase || words[i] == lowerCaseVariant) {
 					if(
 						// a skip word
-					skipWords.indexOf(lowerCaseVariant.replace(/[^a-zA-Z]+/, "")) != -1
+						skipWords.indexOf(lowerCaseVariant.replace(/[^a-zA-Z]+/, "")) != -1
 						// not first or last word
-					&& i != 0 && i != lastWordIndex
+						&& i != 0 && i != lastWordIndex
 						// does not follow a colon
-					&& (previousWordIndex == -1 || words[previousWordIndex][words[previousWordIndex].length-1].search(/[:\?!]/)==-1)
+						&& (previousWordIndex == -1 || words[previousWordIndex][words[previousWordIndex].length-1].search(/[:\?!]/)==-1)
 					) {
 						words[i] = lowerCaseVariant;
 					} else {
@@ -818,7 +1079,7 @@ Zotero.Utilities = {
 						var punct = words[i].match(/^[\'\"¡¿“‘„«\s]+/);
 						punct = punct ? punct[0].length+1 : 1;
 						words[i] = words[i].length ? words[i].substr(0, punct).toUpperCase() +
-						words[i].substr(punct).toLowerCase() : words[i];
+							words[i].substr(punct).toLowerCase() : words[i];
 					}
 				}
 
@@ -828,7 +1089,18 @@ Zotero.Utilities = {
 			newString += words[i];
 		}
 
+		// Reinsert HTML tags into their original positions
+		htmlTags.forEach(tag => {
+			newString = newString.substring(0, tag.offset) + tag.match + newString.substring(tag.offset);
+		});
+
 		return newString;
+	},
+
+	capitalize: function (str) {
+		if (typeof str != 'string') throw new Error("Argument must be a string");
+		if (!str) return str; // Empty string
+		return str[0].toUpperCase() + str.substr(1);
 	},
 
 	/**
@@ -841,7 +1113,7 @@ Zotero.Utilities = {
 	 *
 	 * From http://lehelk.com/2011/05/06/script-to-remove-diacritics/
 	 */
-	"removeDiacritics": function (str, lowercaseOnly) {
+	removeDiacritics: function (str, lowercaseOnly) {
 		// Short-circuit on the most basic input
 		if (/^[a-zA-Z0-9_-]*$/.test(str)) return str;
 
@@ -889,6 +1161,7 @@ Zotero.Utilities = {
 			{'base':'NJ','letters':/[\u01CA]/g},
 			{'base':'Nj','letters':/[\u01CB]/g},
 			{'base':'O', 'letters':/[\u004F\u24C4\uFF2F\u00D2\u00D3\u00D4\u1ED2\u1ED0\u1ED6\u1ED4\u00D5\u1E4C\u022C\u1E4E\u014C\u1E50\u1E52\u014E\u022E\u0230\u00D6\u022A\u1ECE\u0150\u01D1\u020C\u020E\u01A0\u1EDC\u1EDA\u1EE0\u1EDE\u1EE2\u1ECC\u1ED8\u01EA\u01EC\u00D8\u01FE\u0186\u019F\uA74A\uA74C]/g},
+			{'base':'OE','letters':/[\u0152]/g},
 			{'base':'OI','letters':/[\u01A2]/g},
 			{'base':'OO','letters':/[\uA74E]/g},
 			{'base':'OU','letters':/[\u0222]/g},
@@ -933,6 +1206,7 @@ Zotero.Utilities = {
 			{'base':'n', 'letters':/[\u006E\u24DD\uFF4E\u01F9\u0144\u00F1\u1E45\u0148\u1E47\u0146\u1E4B\u1E49\u019E\u0272\u0149\uA791\uA7A5]/g},
 			{'base':'nj','letters':/[\u01CC]/g},
 			{'base':'o', 'letters':/[\u006F\u24DE\uFF4F\u00F2\u00F3\u00F4\u1ED3\u1ED1\u1ED7\u1ED5\u00F5\u1E4D\u022D\u1E4F\u014D\u1E51\u1E53\u014F\u022F\u0231\u00F6\u022B\u1ECF\u0151\u01D2\u020D\u020F\u01A1\u1EDD\u1EDB\u1EE1\u1EDF\u1EE3\u1ECD\u1ED9\u01EB\u01ED\u00F8\u01FF\u0254\uA74B\uA74D\u0275]/g},
+			{'base':'oe','letters':/[\u0153]/g},
 			{'base':'oi','letters':/[\u01A3]/g},
 			{'base':'ou','letters':/[\u0223]/g},
 			{'base':'oo','letters':/[\uA74F]/g},
@@ -953,54 +1227,17 @@ Zotero.Utilities = {
 	},
 
 	/**
-	 * Run sets of data through multiple asynchronous callbacks
-	 *
-	 * Each callback is passed the current set and a callback to call when done
-	 *
-	 * @param	{Object[]}		sets			Sets of data
-	 * @param	{Function[]}	callbacks
-	 * @param	{Function}		onDone			Function to call when done
-	 */
-	"processAsync":function (sets, callbacks, onDone) {
-		if(sets.wrappedJSObject) sets = sets.wrappedJSObject;
-		if(callbacks.wrappedJSObject) callbacks = callbacks.wrappedJSObject;
-
-		var currentSet;
-		var index = 0;
-
-		var nextSet = function () {
-			if (!sets.length) {
-				onDone();
-				return;
-			}
-			index = 0;
-			currentSet = sets.shift();
-			callbacks[0](currentSet, nextCallback);
-		};
-		var nextCallback = function () {
-			index++;
-			callbacks[index](currentSet, nextCallback);
-		};
-
-		// Add a final callback to proceed to the next set
-		callbacks[callbacks.length] = function () {
-			nextSet();
-		}
-		nextSet();
-	},
-
-	/**
 	 * Performs a deep copy of a JavaScript object
 	 * @param {Object} obj
 	 * @return {Object}
 	 */
-	"deepCopy":function(obj) {
-		var obj2 = (obj instanceof Array ? [] : {});
+	deepCopy: function(obj) {
+		var obj2 = (Array.isArray(obj) ? [] : {});
 		for(var i in obj) {
 			if(!obj.hasOwnProperty(i)) continue;
 
 			if(typeof obj[i] === "object" && obj[i] !== null) {
-				obj2[i] = Zotero.Utilities.deepCopy(obj[i]);
+				obj2[i] = Utilities.deepCopy(obj[i]);
 			} else {
 				obj2[i] = obj[i];
 			}
@@ -1009,26 +1246,13 @@ Zotero.Utilities = {
 	},
 
 	/**
-	 * Tests if an item type exists
-	 *
-	 * @param {String} type Item type
-	 * @type Boolean
-	 */
-	"itemTypeExists":function(type) {
-		if(Zotero.ItemTypes.getID(type)) {
-			return true;
-		} else {
-			return false;
-		}
-	},
-
-	/**
 	 * Find valid creator types for a given item type
 	 *
 	 * @param {String} type Item type
 	 * @return {String[]} Creator types
 	 */
-	"getCreatorsForType":function(type) {
+	getCreatorsForType: function(type) {
+		if(type === "attachment" || type === "note") return [];
 		var types = Zotero.CreatorTypes.getTypesForItemType(Zotero.ItemTypes.getID(type));
 		var cleanTypes = new Array();
 		for(var i=0; i<types.length; i++) {
@@ -1044,7 +1268,7 @@ Zotero.Utilities = {
 	 * @param {String} type Item type
 	 * @type Boolean
 	 */
-	"fieldIsValidForType":function(field, type) {
+	fieldIsValidForType: function(field, type) {
 		return Zotero.ItemFields.isValidForType(field, Zotero.ItemTypes.getID(type));
 	},
 
@@ -1055,7 +1279,7 @@ Zotero.Utilities = {
 	 * @param {String} Localized creator type
 	 * @type Boolean
 	 */
-	"getLocalizedCreatorType":function(type) {
+	getLocalizedCreatorType: function(type) {
 		try {
 			return Zotero.CreatorTypes.getLocalizedString(type);
 		} catch(e) {
@@ -1066,11 +1290,11 @@ Zotero.Utilities = {
 	/**
 	 * Escapes metacharacters in a literal so that it may be used in a regular expression
 	 */
-	"quotemeta":function(literal) {
+	quotemeta: function(literal) {
 		if(typeof literal !== "string") {
-			throw "Argument "+literal+" must be a string in Zotero.Utilities.quotemeta()";
+			throw new Error("Argument "+literal+" must be a string in Utilities.quotemeta()");
 		}
-		var metaRegexp = /[-[\]{}()*+?.\\^$|,#\s]/g;
+		const metaRegexp = /[-[\]{}()*+?.\\^$|,#\s]/g;
 		return literal.replace(metaRegexp, "\\$&");
 	},
 
@@ -1083,69 +1307,82 @@ Zotero.Utilities = {
 	 *                              values represent their URIs
 	 * @return {element[]} DOM elements matching XPath
 	 */
-    "xpath":function(elements, xpath, namespaces) {
-        var nsResolver = null;
-        if(namespaces) {
-            nsResolver = function(prefix) {
-                return namespaces[prefix] || null;
-            };
-        }
+	xpath: function(elements, xpath, namespaces) {
+		var nsResolver = null;
+		if(namespaces) {
+			nsResolver = function(prefix) {
+				return namespaces[prefix] || null;
+			};
+		}
 
-        if(!("length" in elements)) elements = [elements];
+		if(!("length" in elements)) elements = [elements];
 
-        var results = [];
-        for(var i=0, n=elements.length; i<n; i++) {
-            var element = elements[i];
+		var results = [];
+		for(var i=0, n=elements.length; i<n; i++) {
+			// For some reason, if elements is wrapped by an object
+			// Xray, we won't be able to unwrap the DOMWrapper around
+			// the element. So waive the object Xray.
+			var maybeWrappedEl = elements.wrappedJSObject ? elements.wrappedJSObject[i] : elements[i];
 
-            if(element.ownerDocument) {
-                var rootDoc = element.ownerDocument;
-            } else if(element.documentElement) {
-                var rootDoc = element;
-            } else if(Zotero.isIE && element.documentElement === null) {
-                // IE: documentElement may be null if there is a parse error. In this
-                // case, we don't match anything to mimic what would happen with DOMParser
-                continue;
-            } else {
-                throw new Error("First argument must be either element(s) or document(s) in Zotero.Utilities.xpath(elements, '"+xpath+"')");
-            }
+			// Firefox 5 hack, so we will preserve Fx5DOMWrappers
+			var isWrapped = Zotero.Translate.DOMWrapper && Zotero.Translate.DOMWrapper.isWrapped(maybeWrappedEl);
+			var element = isWrapped ? Zotero.Translate.DOMWrapper.unwrap(maybeWrappedEl) : maybeWrappedEl;
 
-            if(!rootDoc.evaluate) wgxpath.install({'document':rootDoc}); // Make sure the document can be evaluated (IE)
+			// We waived the object Xray above, which will waive the
+			// DOM Xray, so make sure we have a DOM Xray wrapper.
+			if(Zotero.isFx) {
+				element = new XPCNativeWrapper(element);
+			}
 
-            if(!Zotero.isIE || "evaluate" in rootDoc) {
-                try {
-                    // This may result in a deprecation warning in the console due to
-                    // https://bugzilla.mozilla.org/show_bug.cgi?id=674437
-                    var xpathObject = rootDoc.evaluate(xpath, element, nsResolver, 5 /*ORDERED_NODE_ITERATOR_TYPE*/, null);
-                } catch(e) {
-                    // rethrow so that we get a stack
-                    throw new Error(e.name+": "+e.message);
-                }
+			if(element.ownerDocument) {
+				var rootDoc = element.ownerDocument;
+			} else if(element.documentElement) {
+				var rootDoc = element;
+			} else if(Zotero.isIE && element.documentElement === null) {
+				// IE: documentElement may be null if there is a parse error. In this
+				// case, we don't match anything to mimic what would happen with DOMParser
+				continue;
+			} else {
+				throw new Error("First argument must be either element(s) or document(s) in Utilities.xpath(elements, '"+xpath+"')");
+			}
 
-                var newEl;
-                while(newEl = xpathObject.iterateNext()) {
-                    results.push(newEl);
-                }
-            } else if("selectNodes" in element) {
-                // We use JavaScript-XPath in IE for HTML documents, but with an XML document, we need to use selectNodes
-                if(namespaces) {
-                    var ieNamespaces = [];
-                    for(var j in namespaces) {
-                        if(!j) continue;
-                        ieNamespaces.push('xmlns:'+j+'="'+Zotero.Utilities.htmlSpecialChars(namespaces[j])+'"');
-                    }
-                    rootDoc.setProperty("SelectionNamespaces", ieNamespaces.join(" "));
-                }
-                var nodes = element.selectNodes(xpath);
-                for(var j=0; j<nodes.length; j++) {
-                    results.push(nodes[j]);
-                }
-            } else {
-                throw new Error("XPath functionality not available");
-            }
-        }
+			if(!Zotero.isIE || "evaluate" in rootDoc) {
+				try {
+					// This may result in a deprecation warning in the console due to
+					// https://bugzilla.mozilla.org/show_bug.cgi?id=674437
+					var xpathObject = rootDoc.evaluate(xpath, element, nsResolver, 5 /*ORDERED_NODE_ITERATOR_TYPE*/, null);
+				} catch(e) {
+					// rethrow so that we get a stack
+					throw new Error(e.name+": "+e.message);
+				}
 
-        return results;
-    },
+				var newEl;
+				while(newEl = xpathObject.iterateNext()) {
+					// Firefox 5 hack
+					results.push(isWrapped ? Zotero.Translate.DOMWrapper.wrapIn(newEl, maybeWrappedEl) : newEl);
+				}
+			} else if("selectNodes" in element) {
+				// We use JavaScript-XPath in IE for HTML documents, but with an XML
+				// document, we need to use selectNodes
+				if(namespaces) {
+					var ieNamespaces = [];
+					for(var j in namespaces) {
+						if(!j) continue;
+						ieNamespaces.push('xmlns:'+j+'="'+Utilities.htmlSpecialChars(namespaces[j])+'"');
+					}
+					rootDoc.setProperty("SelectionNamespaces", ieNamespaces.join(" "));
+				}
+				var nodes = element.selectNodes(xpath);
+				for(var j=0; j<nodes.length; j++) {
+					results.push(nodes[j]);
+				}
+			} else {
+				throw new Error("XPath functionality not available");
+			}
+		}
+
+		return results;
+	},
 
 	/**
 	 * Generates a string from the content of nodes matching a given XPath
@@ -1157,9 +1394,8 @@ Zotero.Utilities = {
 	 * @param {String} [delimiter] The string with which to join multiple matching nodes
 	 * @return {String|null} DOM elements matching XPath, or null if no elements exist
 	 */
-	"xpathText":function(node, xpath, namespaces, delimiter) {
-		if (node.length == 0) return null
-		var elements = Zotero.Utilities.xpath(node, xpath, namespaces);
+	xpathText: function(node, xpath, namespaces, delimiter) {
+		var elements = Utilities.xpath(node, xpath, namespaces);
 		if(!elements.length) return null;
 
 		var strings = new Array(elements.length);
@@ -1170,18 +1406,19 @@ Zotero.Utilities = {
 			strings[i] =
 				(el.nodeType === 2 /*ATTRIBUTE_NODE*/ && "value" in el) ? el.value
 					: "textContent" in el ? el.textContent
-					: "innerText" in el ? el.innerText
-					: "text" in el ? el.text
-					: el.nodeValue;
+						: "innerText" in el ? el.innerText
+							: "text" in el ? el.text
+								: el.nodeValue;
 		}
 
 		return strings.join(delimiter !== undefined ? delimiter : ", ");
 	},
 
+
 	/**
 	 * Generate a random string of length 'len' (defaults to 8)
 	 **/
-	"randomString":function(len, chars) {
+	randomString: function(len, chars) {
 		if (!chars) {
 			chars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
 		}
@@ -1201,7 +1438,7 @@ Zotero.Utilities = {
 	 *
 	 * Adapted from http://binnyva.blogspot.com/2005/10/dump-function-javascript-equivalent-of.html
 	 */
-	"varDump": function(obj,level,maxLevel,parentObjects,path) {
+	varDump: function(obj,level,maxLevel,parentObjects,path) {
 		// Simple dump
 		var type = typeof obj;
 		if (type == 'number' || type == 'undefined' || type == 'boolean' || obj === null) {
@@ -1214,8 +1451,11 @@ Zotero.Utilities = {
 				return '' + obj;
 			}
 		}
-		else if (type == 'string') {
-			return JSON.stringify(obj);
+		else if (type == 'string' || typeof obj.toJSON == 'function') {
+			return JSON.stringify(obj, false, '    ');
+		}
+		else if (type == 'symbol') {
+			return obj.toString();
 		}
 		else if (type == 'function') {
 			var funcStr = ('' + obj).trim();
@@ -1229,11 +1469,16 @@ Zotero.Utilities = {
 				return funcStr.replace(/\s*(\[native code\])\s*/i, ' $1 ');
 			}
 
-			// For non-native functions, display an elipsis
+			// For non-native functions, display an ellipsis
 			return ('' + obj).replace(/{[\s\S]*}/, '{...}');
 		}
 		else if (type != 'object') {
 			return '<<Unknown type: ' + type + '>> ' + obj;
+		}
+
+		// Don't descend into global object cache for data objects
+		if (Zotero.isClient && typeof obj == 'object' && obj instanceof Zotero.DataObject) {
+			maxLevel = 1;
 		}
 
 		// More complex dump with indentation for objects
@@ -1242,7 +1487,7 @@ Zotero.Utilities = {
 		}
 
 		if (maxLevel === undefined) {
-			maxLevel = 4;
+			maxLevel = 5;
 		}
 
 		var objType = Object.prototype.toString.call(obj);
@@ -1260,38 +1505,55 @@ Zotero.Utilities = {
 		//Special handling for Error or Exception
 		var isException = Zotero.isFx && !Zotero.isBookmarklet && obj instanceof Components.interfaces.nsIException;
 		var isError = obj instanceof Error;
-		if (!isException && !isError && obj.constructor && obj.stack) {
-			switch (obj.constructor.name) {
-				case 'Error':
-				case 'EvalError':
-				case 'RangeError':
-				case 'ReferenceError':
-				case 'SyntaxError':
-				case 'TypeError':
-				case 'URIError':
-					isError = true;
-			}
+		if (!isException && !isError && obj.message !== undefined && obj.stack !== undefined) {
+			isError = true;
 		}
 
 		if (isError || isException) {
 			var header = '';
 			if (isError) {
-				header = obj.constructor.name ? obj.constructor.name : 'Error';
+				header = (obj.constructor && obj.constructor.name) ? obj.constructor.name : 'Error';
 			} else {
 				header = (obj.name ? obj.name + ' ' : '') + 'Exception';
 			}
 
-			return header + ': '
-				+ (obj.message ? ('' + obj.message).replace(/^/gm, level_padding).trim() : '')
-				+ '\n' + level_padding + "===== Stack Trace =====\n"
-				+ (obj.stack ? obj.stack.trim().replace(/^(?=.)/gm, level_padding) : '')
-				+ '\n' + level_padding + "=======================";
+			let msg = (obj.message ? ('' + obj.message).replace(/^/gm, level_padding).trim() : '');
+			if (obj.stack) {
+				let stack = obj.stack.trim().replace(/^(?=.)/gm, level_padding);
+				if (Utilities.Internal) {
+					stack = Utilities.Internal.filterStack(stack);
+				}
+
+				msg += '\n\n';
+
+				// At least with Zotero.HTTP.UnexpectedStatusException, the stack contains "Error:"
+				// and the message in addition to the trace. I'm not sure what's causing that
+				// (Bluebird?), but fix it here.
+				if (stack.startsWith('Error:')) {
+					msg += stack.replace('Error: ' + obj.message + '\n', '');
+				}
+				else {
+					msg += stack;
+				}
+			}
+
+			return header + ': ' + msg;
 		}
 
-		// Only dump single level for nsIDOMNode objects (including document)
-		if (Zotero.isFx && !Zotero.isBookmarklet
-			&& obj instanceof Components.interfaces.nsIDOMNode
-		) {
+		// Only dump single level for Node objects (including document)
+		if (Zotero.isFx && !Zotero.isBookmarklet) {
+			if (Zotero.platformMajorVersion > 60) {
+				if (obj instanceof Node || obj instanceof Window) {
+					level = maxLevel;
+				}
+			}
+			else if (obj instanceof Components.interfaces.nsIDOMNode
+				|| obj instanceof Components.interfaces.nsIDOMWindow) {
+				level = maxLevel;
+			}
+		}
+		// Do the same for cross-context Node and Window objects
+		if (obj.hasOwnProperty('nodeType') || objType === '[object Window]') {
 			level = maxLevel;
 		}
 
@@ -1301,10 +1563,38 @@ Zotero.Utilities = {
 			path = ['ROOT'];
 		}
 
-		var isArray = objType == '[object Array]'
-		var dumpedText = isArray ? '[' : objType + ' {';
+		var dumpedText;
+		var rawProps = false;
+		var isArray = objType == '[object Array]';
+		var dumpKey = key => (typeof key == 'symbol'
+			? key.toString()
+			: JSON.stringify(key));
+		if (isArray) {
+			dumpedText = '[';
+		}
+		else if (objType == '[object Set]') {
+			dumpedText = 'Set {';
+			obj = Array.from(obj);
+		}
+		else if (objType == '[object Map]') {
+			dumpedText = 'Map {';
+			rawProps = true;
+			let newObj = {};
+			for (let [key, value] of obj.entries()) {
+				newObj[dumpKey(key)] = value;
+			}
+			obj = newObj;
+		}
+		else if (objType == '[object Object]') {
+			dumpedText = '{';
+		}
+		else {
+			dumpedText = objType + ' {';
+		}
 		for (var prop in obj) {
-			dumpedText += '\n' + level_padding + JSON.stringify(prop) + ": ";
+			dumpedText += '\n' + level_padding
+				+ (rawProps ? prop : dumpKey(prop))
+				+ ": ";
 
 			try {
 				var value = obj[prop];
@@ -1324,7 +1614,7 @@ Zotero.Utilities = {
 			}
 
 			try {
-				dumpedText += Zotero.Utilities.varDump(value,level+1,maxLevel,parentObjects.concat([value]),path.concat([prop]));
+				dumpedText += Utilities.varDump(value,level+1,maxLevel,parentObjects.concat([value]),path.concat([prop]));
 			} catch(e) {
 				dumpedText += "<<Error processing property: " + e.message + " (" + value + ")>>";
 			}
@@ -1340,502 +1630,12 @@ Zotero.Utilities = {
 	},
 
 	/**
-	 * Converts an item from toArray() format to an array of items in
-	 * the content=json format used by the server
-	 */
-	"itemToServerJSON":function(item) {
-		var newItem = {
-				"itemKey":Zotero.Utilities.generateObjectKey(),
-				"itemVersion":0
-			},
-			newItems = [newItem];
-
-		var typeID = Zotero.ItemTypes.getID(item.itemType);
-		if(!typeID) {
-			Zotero.debug("itemToServerJSON: Invalid itemType "+item.itemType+"; using webpage");
-			item.itemType = "webpage";
-			typeID = Zotero.ItemTypes.getID(item.itemType);
-		}
-
-		var fieldID, itemFieldID;
-		for(var field in item) {
-			if(field === "complete" || field === "itemID"
-				|| field === "seeAlso") continue;
-
-			var val = item[field];
-
-			if(field === "itemType") {
-				newItem[field] = val;
-			} else if(field === "creators") {
-				// normalize creators
-				var n = val.length;
-				var newCreators = newItem.creators = [];
-				for(var j=0; j<n; j++) {
-					var creator = val[j];
-
-					if(!creator.firstName && !creator.lastName) {
-						Zotero.debug("itemToServerJSON: Silently dropping empty creator");
-						continue;
-					}
-
-					// Single-field mode
-					if (!creator.firstName || (creator.fieldMode && creator.fieldMode == 1)) {
-						var newCreator = {
-							name: creator.lastName
-						};
-					}
-					// Two-field mode
-					else {
-						var newCreator = {
-							firstName: creator.firstName,
-							lastName: creator.lastName
-						};
-					}
-
-					// ensure creatorType is present and valid
-					if(creator.creatorType) {
-						if(Zotero.CreatorTypes.getID(creator.creatorType)) {
-							newCreator.creatorType = creator.creatorType;
-						} else {
-							Zotero.debug("itemToServerJSON: Invalid creator type "+creator.creatorType+"; falling back to author");
-						}
-					}
-					if(!newCreator.creatorType) newCreator.creatorType = "author";
-
-					newCreators.push(newCreator);
-				}
-			} else if(field === "tags") {
-				// normalize tags
-				var n = val.length;
-				var newTags = newItem.tags = [];
-				for(var j=0; j<n; j++) {
-					var tag = val[j];
-					if(typeof tag === "object") {
-						if(tag.tag) {
-							tag = tag.tag;
-						} else if(tag.name) {
-							tag = tag.name;
-						} else {
-							Zotero.debug("itemToServerJSON: Discarded invalid tag");
-							continue;
-						}
-					} else if(tag === "") {
-						continue;
-					}
-					newTags.push({"tag":tag.toString(), "type":1});
-				}
-			} else if(field === "notes") {
-				// normalize notes
-				var n = val.length;
-				for (var j = 0; j < n; j++) {
-					var note = val[j];
-					if (typeof note === "object") {
-						if (!note.note) {
-							Zotero.debug("itemToServerJSON: Discarded invalid note");
-							continue;
-						}
-						note = note.note;
-					}
-					newItems.push({"itemType": "note", "parentItem": newItem.itemKey,
-						"note":note.toString()});
-				}
-			} else if (field === "attachments") {
-				newItem[field] = val;
-			} else {
-				// if content is not a string, either stringify it or delete it
-				if(typeof val !== "string") {
-					if(val || val === 0) {
-						val = val.toString();
-					} else {
-						continue;
-					}
-				}
-
-				// map from base field if possible
-				if((itemFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(typeID, fieldID))) {
-					var fieldName = Zotero.ItemFields.getName(itemFieldID);
-					// Only map if item field does not exist
-					if(fieldName !== field && !newItem[fieldName]) newItem[fieldName] = val;
-					continue;	// already know this is valid
-				}
-				newItem[field] = val;
-
-			}
-		}
-
-		return newItems;
-	},
-
-	/**
-	 * Converts an item from toArray() format to citeproc-js JSON
-	 * @param {Zotero.Item} zoteroItem
-	 * @return {Object} The CSL item
-	 */
-	"itemToCSLJSON":function(zoteroItem) {
-		if (zoteroItem instanceof Zotero.Item) {
-			zoteroItem = Zotero.Utilities.Internal.itemToExportFormat(zoteroItem);
-		}
-
-		var cslType = CSL_TYPE_MAPPINGS[zoteroItem.itemType];
-		if (!cslType) throw new Error('Unexpected Zotero Item type "' + zoteroItem.itemType + '"');
-
-		var itemTypeID = Zotero.ItemTypes.getID(zoteroItem.itemType);
-
-		var cslItem = {
-			'id':zoteroItem.uri,
-			'type':cslType
-		};
-
-		// get all text variables (there must be a better way)
-		for(var variable in CSL_TEXT_MAPPINGS) {
-			var fields = CSL_TEXT_MAPPINGS[variable];
-			for(var i=0, n=fields.length; i<n; i++) {
-				var field = fields[i],
-					value = null;
-
-				if(field in zoteroItem) {
-					value = zoteroItem[field];
-				} else {
-					if (field == 'versionNumber') field = 'version'; // Until https://github.com/zotero/zotero/issues/670
-					var fieldID = Zotero.ItemFields.getID(field),
-						typeFieldID;
-					if(fieldID
-						&& (typeFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(itemTypeID, fieldID))
-					) {
-						value = zoteroItem[Zotero.ItemFields.getName(typeFieldID)];
-					}
-				}
-
-				if (!value) continue;
-
-				if (typeof value == 'string') {
-					if (field == 'ISBN') {
-						// Only use the first ISBN in CSL JSON
-						var isbn = value.match(/^(?:97[89]-?)?(?:\d-?){9}[\dx](?!-)\b/i);
-						if (isbn) value = isbn[0];
-					}
-
-					// Strip enclosing quotes
-					if(value.charAt(0) == '"' && value.indexOf('"', 1) == value.length - 1) {
-						value = value.substring(1, value.length-1);
-					}
-					cslItem[variable] = value;
-					break;
-				}
-			}
-		}
-
-		// separate name variables
-		var author = Zotero.CreatorTypes.getName(Zotero.CreatorTypes.getPrimaryIDForType(itemTypeID));
-		var creators = zoteroItem.creators;
-		for(var i=0; creators && i<creators.length; i++) {
-			var creator = creators[i];
-			var creatorType = creator.creatorType;
-			if(creatorType == author) {
-				creatorType = "author";
-			}
-
-			creatorType = CSL_NAMES_MAPPINGS[creatorType];
-			if(!creatorType) continue;
-
-			var nameObj;
-			if (creator.lastName || creator.firstName) {
-				nameObj = {
-					family: creator.lastName || '',
-					given: creator.firstName || ''
-				};
-
-				// Parse name particles
-				// Replicate citeproc-js logic for what should be parsed so we don't
-				// break current behavior.
-				if (nameObj.family && nameObj.given) {
-					// Don't parse if last name is quoted
-					if (nameObj.family.length > 1
-						&& nameObj.family.charAt(0) == '"'
-						&& nameObj.family.charAt(nameObj.family.length - 1) == '"'
-					) {
-						nameObj.family = nameObj.family.substr(1, nameObj.family.length - 2);
-					} else {
-						Zotero.CiteProc.CSL.parseParticles(nameObj, true);
-					}
-				}
-			} else if (creator.name) {
-				nameObj = {'literal': creator.name};
-			}
-
-			if(cslItem[creatorType]) {
-				cslItem[creatorType].push(nameObj);
-			} else {
-				cslItem[creatorType] = [nameObj];
-			}
-		}
-
-		// get date variables
-		for(var variable in CSL_DATE_MAPPINGS) {
-			var date = zoteroItem[CSL_DATE_MAPPINGS[variable]];
-			if (!date) {
-				var typeSpecificFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(itemTypeID, CSL_DATE_MAPPINGS[variable]);
-				if (typeSpecificFieldID) {
-					date = zoteroItem[Zotero.ItemFields.getName(typeSpecificFieldID)];
-				}
-			}
-
-			if(date) {
-				var dateObj = Zotero.Date.strToDate(date);
-				// otherwise, use date-parts
-				var dateParts = [];
-				if(dateObj.year) {
-					// add year, month, and day, if they exist
-					dateParts.push(dateObj.year);
-					if(dateObj.month !== undefined) {
-						dateParts.push(dateObj.month+1);
-						if(dateObj.day) {
-							dateParts.push(dateObj.day);
-						}
-					}
-					cslItem[variable] = {"date-parts":[dateParts]};
-
-					// if no month, use season as month
-					if(dateObj.part && dateObj.month === undefined) {
-						cslItem[variable].season = dateObj.part;
-					}
-				} else {
-					// if no year, pass date literally
-					cslItem[variable] = {"literal":date};
-				}
-			}
-		}
-
-		// Special mapping for note title
-		if (zoteroItem.itemType == 'note' && zoteroItem.note) {
-			cslItem.title = Zotero.Notes.noteToTitle(zoteroItem.note);
-		}
-
-		// extract PMID
-		var extra = zoteroItem.extra;
-		if(typeof extra === "string") {
-			var m = /(?:^|\n)PMID:\s*([0-9]+)/.exec(extra);
-			if(m) cslItem.PMID = m[1];
-			m = /(?:^|\n)PMCID:\s*((?:PMC)?[0-9]+)/.exec(extra);
-			if(m) cslItem.PMCID = m[1];
-		}
-
-		//this._cache[zoteroItem.id] = cslItem;
-		return cslItem;
-	},
-
-	/**
-	 * Converts an item in CSL JSON format to a Zotero item
-	 * @param {Zotero.Item} item
-	 * @param {Object} cslItem
-	 */
-	"itemFromCSLJSON":function(item, cslItem) {
-		var isZoteroItem = item instanceof Zotero.Item,
-			zoteroType;
-
-		// Some special cases to help us map item types correctly
-		// This ensures that we don't lose data on import. The fields
-		// we check are incompatible with the alternative item types
-		if (cslItem.type == 'book') {
-			zoteroType = 'book';
-			if (cslItem.version) {
-				zoteroType = 'computerProgram';
-			}
-		} else if (cslItem.type == 'bill') {
-			zoteroType = 'bill';
-			if (cslItem.publisher || cslItem['number-of-volumes']) {
-				zoteroType = 'hearing';
-			}
-		} else if (cslItem.type == 'song') {
-			zoteroType = 'audioRecording';
-			if (cslItem.number) {
-				zoteroType = 'podcast';
-			}
-		} else if (cslItem.type == 'motion_picture') {
-			zoteroType = 'film';
-			if (cslItem['collection-title'] || cslItem['publisher-place']
-				|| cslItem['event-place'] || cslItem.volume
-				|| cslItem['number-of-volumes'] || cslItem.ISBN
-			) {
-				zoteroType = 'videoRecording';
-			}
-		} else {
-			for(var type in CSL_TYPE_MAPPINGS) {
-				if(CSL_TYPE_MAPPINGS[type] == cslItem.type) {
-					zoteroType = type;
-					break;
-				}
-			}
-		}
-
-		if(!zoteroType) zoteroType = "document";
-
-		var itemTypeID = Zotero.ItemTypes.getID(zoteroType);
-		if(isZoteroItem) {
-			item.setType(itemTypeID);
-		} else {
-			item.itemID = cslItem.id;
-			item.itemType = zoteroType;
-		}
-
-		// map text fields
-		for(var variable in CSL_TEXT_MAPPINGS) {
-			if(variable in cslItem) {
-				var textMappings = CSL_TEXT_MAPPINGS[variable];
-				for(var i=0; i<textMappings.length; i++) {
-					var field = textMappings[i];
-
-					// Until 5.0, use version instead of versionNumber
-					if (field == 'versionNumber') field = 'version';
-
-					var fieldID = Zotero.ItemFields.getID(field);
-
-					if(Zotero.ItemFields.isBaseField(fieldID)) {
-						var newFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(itemTypeID, fieldID);
-						if(newFieldID) fieldID = newFieldID;
-					}
-
-					if(Zotero.ItemFields.isValidForType(fieldID, itemTypeID)) {
-						if(isZoteroItem) {
-							item.setField(fieldID, cslItem[variable]);
-						} else {
-							item[field] = cslItem[variable];
-						}
-
-						break;
-					}
-				}
-			}
-		}
-
-		// separate name variables
-		for(var field in CSL_NAMES_MAPPINGS) {
-			if(CSL_NAMES_MAPPINGS[field] in cslItem) {
-				var creatorTypeID = Zotero.CreatorTypes.getID(field);
-				if(!Zotero.CreatorTypes.isValidForItemType(creatorTypeID, itemTypeID)) {
-					creatorTypeID = Zotero.CreatorTypes.getPrimaryIDForType(itemTypeID);
-				}
-
-				var nameMappings = cslItem[CSL_NAMES_MAPPINGS[field]];
-				for(var i in nameMappings) {
-					var cslAuthor = nameMappings[i],
-						creator = isZoteroItem ? new Zotero.Creator() : {};
-					if(cslAuthor.family || cslAuthor.given) {
-						if(cslAuthor.family) creator.lastName = cslAuthor.family;
-						if(cslAuthor.given) creator.firstName = cslAuthor.given;
-					} else if(cslAuthor.literal) {
-						creator.lastName = cslAuthor.literal;
-						creator.fieldMode = 1;
-					} else {
-						continue;
-					}
-
-					if(isZoteroItem) {
-						item.setCreator(item.getCreators().length, creator, creatorTypeID);
-					} else {
-						creator.creatorType = Zotero.CreatorTypes.getName(creatorTypeID);
-						if(Zotero.isFx && !Zotero.isBookmarklet && Zotero.platformMajorVersion >= 32) {
-							creator = Components.utils.cloneInto(creator, item);
-						}
-						item.creators.push(creator);
-					}
-				}
-			}
-		}
-
-		// get date variables
-		for(var variable in CSL_DATE_MAPPINGS) {
-			if(variable in cslItem) {
-				var field = CSL_DATE_MAPPINGS[variable],
-					fieldID = Zotero.ItemFields.getID(field),
-					cslDate = cslItem[variable];
-				var fieldID = Zotero.ItemFields.getID(field);
-				if(Zotero.ItemFields.isBaseField(fieldID)) {
-					var newFieldID = Zotero.ItemFields.getFieldIDFromTypeAndBase(itemTypeID, fieldID);
-					if(newFieldID) fieldID = newFieldID;
-				}
-
-				if(Zotero.ItemFields.isValidForType(fieldID, itemTypeID)) {
-					var date = "";
-					if(cslDate.literal || cslDate.raw) {
-						date = cslDate.literal || cslDate.raw;
-						if(variable === "accessed") {
-							date = Zotero.Date.strToISO(date);
-						}
-					} else {
-						var newDate = Zotero.Utilities.deepCopy(cslDate);
-						if(cslDate["date-parts"] && typeof cslDate["date-parts"] === "object"
-							&& cslDate["date-parts"] !== null
-							&& typeof cslDate["date-parts"][0] === "object"
-							&& cslDate["date-parts"][0] !== null) {
-							if(cslDate["date-parts"][0][0]) newDate.year = cslDate["date-parts"][0][0];
-							if(cslDate["date-parts"][0][1]) newDate.month = cslDate["date-parts"][0][1];
-							if(cslDate["date-parts"][0][2]) newDate.day = cslDate["date-parts"][0][2];
-						}
-
-						if(newDate.year) {
-							if(variable === "accessed") {
-								// Need to convert to SQL
-								var date = Zotero.Utilities.lpad(newDate.year, "0", 4);
-								if(newDate.month) {
-									date += "-"+Zotero.Utilities.lpad(newDate.month, "0", 2);
-									if(newDate.day) {
-										date += "-"+Zotero.Utilities.lpad(newDate.day, "0", 2);
-									}
-								}
-							} else {
-								if(newDate.month) newDate.month--;
-								date = Zotero.Date.formatDate(newDate);
-								if(newDate.season) {
-									date = newDate.season+" "+date;
-								}
-							}
-						}
-					}
-
-					if(isZoteroItem) {
-						item.setField(fieldID, date);
-					} else {
-						item[field] = date;
-					}
-				}
-			}
-		}
-	},
-
-	/**
-	 * Get the real target URL from an intermediate URL
-	 */
-	"resolveIntermediateURL":function(url) {
-		var patterns = [
-			// Google search results
-			{
-				regexp: /^https?:\/\/(www.)?google\.(com|(com?\.)?[a-z]{2})\/url\?/,
-				variable: "url"
-			}
-		];
-
-		for (var i=0, len=patterns.length; i<len; i++) {
-			if (!url.match(patterns[i].regexp)) {
-				continue;
-			}
-			var matches = url.match(new RegExp("&" + patterns[i].variable + "=(.+?)(&|$)"));
-			if (!matches) {
-				continue;
-			}
-			return decodeURIComponent(matches[1]);
-		}
-
-		return url;
-	},
-
-	/**
 	 * Adds a string to a given array at a given offset, converted to UTF-8
 	 * @param {String} string The string to convert to UTF-8
 	 * @param {Array|Uint8Array} array The array to which to add the string
 	 * @param {Integer} [offset] Offset at which to add the string
 	 */
-	"stringToUTF8Array":function(string, array, offset) {
+	stringToUTF8Array: function(string, array, offset) {
 		if(!offset) offset = 0;
 		var n = string.length;
 		for(var i=0; i<n; i++) {
@@ -1862,7 +1662,7 @@ Zotero.Utilities = {
 	 * @param {String} string
 	 * @return {Integer}
 	 */
-	"getStringByteLength":function(string) {
+	getStringByteLength: function(string) {
 		var length = 0, n = string.length;
 		for(var i=0; i<n; i++) {
 			var val = string.charCodeAt(i);
@@ -1879,31 +1679,172 @@ Zotero.Utilities = {
 		return length;
 	},
 
-	/**
-	 * Gets the icon for a JSON-style attachment
-	 */
-	"determineAttachmentIcon":function(attachment) {
-		if(attachment.linkMode === "linked_url") {
-			return Zotero.ItemTypes.getImageSrc("attachment-web-link");
+	semverCompare(a, b) {
+		a = a.split('.').map(version => isNaN(parseInt(version)) ? version : parseInt(version));
+		b = b.split('.').map(version => isNaN(parseInt(version)) ? version : parseInt(version));
+		for (let i = 0; i < a.length && i < b.length; i++) {
+			if (a[i] < b[i]) return -1;
+			else if (a[i] > b[i]) return 1;
 		}
-		return Zotero.ItemTypes.getImageSrc(attachment.mimeType === "application/pdf"
-			? "attachment-pdf" : "attachment-snapshot");
+		return a.length - b.length; // E.g. 5.0.0 < 5.0.0.1
 	},
+
+	allowedKeyChars: "23456789ABCDEFGHIJKLMNPQRSTUVWXYZ",
 
 	/**
 	 * Generates a valid object key for the server API
 	 */
-	"generateObjectKey":function generateObjectKey() {
-		// TODO: add 'L' and 'Y' after 3.0.11 cut-off
-		var baseString = "23456789ABCDEFGHIJKMNPQRSTUVWXZ";
-		return Zotero.Utilities.randomString(8, baseString);
+	generateObjectKey: function generateObjectKey() {
+		return Zotero.Utilities.randomString(8, Zotero.Utilities.allowedKeyChars);
 	},
+
+	/**
+	 * Check if an object key is in a valid format
+	 */
+	isValidObjectKey: function(key) {
+		if (!Zotero.Utilities.objectKeyRegExp) {
+			Zotero.Utilities.objectKeyRegExp = new RegExp('^[' + Zotero.Utilities.allowedKeyChars + ']{8}$');
+		}
+		return Zotero.Utilities.objectKeyRegExp.test(key);
+	},
+
+	itemTypeExists: function(type) {
+		Zotero.debug(`Zotero.Utilities.itemTypeExists() is deprecated -- use Zotero.Utilities.Item.itemTypeExists() instead`);
+		return Zotero.Utilities.Item.itemTypeExists(type);
+	},
+
+	itemToCSLJSON: function(zoteroItem) {
+		Zotero.debug(`Zotero.Utilities.itemToCSLJSON() is deprecated -- use Zotero.Utilities.Item.itemToCSLJSON() instead`);
+		return Zotero.Utilities.Item.itemToCSLJSON(zoteroItem);
+	},
+	itemFromCSLJSON: function(item, cslItem) {
+		Zotero.debug(`Zotero.Utilities.itemFromCSLJSON() is deprecated -- use Zotero.Utilities.Item.itemFromCSLJSON() instead`);
+		return Zotero.Utilities.Item.itemFromCSLJSON(item, cslItem);
+	},
+
+	assignProps: movedToUtilitiesInternal("assignProps"),
+	parseURL: movedToUtilitiesInternal("parseURL"),
+	resolveIntermediateURL: movedToUtilitiesInternal("resolveIntermediateURL"),
+	determineAttachmentIcon: movedToUtilitiesInternal('determineAttachmentIcon'),
+
+	/**
+	 * Walk the DOM and the contents of JSON data attributes in the HTML representation
+	 * of a note, calling visitor functions that might modify it and returning
+	 * the resulting HTML.
+	 *
+	 * Elements are visited in depth-first order. First the element itself is visited,
+	 * then its data attributes, then the URIs in its JSON attributes, then its subtree.
+	 *
+	 * @param {String} note Note HTML
+	 * @param {Object} visitors
+	 * @param {Function} [visitors.visitContainer]
+	 * @param {Function} [visitors.visitAnnotation]
+	 * @param {Function} [visitors.visitCitation]
+	 * @param {Function} [visitors.visitOtherElement]
+	 * @param {Function} [visitors.visitDataAttribute]
+	 * @param {Function} [visitors.visitURI] Return a replacement for the passed URI
+	 * @return {String} Potentially modified note HTML
+	 */
+	// walkNoteDOM: function (note, visitors) {
+	// 	function visit(elem) {
+	// 		if (elem.hasAttribute('data-schema-version')) {
+	// 			visitors.visitContainer?.(elem);
+	// 		}
+	// 		else if (elem.hasAttribute('data-annotation')) {
+	// 			visitors.visitAnnotation?.(elem);
+	// 		}
+	// 		else if (elem.hasAttribute('data-citation')) {
+	// 			visitors.visitCitation?.(elem);
+	// 		}
+	// 		else {
+	// 			visitors.visitOtherElement?.(elem);
+	// 		}
+	//
+	// 		if (visitors.visitDataAttribute || visitors.visitURI) {
+	// 			for (let attr of ['data-citation', 'data-citation-items', 'data-annotation']) {
+	// 				if (elem.hasAttribute(attr)) {
+	// 					let json;
+	// 					try {
+	// 						json = JSON.parse(decodeURIComponent(elem.getAttribute(attr)));
+	// 					}
+	// 					catch (e) {
+	// 						continue;
+	// 					}
+	//
+	// 					visitors.visitDataAttribute?.(attr, json);
+	// 					if (visitors.visitURI) visitURIs(json);
+	//
+	// 					elem.setAttribute(attr, JSON.stringify(json));
+	// 				}
+	// 			}
+	// 		}
+	//
+	// 		for (let child of elem.children) {
+	// 			visit(child);
+	// 		}
+	// 	}
+	//
+	// 	function visitURIs(json) {
+	// 		if (Array.isArray(json)) {
+	// 			json.forEach(visitURIs);
+	// 		}
+	// 		else if (typeof json === 'object') {
+	// 			for (let [key, value] of Object.entries(json)) {
+	// 				if (key == 'id' || key == 'attachmentURI') {
+	// 					json[key] = visitors.visitURI(value);
+	// 				}
+	// 				else if (key == 'uris') {
+	// 					json[key] = value.map(visitors.visitURI)
+	// 				}
+	// 				else {
+	// 					visitURIs(value);
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	//
+	// 	let wrappedNote = '<div id="note-body">' + note + '</div>';
+	// 	let doc;
+	// 	if (Zotero.isNode) {
+	// 		let { JSDOM } = require('jsdom');
+	// 		doc = new JSDOM(wrappedNote).window.document;
+	// 	}
+	// 	else {
+	// 		let parser;
+	// 		try {
+	// 			parser = new DOMParser();
+	// 		}
+	// 		catch {
+	// 			// Fx60 defines DOMParser but throws an error when you construct
+	// 			// it from this context
+	// 			parser = Cc['@mozilla.org/xmlextras/domparser;1'].createInstance(Ci.nsIDOMParser);
+	// 		}
+	// 		doc = parser.parseFromString(wrappedNote, 'text/html');
+	// 	}
+	//
+	// 	let root = doc.getElementById('note-body');
+	// 	for (let child of root.children) {
+	// 		visit(child);
+	// 	}
+	// 	return root.innerHTML;
+	// },
 
 	/**
 	 * Provides unicode support and other additional features for regular expressions
 	 * See https://github.com/slevithan/xregexp for usage
 	 */
-	"XRegExp": XRegExp
+	XRegExp: typeof XRegExp !== "undefined" ? XRegExp : null
 }
 
-/******** END utilities.js ********/
+if (!Utilities.XRegExp) {
+	if (typeof module != 'undefined') {
+		Utilities.XRegExp = require('./xregexp-all');
+	}
+}
+
+if (typeof module != 'undefined') {
+	module.exports = Utilities;
+} else if (typeof Zotero != 'undefined') {
+	Zotero.Utilities = Utilities;
+}
+

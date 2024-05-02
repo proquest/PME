@@ -53,48 +53,5 @@ Zotero.Errors = new function() {
 		callback(_output.slice());
 	}
 
-	/**
-	 * Sends an error report to the server
-	 */
-	this.sendErrorReport = function(callback) {
-		Zotero.getSystemInfo(function(info) {
-			var parts = {
-				error: "true",
-				errorData: _output.join('\n'),
-				extraData: '',
-				diagnostic: info
-			};
-
-			var body = '';
-			for (var key in parts) {
-				body += key + '=' + encodeURIComponent(parts[key]) + '&';
-			}
-			body = body.substr(0, body.length - 1);
-			Zotero.HTTP.doPost("http://www.zotero.org/repo/report", body, function(xmlhttp) {
-				if(!xmlhttp.responseXML){
-					try {
-						if (xmlhttp.status>1000){
-							callback(false, 'No network connection');
-						}
-						else {
-							callback(false, 'Invalid response from repository');
-						}
-					}
-					catch (e){
-						callback(false, 'Repository cannot be contacted');
-					}
-					return;
-				}
-
-				var reported = xmlhttp.responseXML.getElementsByTagName('reported');
-				if (reported.length != 1) {
-					callback(false, 'Invalid response from repository');
-					return;
-				}
-
-				callback(true, reported[0].getAttribute('reportID'));
-			});
-		});
-	}
 }
 /******** END errors_webkit.js ********/

@@ -36,15 +36,17 @@ var s3bucket = "pme.proquest.com",
 			"eb7059a4-35ec-4961-a915-3cf58eb9784b",
 			"edd87d07-9194-42f8-b2ad-997c4c7deefd",
 			"fcf41bed-0cbc-3704-85c7-8062a0068a7a",
-			"efd737c9-a227-4113-866e-d57fbc0684ca"
+			"efd737c9-a227-4113-866e-d57fbc0684ca",
+			"b28d0d42-8549-4c6d-83fc-8382874a5cb9",
+			"93514073-b541-4e02-9180-c36d2f3bb401"
 		],
 		// Keep the old translators and don't update them from Zotero
 		blackList = [
-			"951c027d-74ac-47d4-a107-9c3069ab7b48",
+			// "951c027d-74ac-47d4-a107-9c3069ab7b48" (Not necessary anymore, stay for have an example)
 			"57a00950-f0d1-4b41-b6ba-44ff0fc30289"
 		],
 		skipDeleteTranslators = [
-			"951c027d-74ac-47d4-a107-9c3069ab7b48.js",
+			// "951c027d-74ac-47d4-a107-9c3069ab7b48.js" (Not necessary anymore, stay for have an example)
 			"57a00950-f0d1-4b41-b6ba-44ff0fc30289.js"
 		];
 
@@ -120,7 +122,10 @@ function updateList(existingList, fn) {
 									translatorID: transObj.translatorID,
 									target: transObj.target,
 									label: transObj.label,
-									priority: transObj.priority
+									priority: transObj.priority,
+									translatorType: transObj.translatorType,
+									creator: transObj.creator,
+									lastUpdated: transObj.lastUpdated
 								});
 								if (blackList.indexOf(transObj.translatorID) < 0) {
 									putObjectToS3(translatorskey + transObj.translatorID + ".js", fileContent, function (){})

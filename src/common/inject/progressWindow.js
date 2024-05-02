@@ -49,11 +49,12 @@ Zotero.ProgressWindow = new function() {
 
 	if(Zotero.isBookmarklet) {
 		var imageBase = ZOTERO_CONFIG.BOOKMARKLET_URL+"images/";
-	} else if(Zotero.isChrome) {
-		var imageBase =  chrome.extension.getURL("images/");
-	} else if(Zotero.isSafari) {
-		var imageBase = safari.extension.baseURI+"images/";
 	}
+	// else if(Zotero.isChrome) {
+	// 	var imageBase =  chrome.extension.getURL("images/");
+	// } else if(Zotero.isSafari) {
+	// 	var imageBase = safari.extension.baseURI+"images/";
+	// }
 	var nArcs = 20;
 
 	var win = Zotero.isBookmarklet ? window.parent : window,

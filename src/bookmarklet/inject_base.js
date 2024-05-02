@@ -215,6 +215,7 @@ Zotero.Messaging.addMessageListener("translate", function(data, event) {
 });
 Zotero.Messaging.addMessageListener("selectDone", function(returnItems) {
 	Zotero.getDetails = true;
+	delete translate._selectedItems;
 	Zotero.Translate.Sandbox.Web.selectItems(translate, returnItems);
 });
 
@@ -230,8 +231,14 @@ Zotero.Messaging.addMessageListener("hideZoteroIFrame", function() {
 });
 
 Zotero.Messaging.addMessageListener("_getAttachment", function(args) {
-	var itemSaver = new Zotero.Translate.ItemSaver(undefined, "ATTACHMENT_MODE_FILE", undefined, undefined, undefined, undefined);
-	itemSaver._saveAttachmentsToServer(args.attachments, {automaticSnapshots: true, downloadAssociatedFiles: true}, itemSaver.notifyAttachmentProgress);
+	var itemSaver = new Zotero.Translate.ItemSaver({
+		attachmentMode: "ATTACHMENT_MODE_FILE",
+		sessionID: undefined,
+		proxy: undefined,
+		baseURI: undefined
+	});
+	itemSaver._saveAttachmentsToServer(args.zoteroKey, args.baseName, args.attachments,
+		{automaticSnapshots: true, downloadAssociatedFiles: true}, itemSaver.notifyAttachmentProgress);
 });
 
 Zotero.Messaging.addMessageListener("cleanup", function() {

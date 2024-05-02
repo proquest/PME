@@ -83,13 +83,14 @@ Zotero.Connector_Types = new function() {
 
 				if(Zotero.isBookmarklet) {
 					return ZOTERO_CONFIG.BOOKMARKLET_URL+"images/"+icon;
-				} else if(Zotero.isFx) {
-					return "chrome://zotero/skin/"+icon;
-				} else if(Zotero.isChrome) {
-					return chrome.extension.getURL("images/"+icon);
-				} else if(Zotero.isSafari) {
-					return safari.extension.baseURI+"images/"+icon;
 				}
+				// else if(Zotero.isFx) {
+				// 	return "chrome://zotero/skin/"+icon;
+				// } else if(Zotero.isChrome) {
+				// 	return chrome.extension.getURL("images/"+icon);
+				// } else if(Zotero.isSafari) {
+				// 	return safari.extension.baseURI+"images/"+icon;
+				// }
 			};
 		}
 

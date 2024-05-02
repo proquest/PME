@@ -22,8 +22,10 @@ var injectScripts = [
 	'xpcom/rdf/rdfparser.js',
 	'xpcom/translation/translate.js',
 	'xpcom/connector/translate_item.js',
+	'xpcom/connector/connector.js',
+	'xpcom/translation/tlds.js',
 	'common/inject/translate_inject.js',
-	'common/inject/translator.js',
+	'bookmarklet/translator.js',
 	'xpcom/connector/typeSchemaData.js',
 	'xpcom/utilities_translate.js',
 	'bookmarklet/messaging_inject.js'
@@ -41,12 +43,15 @@ var commonScripts = [
 	'common/errors_webkit.js',
 	'common/http.js',
 	'xpcom/xregexp/xregexp.js',
+	'xpcom/promise.js',
+	'common/utilities.js',
 	'xpcom/xregexp/addons/build.js',
 	'xpcom/xregexp/addons/matchrecursive.js',
 	'xpcom/xregexp/addons/unicode/unicode-base.js',
 	'xpcom/xregexp/addons/unicode/unicode-categories.js',
 	'xpcom/xregexp/addons/unicode/unicode-zotero.js',
 	'xpcom/utilities.js',
+	'xpcom/utilities_item.js',
 	'bookmarklet/messages.js'
 ];
 
@@ -149,8 +154,6 @@ var minifyAll = function() {
 
 var iframeScripts = [
 	'xpcom/connector/connector.js',
-	'xpcom/translation/tlds.js',
-	'bookmarklet/translator.js',
 	'common/messaging.js'
 ];
 
