@@ -31,7 +31,7 @@ var Zotero = new function() {
 	this.isSafari = window.navigator.userAgent.indexOf("Safari/") !== -1 && !this.isChrome;
 	this.isWebKit = window.navigator.userAgent.toLowerCase().indexOf("webkit") !== -1;
 	this.isIE = document && !document.evaluate;
-	this.version = "3.0.999";
+	this.version = "5.0.78";
 
 	if(this.isFx) {
 		this.browser = "g";
@@ -163,7 +163,8 @@ Zotero.Prefs = new function() {
 		"automaticSnapshots":true,
 		"connector.repo.lastCheck.localTime":0,
 		"connector.repo.lastCheck.repoTime":0,
-		"capitalizeTitles":false
+		"capitalizeTitles":false,
+		"connector.url": 'http://127.0.0.1:23119/'
 	};
 
 	this.get = function(pref) {
@@ -189,6 +190,24 @@ Zotero.Prefs = new function() {
 	this.set = function(pref, value) {
 		Zotero.debug("Setting "+pref+" to "+JSON.stringify(value));
 		localStorage["pref-"+pref] = JSON.stringify(value);
+	};
+
+	this.getAsync = function(pref) {
+		return new Zotero.Promise(function(resolve, reject) {
+			try {
+				if (typeof pref === "object") {
+					var prefData = {};
+					for(var i=0; i<pref.length; i++) {
+						prefData[pref[i]] = Zotero.Prefs.get(pref[i]);
+					}
+					resolve(prefData);
+				} else {
+					resolve(Zotero.Prefs.get(pref));
+				}
+			} catch (e) {
+				reject(e);
+			}
+		});
 	};
 }
 /******** END zotero.js ********/

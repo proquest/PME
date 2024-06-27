@@ -32,7 +32,7 @@ Zotero.Messaging = new function() {
 	var _callbacks = {},
 		_messageListeners = {},
 		_listenerRegistered = false,
-		_structuredCloneSupported = false;
+		_structuredCloneSupported = true;
 
 	/**
 	 * Add a message listener
@@ -62,8 +62,9 @@ Zotero.Messaging = new function() {
 								? messageConfig.callbackArg : arguments.length-1);
 							callback = arguments[callbackArg];
 							if(typeof callback !== "function") {
-								Zotero.logError(new Error("Zotero: "+messageName+" must be called with a callback"));
-								return;
+								// Zotero.logError(new Error("Zotero: "+messageName+" must be called with a callback"));
+								callbackArg = null;
+								callback = null;
 							}
 						}
 
@@ -84,9 +85,11 @@ Zotero.Messaging = new function() {
 						var ie = Zotero.isIE ? "_ie" : "";
 						var iFrameSrc = iFrameSrc ? iFrameSrc : ZOTERO_CONFIG.BOOKMARKLET_URL+("iframe" + ie + ".html");
 						var _structuredCloneSupportedForThisMessage = message[2][0] && message[2][0].error ? false : _structuredCloneSupported;	// Errors don't work with structured clones (https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API/Structured_clone_algorithm)
-						zoteroIFrame.contentWindow.postMessage(
-							(_structuredCloneSupportedForThisMessage ? message : JSON.stringify(message)),
-							iFrameSrc);
+						try {
+							zoteroIFrame.contentWindow.postMessage((_structuredCloneSupportedForThisMessage ? message : JSON.stringify(message)), iFrameSrc);
+						} catch(e) {
+							zoteroIFrame.contentWindow.postMessage((JSON.stringify(message)), iFrameSrc);
+						}
 					};
 				};
 			}

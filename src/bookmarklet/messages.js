@@ -55,38 +55,32 @@
  */
 var MESSAGE_SEPARATOR = ".";
 var MESSAGES = {
-	"Translators":
-	{
-		"get":{
-			"preSend":function(translators) {
-				return [Zotero.Translators.serialize(translators, TRANSLATOR_PASSING_PROPERTIES)];
-			}
-		},
-		"getAllForType":{
-			"preSend":function(translators) {
-				return [Zotero.Translators.serialize(translators, TRANSLATOR_PASSING_PROPERTIES)];
-			},
-			"callbackArg":1
-		},
-		"getWebTranslatorsForLocation":{
-			"preSend":function(data) {
-				return [[Zotero.Translators.serialize(data[0], TRANSLATOR_PASSING_PROPERTIES), data[1]]];
-			},
-			"postReceive":function(data) {
-				return [[data[0], Zotero.Translators.getConverterFunctions(data[1])]];
-			}
-		}
-	},
 	"Connector":
 	{
-		"checkIsOnline":true,
-		"callMethod":true
+		"checkIsOnline":true
+	},
+	"Messaging": {
+		sendMessage: {
+			postReceive: async function(args, tab, frameId) {
+				// Ensure arg[2] is the current tab
+				if (args.length > 2) {
+					args[2] = tab;
+				} else {
+					args.push(tab);
+				}
+				// If frameId not set then use the top frame
+				if (args.length <= 3) {
+					args.push(0);
+				}
+				return args;
+			}
+		}
 	},
 	"API":
 	{
 		"selectDone":true,
 		"createSelection":true,
-		"createItem":true,
+		"createItem":false,
 		"uploadAttachment":false,
 		"notifyAttachmentProgress":false,
 		"notifyFullReference":false,
