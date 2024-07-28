@@ -97,7 +97,7 @@ Zotero.Translators = new function() {
 	}
 
 	this._getCode = async function(translatorID, callback) {
-		const xmlhttp = await Zotero.HTTP.request('GET', ZOTERO_CONFIG.REPOSITORY_URL+"/archive_2024-04-18/translators/"+translatorID+".js")
+		const xmlhttp = await Zotero.HTTP.request('GET', ZOTERO_CONFIG.REPOSITORY_URL+"/translators/"+translatorID+".js")
 		if(xmlhttp.status !== 200) {
 			Zotero.logError(new Error("Translator " + translatorID + " could not be retrieved"));
 			callback(false);

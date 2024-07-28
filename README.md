@@ -11,6 +11,8 @@ PME is a node.js application which pulls together parts of Zotero, Zotero Connec
 
 There are two main parts, the generator which collects and publishes the latest translators and custom translator identification code to an s3 bucket, and the bookmarklet project which compiles the required files for the bookmarklet itself.
 
+Node version: 14.15.0
+
 To run the generator, configure generator.js to point to your own s3 bucket and then go to the generator folder:
 
 npm install
