@@ -246,6 +246,15 @@ Zotero.Messaging.addMessageListener("cleanup", function() {
 	cleanup();
 });
 
+Zotero.Messaging.addMessageListener("minIframe", function() {
+	Zotero.ProgressWindow.close();
+	minIframe();
+});
+
+Zotero.Messaging.addMessageListener("maxIframe", function() {
+	maxIframe();
+});
+
 // For IE, load from http to avoid a warning
 if(Zotero.isIE && window.parent.location.protocol === "http:") {
 	ZOTERO_CONFIG.BOOKMARKLET_URL = ZOTERO_CONFIG.BOOKMARKLET_URL.replace("https", "http");
@@ -278,6 +287,24 @@ function cleanup() {
 		zoteroIFrame.parentNode.removeChild(zoteroIFrame);
 		window.frameElement.parentNode.removeChild(window.frameElement);
 	}
+}
+
+function minIframe() {
+	var parentWin = window.parent;
+	var parentDoc = parentWin.document;
+	var strIframe = parentDoc.getElementById("zotero-iframe");
+	strIframe.style.height = "60px";
+	strIframe.style.top = "";
+	strIframe.setAttribute('aria-expanded', 'false');
+}
+
+function maxIframe() {
+	var parentWin = window.parent;
+	var parentDoc = parentWin.document;
+	var strIframe = parentDoc.getElementById("zotero-iframe");
+	strIframe.style.height = "100%";
+	strIframe.style.top = "0px";
+	strIframe.setAttribute('aria-expanded', 'true');
 }
 
 

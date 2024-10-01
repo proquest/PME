@@ -230,7 +230,13 @@ Zotero.Messaging.addMessageListener("cleanup", function(){
 	Zotero.Messaging.sendMessage("cleanup", null);
 });
 
+Zotero.Messaging.addMessageListener("minIframe", function(){
+	Zotero.Messaging.sendMessage("minIframe", null);
+});
 
+Zotero.Messaging.addMessageListener("maxIframe", function(){
+	Zotero.Messaging.sendMessage("maxIframe", null);
+});
 
 Zotero.Messaging.init();
 
