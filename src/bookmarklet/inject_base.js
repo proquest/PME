@@ -255,6 +255,10 @@ Zotero.Messaging.addMessageListener("maxIframe", function() {
 	maxIframe();
 });
 
+Zotero.Messaging.addMessageListener("userLoggedIn", function() {
+	rerunPME();
+});
+
 // For IE, load from http to avoid a warning
 if(Zotero.isIE && window.parent.location.protocol === "http:") {
 	ZOTERO_CONFIG.BOOKMARKLET_URL = ZOTERO_CONFIG.BOOKMARKLET_URL.replace("https", "http");
@@ -305,6 +309,19 @@ function maxIframe() {
 	strIframe.style.height = "100%";
 	strIframe.style.top = "0px";
 	strIframe.setAttribute('aria-expanded', 'true');
+}
+
+function rerunPME() {
+	const parentDoc = window.parent.document;
+	const iframe = parentDoc.getElementById("zotero-iframe");
+	if (iframe) {
+		iframe.remove();
+	}
+
+	// Re-inject PME.js
+	const script = parentDoc.createElement("script");
+	script.src = window.PME_SERVICE_PROVIDER + "/PME.js";
+	parentDoc.body.appendChild(script);
 }
 
 
