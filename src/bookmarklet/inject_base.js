@@ -312,11 +312,8 @@ function maxIframe() {
 }
 
 function rerunPME() {
-	const parentDoc = window.parent.document;
-	const iframe = parentDoc.getElementById("zotero-iframe");
-	if (iframe) {
-		iframe.remove();
-	}
+	Zotero.ProgressWindow.close();
+	cleanup();
 
 	// Re-inject PME.js
 	const script = parentDoc.createElement("script");
