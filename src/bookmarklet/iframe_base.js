@@ -238,10 +238,6 @@ Zotero.Messaging.addMessageListener("maxIframe", function(){
 	Zotero.Messaging.sendMessage("maxIframe", null);
 });
 
-Zotero.Messaging.addMessageListener("userLoggedIn", function(){
-	Zotero.Messaging.sendMessage("userLoggedIn", null);
-});
-
 Zotero.Messaging.init();
 
 if(Zotero.isIE) {
